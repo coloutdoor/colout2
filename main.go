@@ -8,16 +8,41 @@ import (
 	"os"
 	"strconv"
 
+	"gopkg.in/yaml.v3"
+
 	_ "github.com/joho/godotenv/autoload"
 )
 
+type Costs struct {
+	DeckMaterials map[string]float64 `yaml:"deck_materials"`
+	RailMaterials map[string]float64 `yaml:"rail_materials"`
+	RailInfills   map[string]float64 `yaml:"rail_infills"`
+}
+
+var costs Costs
+
+func loadCosts() error {
+	data, err := os.ReadFile("costs.yaml")
+	if err != nil {
+		return fmt.Errorf("failed to read costs.yaml: %v", err)
+	}
+	if err := yaml.Unmarshal(data, &costs); err != nil {
+		return fmt.Errorf("failed to parse costs.yaml: %v", err)
+	}
+	return nil
+}
+
 type DeckEstimate struct {
-	Length    float64
-	Width     float64
-	Height    float64
-	Material  string
-	TotalCost float64
-	Error     string
+	Length       float64
+	Width        float64
+	Height       float64
+	Material     string
+	RailMaterial string
+	RailInfill   string
+	TotalCost    float64
+	DeckCost     float64 // Split for breakdown
+	RailCost     float64
+	Error        string
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,36 +66,30 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	length, _ := strconv.ParseFloat(r.FormValue("length"), 64)
 	width, _ := strconv.ParseFloat(r.FormValue("width"), 64)
 	material := r.FormValue("material")
+	railMaterial := r.FormValue("railMaterial")
+	railInfill := r.FormValue("railInfill")
 
 	estimate := DeckEstimate{
-		Length:   length,
-		Width:    width,
-		Height:   height,
-		Material: material,
+		Length:       length,
+		Width:        width,
+		Height:       height,
+		Material:     material,
+		RailMaterial: railMaterial,
+		RailInfill:   railInfill,
 	}
 
 	// Simple cost calculation (example rates per sq ft)
 	area := length * width
-	var costPerSqFt float64
-	switch material {
-	case "outdoorWood":
-		costPerSqFt = 30.0
-	case "cedar":
-		costPerSqFt = 40.0
-	case "timberTechPrime":
-		costPerSqFt = 40.0
-	case "timberTechProReserve":
-		costPerSqFt = 45.0
-	case "timberTechProLegacy":
-		costPerSqFt = 50.0
-	default:
+
+	// estimate.TotalCost = area * costPerSqFt
+	costPerSqFt, ok := costs.DeckMaterials[material]
+	if !ok {
 		estimate.Error = "Please select a valid material."
 		tmpl.Execute(w, estimate)
 		return
 	}
-	// estimate.TotalCost = area * costPerSqFt
-
 	baseCost := area * costPerSqFt
+	estimate.DeckCost = baseCost
 
 	// Height adjustment
 	if height >= 20 {
@@ -81,13 +100,36 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		excessHeight := height - 4
 		multiplier := 1 + (excessHeight * 0.01) // 1% per foot over 4
 		estimate.TotalCost = baseCost * multiplier
+		estimate.DeckCost = baseCost * multiplier
 	} else {
 		estimate.TotalCost = baseCost
+		estimate.DeckCost = baseCost
 	}
+
+	// Rail cost
+	perimeter := (length + width) * 2
+	if railMaterial == "" && railInfill != "" {
+		estimate.Error = "Rail infill requires a rail material."
+		tmpl.Execute(w, estimate)
+		return
+	}
+	railMatCost := costs.RailMaterials[railMaterial] // 0.0 if not found (e.g., "")
+	railInfCost := costs.RailInfills[railInfill]     // 0.0 if not found
+	estimate.RailCost = perimeter * (railMatCost + railInfCost)
+	estimate.TotalCost = estimate.DeckCost + estimate.RailCost
+
+	// Debug output to console
+	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s\n",
+		estimate.DeckCost, estimate.RailCost, estimate.TotalCost, estimate.RailMaterial, estimate.RailInfill)
+
 	tmpl.Execute(w, estimate)
 }
 
 func main() {
+	if err := loadCosts(); err != nil {
+		fmt.Println("Error loading costs:", err)
+		os.Exit(1)
+	}
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 

@@ -28,8 +28,21 @@
             <option value="timberTechProReserve">TimberTech Pro Reserve ($45/sq ft)</option>
             <option value="timberTechProLegacy">TimberTech Pro Legacy ($50/sq ft)</option>
         </select><br><br>
-        
-        <input type="submit" value="Calculate Estimate">
+        <label>Rail Material:</label><br>
+        <select name="railMaterial">
+            <option value="">None</option>
+            <option value="wood">Wood ($20/ft)</option>
+            <option value="composite">Composite ($30/ft)</option>
+            <option value="aluminum">Aluminum ($40/ft)</option>
+        </select><br><br>
+        <label>Rail Infill:</label><br>
+        <select name="railInfill">
+            <option value="">None</option>
+            <option value="balusters">Balusters (+$10/ft)</option>
+            <option value="cable">Cable (+$15/ft)</option>
+            <option value="glass">Glass (+$25/ft)</option>
+        </select><br><br>
+         <input type="submit" value="Calculate Estimate">
     </form>
 
     {{if .TotalCost}}
@@ -38,6 +51,14 @@
         <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
         <p>Height: {{printf "%.1f" .Height}} ft</p>
         <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
+        {{if .RailMaterial}}
+        <p>Rail: {{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
+         with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}</p>
+        {{else}}
+        <p>Rail: None</p>
+        {{end}}
+        <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
+        <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
         <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
         <p>Material: {{.Material}}</p>
     </div>

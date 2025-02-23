@@ -1,0 +1,14 @@
+deck_materials:
+  outdoorWood: 30.0
+  cedar: 40.0
+  timberTechPrime: 40.0
+  timberTechProReserve: 45.0
+  timberTechProLegacy: 50.0
+rail_materials:
+  wood: 20.0
+  composite: 30.0
+  aluminum: 40.0
+rail_infills:
+  balusters: 10.0
+  cable: 15.0
+  glass: 25.0

@@ -1,2 +1,4 @@
 *.exe
 errors.log
+.env
+*.txt
