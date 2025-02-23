@@ -107,15 +107,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Rail cost
-	perimeter := (length + width) * 2
-	if railMaterial == "" && railInfill != "" {
-		estimate.Error = "Rail infill requires a rail material."
+	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
+	if err != nil {
+		estimate.Error = err.Error()
 		tmpl.Execute(w, estimate)
 		return
 	}
-	railMatCost := costs.RailMaterials[railMaterial] // 0.0 if not found (e.g., "")
-	railInfCost := costs.RailInfills[railInfill]     // 0.0 if not found
-	estimate.RailCost = perimeter * (railMatCost + railInfCost)
+	estimate.RailCost = railCost
 	estimate.TotalCost = estimate.DeckCost + estimate.RailCost
 
 	// Debug output to console
