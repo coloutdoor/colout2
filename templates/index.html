@@ -15,6 +15,9 @@
         
         <label>Deck Width (ft):</label><br>
         <input type="number" name="width" step="0.1" required><br><br>
+
+        <label>Height Above Ground (ft):</label><br>
+        <input type="number" name="height" step="0.1" min="0" required><br><br>
         
         <label>Material:</label><br>
         <select name="material" required>
@@ -33,8 +36,10 @@
     <div class="result">
         <h2>Your Estimate</h2>
         <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
-        <p>Material: {{.Material}}</p>
+        <p>Height: {{printf "%.1f" .Height}} ft</p>
+        <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
         <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
+        <p>Material: {{.Material}}</p>
     </div>
     {{end}}
     
