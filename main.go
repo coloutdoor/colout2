@@ -78,33 +78,14 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		RailInfill:   railInfill,
 	}
 
-	// Simple cost calculation (example rates per sq ft)
-	area := length * width
-
-	// estimate.TotalCost = area * costPerSqFt
-	costPerSqFt, ok := costs.DeckMaterials[material]
-	if !ok {
-		estimate.Error = "Please select a valid material."
-		tmpl.Execute(w, estimate)
-		return
-	}
-	baseCost := area * costPerSqFt
-	estimate.DeckCost = baseCost
-
-	// Height adjustment
-	if height >= 20 {
-		estimate.Error = "We can't build decks 20 feet or higher without additional information."
-		tmpl.Execute(w, estimate)
-		return
-	} else if height > 4 {
-		excessHeight := height - 4
-		multiplier := 1 + (excessHeight * 0.01) // 1% per foot over 4
-		estimate.TotalCost = baseCost * multiplier
-		estimate.DeckCost = baseCost * multiplier
-	} else {
-		estimate.TotalCost = baseCost
-		estimate.DeckCost = baseCost
-	}
+	// Deck cost
+    deckCost, err := CalculateDeckCost(length, width, height, material, costs)
+    if err != nil {
+        estimate.Error = err.Error()
+        tmpl.Execute(w, estimate)
+        return
+    }
+    estimate.DeckCost = deckCost
 
 	// Rail cost
 	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
