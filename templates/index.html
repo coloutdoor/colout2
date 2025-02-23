@@ -2,64 +2,100 @@
 <html>
 <head>
     <title>Deck Estimate Calculator</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 </head>
-<body>
-    <h1>Deck Estimate Calculator</h1>
-    <form method="post" action="/estimate">
-        <label>Deck Length (ft):</label><br>
-        <input type="number" name="length" step="0.1" required><br><br>
+<body class="container mt-5">
+    <h1 class="title">Deck Estimate Calculator</h1>
+    <form method="post" action="/estimate" class="box">
+        <div class="columns">
+            <div class="column is-half">
+                <div class="field">
+                    <label class="label">Deck Length (ft):</label>
+                    <div class="control">
+                        <input class="input" type="number" name="length" step="0.1" required>
+                    </div>
+                </div>
         
-        <label>Deck Width (ft):</label><br>
-        <input type="number" name="width" step="0.1" required><br><br>
-
-        <label>Height Above Ground (ft):</label><br>
-        <input type="number" name="height" step="0.1" min="0" required><br><br>
+                <div class="field">
+                    <label class="label">Deck Width (ft):</label>
+                    <div class="control">
+                        <input class="input" type="number" name="width" step="0.1" required>
+                    </div>
+                </div>
         
-        <label>Material:</label><br>
-        <select name="material" required>
-            <option value="">Select material</option>
-            <option value="outdoorWood">Outdoor Wood ($30/sq ft)</option>
-            <option value="cedar">Cedar ($40/sq ft)</option>
-            <option value="timberTechPrime">TimberTech Prime ($40/sq ft)</option>
-            <option value="timberTechProReserve">TimberTech Pro Reserve ($45/sq ft)</option>
-            <option value="timberTechProLegacy">TimberTech Pro Legacy ($50/sq ft)</option>
-        </select><br><br>
-        <label>Rail Material:</label><br>
-        <select name="railMaterial">
-            <option value="">None</option>
-            <option value="wood">Wood ($20/ft)</option>
-            <option value="composite">Composite ($30/ft)</option>
-            <option value="aluminum">Aluminum ($40/ft)</option>
-        </select><br><br>
-        <label>Rail Infill:</label><br>
-        <select name="railInfill">
-            <option value="">None</option>
-            <option value="balusters">Balusters (+$10/ft)</option>
-            <option value="cable">Cable (+$15/ft)</option>
-            <option value="glass">Glass (+$25/ft)</option>
-        </select><br><br>
-         <input type="submit" value="Calculate Estimate">
+                <div class="field">
+                    <label class="label">Height Above Ground (ft):</label>
+                    <div class="control">
+                        <input class="input" type="number" name="height" step="0.1" min="0" required>
+                    </div>
+                </div>
+        
+                <div class="field">
+                    <label class="label">Material:</label>
+                    <div class="control">
+                        <div class="select">
+                            <select name="material" required>
+                                <option value="">Select material</option>
+                                <option value="outdoorWood">Outdoor Wood ($30/sq ft)</option>
+                                <option value="cedar">Cedar ($40/sq ft)</option>
+                                <option value="timberTechPrime">TimberTech Prime ($40/sq ft)</option>
+                                <option value="timberTechProReserve">TimberTech Pro Reserve ($45/sq ft)</option>
+                                <option value="timberTechProLegacy">TimberTech Pro Legacy ($50/sq ft)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="field">
+                    <label class="label">Rail Material:</label>
+                    <div class="control">
+                        <div class="select">
+                            <select name="railMaterial">
+                                <option value="">None</option>
+                                <option value="wood">Wood ($20/ft)</option>
+                                <option value="composite">Composite ($30/ft)</option>
+                                <option value="aluminum">Aluminum ($40/ft)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="field">
+                    <label class="label">Rail Infill:</label>
+                    <div class="control">
+                        <div class="select">
+                            <select name="railInfill">
+                                <option value="">None</option>
+                                <option value="balusters">Balusters (+$10/ft)</option>
+                                <option value="cable">Cable (+$15/ft)</option>
+                                <option value="glass">Glass (+$25/ft)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="field">
+                    <div class="control">
+                        <input class="button is-primary" type="submit" value="Calculate Estimate">
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 
     {{if .TotalCost}}
-    <div class="result">
-        <h2>Your Estimate</h2>
+    <div class="box mt-5">
+        <h2 class="subtitle">Your Estimate</h2>
         <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
         <p>Height: {{printf "%.1f" .Height}} ft</p>
         <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
-        {{if .RailMaterial}}
         <p>Rail: 
-             {{if eq .RailMaterial ""}}None
-             {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
-             {{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}
-             {{end}}
-             {{if ne .RailMaterial ""}} - {{printf "%.1f" .RailFeet}} lineal feet{{end}}
-         </p>
-        {{end}}
+            {{if eq .RailMaterial ""}}None
+            {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
+            {{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}
+            {{end}}
+            {{if ne .RailMaterial ""}} - {{printf "%.1f" .RailFeet}} lineal feet{{end}}
+        </p>
         <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
         <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
         <p>Sales Tax (WA 8.7%): ${{printf "%.2f" .SalesTax}}</p>
@@ -68,7 +104,7 @@
     {{end}}
     
     {{if .Error}}
-    <div class="result" style="color: red;">
+    <div class="notification is-danger mt-5">
         <p>{{.Error}}</p>
     </div>
     {{end}}
