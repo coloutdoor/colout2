@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deck Estimate Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Deck Estimate Calculator</h1>
+    <form method="post" action="/estimate">
+        <label>Deck Length (ft):</label><br>
+        <input type="number" name="length" step="0.1" required><br><br>
+        
+        <label>Deck Width (ft):</label><br>
+        <input type="number" name="width" step="0.1" required><br><br>
+        
+        <label>Material:</label><br>
+        <select name="material" required>
+            <option value="">Select material</option>
+            <option value="outdoorWood">Outdoor Wood ($30/sq ft)</option>
+            <option value="cedar">Cedar ($40/sq ft)</option>
+            <option value="timberTechPrime">TimberTech Prime ($40/sq ft)</option>
+            <option value="timberTechProReserve">TimberTech Pro Reserve ($45/sq ft)</option>
+            <option value="timberTechProLegacy">TimberTech Pro Legacy ($50/sq ft)</option>
+        </select><br><br>
+        
+        <input type="submit" value="Calculate Estimate">
+    </form>
+
+    {{if .TotalCost}}
+    <div class="result">
+        <h2>Your Estimate</h2>
+        <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
+        <p>Material: {{.Material}}</p>
+        <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
+    </div>
+    {{end}}
+    
+    {{if .Error}}
+    <div class="result" style="color: red;">
+        <p>{{.Error}}</p>
+    </div>
+    {{end}}
+</body>
+</html>
