@@ -42,6 +42,8 @@ type DeckEstimate struct {
 	TotalCost    float64
 	DeckCost     float64 // Split for breakdown
 	RailCost     float64
+	RailFeet     float64 // Lineal feet of rails
+	SalesTax     float64 // TODO Dynamic lookup
 	Error        string
 }
 
@@ -79,13 +81,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Deck cost
-    deckCost, err := CalculateDeckCost(length, width, height, material, costs)
-    if err != nil {
-        estimate.Error = err.Error()
-        tmpl.Execute(w, estimate)
-        return
-    }
-    estimate.DeckCost = deckCost
+	deckCost, err := CalculateDeckCost(length, width, height, material, costs)
+	if err != nil {
+		estimate.Error = err.Error()
+		tmpl.Execute(w, estimate)
+		return
+	}
+	estimate.DeckCost = deckCost
 
 	// Rail cost
 	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
@@ -95,11 +97,14 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	estimate.RailCost = railCost
-	estimate.TotalCost = estimate.DeckCost + estimate.RailCost
+	estimate.RailFeet = (2 * length) + width // Match rails.go calc
+	subtotal := estimate.DeckCost + estimate.RailCost
+	estimate.SalesTax = CalculateSalesTax(subtotal)
+	estimate.TotalCost = subtotal + estimate.SalesTax
 
 	// Debug output to console
-	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s\n",
-		estimate.DeckCost, estimate.RailCost, estimate.TotalCost, estimate.RailMaterial, estimate.RailInfill)
+	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, SalesTax: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s\n",
+		estimate.DeckCost, estimate.RailCost, estimate.SalesTax, estimate.TotalCost, estimate.RailMaterial, estimate.RailInfill)
 
 	tmpl.Execute(w, estimate)
 }

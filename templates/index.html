@@ -52,15 +52,18 @@
         <p>Height: {{printf "%.1f" .Height}} ft</p>
         <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
         {{if .RailMaterial}}
-        <p>Rail: {{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
-         with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}</p>
-        {{else}}
-        <p>Rail: None</p>
+        <p>Rail: 
+             {{if eq .RailMaterial ""}}None
+             {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
+             {{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}
+             {{end}}
+             {{if ne .RailMaterial ""}} - {{printf "%.1f" .RailFeet}} lineal feet{{end}}
+         </p>
         {{end}}
         <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
         <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
+        <p>Sales Tax (WA 8.7%): ${{printf "%.2f" .SalesTax}}</p>
         <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
-        <p>Material: {{.Material}}</p>
     </div>
     {{end}}
     
