@@ -43,6 +43,8 @@ type DeckEstimate struct {
 	TotalCost    float64
 	DeckCost     float64 // Split for breakdown
 	RailCost     float64
+	StairCost    float64
+	StairWidth   float64
 	RailFeet     float64 // Lineal feet of rails
 	SalesTax     float64 // TODO Dynamic lookup
 	Error        string
@@ -66,6 +68,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	stairWidth, err := strconv.ParseFloat(r.FormValue("stairWidth"), 64)
+	if err != nil || stairWidth < 0 {
+		fmt.Printf("stairWidth not set in form")
+		stairWidth = 0 // Default to 0 if invalid or not provided
+	}
+	fmt.Printf("stairWidth is set to: %.2f", stairWidth)
+
 	length, _ := strconv.ParseFloat(r.FormValue("length"), 64)
 	width, _ := strconv.ParseFloat(r.FormValue("width"), 64)
 	material := r.FormValue("material")
@@ -79,8 +88,9 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		Material:     material,
 		RailMaterial: railMaterial,
 		RailInfill:   railInfill,
+		DeckArea:     length * width,
+		StairWidth:   stairWidth,
 	}
-	estimate.DeckArea = length * width
 
 	// Deck cost
 	deckCost, err := CalculateDeckCost(length, width, height, material, costs)
@@ -98,15 +108,29 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, estimate)
 		return
 	}
+
+	// This is used by the stair calculator
+	materialCost, ok := costs.DeckMaterials[material]
+	if !ok { // Shouldn’t hit this—deck calc already checks
+		materialCost = 0
+	}
+	stairCost, err := CalculateStairCost(height, stairWidth, materialCost)
+	if err != nil {
+		estimate.Error = err.Error()
+		tmpl.Execute(w, estimate)
+		return
+	}
 	estimate.RailCost = railCost
 	estimate.RailFeet = (2 * length) + width // Match rails.go calc
-	subtotal := estimate.DeckCost + estimate.RailCost
+	estimate.StairCost = stairCost
+	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost
 	estimate.SalesTax = CalculateSalesTax(subtotal)
 	estimate.TotalCost = subtotal + estimate.SalesTax
 
 	// Debug output to console
-	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, SalesTax: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s\n",
-		estimate.DeckCost, estimate.RailCost, estimate.SalesTax, estimate.TotalCost, estimate.RailMaterial, estimate.RailInfill)
+	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, SalesTax: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s StairWidth %2.f\n",
+		estimate.DeckCost, estimate.RailCost, estimate.SalesTax, estimate.TotalCost,
+		estimate.RailMaterial, estimate.RailInfill, estimate.StairWidth)
 
 	tmpl.Execute(w, estimate)
 }

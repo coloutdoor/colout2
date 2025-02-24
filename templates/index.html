@@ -64,6 +64,13 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="field">
+                    <label class="label">Stair Width (ft, optional):</label>
+                    <div class="control">
+                        <input class="input" type="number" name="stairWidth" step="0.1" min="0">
+                    </div>
+                </div>
         
                 <div class="field">
                     <label class="label">Rail Material:</label>
@@ -109,6 +116,8 @@
         <p>Deck Area: {{printf "%.1f" .DeckArea}} sq ft</p>
         <p>Height: {{printf "%.1f" .Height}} ft</p>
         <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
+        <p>Stair Cost: ${{printf "%.2f" .StairCost}} - 
+               {{printf "%.1f" .StairWidth}} ft wide</p>
         <p>Rail: 
             {{if eq .RailMaterial ""}}None
             {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
