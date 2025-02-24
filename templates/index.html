@@ -93,6 +93,7 @@
     <div class="box mt-5">
         <h2 class="subtitle">Your Estimate</h2>
         <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
+        <p>Deck Area: {{printf "%.1f" .DeckArea}} sq ft</p>
         <p>Height: {{printf "%.1f" .Height}} ft</p>
         <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
         <p>Rail: 

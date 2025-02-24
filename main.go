@@ -36,6 +36,7 @@ type DeckEstimate struct {
 	Length       float64
 	Width        float64
 	Height       float64
+	DeckArea     float64
 	Material     string
 	RailMaterial string
 	RailInfill   string
@@ -79,6 +80,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		RailMaterial: railMaterial,
 		RailInfill:   railInfill,
 	}
+	estimate.DeckArea = length * width
 
 	// Deck cost
 	deckCost, err := CalculateDeckCost(length, width, height, material, costs)
