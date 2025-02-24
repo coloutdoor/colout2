@@ -33,21 +33,22 @@ func loadCosts() error {
 }
 
 type DeckEstimate struct {
-	Length       float64
-	Width        float64
-	Height       float64
-	DeckArea     float64
-	Material     string
-	RailMaterial string
-	RailInfill   string
-	TotalCost    float64
-	DeckCost     float64 // Split for breakdown
-	RailCost     float64
-	StairCost    float64
-	StairWidth   float64
-	RailFeet     float64 // Lineal feet of rails
-	SalesTax     float64 // TODO Dynamic lookup
-	Error        string
+	Length        float64
+	Width         float64
+	Height        float64
+	DeckArea      float64
+	Material      string
+	RailMaterial  string
+	RailInfill    string
+	TotalCost     float64
+	DeckCost      float64 // Split for breakdown
+	RailCost      float64
+	StairCost     float64
+	StairWidth    float64
+	StairRailCost float64
+	RailFeet      float64 // Lineal feet of rails
+	SalesTax      float64 // TODO Dynamic lookup
+	Error         string
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +74,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("stairWidth not set in form")
 		stairWidth = 0 // Default to 0 if invalid or not provided
 	}
-	fmt.Printf("stairWidth is set to: %.2f", stairWidth)
+	fmt.Printf("stairWidth is set to: %.2f\n", stairWidth)
 
 	length, _ := strconv.ParseFloat(r.FormValue("length"), 64)
 	width, _ := strconv.ParseFloat(r.FormValue("width"), 64)
@@ -123,7 +124,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.RailCost = railCost
 	estimate.RailFeet = (2 * length) + width // Match rails.go calc
 	estimate.StairCost = stairCost
-	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost
+	estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
+	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost
 	estimate.SalesTax = CalculateSalesTax(subtotal)
 	estimate.TotalCost = subtotal + estimate.SalesTax
 

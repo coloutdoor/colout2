@@ -14,3 +14,16 @@ func CalculateRailCost(length, width float64, railMaterial, railInfill string, c
 
 	return perimeter * (railMatCost + railInfCost), nil
 }
+
+// CalculateStairRailCost computes rail cost for stairs based on height and material.
+// Assumes 2 sides, 1.6 steps/ft (length matches stair steps), 1.5x cost factor.
+func CalculateStairRailCost(height float64, railMaterial string, costs Costs) float64 {
+	if railMaterial == "" {
+		return 0 // No rails
+	}
+	stairRailSides := 2.0
+	stairRailLength := height * 1.6 // Matches stair steps
+	railMatCost := costs.RailMaterials[railMaterial]
+	stairCostFactor := 1.5
+	return stairRailSides * stairRailLength * railMatCost * stairCostFactor
+}
