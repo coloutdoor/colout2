@@ -119,6 +119,7 @@ func main() {
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/estimate", estimateHandler)
 	//fmt.Println("Server starting on :8080...")

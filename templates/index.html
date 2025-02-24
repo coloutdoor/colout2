@@ -3,15 +3,28 @@
 <head>
     <title>Deck Estimate Calculator</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!--
     <style>
     .content, .input, .label, .select select { font-size: 18px; }
     @media (max-width: 500px) {
-        .content, .input, .label, .select select { font-size: 30px; }
+        .content, .input, .label, .select select { font-size: 20px; }
     }
     </style>
+    -->
 </head>
 <body class="container mt-5">
-    <h1 class="title">Deck Estimate Calculator</h1>
+    <div class="level mb-5">
+        <div class="level-left">
+            <div class="level-item">
+                <h1 class="title">Deck Estimate Calculator</h1>
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 100px; max-height: 100px;">
+            </div>
+        </div>
+    </div>
     <form method="post" action="/estimate" class="box">
         <div class="columns">
             <div class="column is-half">
@@ -115,5 +128,15 @@
         <p>{{.Error}}</p>
     </div>
     {{end}}
+    <footer class="footer mt-5">
+        <div class="content has-text-centered">
+            <p>
+                <strong>Columbia Outdoor</strong><br>
+                123 Build St, Woodland, WA 98674<br>
+                Phone: (360) 355-3042<br>
+                Email: support@columbiaoutoor.com
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
