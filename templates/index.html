@@ -29,23 +29,23 @@
         <div class="columns">
             <div class="column is-half">
                 <div class="field">
-                    <label class="label">Deck Length (ft):</label>
+                    <label class="label">Deck Length (ft)</label>
                     <div class="control">
-                        <input class="input" type="number" name="length" step="0.1" required>
+                        <input class="input is-normal" type="number" name="length" step="0.1" required maxlength="20" style="width: 20ch;">
                     </div>
                 </div>
         
                 <div class="field">
-                    <label class="label">Deck Width (ft):</label>
+                    <label class="label">Deck Width (ft)</label>
                     <div class="control">
-                        <input class="input" type="number" name="width" step="0.1" required>
-                    </div>
+                        <input class="input is-normal" type="number" name="width" step="0.1" required maxlength="20" style="width: 20ch;">
+                     </div>
                 </div>
         
                 <div class="field">
-                    <label class="label">Height Above Ground (ft):</label>
+                    <label class="label">Height Above Ground</label>
                     <div class="control">
-                        <input class="input" type="number" name="height" step="0.1" min="0" required>
+                        <input class="input is-normal" type="number" name="height" step="0.1" min="0" required maxlength="20" style="width: 20ch;">
                     </div>
                 </div>
         
@@ -53,13 +53,13 @@
                     <label class="label">Material:</label>
                     <div class="control">
                         <div class="select">
-                            <select name="material" required>
+                            <select name="material" required style="width: 20ch;">
                                 <option value="">Select material</option>
-                                <option value="outdoorWood">Outdoor Wood ($30/sq ft)</option>
-                                <option value="cedar">Cedar ($40/sq ft)</option>
-                                <option value="timberTechPrime">TimberTech Prime ($40/sq ft)</option>
-                                <option value="timberTechProReserve">TimberTech Pro Reserve ($45/sq ft)</option>
-                                <option value="timberTechProLegacy">TimberTech Pro Legacy ($50/sq ft)</option>
+                                <option value="outdoorWood">Outdoor Wood</option>
+                                <option value="cedar">Cedar</option>
+                                <option value="timberTechPrime">TimberTech Prime</option>
+                                <option value="timberTechProReserve">TimberTech Pro Reserve</option>
+                                <option value="timberTechProLegacy">TimberTech Pro Legacy</option>
                             </select>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                 <div class="field">
                     <label class="label">Stair Width (ft, optional):</label>
                     <div class="control">
-                        <input class="input" type="number" name="stairWidth" step="0.1" min="0">
+                        <input class="input" type="number" name="stairWidth" step="0.1" min="0" style="width: 20ch;">
                     </div>
                 </div>
                 <div class="field">
@@ -83,11 +83,11 @@
                     <label class="label">Rail Material:</label>
                     <div class="control">
                         <div class="select">
-                            <select name="railMaterial">
+                            <select name="railMaterial" style="width: 20ch;">
                                 <option value="">None</option>
-                                <option value="wood">Wood ($20/ft)</option>
-                                <option value="composite">Composite ($30/ft)</option>
-                                <option value="aluminum">Aluminum ($40/ft)</option>
+                                <option value="wood">Wood</option>
+                                <option value="composite">Composite </option>
+                                <option value="aluminum">Aluminum</option>
                             </select>
                         </div>
                     </div>
@@ -99,9 +99,9 @@
                         <div class="select">
                             <select name="railInfill">
                                 <option value="">None</option>
-                                <option value="balusters">Balusters (+$10/ft)</option>
-                                <option value="cable">Cable (+$15/ft)</option>
-                                <option value="glass">Glass (+$25/ft)</option>
+                                <option value="balusters">Balusters</option>
+                                <option value="cable">Cable</option>
+                                <option value="glass">Glass</option>
                             </select>
                         </div>
                     </div>
