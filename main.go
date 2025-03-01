@@ -17,6 +17,7 @@ type Costs struct {
 	DeckMaterials map[string]float64 `yaml:"deck_materials"`
 	RailMaterials map[string]float64 `yaml:"rail_materials"`
 	RailInfills   map[string]float64 `yaml:"rail_infills"`
+	DemoCost      float64            `yaml:"demo_cost"`
 }
 
 var costs Costs
@@ -45,6 +46,7 @@ type DeckEstimate struct {
 	RailCost      float64
 	StairCost     float64
 	DemoCost      float64
+	HasDemo       bool
 	StairWidth    float64
 	StairRailCost float64
 	RailFeet      float64 // Lineal feet of rails
@@ -82,6 +84,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	material := r.FormValue("material")
 	railMaterial := r.FormValue("railMaterial")
 	railInfill := r.FormValue("railInfill")
+	hasDemo := r.FormValue("hasDemo") == "on" // Checkbox returns "on" if checked
 
 	estimate := DeckEstimate{
 		Length:       length,
@@ -91,6 +94,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		RailMaterial: railMaterial,
 		RailInfill:   railInfill,
 		DeckArea:     length * width,
+		HasDemo:      hasDemo,
 		StairWidth:   stairWidth,
 	}
 
@@ -111,7 +115,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	estimate.DemoCost = CalculateDemoCost(length * width)
+	// Demo Cost - if required
+	if estimate.HasDemo {
+		estimate.DemoCost = CalculateDemoCost(length*width, costs)
+	} else {
+		estimate.DemoCost = 0
+	}
 
 	// This is used by the stair calculator
 	materialCost, ok := costs.DeckMaterials[material]
