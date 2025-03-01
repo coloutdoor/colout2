@@ -111,6 +111,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	estimate.DemoCost = CalculateDemoCost(length * width)
+
 	// This is used by the stair calculator
 	materialCost, ok := costs.DeckMaterials[material]
 	if !ok { // Shouldn’t hit this—deck calc already checks
@@ -126,7 +128,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.RailFeet = (2 * length) + width // Match rails.go calc
 	estimate.StairCost = stairCost
 	estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
-	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost
+	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost
 	estimate.SalesTax = CalculateSalesTax(subtotal)
 	estimate.TotalCost = subtotal + estimate.SalesTax
 
