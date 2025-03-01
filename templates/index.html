@@ -119,6 +119,7 @@
         <p>Stair Cost: ${{printf "%.2f" .StairCost}} - 
                {{printf "%.1f" .StairWidth}} ft wide</p>
         <p>Stair Rail Cost: ${{printf "%.2f" .StairRailCost}}</p>
+        <p>Demo Cost: ${{printf "%.2f" .DemoCost}}</p>
         <p>Rail: 
             {{if eq .RailMaterial ""}}None
             {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}

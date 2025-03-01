@@ -44,6 +44,7 @@ type DeckEstimate struct {
 	DeckCost      float64 // Split for breakdown
 	RailCost      float64
 	StairCost     float64
+	DemoCost      float64
 	StairWidth    float64
 	StairRailCost float64
 	RailFeet      float64 // Lineal feet of rails
