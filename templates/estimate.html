@@ -40,6 +40,12 @@
             <div class="column is-2 has-text-right">{{formatCost .RailCost}}</div>
             {{end}}
 
+            {{if .HasFascia}}
+            <div class="column is-2">Fascia</div>
+            <div class="column is-8">{{printf "%.1f" .FasciaFeet}} lineal ft</div>
+            <div class="column is-2 has-text-right">{{formatCost .FasciaCost}}</div>
+            {{end}}
+
             {{if .StairWidth}}
             <div class="column is-2">Stairs</div>
             <div class="column is-8">{{printf "%.1f" .StairWidth}} ft wide</div>

@@ -19,6 +19,7 @@ type Costs struct {
 	RailMaterials map[string]float64 `yaml:"rail_materials"`
 	RailInfills   map[string]float64 `yaml:"rail_infills"`
 	DemoCost      float64            `yaml:"demo_cost"`
+	FasciaCost    float64            `yaml:"fascia_cost"`
 }
 
 var costs Costs
@@ -47,6 +48,9 @@ type DeckEstimate struct {
 	RailCost      float64
 	StairCost     float64
 	Subtotal      float64
+	HasFascia     bool
+	FasciaCost    float64
+	FasciaFeet    float64
 	DemoCost      float64
 	HasDemo       bool
 	StairWidth    float64
@@ -95,7 +99,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	material := r.FormValue("material")
 	railMaterial := r.FormValue("railMaterial")
 	railInfill := r.FormValue("railInfill")
-	hasDemo := r.FormValue("hasDemo") == "on" // Checkbox returns "on" if checked
+	hasDemo := r.FormValue("hasDemo") == "on"     // Checkbox returns "on" if checked
+	hasFascia := r.FormValue("hasFascia") == "on" // Checkbox returns "on" if checked
 
 	estimate := DeckEstimate{
 		Length:       length,
@@ -105,6 +110,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		RailMaterial: railMaterial,
 		RailInfill:   railInfill,
 		DeckArea:     length * width,
+		HasFascia:    hasFascia,
 		HasDemo:      hasDemo,
 		StairWidth:   stairWidth,
 	}
@@ -124,6 +130,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		estimate.Error = err.Error()
 		tmpl.ExecuteTemplate(w, "estimate.html", estimate)
 		return
+	}
+
+	estimate.FasciaCost = 0
+	if estimate.HasFascia {
+		estimate.FasciaCost = CalculateFasciaCost(length, width, costs)
+		estimate.FasciaFeet = (2 * length) + width
 	}
 
 	// Demo Cost - if required
@@ -148,7 +160,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.RailFeet = (2 * length) + width // Match rails.go calc
 	estimate.StairCost = stairCost
 	estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
