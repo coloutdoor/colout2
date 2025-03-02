@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -54,27 +55,36 @@ type DeckEstimate struct {
 	Error         string
 }
 
+// Define template functions
+var funcMap = template.FuncMap{
+	"formatCost": formatCost,
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/index.html"))
-	tmpl.Execute(w, nil)
+	// tmpl := template.Must(template.ParseFiles("templates/index.html"))
+	// tmpl := template.Must(template.ParseFiles("templates/index.html").Funcs(funcMap))
+	tmpl := template.Must(template.New("index").Funcs(funcMap).ParseFiles("templates/index.html"))
+	if err := tmpl.ExecuteTemplate(w, "index.html", nil); err != nil {
+		log.Printf("homeHandler execute error: %v", err)
+		panic(err)
+	}
 }
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/estimate.html"))
+	tmpl := template.Must(template.New("estimate").Funcs(funcMap).ParseFiles("templates/estimate.html"))
 
 	if r.Method != http.MethodPost {
-		tmpl.Execute(w, nil)
-		return
+		tmpl.ExecuteTemplate(w, "estimate.html", nil)
 	}
+
 	height, err := strconv.ParseFloat(r.FormValue("height"), 64)
 	if err != nil || height < 0 {
-		tmpl.Execute(w, DeckEstimate{Error: "Height must be a non-negative number"})
+		tmpl.ExecuteTemplate(w, "estimate.html", DeckEstimate{Error: "Height must be a non-negative number"})
 		return
 	}
 
 	stairWidth, err := strconv.ParseFloat(r.FormValue("stairWidth"), 64)
 	if err != nil || stairWidth < 0 {
-		fmt.Printf("stairWidth not set in form")
 		stairWidth = 0 // Default to 0 if invalid or not provided
 	}
 	fmt.Printf("stairWidth is set to: %.2f\n", stairWidth)
@@ -102,7 +112,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	deckCost, err := CalculateDeckCost(length, width, height, material, costs)
 	if err != nil {
 		estimate.Error = err.Error()
-		tmpl.Execute(w, estimate)
+		tmpl.ExecuteTemplate(w, "estimate.html", estimate)
 		return
 	}
 	estimate.DeckCost = deckCost
@@ -111,7 +121,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
 	if err != nil {
 		estimate.Error = err.Error()
-		tmpl.Execute(w, estimate)
+		tmpl.ExecuteTemplate(w, "estimate.html", estimate)
 		return
 	}
 
@@ -130,7 +140,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	stairCost, err := CalculateStairCost(height, stairWidth, materialCost)
 	if err != nil {
 		estimate.Error = err.Error()
-		tmpl.Execute(w, estimate)
+		tmpl.ExecuteTemplate(w, "estimate.html", estimate)
 		return
 	}
 	estimate.RailCost = railCost
@@ -141,14 +151,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.SalesTax = CalculateSalesTax(subtotal)
 	estimate.TotalCost = subtotal + estimate.SalesTax
 
-	/* Debug output to console
-	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, SalesTax: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s StairWidth %2.f\n",
-		estimate.DeckCost, estimate.RailCost, estimate.SalesTax, estimate.TotalCost,
-		estimate.RailMaterial, estimate.RailInfill, estimate.StairWidth)
-	*/
+	/* Debug output to console */
 	fmt.Printf("Debug:  Estimate: %+v\n", estimate)
 
-	tmpl.Execute(w, estimate)
+	tmpl.ExecuteTemplate(w, "estimate.html", estimate)
 }
 
 func main() {
