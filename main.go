@@ -60,7 +60,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/index.html"))
+	tmpl := template.Must(template.ParseFiles("templates/estimate.html"))
 
 	if r.Method != http.MethodPost {
 		tmpl.Execute(w, nil)
@@ -141,10 +141,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.SalesTax = CalculateSalesTax(subtotal)
 	estimate.TotalCost = subtotal + estimate.SalesTax
 
-	// Debug output to console
+	/* Debug output to console
 	fmt.Printf("DeckCost: $%.2f, RailCost: $%.2f, SalesTax: $%.2f, TotalCost: $%.2f, RailMaterial: %s, RailInfill: %s StairWidth %2.f\n",
 		estimate.DeckCost, estimate.RailCost, estimate.SalesTax, estimate.TotalCost,
 		estimate.RailMaterial, estimate.RailInfill, estimate.StairWidth)
+	*/
+	fmt.Printf("Debug:  Estimate: %+v\n", estimate)
 
 	tmpl.Execute(w, estimate)
 }

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deck Estimate Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body { font-size: 18px; }
+        @media (max-width: 500px) {
+            body { font-size: 30px; }
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="level mb-5">
+        <div class="level-left">
+            <div class="level-item">
+                <h1 class="title">Deck Estimate Results</h1>
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
+            </div>
+        </div>
+    </div>
+    {{if .TotalCost}}
+    <div class="box mt-5">
+        <h2 class="subtitle">Your Estimate</h2>
+        <p>Demo Cost: ${{printf "%.2f" .DemoCost}}</p>
+        
+        <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
+        <p> - Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
+        <p> - Deck Area: {{printf "%.1f" .DeckArea}} sq ft</p>
+        <p> - Height: {{printf "%.1f" .Height}} ft</p>
+        <p> - Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
+
+
+        <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
+
+        {{if .StairWidth}}
+            <p>Stair Width: {{printf "%.1f" .StairWidth}} ft</p>
+            <p>Stair Cost: ${{printf "%.2f" .StairCost}}</p>
+            <p>Stair Rail Cost: ${{printf "%.2f" .StairRailCost}}</p>
+        {{end}}
+        
+        <p>Sales Tax (WA 8.7%): ${{printf "%.2f" .SalesTax}}</p>
+        <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
+    </div>
+    {{end}}
+    {{if .Error}}
+    <div class="notification is-danger mt-5">
+        <p>{{.Error}}</p>
+    </div>
+    {{end}}
+</body>
+</html>

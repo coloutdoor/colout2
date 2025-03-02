@@ -3,14 +3,12 @@
 <head>
     <title>Deck Estimate Calculator</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <!--
     <style>
-    .content, .input, .label, .select select { font-size: 18px; }
-    @media (max-width: 500px) {
-        .content, .input, .label, .select select { font-size: 20px; }
-    }
+        body { font-size: 18px; }
+        @media (max-width: 500px) {
+            body { font-size: 30px; }
+        }
     </style>
-    -->
 </head>
 <body class="container mt-5">
     <div class="level mb-5">
@@ -21,7 +19,7 @@
         </div>
         <div class="level-right">
             <div class="level-item">
-                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 100px; max-height: 100px;">
+                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
             </div>
         </div>
     </div>
@@ -31,7 +29,7 @@
                 <div class="field mb-5">
                     <label class="label is-medium">Deck</label>
                     <div class="control">
-                     <div class="field">
+                        <div class="field">
                             <label class="label">Length (ft):</label>
                             <input class="input is-normal" type="number" name="length" step="0.1" required maxlength="20" style="width: 20ch;">
                         </div>
@@ -56,17 +54,17 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="field">
-                             <div class="control">
-                             <label class="checkbox">
-                                 <input type="checkbox" name="hasDemo">
-                                     Remove Existing Structure?
-                            </label>
-                            </div> 
-                        </div>   
                     </div>
                 </div>
-
+                <div class="field mb-5">
+                    <label class="label is-medium">Demo</label>
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" name="hasDemo">
+                            Remove Existing Structure?
+                        </label>
+                    </div>
+                </div>
                 <div class="field mb-5">
                     <label class="label is-medium">Rail</label>
                     <div class="control">
@@ -76,7 +74,7 @@
                                 <select name="railMaterial" style="width: 20ch;">
                                     <option value="">None</option>
                                     <option value="wood">Wood</option>
-                                    <option value="composite">Composite </option>
+                                    <option value="composite">Composite</option>
                                     <option value="aluminum">Aluminum</option>
                                 </select>
                             </div>
@@ -94,19 +92,12 @@
                         </div>
                     </div>
                 </div>
-                 
-                <div class="field mb-5">
-                    <label class="label is-medium">Stair</label>
+                <div class="field">
+                    <label class="label">Stair Width (ft, optional):</label>
                     <div class="control">
-                        <div class="field">
-                            <label class="label">Width (ft):</label>
-                            <div class="control">
-                                <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
-                            </div>
-                        </div>
+                        <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
                     </div>
                 </div>
-       
                 <div class="field">
                     <div class="control">
                         <input class="button is-primary" type="submit" value="Calculate Estimate">
@@ -115,46 +106,5 @@
             </div>
         </div>
     </form>
-
-    {{if .TotalCost}}
-    <div class="box mt-5">
-        <h2 class="subtitle">Your Estimate</h2>
-        <p>Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
-        <p>Deck Area: {{printf "%.1f" .DeckArea}} sq ft</p>
-        <p>Height: {{printf "%.1f" .Height}} ft</p>
-        <p>Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
-        <p>Stair Cost: ${{printf "%.2f" .StairCost}} - 
-               {{printf "%.1f" .StairWidth}} ft wide</p>
-        <p>Stair Rail Cost: ${{printf "%.2f" .StairRailCost}}</p>
-        <p>Demo Cost: ${{printf "%.2f" .DemoCost}}</p>
-        <p>Rail: 
-            {{if eq .RailMaterial ""}}None
-            {{else}}{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}
-            {{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}
-            {{end}}
-            {{if ne .RailMaterial ""}} - {{printf "%.1f" .RailFeet}} lineal feet{{end}}
-        </p>
-        <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
-        <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
-        <p>Sales Tax (WA 8.7%): ${{printf "%.2f" .SalesTax}}</p>
-        <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
-    </div>
-    {{end}}
-    
-    {{if .Error}}
-    <div class="notification is-danger mt-5">
-        <p>{{.Error}}</p>
-    </div>
-    {{end}}
-    <footer class="footer mt-5">
-        <div class="content has-text-centered">
-            <p>
-                <strong>Columbia Outdoor</strong><br>
-                123 Build St, Woodland, WA 98674<br>
-                Phone: (360) 355-3042<br>
-                Email: support@columbiaoutoor.com
-            </p>
-        </div>
-    </footer>
 </body>
 </html>
