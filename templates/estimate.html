@@ -30,36 +30,58 @@
             <div class="column is-2"><strong>Item</strong></div>
             <div class="column is-8"><strong>Description</strong></div>
             <div class="column is-2 has-text-right"><strong>Cost</strong></div>
+
+            <div class="column is-2">Demo</div>
+            {{if .HasDemo}}
+            <div class="column is-8">Remove and dispose of existing structure of approximately {{printf "%.1f" .DeckArea}} sq ft</div>
+            <div class="column is-2 has-text-right">{{formatCost .DemoCost}}</div>
+            {{else}}
+            <div class="column is-8">Demo of exsisting structure not included.</div>
+            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
+            {{end}}
+
             <div class="column is-2">Deck</div>
-            <div class="column is-8">{{printf "%.1f" .Length}} x {{printf "%.1f" .Width}} ft, {{printf "%.1f" .Height}} ft high, {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</div>
+            <div class="column is-8">{{formatDeckDescription .}}</div>
             <div class="column is-2 has-text-right">{{formatCost .DeckCost}}</div>
 
-            {{if .RailCost}}
             <div class="column is-2">Rail</div>
-            <div class="column is-8">{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}{{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}, {{printf "%.1f" .RailFeet}} lineal ft</div>
+            {{if .RailCost}}
+            <div class="column is-8">Supply and install {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill. Rails on 3 sides of deck approximately {{printf "%.1f" .RailFeet}} lineal ft</div>
             <div class="column is-2 has-text-right">{{formatCost .RailCost}}</div>
+            {{else}}
+            <div class="column is-8">Deck rails not included</div>
+            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
             {{end}}
 
-            {{if .HasFascia}}
             <div class="column is-2">Fascia</div>
-            <div class="column is-8">{{printf "%.1f" .FasciaFeet}} lineal ft</div>
+            {{if .HasFascia}}
+            <div class="column is-8">Supply and install fascia to match deck material approximately {{printf "%.1f" .FasciaFeet}} lineal ft</div>
             <div class="column is-2 has-text-right">{{formatCost .FasciaCost}}</div>
+            {{else}}
+            <div class="column is-8">Deck fascia not included</div>
+            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
             {{end}}
 
-            {{if .StairWidth}}
             <div class="column is-2">Stairs</div>
-            <div class="column is-8">{{printf "%.1f" .StairWidth}} ft wide</div>
+            {{if .StairWidth}}
+            <div class="column is-8">Supply and install premium presure treated stair framing at {{printf "%.1f" .StairWidth}} ft wide. 
+                                    Stair treads approximately 11" per step with matching {{.Material}} decking on treads and toe kicks
+                                    Total rise of stairs is {{printf "%.1f" .Height}} ft. </div>
             <div class="column is-2 has-text-right">{{formatCost .StairCost}}</div>
+            {{else}}
+            <div class="column is-8">Stairs not included</div>
+            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
+            {{end}}
+            
             <div class="column is-2">Stair Rails</div>
-            <div class="column is-8">2 sides</div>
+            {{if .StairRailCost}}
+            <div class="column is-8">Supply and install matching Stair rails with {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill. Rails installed on 2 sides.</div>
             <div class="column is-2 has-text-right">{{formatCost .StairRailCost}}</div>
+            {{else}}
+            <div class="column is-8">Stair rail not included</div>
+            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
             {{end}}
 
-            {{if .HasDemo}}
-            <div class="column is-2">Demo</div>
-            <div class="column is-8">Remove existing structure, {{printf "%.1f" .DeckArea}} sq ft</div>
-            <div class="column is-2 has-text-right">{{formatCost .DemoCost}}</div>
-            {{end}}
 
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
@@ -72,7 +94,7 @@
             -->
 
             <div class="column is-2">Sales Tax</div>
-            <div class="column is-8">WA 8.7%</div>
+            <div class="column is-8">WA (Estimated) sales tax.</div>
             <div class="column is-2 has-text-right">{{formatCost .SalesTax}}</div>
             <div class="column is-2 has-text-weight-semibold has-background-light"><strong class="is-size-4">Total</strong></div>
             <div class="column is-8 has-text-weight-semibold has-background-light"></div>
