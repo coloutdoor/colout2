@@ -25,8 +25,8 @@
     </div>
     <form method="post" action="/estimate" class="box">
         <div class="columns">
-            <div class="column is-half">
-                <div class="field mb-5">
+            <div class="column is-5">
+                <div class="field mb-3 is-narrow">
                     <label class="label is-medium">Deck</label>
                     <div class="control">
                         <div class="field">
@@ -56,7 +56,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="field mb-5">
+                <div class="field mb-3 is-narrow">
                     <label class="label is-medium">Demo</label>
                     <div class="control">
                         <label class="checkbox">
@@ -65,8 +65,8 @@
                         </label>
                     </div>
                 </div>
-                <div class="field mb-5">
-                    <label class="label is-medium">Rail</label>
+                <div class="field mb-3 is-narrow">
+                    <label class="label is-medium">Rail (optional)</label>
                     <div class="control">
                         <div class="field">
                             <label class="label">Material:</label>
@@ -92,15 +92,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="field">
-                    <label class="label">Stair Width (ft, optional):</label>
+                <div class="field mb-3 is-narrow">
+                    <label class="label is-medium">Stairs</label>
                     <div class="control">
-                        <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
+                        <div class="field">
+                            <label class="label">Width (ft):</label>
+                            <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
+                        </div>
                     </div>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <input class="button is-primary" type="submit" value="Calculate Estimate">
+                        <input class="button is-primary" type="submit" value="Next: Calculate Estimate">
                     </div>
                 </div>
             </div>
