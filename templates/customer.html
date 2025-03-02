@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Information</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body { font-size: 18px; }
+        @media (max-width: 500px) {
+            body { font-size: 30px; }
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="level mb-5">
+        <div class="level-left">
+            <div class="level-item">
+                <h1 class="title">Customer Information</h1>
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
+            </div>
+        </div>
+    </div>
+    <form method="post" action="/customer" class="box">
+        <div class="columns is-mobile">
+            <div class="column is-5">
+                <div class="field mb-3 is-narrow">
+                    <label class="label is-medium">Contact Details</label>
+                    <div class="control">
+                        <div class="field">
+                            <label class="label">First Name:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="firstName" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">Last Name:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="lastName" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">Address:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="address" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">City:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="city" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">State:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="state" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">Zip:</label>
+                            <input class="input is-normal is-fullwidth" type="text" name="zip" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">Phone Number:</label>
+                            <input class="input is-normal is-fullwidth" type="tel" name="phoneNumber" required>
+                        </div>
+                        <div class="field">
+                            <label class="label">Email:</label>
+                            <input class="input is-normal is-fullwidth" type="email" name="email" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-narrow">
+                    <div class="control">
+                        <input class="button is-primary" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

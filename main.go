@@ -32,6 +32,8 @@ func main() {
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/estimate", estimateHandler)
+	http.HandleFunc("/customer", customerHandler)
+
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)
 	addr := ":8080"
