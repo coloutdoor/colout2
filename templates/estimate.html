@@ -26,26 +26,42 @@
     {{if .TotalCost}}
     <div class="box mt-5">
         <h2 class="subtitle">Your Estimate</h2>
-        <p>Demo Cost: ${{printf "%.2f" .DemoCost}}</p>
-        
-        <p>Deck Cost: ${{printf "%.2f" .DeckCost}}</p>
-        <p> - Deck Size: {{printf "%.1f" .Length}} ft x {{printf "%.1f" .Width}} ft</p>
-        <p> - Deck Area: {{printf "%.1f" .DeckArea}} sq ft</p>
-        <p> - Height: {{printf "%.1f" .Height}} ft</p>
-        <p> - Material: {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</p>
+                <div class="columns is-multiline">
+                        <div class="column is-2"><strong>Item</strong></div>
+                        <div class="column is-8"><strong>Description</strong></div>
+                        <div class="column is-2 has-text-right"><strong>Cost</strong></div>
+                        <div class="column is-2">Deck</div>
+                        <div class="column is-8">{{printf "%.1f" .Length}} x {{printf "%.1f" .Width}} ft, {{printf "%.1f" .Height}} ft high, {{if eq .Material "outdoorWood"}}Outdoor Wood{{else if eq .Material "cedar"}}Cedar{{else if eq .Material "timberTechPrime"}}TimberTech Prime{{else if eq .Material "timberTechProReserve"}}TimberTech Pro Reserve{{else if eq .Material "timberTechProLegacy"}}TimberTech Pro Legacy{{end}}</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .DeckCost}}</div>
 
+                        {{if .RailCost}}
+                        <div class="column is-2">Rail</div>
+                        <div class="column is-8">{{if eq .RailMaterial "wood"}}Wood{{else if eq .RailMaterial "composite"}}Composite{{else if eq .RailMaterial "aluminum"}}Aluminum{{end}}{{if ne .RailInfill ""}} with {{if eq .RailInfill "balusters"}}Balusters{{else if eq .RailInfill "cable"}}Cable{{else if eq .RailInfill "glass"}}Glass{{end}}{{end}}, {{printf "%.1f" .RailFeet}} lineal ft</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .RailCost}}</div>
+                        {{end}}
 
-        <p>Rail Cost: ${{printf "%.2f" .RailCost}}</p>
+                        {{if .StairWidth}}
+                        <div class="column is-2">Stairs</div>
+                        <div class="column is-8">{{printf "%.1f" .StairWidth}} ft wide</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .StairCost}}</div>
+                        <div class="column is-2">Stair Rails</div>
+                        <div class="column is-8">2 sides</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .StairRailCost}}</div>
+                        {{end}}
 
-        {{if .StairWidth}}
-            <p>Stair Width: {{printf "%.1f" .StairWidth}} ft</p>
-            <p>Stair Cost: ${{printf "%.2f" .StairCost}}</p>
-            <p>Stair Rail Cost: ${{printf "%.2f" .StairRailCost}}</p>
-        {{end}}
-        
-        <p>Sales Tax (WA 8.7%): ${{printf "%.2f" .SalesTax}}</p>
-        <p>Total Cost: ${{printf "%.2f" .TotalCost}}</p>
-    </div>
+                        {{if .HasDemo}}
+                        <div class="column is-2">Demo</div>
+                        <div class="column is-8">Remove existing structure, {{printf "%.1f" .DeckArea}} sq ft</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .DemoCost}}</div>
+                        {{end}}
+
+                        <div class="column is-2">Sales Tax</div>
+                        <div class="column is-8">WA 8.7%</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .SalesTax}}</div>
+                        <div class="column is-2">Total</div>
+                        <div class="column is-8">All costs included</div>
+                        <div class="column is-2 has-text-right">${{printf "%.2f" .TotalCost}}</div>
+                    </div>
     {{end}}
     {{if .Error}}
     <div class="notification is-danger mt-5">
