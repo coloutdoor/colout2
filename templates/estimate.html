@@ -55,12 +55,23 @@
             <div class="column is-2 has-text-right">{{formatCost .DemoCost}}</div>
             {{end}}
 
+            <div class="column is-2 has-text-weight-semibold">Subtotal</div>
+            <div class="column is-8 has-text-weight-semibold"></div>
+            <div class="column is-2 has-text-weight-semibold has-text-right">{{formatCost .Subtotal}}</div>
+
+            <!--
+            <div class="column is-2 has-background-light">Subtotal</div>
+            <div class="column is-8 has-background-light"></div>
+            <div class="column is-2 has-background-light has-text-right">{{formatCost .Subtotal}}</div>
+            -->
+
             <div class="column is-2">Sales Tax</div>
             <div class="column is-8">WA 8.7%</div>
             <div class="column is-2 has-text-right">{{formatCost .SalesTax}}</div>
-            <div class="column is-2">Total</div>
-            <div class="column is-8">All costs included</div>
-            <div class="column is-2 has-text-right">{{formatCost .TotalCost}}</div>
+            <div class="column is-2 has-text-weight-semibold has-background-light"><strong class="is-size-4">Total</strong></div>
+            <div class="column is-8 has-text-weight-semibold has-background-light"></div>
+            <div class="column is-2 has-text-weight-semibold has-text-right has-background-light"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
+         </div>
     </div>
     <button class="button is-light mt-4" onclick="history.back()">Modify Estimate</button>
     {{end}}

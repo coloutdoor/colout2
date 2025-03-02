@@ -46,6 +46,7 @@ type DeckEstimate struct {
 	DeckCost      float64 // Split for breakdown
 	RailCost      float64
 	StairCost     float64
+	Subtotal      float64
 	DemoCost      float64
 	HasDemo       bool
 	StairWidth    float64
@@ -147,9 +148,9 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.RailFeet = (2 * length) + width // Match rails.go calc
 	estimate.StairCost = stairCost
 	estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
-	subtotal := estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost
-	estimate.SalesTax = CalculateSalesTax(subtotal)
-	estimate.TotalCost = subtotal + estimate.SalesTax
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost
+	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
+	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
 	/* Debug output to console */
 	fmt.Printf("Debug:  Estimate: %+v\n", estimate)
