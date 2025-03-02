@@ -28,85 +28,85 @@
     <form method="post" action="/estimate" class="box">
         <div class="columns">
             <div class="column is-half">
-                <div class="field">
-                    <label class="label">Deck Length (ft)</label>
+                <div class="field mb-5">
+                    <label class="label is-medium">Deck</label>
                     <div class="control">
-                        <input class="input is-normal" type="number" name="length" step="0.1" required maxlength="20" style="width: 20ch;">
-                    </div>
-                </div>
-        
-                <div class="field">
-                    <label class="label">Deck Width (ft)</label>
-                    <div class="control">
-                        <input class="input is-normal" type="number" name="width" step="0.1" required maxlength="20" style="width: 20ch;">
-                     </div>
-                </div>
-        
-                <div class="field">
-                    <label class="label">Height Above Ground</label>
-                    <div class="control">
-                        <input class="input is-normal" type="number" name="height" step="0.1" min="0" required maxlength="20" style="width: 20ch;">
-                    </div>
-                </div>
-        
-                <div class="field">
-                    <label class="label">Material:</label>
-                    <div class="control">
-                        <div class="select">
-                            <select name="material" required style="width: 20ch;">
-                                <option value="">Select material</option>
-                                <option value="outdoorWood">Outdoor Wood</option>
-                                <option value="cedar">Cedar</option>
-                                <option value="timberTechPrime">TimberTech Prime</option>
-                                <option value="timberTechProReserve">TimberTech Pro Reserve</option>
-                                <option value="timberTechProLegacy">TimberTech Pro Legacy</option>
-                            </select>
+                     <div class="field">
+                            <label class="label">Length (ft):</label>
+                            <input class="input is-normal" type="number" name="length" step="0.1" required maxlength="20" style="width: 20ch;">
                         </div>
+                        <div class="field">
+                            <label class="label">Width (ft):</label>
+                            <input class="input is-normal" type="number" name="width" step="0.1" required maxlength="20" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                            <label class="label">Height Above Ground (ft):</label>
+                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" required maxlength="20" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                            <label class="label">Material:</label>
+                            <div class="select">
+                                <select name="material" required style="width: 20ch;">
+                                    <option value="">Select material</option>
+                                    <option value="outdoorWood">Outdoor Wood</option>
+                                    <option value="cedar">Cedar</option>
+                                    <option value="timberTechPrime">TimberTech Prime</option>
+                                    <option value="timberTechProReserve">TimberTech Pro Reserve</option>
+                                    <option value="timberTechProLegacy">TimberTech Pro Legacy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field">
+                             <div class="control">
+                             <label class="checkbox">
+                                 <input type="checkbox" name="hasDemo">
+                                     Remove Existing Structure?
+                            </label>
+                            </div> 
+                        </div>   
                     </div>
                 </div>
 
-                <div class="field">
-                    <label class="label">Stair Width (ft, optional):</label>
+                <div class="field mb-5">
+                    <label class="label">Rail</label>
                     <div class="control">
-                        <input class="input" type="number" name="stairWidth" step="0.1" min="0" style="width: 20ch;">
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        <label class="checkbox">
-                            <input type="checkbox" name="hasDemo">
-                            Remove Existing Structure?
-                        </label>
-                    </div>
-                </div> 
-                <div class="field">
-                    <label class="label">Rail Material:</label>
-                    <div class="control">
-                        <div class="select">
-                            <select name="railMaterial" style="width: 20ch;">
-                                <option value="">None</option>
-                                <option value="wood">Wood</option>
-                                <option value="composite">Composite </option>
-                                <option value="aluminum">Aluminum</option>
-                            </select>
+                        <div class="field">
+                            <label class="label">Material</label>
+                            <div class="select">
+                                <select name="railMaterial" style="width: 20ch;">
+                                    <option value="">None</option>
+                                    <option value="wood">Wood</option>
+                                    <option value="composite">Composite </option>
+                                    <option value="aluminum">Aluminum</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Infill:</label>
+                            <div class="select">
+                                <select name="railInfill">
+                                    <option value="">None</option>
+                                    <option value="balusters">Balusters</option>
+                                    <option value="cable">Cable</option>
+                                    <option value="glass">Glass</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-        
-                <div class="field">
-                    <label class="label">Rail Infill:</label>
+                 
+                <div class="field mb-5">
+                    <label class="label">Stair</label>
                     <div class="control">
-                        <div class="select">
-                            <select name="railInfill">
-                                <option value="">None</option>
-                                <option value="balusters">Balusters</option>
-                                <option value="cable">Cable</option>
-                                <option value="glass">Glass</option>
-                            </select>
+                        <div class="field">
+                            <label class="label">Stair Width (ft)</label>
+                            <div class="control">
+                                <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
+                            </div>
                         </div>
                     </div>
                 </div>
-        
+       
                 <div class="field">
                     <div class="control">
                         <input class="button is-primary" type="submit" value="Calculate Estimate">
