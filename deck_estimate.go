@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/gob"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/sessions"
 )
 
 // Define template functions
@@ -12,6 +15,9 @@ var funcMap = template.FuncMap{
 	"formatCost":            formatCost,
 	"formatDeckDescription": formatDeckDescription,
 }
+
+// Session store - in-memory for now, single secret key
+var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
@@ -55,10 +61,19 @@ func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
 var tmpl *template.Template
 
 func init() {
+	gob.Register(DeckEstimate{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html"))
 }
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Get session
+	session, err := store.Get(r, "colout2-session")
+	if err != nil {
+		log.Printf("Session get error: %v", err)
+		renderEstimate(w, DeckEstimate{Error: "Session error"})
+		return
+	}
 
 	if r.Method != http.MethodPost {
 		renderEstimate(w, DeckEstimate{})
@@ -154,6 +169,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
+
+	// Save estimate to session
+	session.Values["estimate"] = estimate
+	if err := session.Save(r, w); err != nil {
+		log.Printf("Session save error: %v", err)
+	}
 
 	renderEstimate(w, estimate)
 }
