@@ -24,6 +24,20 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		// Reset session by clearing values
+		delete(session.Values, "estimate")
+		delete(session.Values, "customer")
+		if err := session.Save(r, w); err != nil {
+			log.Printf("Session save error: %v", err)
+			http.Error(w, "Session save error", http.StatusInternalServerError)
+			return
+		}
+		log.Printf("Session reset")
+		http.Redirect(w, r, "/session", http.StatusSeeOther)
+		return
+	}
+
 	// Extract session data
 	data := SessionData{}
 	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
