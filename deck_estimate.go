@@ -142,7 +142,9 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	estimate.StairCost = stairCost
-	estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
+	if stairCost > 0 {
+		estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
+	}
 
 	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
 	if err != nil {
