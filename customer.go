@@ -59,8 +59,12 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		if err := session.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
 		}
+
+		http.Redirect(w, r, "/estimate", http.StatusSeeOther)
+		return
 	}
 
+	// Render customer page onlyon GET
 	if err := tmpl.ExecuteTemplate(w, "customer.html", customer); err != nil {
 		log.Printf("customerHandler execute error: %v", err)
 		panic(err)
