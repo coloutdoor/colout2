@@ -27,6 +27,15 @@
     </div>
     {{if .TotalCost}}
     <div class="box mt-5">
+        <h2 class="subtitle">Customer</h2>
+        <div class="content">
+            <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
+            <p>{{.Customer.Address}}</p>
+            <p>{{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
+            <p>{{.Customer.PhoneNumber}}</p>
+            <p>{{.Customer.Email}}</p>
+        </div>
+        <hr>
         <h2 class="subtitle">Your Estimate</h2>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
@@ -103,7 +112,10 @@
             <div class="column is-2 has-text-weight-semibold has-text-right has-background-light"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
          </div>
     </div>
-    <button class="button is-light mt-4" onclick="history.back()">Modify Estimate</button>
+    <div class="buttons is-grouped mt-4">
+        <a href="/" class="button is-light">Modify Estimate</a>
+        <a href="/customer" class="button is-light">Modify Customer</a>
+     </div>
     {{end}}
     {{if .Error}}
     <div class="notification is-danger mt-5">

@@ -21,32 +21,29 @@ var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
-	Length         float64
-	Width          float64
-	Height         float64
-	ContactName    string
-	ContactAddress string
-	ContactPhone   string
-	ContactEmail   string
-	DeckArea       float64
-	Material       string
-	RailMaterial   string
-	RailInfill     string
-	TotalCost      float64
-	DeckCost       float64
-	RailCost       float64
-	StairCost      float64
-	Subtotal       float64
-	FasciaCost     float64
-	FasciaFeet     float64
-	StairWidth     float64
-	StairRailCost  float64
-	DemoCost       float64
-	HasDemo        bool
-	RailFeet       float64
-	SalesTax       float64
-	HasFascia      bool
-	Error          string
+	Length        float64
+	Width         float64
+	Height        float64
+	DeckArea      float64
+	Material      string
+	RailMaterial  string
+	RailInfill    string
+	TotalCost     float64
+	DeckCost      float64
+	RailCost      float64
+	StairCost     float64
+	Subtotal      float64
+	FasciaCost    float64
+	FasciaFeet    float64
+	StairWidth    float64
+	StairRailCost float64
+	DemoCost      float64
+	HasDemo       bool
+	RailFeet      float64
+	SalesTax      float64
+	HasFascia     bool
+	Customer      Customer
+	Error         string
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
@@ -62,7 +59,14 @@ var tmpl *template.Template
 
 func init() {
 	gob.Register(DeckEstimate{})
+	gob.Register(Customer{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html"))
+}
+
+// EstimatePageData holds data for the estimate page, including customer info.
+type EstimatePageData struct {
+	Estimate DeckEstimate
+	Customer Customer
 }
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +77,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session get error: %v", err)
 		renderEstimate(w, DeckEstimate{Error: "Session error"})
 		return
+	}
+
+	// Load customer from session
+	customer := Customer{}
+	if cust, ok := session.Values["customer"].(Customer); ok {
+		customer = cust
 	}
 
 	if r.Method != http.MethodPost {
@@ -121,6 +131,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		StairWidth:   stairWidth,
 		HasDemo:      hasDemo,
 	}
+
+	estimate.Customer = customer // Embed customer in estimate
 
 	materialCost, ok := costs.DeckMaterials[material]
 	if !ok { // Shouldn’t hit this—deck calc already checks
@@ -178,5 +190,6 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session save error: %v", err)
 	}
 
+	// Pass both estimate and customer to template
 	renderEstimate(w, estimate)
 }
