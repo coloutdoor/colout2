@@ -36,6 +36,12 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Load customer from session for GET
+	customer := Customer{}
+	if cust, ok := session.Values["customer"].(Customer); ok {
+		customer = cust
+	}
+
 	if r.Method == http.MethodPost {
 		customer := Customer{
 			FirstName:   r.FormValue("firstName"),
@@ -55,7 +61,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := tmpl.ExecuteTemplate(w, "customer.html", nil); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "customer.html", customer); err != nil {
 		log.Printf("customerHandler execute error: %v", err)
 		panic(err)
 	}
