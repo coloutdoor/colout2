@@ -33,6 +33,7 @@ func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/estimate", estimateHandler)
 	http.HandleFunc("/customer", customerHandler)
+	http.HandleFunc("/session", sessionHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

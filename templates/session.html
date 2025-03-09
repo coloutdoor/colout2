@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Debug</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body { font-size: 18px; }
+        @media (max-width: 500px) { body { font-size: 30px; } }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="level mb-5">
+        <div class="level-left">
+            <div class="level-item">
+                <h1 class="title">Session Debug</h1>
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <h2 class="subtitle">Deck Estimate</h2>
+        <table class="table is-striped is-fullwidth">
+            <tr><td>Length</td><td>{{printf "%.1f" .Estimate.Length}} ft</td></tr>
+            <tr><td>Width</td><td>{{printf "%.1f" .Estimate.Width}} ft</td></tr>
+            <tr><td>Height</td><td>{{printf "%.1f" .Estimate.Height}} ft</td></tr>
+            <tr><td>Material</td><td>{{.Estimate.Material}}</td></tr>
+            <tr><td>Rail Material</td><td>{{.Estimate.RailMaterial}}</td></tr>
+            <tr><td>Rail Infill</td><td>{{.Estimate.RailInfill}}</td></tr>
+            <tr><td>Stair Width</td><td>{{printf "%.1f" .Estimate.StairWidth}} ft</td></tr>
+            <tr><td>Has Demo</td><td>{{.Estimate.HasDemo}}</td></tr>
+            <tr><td>Has Fascia</td><td>{{.Estimate.HasFascia}}</td></tr>
+            <tr><td>Total Cost</td><td>{{formatCost .Estimate.TotalCost}}</td></tr>
+        </table>
+
+        <h2 class="subtitle">Customer Information</h2>
+        <table class="table is-striped is-fullwidth">
+            <tr><td>First Name</td><td>{{.Customer.FirstName}}</td></tr>
+            <tr><td>Last Name</td><td>{{.Customer.LastName}}</td></tr>
+            <tr><td>Address</td><td>{{.Customer.Address}}</td></tr>
+            <tr><td>City</td><td>{{.Customer.City}}</td></tr>
+            <tr><td>State</td><td>{{.Customer.State}}</td></tr>
+            <tr><td>Zip</td><td>{{.Customer.Zip}}</td></tr>
+            <tr><td>Phone Number</td><td>{{.Customer.PhoneNumber}}</td></tr>
+            <tr><td>Email</td><td>{{.Customer.Email}}</td></tr>
+        </table>
+    </div>
+    <div class="mt-4">
+        <a href="/" class="button is-light">Back to Form</a>
+    </div>
+</body>
+</html>
