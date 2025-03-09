@@ -83,10 +83,18 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	customer := Customer{}
 	if cust, ok := session.Values["customer"].(Customer); ok {
 		customer = cust
+	} else {
+		log.Printf("Session get error: %v", err)
 	}
 
 	if r.Method != http.MethodPost {
-		renderEstimate(w, DeckEstimate{})
+		// Load estimate from session for GET
+		estimate := DeckEstimate{}
+		if est, ok := session.Values["estimate"].(DeckEstimate); ok {
+			estimate = est
+		}
+		estimate.Customer = customer // Embed customer in estimate
+		renderEstimate(w, estimate)
 		return
 	}
 
