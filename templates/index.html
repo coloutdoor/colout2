@@ -31,33 +31,32 @@
                     <div class="control">
                         <div class="field">
                             <label class="label">Length (ft):</label>
-                            <input class="input is-normal" type="number" name="length" step="0.1" required maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal" type="number" name="length" step="0.1" value="{{printf "%.1f" .Length}}" required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Width (ft):</label>
-                            <input class="input is-normal" type="number" name="width" step="0.1" required maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal" type="number" name="width" step="0.1" value="{{printf "%.1f" .Width}}" required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
-                            <label class="label">Height Above Ground (ft):</label>
-                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" required maxlength="20" style="width: 20ch;">
+                            <label class="label">Height (ft):</label>
+                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" value="{{printf "%.1f" .Height}}" required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Material:</label>
                             <div class="select">
-                                <select name="material" required style="width: 20ch;">
-                                    <option value="">Select material</option>
-                                    <option value="outdoorWood">Outdoor Wood</option>
-                                    <option value="cedar">Cedar</option>
-                                    <option value="timberTechPrime">TimberTech Prime</option>
-                                    <option value="timberTechProReserve">TimberTech Pro Reserve</option>
-                                    <option value="timberTechProLegacy">TimberTech Pro Legacy</option>
+                                <select name="material" required style="width: 20ch;" value="{{.Material}}">
+                                    <option value="outdoorWood" {{if eq .Material "outdoorWood"}} selected {{end}}>Outdoor Wood</option>
++                                   <option value="cedar" {{if eq .Material "cedar"}} selected {{end}}>Cedar</option>
++                                   <option value="timberTechPrime" {{if eq .Material "timberTechPrime"}} selected {{end}}>TimberTech Prime</option>
++                                   <option value="timberTechProReserve" {{if eq .Material "timberTechProReserve"}} selected {{end}}>TimberTech Pro Reserve</option>
++                                   <option value="timberTechProLegacy" {{if eq .Material "timberTechProLegacy"}} selected {{end}}>TimberTech Pro Legacy</option>
                                 </select>
                             </div>
                         </div>
                         <div class="field">
                             <div class="control">
                                 <label class="checkbox">
-                                    <input type="checkbox" name="hasFascia">
+                                    <input type="checkbox" name="hasFascia" {{if .HasFascia}}checked{{end}}>
                                     Include matching fascia?
                                 </label>
                             </div>
@@ -68,7 +67,7 @@
                     <label class="label is-medium">Demo</label>
                     <div class="control">
                         <label class="checkbox">
-                            <input type="checkbox" name="hasDemo">
+                            <input type="checkbox" name="hasDemo" {{if .HasDemo}}checked{{end}}>
                             Remove Existing Structure?
                         </label>
                     </div>
@@ -79,11 +78,11 @@
                         <div class="field">
                             <label class="label">Material:</label>
                             <div class="select">
-                                <select name="railMaterial" style="width: 20ch;">
+                                <select name="railMaterial" class="is-fullwidth" value="{{.RailMaterial}}">
                                     <option value="">None</option>
-                                    <option value="wood">Wood</option>
-                                    <option value="composite">Composite</option>
-                                    <option value="aluminum">Aluminum</option>
+                                    <option value="wood" {{if eq .RailMaterial "wood"}} selected{{end}}>Wood</option>
+                                    <option value="composite" {{if eq .RailMaterial "composite"}} selected{{end}}>Composite</option>
+                                    <option value="aluminum" {{if eq .RailMaterial "aluminum"}} selected{{end}}>Aluminum</option>
                                 </select>
                             </div>
                         </div>
@@ -92,10 +91,10 @@
                             <div class="select">
                                 <select name="railInfill">
                                     <option value="">None</option>
-                                    <option value="balusters">Balusters</option>
-                                    <option value="cable">Cable</option>
-                                    <option value="glass">Glass</option>
-                                </select>
+                                    <option value="balusters" {{if eq .RailInfill "balusters"}} selected {{end}}>Balusters</option>
+                                    <option value="cable" {{if eq .RailInfill "cable"}} selected {{end}}>Cable</option>
+                                    <option value="glass" {{if eq .RailInfill "glass"}} selected {{end}}>Glass</option>
+                                 </select>
                             </div>
                         </div>
                     </div>
@@ -105,7 +104,7 @@
                     <div class="control">
                         <div class="field">
                             <label class="label">Width (ft):</label>
-                            <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal is-fullwidth" type="number" name="stairWidth" step="0.1" min="0" value="{{printf "%.1f" .StairWidth}}" maxlength="20">
                         </div>
                     </div>
                 </div>
