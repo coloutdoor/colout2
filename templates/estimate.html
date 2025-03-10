@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Deck Estimate Results</title>
+    <title>Deck Estimate</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <!--
     <style>
@@ -17,6 +17,11 @@
         <div class="level-left">
             <div class="level-item">
                 <h1 class="title">Deck Estimate</h1>
+                {{if not .SaveDate.IsZero}}
+                    <div class="level-item">
+                        <button class="button is-info is-pulled-right" onclick="window.print()">Print</button>
+                    </div>
+                {{end}}
             </div>
         </div>
         <div class="level-right">
@@ -28,11 +33,14 @@
     {{if .TotalCost}}
     <div class="box mt-5">
         <h2 class="subtitle">Customer
-            {{if .SaveDate.IsZero}}
-            <span class="is-pulled-right"><a href="/customer" class="button is-light is-small">Edit</a></span>
+            {{if eq .Customer.FirstName ""}}
+                <span class="is-pulled-right"><a href="/customer" class="button is-danger">Add Customer</a></span>
+            {{else if .SaveDate.IsZero}}
+                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit</a></span>
             {{end}}
         </h2>
         <div class="content">
+            {{end}}
             <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
             <p>{{.Customer.Address}}</p>
             <p>{{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
@@ -40,9 +48,14 @@
             <p>{{.Customer.Email}}</p>
         </div>
         <hr>
-        <h2 class="subtitle">Estimate
-            {{if .SaveDate.IsZero}}
-            <span class="is-pulled-right"><a href="/" class="button is-light is-small">Edit</a></span>
+        <h2 class="subtitle">
+            <p class="has-text-white has-background-black"> Details 
+            {{if gt .EstimateID 0}}
+                 - EstimateID: {{.EstimateID}} - Expires: {{.ExpirationDate.Format "2006-01-02"}}
+            {{end}}
+           </p>
+           {{if .SaveDate.IsZero}}
+            <span class="is-pulled-right"><a href="/" class="button is-primary">Edit</a></span>
             {{end}}
         </h2>
         <div class="columns is-multiline">
@@ -141,7 +154,6 @@
     </div>
     {{end}}
 
-    {{end}}
     {{if .Error}}
     <div class="notification is-danger mt-5">
         <p>{{.Error}}</p>

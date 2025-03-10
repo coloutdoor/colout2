@@ -22,30 +22,47 @@ var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
-	Length        float64
-	Width         float64
-	Height        float64
-	DeckArea      float64
-	Material      string
-	RailMaterial  string
-	RailInfill    string
-	TotalCost     float64
-	DeckCost      float64
-	RailCost      float64
-	StairCost     float64
-	Subtotal      float64
-	FasciaCost    float64
-	FasciaFeet    float64
-	StairWidth    float64
-	StairRailCost float64
-	DemoCost      float64
-	HasDemo       bool
-	RailFeet      float64
-	SalesTax      float64
-	HasFascia     bool
-	Customer      Customer
-	SaveDate      time.Time
-	Error         string
+	Length         float64
+	Width          float64
+	Height         float64
+	DeckArea       float64
+	Material       string
+	RailMaterial   string
+	RailInfill     string
+	TotalCost      float64
+	DeckCost       float64
+	RailCost       float64
+	StairCost      float64
+	Subtotal       float64
+	FasciaCost     float64
+	FasciaFeet     float64
+	StairWidth     float64
+	StairRailCost  float64
+	DemoCost       float64
+	HasDemo        bool
+	RailFeet       float64
+	SalesTax       float64
+	HasFascia      bool
+	Customer       Customer
+	EstimateID     int
+	ExpirationDate time.Time
+	SaveDate       time.Time
+	Error          string
+}
+
+// saveEstimate updates the estimate with save details and persists it to the session.
+func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, session *sessions.Session) {
+	estimate.SaveDate = time.Now()
+	estimate.EstimateID = 1000                                           // Static ID for now
+	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
+
+	session.Values["estimate"] = *estimate
+	if err := session.Save(r, w); err != nil {
+		log.Printf("Session save error: %v", err)
+		renderEstimate(w, DeckEstimate{Error: "Session save error"})
+		return
+	}
+	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
@@ -105,14 +122,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
-			estimate.SaveDate = time.Now()
-			session.Values["estimate"] = estimate
-			if err := session.Save(r, w); err != nil {
-				log.Printf("Session save error: %v", err)
-				renderEstimate(w, DeckEstimate{Error: "Session save error"})
-				return
-			}
-			log.Printf("Estimate saved at %v", estimate.SaveDate)
+			saveEstimate(w, r, &estimate, session)
 		} else {
 			renderEstimate(w, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
 			return
@@ -155,6 +165,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.HasDemo = r.FormValue("hasDemo") == "on"
 	estimate.HasFascia = r.FormValue("hasFascia") == "on"
 	estimate.StairWidth = stairWidth
+
+	// Unsave - if it was previously saved - It is changed :(
+	estimate.SaveDate = time.Time{}
+	estimate.EstimateID = 0 // Static ID for now
+	estimate.ExpirationDate = time.Time{}
 
 	materialCost, ok := costs.DeckMaterials[estimate.Material]
 	if !ok { // Shouldn’t hit this—deck calc already checks
