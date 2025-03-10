@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/sessions"
 )
@@ -43,6 +44,7 @@ type DeckEstimate struct {
 	SalesTax      float64
 	HasFascia     bool
 	Customer      Customer
+	SaveDate      time.Time
 	Error         string
 }
 
@@ -70,7 +72,6 @@ type EstimatePageData struct {
 }
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
-
 	// Get session
 	session, err := store.Get(r, "colout2-session")
 	if err != nil {
@@ -87,17 +88,40 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session get error: %v", err)
 	}
 
+	// Load the estimate from session
+	estimate := DeckEstimate{}
+	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
+		estimate = est
+	}
+	estimate.Customer = customer // Embed customer in estimate
+
+	// ************* GET  ********************************
 	if r.Method != http.MethodPost {
 		// Load estimate from session for GET
-		estimate := DeckEstimate{}
-		if est, ok := session.Values["estimate"].(DeckEstimate); ok {
-			estimate = est
-		}
-		estimate.Customer = customer // Embed customer in estimate
 		renderEstimate(w, estimate)
 		return
 	}
 
+	// ************* POST - SAVE  ********************************
+	if r.FormValue("save") == "true" {
+		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
+			estimate.SaveDate = time.Now()
+			session.Values["estimate"] = estimate
+			if err := session.Save(r, w); err != nil {
+				log.Printf("Session save error: %v", err)
+				renderEstimate(w, DeckEstimate{Error: "Session save error"})
+				return
+			}
+			log.Printf("Estimate saved at %v", estimate.SaveDate)
+		} else {
+			renderEstimate(w, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
+			return
+		}
+		renderEstimate(w, estimate)
+		return
+	}
+
+	// ************* POST - Data - calculate estimate ********************************
 	length, err := strconv.ParseFloat(r.FormValue("length"), 64)
 	if err != nil || length <= 0 {
 		renderEstimate(w, DeckEstimate{Error: "Length must be a positive number"})
@@ -121,33 +145,23 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		stairWidth = 0 // Default to 0 if invalid or not provided
 	}
 
-	material := r.FormValue("material")
-	railMaterial := r.FormValue("railMaterial")
-	railInfill := r.FormValue("railInfill")
-	hasDemo := r.FormValue("hasDemo") == "on"
-	hasFascia := r.FormValue("hasFascia") == "on"
+	estimate.Length = length
+	estimate.Width = width
+	estimate.Height = height
+	estimate.Material = r.FormValue("material")
+	estimate.RailMaterial = r.FormValue("railMaterial")
+	estimate.RailInfill = r.FormValue("railInfill")
+	estimate.DeckArea = length * width
+	estimate.HasDemo = r.FormValue("hasDemo") == "on"
+	estimate.HasFascia = r.FormValue("hasFascia") == "on"
+	estimate.StairWidth = stairWidth
 
-	estimate := DeckEstimate{
-		Length:       length,
-		Width:        width,
-		Height:       height,
-		Material:     material,
-		RailMaterial: railMaterial,
-		RailInfill:   railInfill,
-		DeckArea:     length * width,
-		HasFascia:    hasFascia,
-		StairWidth:   stairWidth,
-		HasDemo:      hasDemo,
-	}
-
-	estimate.Customer = customer // Embed customer in estimate
-
-	materialCost, ok := costs.DeckMaterials[material]
+	materialCost, ok := costs.DeckMaterials[estimate.Material]
 	if !ok { // Shouldn’t hit this—deck calc already checks
 		materialCost = 0
 	}
 
-	deckCost, err := CalculateDeckCost(length, width, height, material, costs)
+	deckCost, err := CalculateDeckCost(length, width, height, estimate.Material, costs)
 	if err != nil {
 		estimate.Error = err.Error()
 		renderEstimate(w, estimate)
@@ -163,10 +177,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	estimate.StairCost = stairCost
 	if stairCost > 0 {
-		estimate.StairRailCost = CalculateStairRailCost(height, railMaterial, costs)
+		estimate.StairRailCost = CalculateStairRailCost(height, estimate.RailMaterial, costs)
 	}
 
-	railCost, err := CalculateRailCost(length, width, railMaterial, railInfill, costs)
+	railCost, err := CalculateRailCost(length, width, estimate.RailMaterial, estimate.RailInfill, costs)
 	if err != nil {
 		estimate.Error = err.Error()
 		renderEstimate(w, estimate)
