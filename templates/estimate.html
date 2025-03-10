@@ -16,7 +16,7 @@
     <div class="level mb-5">
         <div class="level-left">
             <div class="level-item">
-                <h1 class="title">Deck Estimate Results</h1>
+                <h1 class="title">Deck Estimate</h1>
             </div>
         </div>
         <div class="level-right">
@@ -27,7 +27,9 @@
     </div>
     {{if .TotalCost}}
     <div class="box mt-5">
-        <h2 class="subtitle">Customer</h2>
+        <h2 class="subtitle">Customer
+            <span class="is-pulled-right"><a href="/customer" class="button is-light is-small">Edit</a></span>
+        </h2>
         <div class="content">
             <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
             <p>{{.Customer.Address}}</p>
@@ -36,7 +38,9 @@
             <p>{{.Customer.Email}}</p>
         </div>
         <hr>
-        <h2 class="subtitle">Your Estimate</h2>
+        <h2 class="subtitle">Estimate
+            <span class="is-pulled-right"><a href="/" class="button is-light is-small">Edit</a></span>
+        </h2>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
             <div class="column is-8"><strong>Description</strong></div>
@@ -75,7 +79,7 @@
 
             <div class="column is-2">Stairs</div>
             {{if .StairWidth}}
-            <div class="column is-8">Supply and install premium presure treated stair framing at {{printf "%.1f" .StairWidth}} ft wide. 
+            <div class="column is-8">Supply and install premium pressure treated stair framing at {{printf "%.1f" .StairWidth}} ft wide. 
                                     Stair treads approximately 11" per step with matching {{.Material}} decking on treads and toe kicks
                                     Total rise of stairs is {{printf "%.1f" .Height}} ft. </div>
             <div class="column is-2 has-text-right">{{formatCost .StairCost}}</div>
@@ -110,12 +114,8 @@
             <div class="column is-2 has-text-weight-semibold has-background-light"><strong class="is-size-4">Total</strong></div>
             <div class="column is-8 has-text-weight-semibold has-background-light"></div>
             <div class="column is-2 has-text-weight-semibold has-text-right has-background-light"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
-         </div>
+        </div>
     </div>
-    <div class="buttons is-grouped mt-4">
-        <a href="/" class="button is-light">Modify Estimate</a>
-        <a href="/customer" class="button is-light">Modify Customer</a>
-     </div>
     {{end}}
     {{if .Error}}
     <div class="notification is-danger mt-5">
