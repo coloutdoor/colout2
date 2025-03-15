@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -47,6 +48,7 @@ type DeckEstimate struct {
 	EstimateID     int
 	ExpirationDate time.Time
 	SaveDate       time.Time
+	Terms          string
 	Error          string
 }
 
@@ -67,6 +69,14 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
 func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
+	// Terms is not part of session
+	terms, err := os.ReadFile("static/t_and_c.txt")
+	if err != nil {
+		// Fallback if file is missing
+		terms = []byte("Terms and Conditions not available.")
+	}
+	estimate.Terms = string(terms)
+
 	if err := tmpl.ExecuteTemplate(w, "estimate.html", estimate); err != nil {
 		log.Printf("estimateHandler execute error: %v", err)
 		panic(err)
