@@ -158,6 +158,8 @@
             </div>
         </form>
     {{else}}
+        <h2 class="subtitle">Terms and Conditions</h2>
+        <pre>{{ .Terms }}</pre>
         <p>Estimate Accepted on {{.AcceptDate.Format "2006-01-02 15:04:05"}}</p>
     {{end}}
         <button class="button is-info is-pulled-right" onclick="window.print()">Print</button>
