@@ -41,6 +41,13 @@ sqlite3 estimates.db "SELECT estimate_id, first_name, total_cost, save_date FROM
 go build .
 ./colout2
 
+### Build script
+```bash
+./build.sh  
+./build.sh -docker # Build Docker for Linux
+./build.sh -deploy # Deploy to GCP
+```
+
 ## Docker
 docker build -t colout2:latest .
 docker run -p 8080:8080 colout2:latest
