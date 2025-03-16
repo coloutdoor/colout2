@@ -2,7 +2,6 @@
 
 # Build script for colout2
 # Usage: ./build.sh [docker|deploy]
-G&uS2DK9I0yR
 
 PROJECT_ID="columbia-outdoor"  # Your GCP project ID
 IMAGE_NAME="colout2"
