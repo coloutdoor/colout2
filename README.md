@@ -29,4 +29,10 @@ go build
 - `rails.go`: Rail cost logic.
 - `costs.yaml`: Dynamic pricing.
 
-More to come—stairs, demo, you name it!
+## Build
+go build .
+./colout2
+
+## Docker
+docker build -t colout2:latest .
+docker run -p 8080:8080 colout2:latest
