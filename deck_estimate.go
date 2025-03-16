@@ -77,7 +77,12 @@ var db *sql.DB              // db is the SQLite database connection
 func init() {
 	// Initialize SQLite database
 	var err error
-	db, err = sql.Open("sqlite3", "db/estimates.db")
+	dbDir := os.Getenv("DB_DIR")
+	if dbDir == "" {
+		dbDir = "./db" // Default to ./db if DB_DIR not set
+	}
+	// Initialize SQLite database
+	db, err = sql.Open("sqlite3", dbDir+"/estimates.db")
 	if err != nil {
 		log.Fatalf("Failed to open SQLite DB: %v", err)
 	}
