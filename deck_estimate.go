@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
 	"html/template"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver
 )
 
 // Define template functions
@@ -53,21 +55,6 @@ type DeckEstimate struct {
 	Error          string
 }
 
-// saveEstimate updates the estimate with save details and persists it to the session.
-func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, session *sessions.Session) {
-	estimate.SaveDate = time.Now()
-	estimate.EstimateID = 1000                                           // Static ID for now
-	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
-
-	session.Values["estimate"] = *estimate
-	if err := session.Save(r, w); err != nil {
-		log.Printf("Session save error: %v", err)
-		renderEstimate(w, DeckEstimate{Error: "Session save error"})
-		return
-	}
-	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
-}
-
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
 func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
 	// Terms is not part of session
@@ -84,14 +71,101 @@ func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
 	}
 }
 
-// tmpl is the global template for estimate.html, initialized at startup.
-var tmpl *template.Template
+var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
+var db *sql.DB              // db is the SQLite database connection
 
 func init() {
+	// Initialize SQLite database
+	var err error
+	db, err = sql.Open("sqlite3", "db/estimates.db")
+	if err != nil {
+		log.Fatalf("Failed to open SQLite DB: %v", err)
+	}
+
+	// Create Estimates table
+	createTableSQL := `
+    CREATE TABLE IF NOT EXISTS estimates (
+        estimate_id INTEGER PRIMARY KEY,
+        length REAL,
+        width REAL,
+        height REAL,
+        material TEXT,
+        rail_material TEXT,
+        rail_infill TEXT,
+        stair_width REAL,
+        has_demo BOOLEAN,
+        has_fascia BOOLEAN,
+        total_cost REAL,
+        first_name TEXT,
+        last_name TEXT,
+        address TEXT,
+        city TEXT,
+        state TEXT,
+        zip TEXT,
+        phone_number TEXT,
+        email TEXT,
+        save_date TEXT,
+        accept_date TEXT,
+        expiration_date TEXT
+    );`
+	if _, err := db.Exec(createTableSQL); err != nil {
+		log.Fatalf("Failed to create Estimates table: %v", err)
+	}
+
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
 	gob.Register(time.Time{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html"))
+}
+
+// saveEstimate updates the estimate with save details and persists it to the session.
+func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, session *sessions.Session) {
+	estimate.SaveDate = time.Now()
+	// estimate.EstimateID = 1000                                           // Static ID for now
+	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
+
+	// Get next EstimateID from DB - Set to 1000, if it does not exist
+	var nextID int
+	err := db.QueryRow("SELECT COALESCE(MAX(estimate_id), 999) + 1 FROM estimates").Scan(&nextID)
+	if err != nil {
+		log.Printf("Failed to get next EstimateID: %v", err)
+		renderEstimate(w, DeckEstimate{Error: "Database ID error"})
+		return
+	}
+	estimate.EstimateID = nextID
+
+	// Save to SQLite database
+	insertSQL := `
+        INSERT INTO estimates (
+            estimate_id, length, width, height, material, rail_material, rail_infill,
+            stair_width, has_demo, has_fascia, total_cost, first_name, last_name,
+            address, city, state, zip, phone_number, email, 
+            save_date, accept_date, expiration_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err = db.Exec(insertSQL,
+		estimate.EstimateID, estimate.Length, estimate.Width, estimate.Height,
+		estimate.Material, estimate.RailMaterial, estimate.RailInfill,
+		estimate.StairWidth, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
+		estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
+		estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
+		estimate.Customer.PhoneNumber, estimate.Customer.Email,
+		estimate.SaveDate.Format("2006-01-02 15:04:05"),
+		nil, // accept_date - null until accepted
+		estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
+	)
+	if err != nil {
+		log.Printf("Failed to save estimate to DB: %v", err)
+		renderEstimate(w, DeckEstimate{Error: "Database save error"})
+		return
+	}
+
+	session.Values["estimate"] = *estimate
+	if err := session.Save(r, w); err != nil {
+		log.Printf("Session save error: %v", err)
+		renderEstimate(w, DeckEstimate{Error: "Session save error"})
+		return
+	}
+	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 }
 
 // EstimatePageData holds data for the estimate page, including customer info.
@@ -196,6 +270,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.SaveDate = time.Time{}
 	estimate.EstimateID = 0 // Static ID for now
 	estimate.ExpirationDate = time.Time{}
+	estimate.AcceptDate = time.Time{}
 
 	materialCost, ok := costs.DeckMaterials[estimate.Material]
 	if !ok { // Shouldn’t hit this—deck calc already checks

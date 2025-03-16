@@ -1,4 +1,6 @@
 *.exe*
+db
+colout2
 errors.log
 .env
 *.txt

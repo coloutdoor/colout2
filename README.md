@@ -23,6 +23,14 @@ go build
 - Optional rails with material and infill choices.
 - Costs loaded from `costs.yaml`.
 
+## DB
+ - SQLite
+ - This requires CGO, so need to run and build on Linux (wsl)
+```bash
+sqlite3 estimates.db "SELECT name FROM sqlite_master WHERE type='table';"
+sqlite3 estimates.db "SELECT estimate_id, first_name, total_cost, save_date FROM estimates;"
+```
+
 ## Code
 - `main.go`: Web server and flow.
 - `deck.go`: Deck cost logic.
