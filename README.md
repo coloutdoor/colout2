@@ -44,7 +44,7 @@ go build .
 ### Build script
 ```bash
 ./build.sh  
-./build.sh -docker # Build Docker for Linux
+./build.sh -docker # Build Docker for Linux colut2:latest
 ./build.sh -deploy # Deploy to GCP
 ```
 
