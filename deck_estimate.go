@@ -48,6 +48,7 @@ type DeckEstimate struct {
 	EstimateID     int
 	ExpirationDate time.Time
 	SaveDate       time.Time
+	AcceptDate     time.Time
 	Terms          string
 	Error          string
 }
@@ -89,6 +90,7 @@ var tmpl *template.Template
 func init() {
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
+	gob.Register(time.Time{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html"))
 }
 
@@ -137,6 +139,20 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 			renderEstimate(w, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
 			return
 		}
+		renderEstimate(w, estimate)
+		return
+	}
+
+	// ************* POST - Accept  - After Save ********************************
+	if r.FormValue("accept") == "true" && !estimate.SaveDate.IsZero() {
+		estimate.AcceptDate = time.Now()
+		session.Values["estimate"] = estimate
+		if err := session.Save(r, w); err != nil {
+			log.Printf("Session save error: %v", err)
+			renderEstimate(w, DeckEstimate{Error: "Session save error"})
+			return
+		}
+		log.Printf("Estimate accepted at %v", estimate.AcceptDate)
 		renderEstimate(w, estimate)
 		return
 	}

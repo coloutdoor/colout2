@@ -51,12 +51,17 @@
         <h2 class="subtitle">
             <p class="has-text-white has-background-black"> Details 
             {{if gt .EstimateID 0}}
-                 - EstimateID: {{.EstimateID}} - Expires: {{.ExpirationDate.Format "2006-01-02"}}
+                 - EstimateID: {{.EstimateID}} 
+                 {{if .AcceptDate.IsZero}}
+                    Expires: {{.ExpirationDate.Format "2006-01-02"}}
+                 {{else}}
+                     - Accepted on {{.AcceptDate.Format "2006-01-02"}}
+                 {{end}}
             {{end}}
            </p>
            {{if .SaveDate.IsZero}}
             <span class="is-pulled-right"><a href="/" class="button is-primary">Edit</a></span>
-            {{end}}
+           {{end}}
         </h2>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
@@ -141,19 +146,23 @@
         </div>
     </form>
     {{end}}
-    {{if not .SaveDate.IsZero}}
     <div class="content mt-4">
+    {{if .SaveDate.IsZero}}
+    {{else if .AcceptDate.IsZero}}
         <h2 class="subtitle">Terms and Conditions</h2>
         <pre>{{ .Terms }}</pre>
         <form method="post" action="/estimate" class="mt-4">
            <input type="hidden" name="accept" value="true">
             <div class="field">
                 <button class="button is-success" type="submit">Accept Estimate</button>
-                <button class="button is-info is-pulled-right" onclick="window.print()">Print</button>
             </div>
         </form>
-    </div>
+    {{else}}
+        <p>Estimate Accepted on {{.AcceptDate.Format "2006-01-02 15:04:05"}}</p>
     {{end}}
+        <button class="button is-info is-pulled-right" onclick="window.print()">Print</button>
+    </div>
+
     {{if .Error}}
     <div class="notification is-danger mt-5">
         <p>{{.Error}}</p>
