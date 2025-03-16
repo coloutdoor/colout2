@@ -50,7 +50,12 @@
                         </div>
                         <div class="field">
                             <label class="label">State:</label>
-                            <input class="input is-normal is-fullwidth" type="text" name="state" value="{{.State}}" required>
+                            <div class="select">
+                                <select name="state" class="is-fullwidth" required>
+                                    <option value="WA" {{if eq .State "WA"}}selected{{else if eq .State ""}}selected{{end}}>WA</option>
+                                    <option value="OR" {{if eq .State "OR"}}selected{{end}}>OR</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="field">
                             <label class="label">Zip:</label>
