@@ -151,18 +151,22 @@
     {{else if .AcceptDate.IsZero}}
         <h2 class="subtitle">Terms and Conditions</h2>
         <pre>{{ .Terms }}</pre>
-        <form method="post" action="/estimate" class="mt-4">
-           <input type="hidden" name="accept" value="true">
-            <div class="field">
+        <div class="buttons mt-4">
+            <form method="post" action="/estimate">
+                <input type="hidden" name="accept" value="true">
                 <button class="button is-success" type="submit">Accept Estimate</button>
-            </div>
-        </form>
+            </form>
+            <button class="button is-info" type="button" onclick="window.print()">Print</button>
+        </div>
     {{else}}
         <h2 class="subtitle">Terms and Conditions</h2>
         <pre>{{ .Terms }}</pre>
         <p>Estimate Accepted on {{.AcceptDate.Format "2006-01-02 15:04:05"}}</p>
+        <div class="buttons mt-4">
+            <button class="button is-info" type="button" onclick="window.print()">Print</button>
+        </div>
+ 
     {{end}}
-        <button class="button is-info is-pulled-right" onclick="window.print()">Print</button>
     </div>
 
     {{if .Error}}

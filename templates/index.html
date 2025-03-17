@@ -58,7 +58,7 @@
                         <div class="field">
                             <label class="label">Material:</label>
                             <div class="select">
-                                <select name="material" required style="width: 20ch;" value="{{.Material}}">
+                                <select name="material" required style="width: 30ch;" value="{{.Material}}">
                                    <option value="outdoorWood" {{if eq .Material "outdoorWood"}} selected {{end}}>Outdoor Wood</option>
                                    <option value="cedar" {{if eq .Material "cedar"}} selected {{end}}>Cedar</option>
                                    <option value="timberTechPrime" {{if eq .Material "timberTechPrime"}} selected {{end}}>TimberTech Prime</option>
@@ -118,7 +118,7 @@
                     <div class="control">
                         <div class="field">
                             <label class="label">Width (ft):</label>
-                            <input class="input is-normal is-fullwidth" type="number" name="stairWidth" step="0.1" min="0" value="{{printf "%.1f" .StairWidth}}" maxlength="20">
+                            <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" value="{{printf "%.1f" .StairWidth}}" maxlength="20" style="width: 20ch;">
                         </div>
                     </div>
                 </div>
