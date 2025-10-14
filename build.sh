@@ -5,7 +5,10 @@
 
 PROJECT_ID="columbia-outdoor"  # Your GCP project ID
 IMAGE_NAME="colout2"
-GCR_IMAGE="gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
+
+### Change from Container Registry to Artifact Registry 
+##GCR_IMAGE="gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
+GCR_IMAGE="us.gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
 
 case "$1" in
     "docker")
