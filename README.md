@@ -8,9 +8,10 @@ A simple Go web app to estimate deck building costs, including materials, rails,
 - Accept estimate.
 
 ## Running It
-1. Ensure Go 1.24+ is installed.
-2. Clone or cd into `~/Github/colout2`.
-3. Set up `.env` (optional, defaults to localhost):
+1. Ensure Go 1.24+ is installed. and CGO is enabled:  
+2. `go env CGO_ENABLED`
+3. Clone or cd into `~/Github/colout2`.
+4. Set up `.env` (optional, defaults to localhost):
 
 ```
     SERVER_ADDR=127.0.0.1:8080
@@ -18,7 +19,7 @@ A simple Go web app to estimate deck building costs, including materials, rails,
 
 4. Build and run local dev environment:
 ```bash
-go build
+go build -o colout2
 ./colout2
 ```
 Open `http://localhost:8080` in a browser.
