@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="../images/fav_icon.png" type="image/x-icon">
+    <title>Columbia Outdoor - Outdoor Living</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <!-- Bulma Version 1-->
+    <link rel="stylesheet" href="https://unpkg.com/bulma@1.0.4/css/bulma.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/colout.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulma-modal-fx/dist/css/modal-fx.min.css" />
+    <style>
+    .columns:nth-child(2)
+    {margin-top: -10rem;}
+    ::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-track{background:#efefef;border-radius:6px}::-webkit-scrollbar-thumb{background:#d5d5d5;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:#c4c4c4}
+    </style>
+  </head>
+  <body>
+    <section class="hero is-info is-small">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <p class="title">
+            Columbia Outdoor 
+          </p>
+          <p class="subtitle">
+            {{.Objective}} 
+          </p>
+        </div>
+      </div>
+    </section>
+    <div class="box cta">
+      <p class="has-text-centered">
+        <a href="/calc" class="button is-primary">Estimate</a> Try our estimate calculator
+      </p>
+    </div>
+    <section class="container">
+      <div class="columns features">
+        <div class="column is-4">
+          <div class="card is-shady">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="/images/deck1.jpeg" alt="Deck 1">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="content">
+                <h3>{{ (index .Strategies 0).Strategy }}</h3>
+                <p>{{ (index .Strategies 0).Messaging }}</p>
+                <span class="button is-link modal-button" data-target="modal-card0">Modal Card 0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="card is-shady">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="/images/cover1.jpeg" alt="Outdoor Living image">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="content">
+                <h4>{{ (index .Strategies 1).Strategy }}</h4>
+                <p>{{ (index .Strategies 1).Messaging }}</p>
+                <span class="button is-link modal-button" data-target="modal-card1">Modal Card 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="card is-shady">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="/images/deck3.jpg" alt="Deck 3 image">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="content">
+                <h4>{{ (index .Strategies 2).Strategy }}</h4>
+                <p>{{ (index .Strategies 2).Messaging }}</p>
+                <span class="button is-link modal-button" data-target="modal-card2">Modal Card 2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns features">
+        <div class="column is-4">
+          <div class="card is-shady">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="/images/gazebo1.jpg" alt="Gazebo image">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="content">
+                <h4>{{ (index .Strategies 3).Strategy }}</h4>
+                <p>{{ (index .Strategies 3).Messaging }}</p>
+                <span class="button is-link modal-button" data-target="modal-card3">Modal Card 3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="card is-shady">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="/images/cover2.jpg" alt="White Cover">
+              </figure>
+            </div>
+            <div class="card-content ">
+              <div class="content">
+                <h4>{{ (index .Strategies 4).Strategy }}</h4>
+                <p>{{ (index .Strategies 4).Messaging }}</p>
+                <span class="button is-link modal-button" data-target="modal-card4">Modal Card 4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <section class="section">
+        <div class="container">
+          <div class="columns is-multiline">
+            <div class="column is-one-third">
+              <article class="notification media has-background-white">
+                <figure class="media-left">
+                  <span class="icon">
+                    <i class="has-text-warning fa fa-columns fa-lg"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Columns</h1>
+                    <p class="is-size-5 subtitle">
+                      The power of <strong>Flexbox</strong> in a simple interface
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="column is-one-third">
+              <article class="notification has-background-white media">
+                <figure class="media-left">
+                  <span class="icon has-text-info">
+                    <i class="fa fa-lg fa-wpforms"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Form</h1>
+                    <p class="is-size-5 subtitle">
+                      The indispensable <strong>form controls</strong>, designed for maximum clarity
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="column is-one-third">
+              <article class="notification has-background-white media">
+                <figure class="media-left">
+                  <span class="icon has-text-danger">
+                    <i class="fa fa-lg fa-cubes"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Components</h1>
+                    <p class="is-size-5 subtitle">
+                      Advanced multi-part components with lots of possibilities
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="column is-one-third">
+              <article class="notification has-background-white media">
+                <figure class="media-left">
+                  <span class="icon has-text-grey">
+                    <i class="fa fa-lg fa-cogs"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Modifiers</h1>
+                    <p class="is-size-5 subtitle">
+                      An <strong>easy-to-read</strong> naming system designed for humans
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="column is-one-third">
+              <article class="notification has-background-white media">
+                <figure class="media-left">
+                  <span class="icon has-text-primary">
+                    <i class="fa fa-lg fa-superpowers"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Layout</h1>
+                    <p class="is-size-5 subtitle">
+                      Design the <strong>structure</strong> of your webpage with these CSS classes
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="column is-one-third">
+              <article class="notification has-background-white media">
+                <figure class="media-left">
+                  <span class="icon has-text-danger">
+                    <i class="fa fa-lg fa-cube"></i>
+                  </span>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <h1 class="title is-size-4">Elements</h1>
+                    <p class="is-size-5 subtitle">
+                      Essential interface elements that only require a <strong>single CSS class</strong>
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="content has-text-centered">
+        <div class="control level-item">
+          <a href="https://github.com/BulmaTemplates/bulma-templates">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Bulma Templates</span>
+              <span class="tag is-info">MIT license</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </footer>
+    <!--  ===============
+    HERE BE MODALS
+    ===============  -->
+    <!-- Modal Card 0 -->
+    <div id="modal-card0" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-tiny">
+        <!-- content -->
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="/images/rails1.png" alt="Rails1 image">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="/images/colout2_sm.png" alt="Colout Logo">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">Columbia Outdoor</p>
+                {{ with index .Strategies 0 }}
+                  {{ range .PainPoints }}
+                    <li>{{ . }}</li>
+                  {{ end }}
+                {{ end }}
+              </div>
+            </div>
+            <div class="content">
+              {{ (index .Strategies 0).Advantage }}
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- end Modal Card 0-->
+
+    <!-- Modal Card 1 -->
+    <div id="modal-card1" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-tiny">
+        <!-- content -->
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="/images/cover2.jpg" alt="Cover 2 image">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="/images/colout2_sm.png" alt="Colout Logo">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">Columbia Outdoor</p>
+                  {{ with index .Strategies 1 }}
+                  {{ range .PainPoints }}
+                    <li>{{ . }}</li>
+                  {{ end }}
+                {{ end }}
+              </div>
+            </div>
+            <div class="content">
+              {{ (index .Strategies 1).Advantage }}
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- end tiny modal card -->
+
+
+    <!-- Modal Card 2  -->
+    <div id="modal-card2" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-tiny">
+        <!-- content -->
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="/images/deck2.jpg" alt="Deck2 image">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="/images/colout2_sm.png" alt="Col Out logo">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">Columbia Outdoor</p>
+                  {{ with index .Strategies 2 }}
+                  {{ range .PainPoints }}
+                    <li>{{ . }}</li>
+                  {{ end }}
+                {{ end }}
+              </div>
+            </div>
+            <div class="content">
+              {{ (index .Strategies 2).Advantage }}
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- end Modal Card 2-->
+
+    <!-- Modal Card 3  -->
+    <div id="modal-card3" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-tiny">
+        <!-- content -->
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="/images/deck2.jpg" alt="Deck2 image">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="/images/colout2_sm.png" alt="logo small">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">Columbia Outdoor</p>
+                  {{ with index .Strategies 3 }}
+                  {{ range .PainPoints }}
+                    <li>{{ . }}</li>
+                  {{ end }}
+                {{ end }}
+              </div>
+            </div>
+            <div class="content">
+              {{ (index .Strategies 3).Advantage }}
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- end Modal Card 3-->
+
+    <!-- Modal Card 4  -->
+    <div id="modal-card4" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-tiny">
+        <!-- content -->
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+               <img src="/images/deck4.jpg" alt="Stairs 1 img">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img src="/images/colout2_sm.png" alt="logo small">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">Columbia Outdoor</p>
+                  {{ with index .Strategies 4 }}
+                  {{ range .PainPoints }}
+                    <li>{{ . }}</li>
+                  {{ end }}
+                {{ end }}
+              </div>
+            </div>
+            <div class="content">
+              {{ (index .Strategies 4).Advantage }}
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- end Modal Card 4-->
+
+
+
+    <!-- Image modal -->
+    <div id="modal-image2" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-huge is-image">
+        <!-- content -->
+        <img src="/images/deck1.jpeg" alt="image">
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- Image modal -->
+    <div id="modal-image4" class="modal modal-fx-3dSlit">
+      <div class="modal-background"></div>
+      <div class="modal-content is-huge is-image">
+        <!-- content -->
+        <img src="https://images.unsplash.com/photo-1529774172307-627a0ae46dae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80" alt="butterfly">
+        <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <!-- Image modal-->
+    <div id="modal-image" class="modal modal-fx-superScaled">
+      <div class="modal-background"></div>
+      <div class="modal-content  is-image">
+        <!-- content -->
+        <img src="https://res.cloudinary.com/ameo/image/upload/v1568711475/pexels-photo-1302883_fjje0f.jpg" alt="Placeholder image">
+        <!--     <img src="https://source.unsplash.com/zFrUz_tNjCY" alt="placeholder">
+        -->    <!-- end content -->
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    <script src="https://unpkg.com/bulma-modal-fx/dist/js/modal-fx.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
+  integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
+  crossorigin="anonymous"></script>    <script src="../js/wild.js"></script>
+  </body>
+</html>

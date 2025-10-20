@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -35,6 +36,17 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func cssHandler(w http.ResponseWriter, r *http.Request) {
+	// log.Printf("CSS Handler for : %s", r.URL.Path)
+	// Set the content type to CSS
+	w.Header().Set("Content-Type", "text/css")
+
+	// Strip the leading "/" from the path
+	filePath := strings.TrimPrefix(r.URL.Path, "/")
+	// Serve the file from the "css" directory, using the full path
+	http.ServeFile(w, r, filePath)
+}
+
 func main() {
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
@@ -44,11 +56,13 @@ func main() {
 	flag.Parse()
 
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
-	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/", ownerHandler)
 	http.HandleFunc("/estimate", estimateHandler)
 	http.HandleFunc("/customer", customerHandler)
 	http.HandleFunc("/session", sessionHandler)
 	http.HandleFunc("/calc", calcHandler)
+	http.HandleFunc("/css/", cssHandler)
+	http.HandleFunc("/test", homeHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

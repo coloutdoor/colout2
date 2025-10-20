@@ -18,17 +18,22 @@ case "$1" in
         echo "Run locally:  docker run -p 8080:8080 colout2:latest"
         ;;
     "deploy")
-        ## Use the latest build
+        ## Deploy to GCP.  Run these commands first to get GCP / gcloud working
+        ##                   gcloud config set project columbia-outdoor
+        ##                   gcloud auth login
+        ##                   gcloud auth configure-docker us.gcr.io
+        ## 
         echo "Tagging last built image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
         echo "Pushing to GCR..."
-        docker push "$GCR_IMAGE"
+        docker push "$GCR_IMAGE" || { echo "Error: **** Docker Push failed for $GCR_IMAGE" >&2; exit 1; }
         echo "Deploying to Cloud Run..."
         gcloud run deploy "$IMAGE_NAME" \
             --image "$GCR_IMAGE" \
             --platform managed \
             --region us-central1 \
             --port 8080 \
+            --project $PROJECT_ID \
             --allow-unauthenticated
         echo "Deployed to Cloud Run!"
         ;;
