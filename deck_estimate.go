@@ -25,6 +25,7 @@ var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
+	Desc           string
 	Length         float64
 	Width          float64
 	Height         float64
@@ -40,6 +41,7 @@ type DeckEstimate struct {
 	FasciaCost     float64
 	FasciaFeet     float64
 	StairWidth     float64
+	StairRailCount float64
 	StairRailCost  float64
 	DemoCost       float64
 	HasDemo        bool
@@ -91,6 +93,7 @@ func init() {
 	createTableSQL := `
     CREATE TABLE IF NOT EXISTS estimates (
         estimate_id INTEGER PRIMARY KEY,
+		desc TEXT,
         length REAL,
         width REAL,
         height REAL,
@@ -98,6 +101,7 @@ func init() {
         rail_material TEXT,
         rail_infill TEXT,
         stair_width REAL,
+		stair_rail_count REAL,
         has_demo BOOLEAN,
         has_fascia BOOLEAN,
         total_cost REAL,
@@ -142,15 +146,15 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	// Save to SQLite database
 	insertSQL := `
         INSERT INTO estimates (
-            estimate_id, length, width, height, material, rail_material, rail_infill,
-            stair_width, has_demo, has_fascia, total_cost, first_name, last_name,
+            estimate_id, desc, length, width, height, material, rail_material, rail_infill,
+            stair_width, stair_rail_count, has_demo, has_fascia, total_cost, first_name, last_name,
             address, city, state, zip, phone_number, email, 
             save_date, accept_date, expiration_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err = db.Exec(insertSQL,
-		estimate.EstimateID, estimate.Length, estimate.Width, estimate.Height,
+		estimate.EstimateID, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
 		estimate.Material, estimate.RailMaterial, estimate.RailInfill,
-		estimate.StairWidth, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
+		estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
 		estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
 		estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
 		estimate.Customer.PhoneNumber, estimate.Customer.Email,
@@ -260,6 +264,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		stairWidth = 0 // Default to 0 if invalid or not provided
 	}
 
+	stairRailCount, err := strconv.ParseFloat(r.FormValue("stairRailCount"), 64)
+	if err != nil || stairRailCount < 0 {
+		stairRailCount = 0 // Default to 0 if invalid or not provided
+	}
+
+	estimate.Desc = r.FormValue("desc")
 	estimate.Length = length
 	estimate.Width = width
 	estimate.Height = height
@@ -270,6 +280,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.HasDemo = r.FormValue("hasDemo") == "on"
 	estimate.HasFascia = r.FormValue("hasFascia") == "on"
 	estimate.StairWidth = stairWidth
+	estimate.StairRailCount = stairRailCount
 
 	// Unsave - if it was previously saved - It is changed :(
 	estimate.SaveDate = time.Time{}
@@ -298,17 +309,17 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	estimate.StairCost = stairCost
 	if stairCost > 0 {
-		estimate.StairRailCost = CalculateStairRailCost(height, estimate.RailMaterial, costs)
+		estimate.StairRailCost = CalculateStairRailCost(height, estimate.RailMaterial, stairRailCount, costs)
 	}
 
-	railCost, err := CalculateRailCost(length, width, estimate.RailMaterial, estimate.RailInfill, costs)
+	railCost, err := CalculateRailCost(length, width, estimate.RailMaterial, estimate.RailInfill, estimate.StairWidth, costs)
 	if err != nil {
 		estimate.Error = err.Error()
 		renderEstimate(w, estimate)
 		return
 	}
 	estimate.RailCost = railCost
-	estimate.RailFeet = (2 * length) + width
+	estimate.RailFeet = (2 * length) + width - stairWidth
 
 	estimate.DemoCost = 0
 	if estimate.HasDemo {

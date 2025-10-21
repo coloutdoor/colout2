@@ -44,6 +44,10 @@
                     <label class="label is-medium">Deck</label>
                     <div class="control">
                         <div class="field">
+                            <label class="label">Description</label>
+                            <input class="input is-normal" type="text" name="desc" step="0.1" value="{{printf "%s" .Desc}}" maxlength="50" style="width: 20ch;">
+                        </div>
+                        <div class="field">
                             <label class="label">Length (ft):</label>
                             <input class="input is-normal" type="number" name="length" step="0.1" value="{{printf "%.1f" .Length}}" required maxlength="20" style="width: 20ch;">
                         </div>
@@ -120,7 +124,14 @@
                             <label class="label">Width (ft):</label>
                             <input class="input is-normal" type="number" name="stairWidth" step="0.1" min="0" value="{{printf "%.1f" .StairWidth}}" maxlength="20" style="width: 20ch;">
                         </div>
+                    </div> 
+                    <div class="control">
+                        <div class="field">
+                            <label class="label">Stair Rail Count</label>
+                            <input class="input is-normal" type="number" name="stairRailCount" step="1" min="0" value="{{printf "%.1f" .StairRailCount}}" maxlength="20" style="width: 20ch;">
+                        </div>
                     </div>
+
                 </div>
                 <div class="field">
                     <div class="control">

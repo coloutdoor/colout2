@@ -68,6 +68,10 @@
             <div class="column is-8"><strong>Description</strong></div>
             <div class="column is-2 has-text-right"><strong>Cost</strong></div>
 
+            <div class="column is-2">Decription</div>
+            <div class="column is-8">{{.Desc}}</div>
+            <div class="column is-2 has-text-right"> </div>
+ 
             <div class="column is-2">Demo</div>
             {{if .HasDemo}}
             <div class="column is-8">Remove and dispose of existing structure of approximately {{printf "%.1f" .DeckArea}} sq ft</div>
@@ -83,7 +87,7 @@
 
             <div class="column is-2">Rail</div>
             {{if .RailCost}}
-            <div class="column is-8">Supply and install {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill. Rails on 3 sides of deck approximately {{printf "%.1f" .RailFeet}} lineal ft</div>
+            <div class="column is-8">Supply and install {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill. Rails approximately {{printf "%.1f" .RailFeet}} lineal ft</div>
             <div class="column is-2 has-text-right">{{formatCost .RailCost}}</div>
             {{else}}
             <div class="column is-8">Deck rails not included</div>
@@ -112,7 +116,14 @@
             
             <div class="column is-2">Stair Rails</div>
             {{if .StairRailCost}}
-            <div class="column is-8">Supply and install matching Stair rails with {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill. Rails installed on 2 sides.</div>
+            <div class="column is-8">
+                {{if gt .StairRailCount 1.0}} 
+                    Supply and install matching stair rails on both sides 
+                {{else}}
+                    Supply and install matching stair rail - one side only 
+                {{end}}
+                with {{.RailMaterial}} rail posts and top rail with {{.RailInfill}} infill.
+            </div>
             <div class="column is-2 has-text-right">{{formatCost .StairRailCost}}</div>
             {{else}}
             <div class="column is-8">Stair rail not included</div>
