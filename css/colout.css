@@ -38,6 +38,7 @@ html,body {
 .card-content .content h4 {
   font-size: 16px;
   font-weight: 700;
+  color: blue;
 }
 .card {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.18);
