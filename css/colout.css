@@ -77,3 +77,9 @@ footer li:before {
   margin-left: -1.5em;
   color: #147efb;
 }
+
+.card-image figure { margin: 0; cursor: pointer; }
+
+.card-image img { transition: opacity .2s; }
+
+.card-image img:hover { opacity: .85; }
