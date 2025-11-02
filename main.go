@@ -62,6 +62,7 @@ func main() {
 	http.HandleFunc("/session", sessionHandler)
 	http.HandleFunc("/calc", calcHandler)
 	http.HandleFunc("/css/", cssHandler)
+	http.HandleFunc("/contact/", contactHandler)
 	http.HandleFunc("/test", homeHandler)
 
 	//fmt.Println("Server starting on :8080...")

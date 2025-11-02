@@ -18,6 +18,7 @@ import (
 var funcMap = template.FuncMap{
 	"formatCost":            formatCost,
 	"formatDeckDescription": formatDeckDescription,
+	"currentYear":           func() int { return time.Now().Year() },
 }
 
 // Session store - in-memory for now, single secret key

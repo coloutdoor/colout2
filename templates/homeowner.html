@@ -1,48 +1,7 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="../images/fav_icon.png" type="image/x-icon">
-    <title>Columbia Outdoor - Outdoor Living</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <!-- Bulma Version 1-->
-    <link rel="stylesheet" href="https://unpkg.com/bulma@1.0.4/css/bulma.min.css" />
-    <link rel="stylesheet" type="text/css" href="../css/colout.css">
-    <link rel="stylesheet" href="https://unpkg.com/bulma-modal-fx/dist/css/modal-fx.min.css" />
-    <style>
-    .columns:nth-child(2)
-    {margin-top: -10rem;}
-    ::-webkit-scrollbar{height:10px;width:10px}::-webkit-scrollbar-track{background:#efefef;border-radius:6px}::-webkit-scrollbar-thumb{background:#d5d5d5;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:#c4c4c4}
-    </style>
-  </head>
-  <body>
-    <section class="hero is-info is-small">
-      <div class="hero-body">
-        <div class="level">
-          <div class="level-left">
-              <div class="level-item">
-                <div class="content">
-                  <p class="title"> Columbia Outdoor </p>
-                  <p class="subtitle"> {{.Objective}} </p>
-                </div>
-              </div>
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-            <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <div class="box cta">
-      <p class="has-text-centered">
-        <a href="/calc" class="button is-primary">Estimate</a> Try our estimate calculator
-      </p>
-    </div>
+{{define "homeowner.html"}}
+  {{template "header.html" .}}
+
+  <!-- MAIN CONTENT -->
     <section class="container">
       <div class="columns features">
         <div class="column is-4">
@@ -476,5 +435,6 @@
   src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
   integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
   crossorigin="anonymous"></script>    <script src="../js/wild.js"></script>
-  </body>
-</html>
+
+  {{template "footer.html" .}}
+{{end}}

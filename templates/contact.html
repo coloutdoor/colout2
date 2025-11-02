@@ -1,0 +1,76 @@
+{{define "contact.html"}}
+  {{template "header.html" .}}
+
+  <div class="columns">
+    <div class="column is-half is-offset-one-quarter">
+
+      <h2 class="title is-3 has-text-centered">Contact Columbia Outdoor</h2>
+      <p class="has-text-centered mb-5">
+        Ready to transform your outdoor space? Get in touch with our Pacific Northwest experts.
+      </p>
+
+      <form action="/contact" method="POST">
+        <div class="field">
+          <label class="label">Name</label>
+          <div class="control">
+            <input class="input" type="text" name="name" placeholder="John Doe" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Email</label>
+          <div class="control">
+            <input class="input" type="email" name="email" placeholder="john@example.com" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Phone (optional)</label>
+          <div class="control">
+            <input class="input" type="tel" name="phone" placeholder="(360) 555-0123">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Project Type</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select name="project" required>
+                <option value="">Select a project...</option>
+                <option>Deck</option>
+                <option>Patio Cover</option>
+                <option>Landscape Design</option>
+                <option>Outdoor Kitchen</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Message</label>
+          <div class="control">
+            <textarea class="textarea" name="message" rows="4" placeholder="Tell us about your vision..." required></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary is-fullwidth" type="submit">
+              Send Message
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="content mt-6 has-text-centered">
+        <p><strong>Or call us:</strong> <a href="tel:+13605550123">(360) 555-0123</a></p>
+        <p><strong>Email:</strong> <a href="mailto:info@columbiaoutdoor.com">info@columbiaoutdoor.com</a></p>
+        <p>Woodland, WA • Serving the Pacific Northwest</p>
+      </div>
+
+    </div>
+  </div>
+
+  {{template "footer.html" .}}
+{{end}}

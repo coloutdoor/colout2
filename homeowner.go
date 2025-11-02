@@ -50,7 +50,9 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 		debugStrategy(homeowner)
 	}
 
-	tmpl := template.Must(template.New("homeowner.html").Funcs(funcMap).ParseFiles("templates/homeowner.html"))
+	tmpl := template.Must(template.New("homeowner.html").Funcs(funcMap).
+		ParseFiles("templates/homeowner.html", "templates/header.html", "templates/footer.html"))
+
 	if err := tmpl.ExecuteTemplate(w, "homeowner.html", homeowner); err != nil {
 		log.Printf("ownerHandler execute error: %v", err)
 		panic(err)

@@ -1,0 +1,44 @@
+  </section> <!-- End .section.container -->
+
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <p>&copy; {{currentYear}} Columbia Outdoor. All rights reserved.</p>
+      <p>Woodland, WA • Serving Washington, Oregon, Idaho</p>
+    </div>
+  </footer>
+
+  <!-- Modal JS (if used on any page) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $openers = document.querySelectorAll('.modal-button');
+      const $closers = document.querySelectorAll('.modal-close, .modal-background, .delete');
+      $openers.forEach(el => el.addEventListener('click', () => {
+        const target = el.dataset.target;
+        document.getElementById(target)?.classList.add('is-active');
+      }));
+      $closers.forEach(el => el.addEventListener('click', () => {
+        el.closest('.modal')?.classList.remove('is-active');
+      }));
+    });
+  </script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Get all navbar burgers
+  const $burgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+  $burgers.forEach(el => {
+    el.addEventListener('click', () => {
+      const target = el.dataset.target;
+      const $target = document.getElementById(target);
+
+      // Toggle the "is-active" class on both burger and menu
+      el.classList.toggle('is-active');
+      $target.classList.toggle('is-active');
+    });
+  });
+});
+  </script>
+
+</body>
+</html>
