@@ -11,7 +11,8 @@ import (
 func calcHandler(w http.ResponseWriter, r *http.Request) {
 	// tmpl := template.Must(template.ParseFiles("templates/index.html"))
 	// tmpl := template.Must(template.ParseFiles("templates/index.html").Funcs(funcMap))
-	tmpl := template.Must(template.New("calculator.html").Funcs(funcMap).ParseFiles("templates/calculator.html"))
+	tmpl := template.Must(template.New("calculator.html").Funcs(funcMap).ParseFiles("templates/calculator.html",
+		"templates/header.html", "templates/footer.html"))
 
 	// Get session
 	session, err := store.Get(r, "colout2-session")

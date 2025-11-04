@@ -1,19 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Customer Information</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <!--
-    <style>
-        body { font-size: 18px; }
-        @media (max-width: 500px) {
-            body { font-size: 30px; }
-        }
-    </style>
-    -->
-</head>
-<body class="container mt-5">
+{{define "customer.html"}}
+  {{template "header.html" .}}
+
     <div class="level mb-5">
         <div class="level-left">
             <div class="level-item">
@@ -79,5 +66,5 @@
             </div>
         </div>
     </form>
-</body>
-</html>
+   {{template "footer.html" .}}
+{{end}}

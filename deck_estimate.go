@@ -125,7 +125,8 @@ func init() {
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
 	gob.Register(time.Time{})
-	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html"))
+	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
+		"templates/header.html", "templates/footer.html"))
 }
 
 // saveEstimate updates the estimate with save details and persists it to the session.

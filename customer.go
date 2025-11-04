@@ -26,7 +26,8 @@ func init() {
 }
 
 func customerHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.New("customer.html").ParseFiles("templates/customer.html"))
+	tmpl := template.Must(template.New("customer.html").ParseFiles("templates/customer.html",
+		"templates/header.html", "templates/footer.html"))
 
 	// Get session
 	session, err := store.Get(r, "colout2-session")
