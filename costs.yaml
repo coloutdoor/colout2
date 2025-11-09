@@ -1,9 +1,9 @@
 deck_materials:
   outdoorWood: 30.0
-  cedar: 40.0
-  timberTechPrime: 40.0
-  timberTechProReserve: 45.0
-  timberTechProLegacy: 50.0
+  cedar: 39.0
+  timberTechPrime: 39.0
+  timberTechProReserve: 49.0
+  timberTechProLegacy: 59.0
 rail_materials:
   wood: 95.0
   composite: 150.0

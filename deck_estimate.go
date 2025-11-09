@@ -18,6 +18,7 @@ import (
 var funcMap = template.FuncMap{
 	"formatCost":            formatCost,
 	"formatDeckDescription": formatDeckDescription,
+	"formatDemoDescription": formatDemoDescription,
 	"currentYear":           func() int { return time.Now().Year() },
 }
 
@@ -310,6 +311,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	estimate.StairCost = stairCost
+	estimate.StairRailCost = 0.0
 	if stairCost > 0 {
 		estimate.StairRailCost = CalculateStairRailCost(height, estimate.RailMaterial, stairRailCount, costs)
 	}
@@ -325,7 +327,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	estimate.DemoCost = 0
 	if estimate.HasDemo {
-		estimate.DemoCost = CalculateDemoCost(length*width, costs)
+		//estimate.DemoCost = CalculateDemoCost(length*width, costs)
+		estimate.DemoCost = CalculateDemoCost(estimate, costs)
 	}
 
 	estimate.FasciaCost = 0

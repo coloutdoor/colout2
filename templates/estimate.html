@@ -55,13 +55,8 @@
             <div class="column is-2 has-text-right"> </div>
  
             <div class="column is-2">Demo</div>
-            {{if .HasDemo}}
-            <div class="column is-8">Remove and dispose of existing structure of approximately {{printf "%.1f" .DeckArea}} sq ft</div>
+            <div class="column is-8">{{formatDemoDescription .}} </div>
             <div class="column is-2 has-text-right">{{formatCost .DemoCost}}</div>
-            {{else}}
-            <div class="column is-8">Demo of exsisting structure not included.</div>
-            <div class="column is-2 has-text-right">{{formatCost 0}}</div>
-            {{end}}
 
             <div class="column is-2">Deck</div>
             <div class="column is-8">{{formatDeckDescription .}}</div>
