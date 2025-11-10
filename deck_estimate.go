@@ -27,36 +27,38 @@ var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
-	Desc           string
-	Length         float64
-	Width          float64
-	Height         float64
-	DeckArea       float64
-	Material       string
-	RailMaterial   string
-	RailInfill     string
-	TotalCost      float64
-	DeckCost       float64
-	RailCost       float64
-	StairCost      float64
-	Subtotal       float64
-	FasciaCost     float64
-	FasciaFeet     float64
-	StairWidth     float64
-	StairRailCount float64
-	StairRailCost  float64
-	DemoCost       float64
-	HasDemo        bool
-	RailFeet       float64
-	SalesTax       float64
-	HasFascia      bool
-	Customer       Customer
-	EstimateID     int
-	ExpirationDate time.Time
-	SaveDate       time.Time
-	AcceptDate     time.Time
-	Terms          string
-	Error          string
+	Desc            string
+	Length          float64
+	Width           float64
+	Height          float64
+	DeckArea        float64
+	Material        string
+	RailMaterial    string
+	RailInfill      string
+	TotalCost       float64
+	DeckCost        float64
+	RailCost        float64
+	StairCost       float64
+	Subtotal        float64
+	HasFascia       bool
+	FasciaCost      float64
+	FasciaFeet      float64
+	StairWidth      float64
+	StairRailCount  float64
+	StairRailCost   float64
+	HasStairFascia  bool
+	StairFasciaCost float64
+	DemoCost        float64
+	HasDemo         bool
+	RailFeet        float64
+	SalesTax        float64
+	Customer        Customer
+	EstimateID      int
+	ExpirationDate  time.Time
+	SaveDate        time.Time
+	AcceptDate      time.Time
+	Terms           string
+	Error           string
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
@@ -284,6 +286,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.HasFascia = r.FormValue("hasFascia") == "on"
 	estimate.StairWidth = stairWidth
 	estimate.StairRailCount = stairRailCount
+	estimate.HasStairFascia = r.FormValue("hasStairFascia") == "on"
 
 	// Unsave - if it was previously saved - It is changed :(
 	estimate.SaveDate = time.Time{}
@@ -304,7 +307,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	estimate.DeckCost = deckCost
 
-	stairCost, err := CalculateStairCost(height, stairWidth, materialCost)
+	stairCost, err := estimate.CalcStairCost(materialCost)
 	if err != nil {
 		estimate.Error = err.Error()
 		renderEstimate(w, estimate)
@@ -325,6 +328,17 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.RailCost = railCost
 	estimate.RailFeet = (2 * length) + width - stairWidth
 
+	estimate.StairFasciaCost = 0.0
+	if estimate.HasStairFascia {
+		sfc, err := estimate.CalcStairFasciaCost(costs)
+		if err != nil {
+			estimate.Error = err.Error()
+			renderEstimate(w, estimate)
+			return
+		}
+		estimate.StairFasciaCost = sfc
+	}
+
 	estimate.DemoCost = 0
 	if estimate.HasDemo {
 		//estimate.DemoCost = CalculateDemoCost(length*width, costs)
@@ -339,7 +353,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Estimate: %+v", estimate)
 
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 

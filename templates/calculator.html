@@ -113,6 +113,14 @@
                             <input class="input is-normal" type="number" name="stairRailCount" step="1" min="0" value="{{printf "%.1f" .StairRailCount}}" maxlength="20" style="width: 20ch;">
                         </div>
                     </div>
+                   <div class="control">
+                        <div class="checkbox">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="hasStairFascia" {{if .HasStairFascia}}checked{{end}}>
+                                    Include stair fascia?
+                                </label>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="field">

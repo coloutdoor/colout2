@@ -106,7 +106,15 @@
             <div class="column is-8">Stair rail not included</div>
             <div class="column is-2 has-text-right">{{formatCost 0}}</div>
             {{end}}
-
+  
+            <div class="column is-2">Stair Fascia</div>
+            {{if .StairFasciaCost}}
+                <div class="column is-8"> Add matching stair fascia to stairs </div>
+            {{else}}
+                <div class="column is-8"> Stair fascia not included </div>
+            {{end}}
+            <div class="column is-2 has-text-right">{{formatCost .StairFasciaCost}}</div>
+            
 
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
