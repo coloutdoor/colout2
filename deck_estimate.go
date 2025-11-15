@@ -250,19 +250,19 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - Data - calculate estimate ********************************
 	length, err := strconv.ParseFloat(r.FormValue("length"), 64)
 	if err != nil || length <= 0 {
-		renderEstimate(w, DeckEstimate{Error: "Length must be a positive number"})
+		renderEstimate(w, DeckEstimate{Error: "Deck Length must be a positive number"})
 		return
 	}
 
 	width, err := strconv.ParseFloat(r.FormValue("width"), 64)
 	if err != nil || width <= 0 {
-		renderEstimate(w, DeckEstimate{Error: "Width must be a positive number"})
+		renderEstimate(w, DeckEstimate{Error: "Deck Width must be a positive number"})
 		return
 	}
 
 	height, err := strconv.ParseFloat(r.FormValue("height"), 64)
 	if err != nil || height < 0 {
-		renderEstimate(w, DeckEstimate{Error: "Height must be a non-negative number"})
+		renderEstimate(w, DeckEstimate{Error: "Deck Height must be a non-negative number"})
 		return
 	}
 
@@ -296,72 +296,30 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.EstimateID = 0 // Static ID for now
 	estimate.ExpirationDate = time.Time{}
 	estimate.AcceptDate = time.Time{}
+	estimate.Error = ""
 
-	materialCost, ok := costs.DeckMaterials[estimate.Material]
-	if !ok { // Shouldn’t hit this—deck calc already checks
-		materialCost = 0
-	}
-
-	deckCost, err := CalculateDeckCost(length, width, height, estimate.Material, costs)
-	if err != nil {
-		estimate.Error = err.Error()
+	estimate.CalculateDeckCost(costs)
+	if estimate.Error != "" {
 		renderEstimate(w, estimate)
 		return
 	}
-	estimate.DeckCost = deckCost
 
-	stairCost, err := estimate.CalcStairCost(materialCost)
-	if err != nil {
-		estimate.Error = err.Error()
+	estimate.CalcStairCost(costs)
+	if estimate.Error != "" {
 		renderEstimate(w, estimate)
 		return
 	}
-	estimate.StairCost = stairCost
-	estimate.StairRailCost = 0.0
-	if stairCost > 0 {
-		estimate.StairRailCost = CalculateStairRailCost(height, estimate.RailMaterial, stairRailCount, costs)
-	}
-
-	railCost, err := CalculateRailCost(length, width, estimate.RailMaterial, estimate.RailInfill, estimate.StairWidth, costs)
-	if err != nil {
-		estimate.Error = err.Error()
+	estimate.CalculateRailCost(costs)
+	if estimate.Error != "" {
 		renderEstimate(w, estimate)
 		return
 	}
-	estimate.RailCost = railCost
-	estimate.RailFeet = (2 * length) + width - stairWidth
 
-	estimate.StairFasciaCost = 0.0
-	if estimate.HasStairFascia {
-		sfc, err := estimate.CalcStairFasciaCost(costs)
-		if err != nil {
-			estimate.Error = err.Error()
-			renderEstimate(w, estimate)
-			return
-		}
-		estimate.StairFasciaCost = sfc
-	}
-
-	// Stair Toe Kick cost
-	stkc, err := estimate.CalcStairToeKickCost(costs)
-	if err != nil {
-		estimate.Error = err.Error()
-		renderEstimate(w, estimate)
-		return
-	}
-	estimate.StairToeKickCost = stkc
-
-	estimate.DemoCost = 0
-	if estimate.HasDemo {
-		//estimate.DemoCost = CalculateDemoCost(length*width, costs)
-		estimate.DemoCost = CalculateDemoCost(estimate, costs)
-	}
-
-	estimate.FasciaCost = 0
-	if estimate.HasFascia {
-		estimate.FasciaCost = CalculateFasciaCost(length, width, costs)
-		estimate.FasciaFeet = (2 * length) + width
-	}
+	estimate.CalculateStairRailCost(costs)
+	estimate.CalcStairFasciaCost(costs)
+	estimate.CalcStairToeKickCost(costs)
+	estimate.CalculateDemoCost(costs)
+	estimate.CalculateFasciaCost(costs)
 
 	log.Printf("Estimate: %+v", estimate)
 
