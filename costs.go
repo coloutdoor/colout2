@@ -21,7 +21,7 @@ var costs Costs
 
 // loadCosts reads and parses costs.yaml into the costs var.
 func loadCosts() error {
-	data, err := os.ReadFile("costs.yaml")
+	data, err := os.ReadFile("static/costs.yaml")
 	if err != nil {
 		return fmt.Errorf("failed to read costs.yaml: %v", err)
 	}

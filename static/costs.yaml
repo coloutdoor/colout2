@@ -1,0 +1,16 @@
+deck_materials:
+  outdoorWood: 30.0
+  cedar: 39.0
+  timberTechPrime: 39.0
+  timberTechProReserve: 49.0
+  timberTechProLegacy: 59.0
+rail_materials:
+  wood: 95.0
+  composite: 150.0
+  aluminum: 130.0
+rail_infills:
+  balusters: 10.0
+  cable: 40.0
+  glass: 109.0
+demo_cost: 5.0
+fascia_cost: 21.0
