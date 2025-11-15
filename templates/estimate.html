@@ -115,7 +115,15 @@
             {{end}}
             <div class="column is-2 has-text-right">{{formatCost .StairFasciaCost}}</div>
             
-
+ 
+            <div class="column is-2">Stair Toe Kicks</div>
+            {{if .HasStairTK}}
+                <div class="column is-8"> Add matching toe kicks to stairs </div>
+            {{else}}
+                <div class="column is-8"> No toe kicks.  Open. </div>
+            {{end}}
+            <div class="column is-2 has-text-right">{{formatCost .StairToeKickCost}}</div>
+  
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
             <div class="column is-2 has-text-weight-semibold has-text-right">{{formatCost .Subtotal}}</div>

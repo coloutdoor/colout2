@@ -25,8 +25,21 @@ func (e *DeckEstimate) CalcStairCost(materialCost float64) (float64, error) {
 
 // - CalculateStairFasciaCost computes stair cost based on height, width, and deck material cost.
 func (e *DeckEstimate) CalcStairFasciaCost(cost Costs) (float64, error) {
+	if e.StairWidth == 0 {
+		return 0, nil // No stairs
+	}
 	length := math.Ceil(e.Height * 1.6)                               // ~1.6 steps/ft, round up
 	stairAdjustCost := 1.5                                            // 12" fascia required for stairs
 	stairFasciaCost := length * cost.FasciaCost * stairAdjustCost * 2 // Fascia 2 sides
 	return stairFasciaCost, nil
+}
+
+// - CalculateStairFasciaCost computes stair cost based on height, width, and deck material cost.
+func (e *DeckEstimate) CalcStairToeKickCost(cost Costs) (float64, error) {
+	if e.StairWidth == 0 || !e.HasStairTK {
+		return 0, nil // No stairs or No Toe Kicks on Stairs
+	}
+	steps := math.Ceil(e.Height * 1.6)                    // ~1.6 steps/ft, round up
+	stairTKCost := steps * e.StairWidth * cost.FasciaCost // Fascia 2 sides
+	return stairTKCost, nil
 }
