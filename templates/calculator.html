@@ -15,7 +15,7 @@
     <div class="level mb-5">
         <div class="level-left">
             <div class="level-item">
-                <h1 class="title">Deck Estimate Calculator</h1>
+                <h1 class="title">Deck Estimate Calculator - Details</h1>
             </div>
         </div>
     </div>
@@ -109,8 +109,14 @@
                     </div> 
                     <div class="control">
                         <div class="field">
-                            <label class="label">Stair Rail Count</label>
-                            <input class="input is-normal" type="number" name="stairRailCount" step="1" min="0" value="{{printf "%.1f" .StairRailCount}}" maxlength="20" style="width: 20ch;">
+                            <label class="label">Stair Rail Options:</label>
+                            <div class="select">
+                            <select id="stairRailCount" name="stairRailCount" required>
+                                <option value="0" {{if eq .StairRailCount 0.0}} selected {{end}}>No Stair Rails</option>
+                                <option value="1" {{if eq .StairRailCount 1.0}} selected {{end}} >One side</option>
+                                <option value="2" {{if eq .StairRailCount 2.0}} selected {{end}} >Both sides</option>
+                            </select>
+                            </div>
                         </div>
                     </div>
                    <div class="control">
@@ -131,9 +137,8 @@
                     </div>
                 </div>
                 <div class="field">
-                    <div class="control">
-                        <input class="button is-primary" type="submit" value="Calculate Estimate">
-                    </div>
+                    <div class="control"> <input class="button is-primary" type="submit" value="Calculate Estimate!"> </div>
+                    <div class="control"> <a href="/calc?option=deck" class="button is-primary">Reset</a> </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,33 @@
+{{define "rails.html"}}
+  {{template "header.html" .}}
+  {{template "deckheader.html" .}}
+
+                <div class="field mb-3 is-narrow">
+                    <label class="label is-medium">Do you want to add Rails?</label>
+                    <div class="control">
+                        <div class="field">
+                            <label class="label">Material:</label>
+                            <div class="select">
+                                <select name="railMaterial" class="is-fullwidth" value="{{.RailMaterial}}">
+                                    <option value="">None</option>
+                                    <option value="wood" {{if eq .RailMaterial "wood"}} selected{{end}}>Wood</option>
+                                    <option value="composite" {{if eq .RailMaterial "composite"}} selected{{end}}>Composite</option>
+                                    <option value="aluminum" {{if eq .RailMaterial "aluminum"}} selected{{end}}>Aluminum</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Infill:</label>
+                            <div class="select">
+                                <select name="railInfill">
+                                    <option value="">None</option>
+                                    <option value="balusters" {{if eq .RailInfill "balusters"}} selected {{end}}>Balusters</option>
+                                    <option value="cable" {{if eq .RailInfill "cable"}} selected {{end}}>Cable</option>
+                                    <option value="glass" {{if eq .RailInfill "glass"}} selected {{end}}>Glass</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    {{template "footer.html" .}}
+{{end}}

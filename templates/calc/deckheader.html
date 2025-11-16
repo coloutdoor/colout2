@@ -1,0 +1,18 @@
+    <script>
+        // Clear number inputs on focus to overwrite existing values
+        document.addEventListener("DOMContentLoaded", function() {
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener("focus", function() {
+                    this.value = "";
+                });
+            });
+        });
+    </script>
+    <div class="level mb-5">
+        <div class="level-left">
+            <div class="level-item">
+                <h1 class="title">Deck Estimate Calculator</h1>
+            </div>
+        </div>
+    </div>

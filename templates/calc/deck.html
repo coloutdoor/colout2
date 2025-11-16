@@ -1,0 +1,57 @@
+{{define "deck.html"}}
+  {{template "header.html" .}}
+  {{template "deckheader.html" .}}
+
+    <form method="post" action="/estimate" class="box">
+        <div class="columns">
+            <div class="column is-5">
+                <div class="field mb-3 is-narrow">
+                    <label class="label is-medium">Select your deck options</label>
+                    <div class="control">
+                        <div class="field">
+                            <label class="label">Description</label>
+                            <input class="input is-normal" type="text" name="desc" step="0.1" value="{{printf "%s" .Desc}}" maxlength="50" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                            <label class="label">Length (ft):</label>
+                            <input class="input is-normal" type="number" name="length" step="0.1" value="{{printf "%.1f" .Length}}" required maxlength="20" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                            <label class="label">Width (ft):</label>
+                            <input class="input is-normal" type="number" name="width" step="0.1" value="{{printf "%.1f" .Width}}" required maxlength="20" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                            <label class="label">Height (ft):</label>
+                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" value="{{printf "%.1f" .Height}}" required maxlength="20" style="width: 20ch;">
+                        </div>
+                        <div class="field">
+                                <label class="label">
+                                    <input type="checkbox" name="hasStairs" {{if .HasStairTK}}checked{{end}}>
+                                    Add stairs?
+                                </label>
+                        </div>
+                    </div>
+                        <div class="field">
+                            <label class="label">Finish Level:</label>
+                            <div class="select">
+                                <select name="finish" required style="width: 30ch;">
+                                   <option value="1" {{if eq .Material "outdoorWood"}} selected {{end}}>Economy $</option>
+                                   <option value="2" {{if eq .Material "cedar"}} selected {{end}}>Standard $$</option>
+                                   <option value="3" {{if eq .Material "timberTechPrime"}} selected {{end}}>Enhanced $$$</option>
+                                   <option value="4" {{if eq .Material "timberTechProReserve"}} selected {{end}}>Premium $$$$</option>
+                                   <option value="5" {{if eq .Material "timberTechProLegacy"}} selected {{end}}>Premier $$$$$</option>
+                                </select>
+                            </div>
+                        </div>
+                   </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="button is-primary" type="submit" value="Calculate Estimate">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+   {{template "footer.html" .}}
+{{end}}

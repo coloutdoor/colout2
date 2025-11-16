@@ -190,6 +190,15 @@ type EstimatePageData struct {
 	Customer Customer
 }
 
+// **********************************************************************************
+// estimateHandler
+//
+//  Data can be posted to this page from either
+//
+//   Calculater  - Full details
+//   /calc/deck  - /calc?option=deck - Basic Deck with Finish Level
+// **********************************************************************************
+
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session
 	session, err := store.Get(r, "colout2-session")
@@ -271,6 +280,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		stairWidth = 0 // Default to 0 if invalid or not provided
 	}
 
+	//
 	stairRailCount, err := strconv.ParseFloat(r.FormValue("stairRailCount"), 64)
 	if err != nil || stairRailCount < 0 {
 		stairRailCount = 0 // Default to 0 if invalid or not provided
@@ -280,16 +290,95 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.Length = length
 	estimate.Width = width
 	estimate.Height = height
+	estimate.DeckArea = length * width
 	estimate.Material = r.FormValue("material")
 	estimate.RailMaterial = r.FormValue("railMaterial")
 	estimate.RailInfill = r.FormValue("railInfill")
-	estimate.DeckArea = length * width
 	estimate.HasDemo = r.FormValue("hasDemo") == "on"
 	estimate.HasFascia = r.FormValue("hasFascia") == "on"
 	estimate.StairWidth = stairWidth
 	estimate.StairRailCount = stairRailCount
 	estimate.HasStairFascia = r.FormValue("hasStairFascia") == "on"
 	estimate.HasStairTK = r.FormValue("hasStairTK") == "on"
+
+	// ************** POST - Finish Level from /calc/deck **************************
+	//
+	// Set the matials and selections based on the Deck options:
+	// *****************************************************************************
+	if r.FormValue("finish") != "" {
+		log.Printf("Setting Finish Level to: %s", r.FormValue("finish"))
+		log.Printf("Settign Stairs to: %s", r.FormValue("hasStairs"))
+		// TODO - Make this a funtion and yaml settings
+		switch r.FormValue("finish") {
+		//economy
+		case "1":
+			estimate.Material = "outdoorWood"
+			estimate.RailMaterial = "wood"
+			estimate.RailInfill = "balusters"
+			estimate.HasFascia = false
+			estimate.StairWidth = 3.0
+			estimate.StairRailCount = 2
+			estimate.HasStairFascia = false
+			estimate.HasStairTK = false
+
+		case "2":
+			estimate.Material = "cedar"
+			estimate.RailMaterial = "wood"
+			estimate.RailInfill = "balusters"
+			estimate.HasFascia = false
+			estimate.StairWidth = 3.0
+			estimate.StairRailCount = 2
+			estimate.HasStairFascia = false
+			estimate.HasStairTK = false
+
+		case "3":
+			estimate.Material = "timberTechPrime"
+			estimate.RailMaterial = "aluminum"
+			estimate.RailInfill = "balusters"
+			estimate.HasFascia = false
+			estimate.StairWidth = 3.5
+			estimate.StairRailCount = 2
+			estimate.HasStairFascia = false
+			estimate.HasStairTK = true
+
+		// TODO - Add Picture Framing and Joist Spacing and Butyl Tape
+		case "4":
+			estimate.Material = "timberTechProReserve"
+			estimate.RailMaterial = "aluminum"
+			estimate.RailInfill = "cable"
+			estimate.HasFascia = true
+			estimate.StairWidth = 4.0
+			estimate.StairRailCount = 2
+			estimate.HasStairFascia = false
+			estimate.HasStairTK = true
+
+		// TODO - Add Stair Picture Framing
+		case "5":
+			estimate.Material = "timberTechProLegacy"
+			estimate.RailMaterial = "composite"
+			estimate.RailInfill = "glass"
+			estimate.HasFascia = true
+			estimate.StairWidth = 4.0
+			estimate.StairRailCount = 2
+			estimate.HasStairFascia = true
+			estimate.HasStairTK = true
+		}
+
+		// Only add rails if greater than 30" by default
+		if estimate.Height < 2.5 {
+			estimate.RailMaterial = ""
+			estimate.RailInfill = ""
+			estimate.StairRailCount = 0
+		}
+
+		// Stairs are optional for decks
+		if r.FormValue("hasStairs") != "on" {
+			estimate.StairWidth = 0.0
+			estimate.StairRailCount = 0.0
+			estimate.HasStairFascia = false
+			estimate.HasStairTK = false
+		}
+	}
 
 	// Unsave - if it was previously saved - It is changed :(
 	estimate.SaveDate = time.Time{}

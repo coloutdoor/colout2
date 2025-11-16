@@ -18,7 +18,7 @@
             {{if eq .Customer.FirstName ""}}
                 <span class="is-pulled-right"><a href="/customer" class="button is-danger">Add Customer</a></span>
             {{else if .SaveDate.IsZero}}
-                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit</a></span>
+                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit Customer</a></span>
             {{end}}
         </h2>
         <div class="content">
@@ -42,7 +42,7 @@
             {{end}}
            </p>
            {{if .SaveDate.IsZero}}
-            <span class="is-pulled-right"><a href="/calc" class="button is-primary">Edit</a></span>
+            <span class="is-pulled-right"><a href="/calc" class="button is-primary">Edit Details</a></span>
            {{end}}
         </h2>
         <div class="columns is-multiline">
@@ -137,9 +137,9 @@
             <div class="column is-2">Sales Tax</div>
             <div class="column is-8">WA (Estimated) sales tax.</div>
             <div class="column is-2 has-text-right">{{formatCost .SalesTax}}</div>
-            <div class="column is-2 has-text-weight-semibold has-background-light"><strong class="is-size-4">Total</strong></div>
-            <div class="column is-8 has-text-weight-semibold has-background-light"></div>
-            <div class="column is-2 has-text-weight-semibold has-text-right has-background-light"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
+            <div class="column is-2 has-text-weight-semibold has-background-grey-dark"><strong class="is-size-4">Total</strong></div>
+            <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
+            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
         </div>
     </div>
     {{if and .TotalCost (ne .Customer.FirstName "") (eq .SaveDate.IsZero true)}}
@@ -147,6 +147,8 @@
         <input type="hidden" name="save" value="true">
         <div class="field">
             <button class="button is-primary" type="submit">Save Estimate</button>
+            <div class="control"> <a href="/calc?option=deck" class="button is-primary">Start  Over</a> </div>
+
         </div>
     </form>
     {{end}}

@@ -6,8 +6,8 @@ deck_materials:
   timberTechProLegacy: 59.0
 rail_materials:
   wood: 95.0
-  composite: 150.0
   aluminum: 130.0
+  composite: 150.0
 rail_infills:
   balusters: 10.0
   cable: 40.0
