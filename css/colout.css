@@ -83,3 +83,65 @@ footer li:before {
 .card-image img { transition: opacity .2s; }
 
 .card-image img:hover { opacity: .85; }
+
+/* =========================================
+   Bulma-Friendly On/Off Toggle Switch
+   Perfect boolean checkbox replacement
+   ========================================= */
+
+/* css/bulma-toggle-switch.css – FINAL VERSION */
+.switch {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch + label {
+  position: relative;                    /* ← Critical fix */
+  display: inline-flex;
+  align-items: center;
+  padding-left: 4.5rem;                  /* Space for the switch on the left */
+  min-height: 2.5rem;                    /* Prevents row height jumping */
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch + label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.5rem;
+  height: 2rem;
+  background: #b5b5b5;
+  border-radius: 9999px;
+  transition: background 0.3s ease;
+}
+
+.switch + label::after {
+  content: "";
+  position: absolute;
+  left: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.switch:checked + label::before { background: #00d1b2; }
+.switch:checked + label::after  { transform: translateX(1.5rem) translateY(-50%); }
+
+.switch:focus-visible + label::before {
+  outline: 2px solid #00d1b2;
+  outline-offset: 2px;
+}
+
+/* Color variants */
+.switch.is-success:checked + label::before { background: #23d160; }
+.switch.is-danger:checked  + label::before { background: #ff3860; }

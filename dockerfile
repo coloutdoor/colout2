@@ -18,7 +18,7 @@ RUN go build -o colout2
 COPY static/ ./static/
 COPY templates/ ./templates/
 COPY images/ ./images/
-COPY costs.yaml ./costs.yaml
+# COPY costs.yaml ./costs.yaml
 RUN echo ":8080" > .env
 ENV DB_DIR=/db
 RUN mkdir -p /db

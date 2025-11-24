@@ -24,11 +24,23 @@
                             <label class="label">Height (ft):</label>
                             <input class="input is-normal" type="number" name="height" step="0.1" min="0" value="{{printf "%.1f" .Height}}" required maxlength="20" style="width: 20ch;">
                         </div>
+                        <!--
+                            <div class="field">
+                                <input id="notifications" class="switch" type="checkbox" checked>
+                                <label for="notifications">Email notifications</label>
+                            </div>
+                            <div class="field">
+                                <input id="sms" class="switch is-success" type="checkbox">
+                                <label for="sms">SMS updates</label>
+                            </div>
+                        -->
                         <div class="field">
-                                <label class="label">
-                                    <input type="checkbox" name="hasStairs" {{if .HasStairTK}}checked{{end}}>
-                                    Add stairs?
-                                </label>
+                            <input id="darkmode" class="switch" type="checkbox" name="hasStairs" >
+                            <label for="darkmode">Include Stairs</label>
+                        </div>
+                        <div class="field">
+                            <input id="sms" class="switch is-success" type="checkbox" name="hasDemo" {{if .HasDemo}}checked{{end}}>
+                            <label for="sms">Remove Existing Structure</label>
                         </div>
                     </div>
                         <div class="field">
