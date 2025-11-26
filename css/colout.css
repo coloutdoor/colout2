@@ -175,3 +175,9 @@ footer li:before {
   opacity: 1;
   visibility: visible;
 }
+
+/* Navbar Hamburger icon - 3 lines - Does not work. 
+.navbar-burger span:nth-child(1){ display: block !important; }
+.navbar-burger span:nth-child(2){ opacity: 1 !important; }
+.navbar-burger span:nth-child(3){ opacity: 1 !important; }
+*/
