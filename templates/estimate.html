@@ -42,7 +42,7 @@
             {{end}}
            </p>
            {{if .SaveDate.IsZero}}
-            <span class="is-pulled-right"><a href="/calc" class="button is-primary">Edit Details</a></span>
+            <span class="is-pulled-right"><a href="/calc" class="button is-primary">Customize</a></span>
            {{end}}
         </h2>
         <div class="columns is-multiline">
@@ -147,7 +147,9 @@
         <input type="hidden" name="save" value="true">
         <div class="field">
             <button class="button is-primary" type="submit">Save Estimate</button>
+        <!--
             <div class="control"> <a href="/calc?option=deck" class="button is-primary">Start  Over</a> </div>
+        -->
 
         </div>
     </form>

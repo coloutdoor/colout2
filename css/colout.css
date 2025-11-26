@@ -145,3 +145,33 @@ footer li:before {
 /* Color variants */
 .switch.is-success:checked + label::before { background: #23d160; }
 .switch.is-danger:checked  + label::before { background: #ff3860; }
+
+/* Beautiful multiline tooltips – perfect for help icons */
+.has-tooltip-multiline .tooltip {
+  max-width: 300px;
+  white-space: pre-line;        /* respects line breaks */
+}
+
+.has-tooltip-multiline::before {
+  white-space: pre-line;
+  line-height: 1.4;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Make Bulma tooltips work on mobile tap + desktop hover */
+@media (hover: hover) {
+  .has-tooltip-multiline:hover::before,
+  .has-tooltip-multiline:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Mobile: show on tap (active state) */
+.has-tooltip-multiline:active::before,
+.has-tooltip-multiline:active::after {
+  opacity: 1;
+  visibility: visible;
+}
