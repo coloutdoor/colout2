@@ -30,18 +30,14 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		"templates/header.html", "templates/footer.html"))
 
 	// Get session
-	session, err := store.Get(r, "colout2-session")
+	sessionData, err := GetSession(r)
 	if err != nil {
-		log.Printf("Session get error: %v", err)
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
 	// Load customer from session for GET
-	customer := Customer{}
-	if cust, ok := session.Values["customer"].(Customer); ok {
-		customer = cust
-	}
+	customer := sessionData.Customer
 
 	if r.Method == http.MethodPost {
 		customer := Customer{
@@ -55,9 +51,8 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 			Zip:         r.FormValue("zip"),
 		}
 		log.Printf("Customer POST: %+v", customer)
-		// Save customer to session
-		session.Values["customer"] = customer
-		if err := session.Save(r, w); err != nil {
+		sessionData.Customer = customer
+		if err := sessionData.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
 		}
 

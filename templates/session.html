@@ -47,6 +47,12 @@
             <tr><td>Phone Number</td><td>{{.Customer.PhoneNumber}}</td></tr>
             <tr><td>Email</td><td>{{.Customer.Email}}</td></tr>
         </table>
+
+        <h2 class="subtitle">User Auth Information</h2>
+        <table class="table is-striped is-fullwidth">
+            <tr><td>Login Email</td><td>{{.AuthEmail}}</td></tr>
+            <tr><td>Authenticated?</td><td>{{.IsAuthenticated}}</td></tr>
+            <tr><td>Message</td><td>{{.Message}}</td></tr>
     </div>
     <form method="post" action="/session" class="mt-4">
         <div class="field">
