@@ -47,36 +47,6 @@ func cssHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.New("login.html").ParseFiles("templates/login.html",
-		"templates/header.html", "templates/footer.html"))
-
-	// Get session
-	session, err := store.Get(r, "colout2-session")
-	if err != nil {
-		log.Printf("Session get error: %v", err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
-		return
-	}
-	// Extract session data
-	data := SessionData{}
-	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
-		data.Estimate = est
-	}
-	if cust, ok := session.Values["customer"].(Customer); ok {
-		data.Customer = cust
-	}
-
-	// the message should come from the session
-	// data.Message = "This is a test!"
-
-	// Render customer page onlyon GET
-	if err := tmpl.ExecuteTemplate(w, "login.html", data); err != nil {
-		log.Printf("customerHandler execute error: %v", err)
-		panic(err)
-	}
-}
-
 func main() {
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)

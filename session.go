@@ -103,9 +103,9 @@ func (s *SessionData) Delete(r *http.Request, w http.ResponseWriter) error {
 	// Reset session by clearing values
 	delete(session.Values, "estimate")
 	delete(session.Values, "customer")
-	delete(session.Values, "isAuthenticated")
 	delete(session.Values, "message")
 	delete(session.Values, "authemail")
+	session.Values["isauthenticated"] = false
 
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)
