@@ -157,6 +157,7 @@
     {{end}}
     <div class="content mt-4">
     {{if .SaveDate.IsZero}}
+      <span> Save Data is Zero</span>
     {{else if .AcceptDate.IsZero}}
         <h2 class="subtitle">Terms and Conditions</h2>
         <pre>{{ .Terms }}</pre>

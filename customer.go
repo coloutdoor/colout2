@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,10 +18,6 @@ type Customer struct {
 	City        string
 	State       string
 	Zip         string
-}
-
-func init() {
-	gob.Register(Customer{})
 }
 
 func customerHandler(w http.ResponseWriter, r *http.Request) {
