@@ -28,6 +28,13 @@ type Strategy struct {
 	Advantage  string   `yaml:"advantage"`
 }
 
+// RenderData
+type renderData struct {
+	Page   any
+	Header any // or *HeaderData
+	// Footer any
+}
+
 // ownerStrategy
 //
 //	This is the main page for Homeowner - LandingPage
@@ -50,10 +57,15 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 		debugStrategy(homeowner)
 	}
 
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &homeowner,
+		Header: &userAuth,
+	}
 	tmpl := template.Must(template.New("homeowner.html").Funcs(funcMap).
 		ParseFiles("templates/homeowner.html", "templates/header.html", "templates/footer.html"))
 
-	if err := tmpl.ExecuteTemplate(w, "homeowner.html", homeowner); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "homeowner.html", rd); err != nil {
 		log.Printf("ownerHandler execute error: %v", err)
 		panic(err)
 	}

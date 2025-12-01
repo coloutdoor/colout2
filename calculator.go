@@ -61,10 +61,15 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &e,
+		Header: &userAuth,
+	}
 	tmpl := template.Must(template.New("calculator.html").Funcs(funcMap).ParseFiles("templates/calculator.html",
 		"templates/header.html", "templates/footer.html"))
 
-	if err := tmpl.ExecuteTemplate(w, "calculator.html", e); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "calculator.html", rd); err != nil {
 		log.Printf("handleFullCalc execute error: %v", err)
 		panic(err)
 	}
@@ -72,20 +77,30 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 
 // Example handlers — expand with real logic
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &e,
+		Header: &userAuth,
+	}
 	tmpl := template.Must(template.New("deck.html").Funcs(funcMap).ParseFiles("templates/calc/deck.html",
 		"templates/header.html", "templates/calc/deckheader.html", "templates/footer.html"))
 
-	if err := tmpl.ExecuteTemplate(w, "deck.html", e); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "deck.html", rd); err != nil {
 		log.Printf("handleDeckCalc execute error: %v", err)
 		panic(err)
 	}
 }
 
 func handleRailsCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &e,
+		Header: &userAuth,
+	}
 	tmpl := template.Must(template.New("rails.html").Funcs(funcMap).ParseFiles("templates/calc/rails.html",
 		"templates/header.html", "templates/calc/deckheader.html", "templates/footer.html"))
 
-	if err := tmpl.ExecuteTemplate(w, "rails.html", e); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "rails.html", rd); err != nil {
 		log.Printf("*** handleRailsCalc *** execute error: %v", err)
 		panic(err)
 	}

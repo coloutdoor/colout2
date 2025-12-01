@@ -1,7 +1,8 @@
 {{define "deck.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
   {{template "deckheader.html" .}}
 
+  {{with .Page}}
     <form method="post" action="/estimate" class="box">
         <div class="columns">
             <div class="column is-5">
@@ -128,5 +129,6 @@
             </div>
         </div>
     </form>
+    {{end}}
    {{template "footer.html" .}}
 {{end}}

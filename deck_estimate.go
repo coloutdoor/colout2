@@ -64,7 +64,7 @@ type DeckEstimate struct {
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
-func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
+func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate) {
 	// Terms is not part of session
 	terms, err := os.ReadFile("static/t_and_c.txt")
 	if err != nil {
@@ -73,7 +73,12 @@ func renderEstimate(w http.ResponseWriter, estimate DeckEstimate) {
 	}
 	estimate.Terms = string(terms)
 
-	if err := tmpl.ExecuteTemplate(w, "estimate.html", estimate); err != nil {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &estimate,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "estimate.html", rd); err != nil {
 		log.Printf("estimateHandler execute error: %v", err)
 		panic(err)
 	}
@@ -145,7 +150,7 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	err := db.QueryRow("SELECT COALESCE(MAX(estimate_id), 999) + 1 FROM estimates").Scan(&nextID)
 	if err != nil {
 		log.Printf("Failed to get next EstimateID: %v", err)
-		renderEstimate(w, DeckEstimate{Error: "Database ID error"})
+		renderEstimate(w, r, DeckEstimate{Error: "Database ID error"})
 		return
 	}
 	estimate.EstimateID = nextID
@@ -171,14 +176,14 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	)
 	if err != nil {
 		log.Printf("Failed to save estimate to DB: %v", err)
-		renderEstimate(w, DeckEstimate{Error: "Database save error"})
+		renderEstimate(w, r, DeckEstimate{Error: "Database save error"})
 		return
 	}
 
 	session.Values["estimate"] = *estimate
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)
-		renderEstimate(w, DeckEstimate{Error: "Session save error"})
+		renderEstimate(w, r, DeckEstimate{Error: "Session save error"})
 		return
 	}
 	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
@@ -204,7 +209,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "colout2-session")
 	if err != nil {
 		log.Printf("Session get error: %v", err)
-		renderEstimate(w, DeckEstimate{Error: "Session error"})
+		renderEstimate(w, r, DeckEstimate{Error: "Session error"})
 		return
 	}
 
@@ -226,7 +231,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* GET  ********************************
 	if r.Method != http.MethodPost {
 		// Load estimate from session for GET
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 
@@ -235,10 +240,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, session)
 		} else {
-			renderEstimate(w, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
+			renderEstimate(w, r, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
 			return
 		}
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 
@@ -248,30 +253,30 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		session.Values["estimate"] = estimate
 		if err := session.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
-			renderEstimate(w, DeckEstimate{Error: "Session save error"})
+			renderEstimate(w, r, DeckEstimate{Error: "Session save error"})
 			return
 		}
 		log.Printf("Estimate accepted at %v", estimate.AcceptDate)
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 
 	// ************* POST - Data - calculate estimate ********************************
 	length, err := strconv.ParseFloat(r.FormValue("length"), 64)
 	if err != nil || length <= 0 {
-		renderEstimate(w, DeckEstimate{Error: "Deck Length must be a positive number"})
+		renderEstimate(w, r, DeckEstimate{Error: "Deck Length must be a positive number"})
 		return
 	}
 
 	width, err := strconv.ParseFloat(r.FormValue("width"), 64)
 	if err != nil || width <= 0 {
-		renderEstimate(w, DeckEstimate{Error: "Deck Width must be a positive number"})
+		renderEstimate(w, r, DeckEstimate{Error: "Deck Width must be a positive number"})
 		return
 	}
 
 	height, err := strconv.ParseFloat(r.FormValue("height"), 64)
 	if err != nil || height < 0 {
-		renderEstimate(w, DeckEstimate{Error: "Deck Height must be a non-negative number"})
+		renderEstimate(w, r, DeckEstimate{Error: "Deck Height must be a non-negative number"})
 		return
 	}
 
@@ -389,18 +394,18 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	estimate.CalculateDeckCost(costs)
 	if estimate.Error != "" {
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 
 	estimate.CalcStairCost(costs)
 	if estimate.Error != "" {
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 	estimate.CalculateRailCost(costs)
 	if estimate.Error != "" {
-		renderEstimate(w, estimate)
+		renderEstimate(w, r, estimate)
 		return
 	}
 
@@ -423,5 +428,5 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pass both estimate and customer to template
-	renderEstimate(w, estimate)
+	renderEstimate(w, r, estimate)
 }

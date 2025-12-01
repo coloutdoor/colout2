@@ -8,11 +8,9 @@ import (
 
 // lSessionData holds session contents for display.
 type SessionData struct {
-	Estimate        DeckEstimate
-	Customer        Customer
-	IsAuthenticated bool
-	AuthEmail       string
-	Message         string
+	Estimate DeckEstimate
+	Customer Customer
+	UserAuth UserAuth
 }
 
 // This is used to test / debug the session data
@@ -55,14 +53,8 @@ func GetSession(r *http.Request) (*SessionData, error) {
 	if cust, ok := session.Values["customer"].(Customer); ok {
 		data.Customer = cust
 	}
-	if em, ok := session.Values["authemail"].(string); ok {
-		data.AuthEmail = em
-	}
-	if isauth, ok := session.Values["isauthenticated"].(bool); ok {
-		data.IsAuthenticated = isauth
-	}
-	if m, ok := session.Values["message"].(string); ok {
-		data.Message = m
+	if ua, ok := session.Values["userauth"].(UserAuth); ok {
+		data.UserAuth = ua
 	}
 
 	return &data, nil
@@ -79,9 +71,7 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 
 	session.Values["estimate"] = s.Estimate
 	session.Values["customer"] = s.Customer
-	session.Values["authemail"] = s.AuthEmail
-	session.Values["isauthenticated"] = s.IsAuthenticated
-	session.Values["message"] = s.Message
+	session.Values["userauth"] = s.UserAuth
 
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)

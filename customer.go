@@ -61,7 +61,12 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render customer page onlyon GET
-	if err := tmpl.ExecuteTemplate(w, "customer.html", customer); err != nil {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &customer,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "customer.html", rd); err != nil {
 		log.Printf("customerHandler execute error: %v", err)
 		panic(err)
 	}
