@@ -53,13 +53,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session save Error: %v", err)
 	}
 
+	option := r.URL.Query().Get("option")
+	rurl := r.URL.Query().Get("rurl")
+
+	/* options - logout, signup */
+	if option == "signout" {
+		log.Printf("Sign Out for ")
+		sessionData.Delete(r, w)
+		rurl = "/"
+		http.Redirect(w, r, rurl, http.StatusSeeOther)
+		return
+	}
+
 	if sessionData.UserAuth.IsAuthenticated {
-		rurl := r.URL.Query().Get("rurl")
 		if rurl == "" {
 			rurl = "/"
 		}
-
 		http.Redirect(w, r, rurl, http.StatusSeeOther)
+		return
 	}
 
 	if err := tmpl.ExecuteTemplate(w, "login.html", sessionData.UserAuth); err != nil {
