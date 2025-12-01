@@ -27,7 +27,7 @@
               <div class="level-item">
                 <div class="content">
                   <p class="title"> Columbia Outdoor -  
-                      {{if .IsAuthenticated}} Hello {{.AuthEmail}} {{end}}
+
                   </p>
                   <p class="subtitle"> The Premier Solution for Outdoor Living Projects </p>
                 </div>
@@ -45,9 +45,12 @@
   <!-- ==== BULMA NAVBAR (brand + menu) ==== -->
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
+      {{if .IsAuthenticated}} Welcome {{.AuthEmail}} 
+      {{else}}
       <a class="navbar-item" href="/">
         <strong>Columbia Outdoor</strong>
       </a>
+      {{end}}
 
       <!-- HAMBURGER (mobile) -->
       <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
@@ -62,6 +65,11 @@
     <div id="mainNavbar" class="navbar-menu">
       <div class="navbar-end">
         <a class="navbar-item" href="/">Home</a>
+      {{if .IsAuthenticated}} 
+        <a class="navbar-item" href="/login?option=signout">Sign Out</a>
+      {{else}}
+        <a class="navbar-item" href="/login">Log in</a>
+      {{end}}
         <a class="navbar-item" href="/calc?option=deck">Cost Calculator</a>
         <a class="navbar-item" href="/contact">Contact Us</a>
       </div>
