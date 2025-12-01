@@ -1,6 +1,7 @@
 {{define "contact.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
 
+  {{with .Page}}
   <div class="columns">
     <div class="column is-half is-offset-one-quarter">
 
@@ -64,13 +65,14 @@
       </form>
 
       <div class="content mt-6 has-text-centered">
-        <p><strong>Or call us:</strong> <a href="tel:+13605550123">(360) 555-0123</a></p>
+        <p><strong>Or call us:</strong> <a href="tel:+13603553042">(360) 355-3042</a></p>
         <p><strong>Email:</strong> <a href="mailto:info@columbiaoutdoor.com">info@columbiaoutdoor.com</a></p>
         <p>Woodland, WA • Serving the Pacific Northwest</p>
       </div>
 
     </div>
   </div>
+   {{end}}
 
   {{template "footer.html" .}}
 {{end}}

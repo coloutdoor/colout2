@@ -1,6 +1,7 @@
 {{define "estimate.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
 
+  {{with .Page}}
     <div class="level mb-5">
         <div class="level-left">
             <div class="level-item">
@@ -183,5 +184,6 @@
     </div>
     {{end}}
 
+    {{end}}
   {{template "footer.html" .}}
 {{end}}

@@ -31,7 +31,12 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		data.PageTitle = "Thank You – Message Sent!"
 	}
 
-	if err := tmpl.ExecuteTemplate(w, "contact.html", data); err != nil {
+	userAuth := getUserAuth(r)
+	rd := renderData{
+		Page:   &data,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "contact.html", rd); err != nil {
 		http.Error(w, "Server Error", 500)
 		log.Printf("contact error: %v", err)
 	}

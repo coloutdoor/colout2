@@ -1,6 +1,7 @@
 {{define "calculator.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
 
+  {{with .Page}}
     <script>
         // Clear number inputs on focus to overwrite existing values
         document.addEventListener("DOMContentLoaded", function() {
@@ -143,5 +144,6 @@
             </div>
         </div>
     </form>
+    {{end}}
   {{template "footer.html" .}}
 {{end}}

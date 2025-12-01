@@ -1,11 +1,33 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 )
+
+type UserAuth struct {
+	IsAuthenticated bool
+	AuthEmail       string
+	Message         string
+}
+
+func init() {
+	gob.Register(&UserAuth{}) // ← register the struct (pointer for safety)
+	// Add any other session types here, e.g., gob.Register(&SessionData{})
+}
+
+func getUserAuth(r *http.Request) UserAuth {
+	// Get session
+	sessionData, err := GetSession(r)
+	if err != nil && sessionData.UserAuth.IsAuthenticated {
+		return sessionData.UserAuth
+	}
+
+	return UserAuth{}
+}
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.New("login.html").ParseFiles("templates/login.html",
@@ -17,14 +39,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
+	userAuth := sessionData.UserAuth
 
 	if r.Method == "POST" {
 		if err := authN(r); err != nil {
-			sessionData.Message = "Login failed.  Try again"
+			userAuth.Message = "Login failed.  Try again"
 		} else {
-			sessionData.AuthEmail = r.FormValue("email")
-			sessionData.IsAuthenticated = true
-			sessionData.Message = fmt.Sprintf("Welcome %s", sessionData.AuthEmail)
+			userAuth.AuthEmail = r.FormValue("email")
+			userAuth.IsAuthenticated = true
+			userAuth.Message = fmt.Sprintf("Welcome %s", userAuth.AuthEmail)
 		}
 	}
 
@@ -32,7 +55,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session save Error: %v", err)
 	}
 
-	if sessionData.IsAuthenticated {
+	if userAuth.IsAuthenticated {
 		rurl := r.URL.Query().Get("rurl")
 		if rurl == "" {
 			rurl = "/"
@@ -41,7 +64,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, rurl, http.StatusSeeOther)
 	}
 
-	if err := tmpl.ExecuteTemplate(w, "login.html", sessionData); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "login.html", sessionData.UserAuth); err != nil {
 		log.Printf("Login Handler execute error: %v", err)
 		panic(err)
 	}

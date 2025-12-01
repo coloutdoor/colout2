@@ -1,5 +1,7 @@
 {{define "customer.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
+
+  {{with .Page}}
 
     <div class="level mb-5">
         <div class="level-left">
@@ -66,5 +68,6 @@
             </div>
         </div>
     </form>
+    {{end}}
    {{template "footer.html" .}}
 {{end}}

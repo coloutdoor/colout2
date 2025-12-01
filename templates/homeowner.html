@@ -1,5 +1,5 @@
 {{define "homeowner.html"}}
-  {{template "header.html" .}}
+  {{template "header.html" .Header}}
 
   <!-- MAIN CONTENT -->
     <section class="container">
@@ -13,8 +13,8 @@
             </div>
             <div class="card-content">
               <div class="content">
-                <h4>{{ (index .Strategies 0).Strategy }}</h4>
-                <p>{{ (index .Strategies 0).Messaging }}</p>
+                <h4>{{ (index .Page.Strategies 0).Strategy }}</h4>
+                <p>{{ (index .Page.Strategies 0).Messaging }}</p>
               </div>
             </div>
           </div>
@@ -28,8 +28,8 @@
             </div>
             <div class="card-content">
               <div class="content">
-                <h4>{{ (index .Strategies 1).Strategy }}</h4>
-                <p>{{ (index .Strategies 1).Messaging }}</p>
+                <h4>{{ (index .Page.Strategies 1).Strategy }}</h4>
+                <p>{{ (index .Page.Strategies 1).Messaging }}</p>
               </div>
             </div>
           </div>
@@ -43,8 +43,8 @@
             </div>
             <div class="card-content">
               <div class="content">
-                <h4>{{ (index .Strategies 2).Strategy }}</h4>
-                <p>{{ (index .Strategies 2).Messaging }}</p>
+                <h4>{{ (index .Page.Strategies 2).Strategy }}</h4>
+                <p>{{ (index .Page.Strategies 2).Messaging }}</p>
               </div>
             </div>
           </div>
@@ -60,8 +60,8 @@
             </div>
             <div class="card-content">
               <div class="content">
-                <h4>{{ (index .Strategies 3).Strategy }}</h4>
-                <p>{{ (index .Strategies 3).Messaging }}</p>
+                <h4>{{ (index .Page.Strategies 3).Strategy }}</h4>
+                <p>{{ (index .Page.Strategies 3).Messaging }}</p>
               </div>
             </div>
           </div>
@@ -75,8 +75,8 @@
             </div>
             <div class="card-content ">
               <div class="content">
-                <h4>{{ (index .Strategies 4).Strategy }}</h4>
-                <p>{{ (index .Strategies 4).Messaging }}</p>
+                <h4>{{ (index .Page.Strategies 4).Strategy }}</h4>
+                <p>{{ (index .Page.Strategies 4).Messaging }}</p>
               </div>
             </div>
           </div>
@@ -226,7 +226,7 @@
               </div>
               <div class="media-content">
                 <p class="title is-4">Columbia Outdoor</p>
-                {{ with index .Strategies 0 }}
+                {{ with index .Page.Strategies 0 }}
                   {{ range .PainPoints }}
                     <li>{{ . }}</li>
                   {{ end }}
@@ -234,7 +234,7 @@
               </div>
             </div>
             <div class="content">
-              {{ (index .Strategies 0).Advantage }}
+              {{ (index .Page.Strategies 0).Advantage }}
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@
               </div>
               <div class="media-content">
                 <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Strategies 1 }}
+                  {{ with index .Page.Strategies 1 }}
                   {{ range .PainPoints }}
                     <li>{{ . }}</li>
                   {{ end }}
@@ -272,7 +272,7 @@
               </div>
             </div>
             <div class="content">
-              {{ (index .Strategies 1).Advantage }}
+              {{ (index .Page.Strategies 1).Advantage }}
             </div>
           </div>
         </div>
@@ -303,7 +303,7 @@
               </div>
               <div class="media-content">
                 <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Strategies 2 }}
+                  {{ with index .Page.Strategies 2 }}
                   {{ range .PainPoints }}
                     <li>{{ . }}</li>
                   {{ end }}
@@ -311,7 +311,7 @@
               </div>
             </div>
             <div class="content">
-              {{ (index .Strategies 2).Advantage }}
+              {{ (index .Page.Strategies 2).Advantage }}
             </div>
           </div>
         </div>
@@ -341,7 +341,7 @@
               </div>
               <div class="media-content">
                 <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Strategies 3 }}
+                  {{ with index .Page.Strategies 3 }}
                   {{ range .PainPoints }}
                     <li>{{ . }}</li>
                   {{ end }}
@@ -349,7 +349,7 @@
               </div>
             </div>
             <div class="content">
-              {{ (index .Strategies 3).Advantage }}
+              {{ (index .Page.Strategies 3).Advantage }}
             </div>
           </div>
         </div>
@@ -379,7 +379,7 @@
               </div>
               <div class="media-content">
                 <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Strategies 4 }}
+                  {{ with index .Page.Strategies 4 }}
                   {{ range .PainPoints }}
                     <li>{{ . }}</li>
                   {{ end }}
@@ -387,7 +387,7 @@
               </div>
             </div>
             <div class="content">
-              {{ (index .Strategies 4).Advantage }}
+              {{ (index .Page.Strategies 4).Advantage }}
             </div>
           </div>
         </div>

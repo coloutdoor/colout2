@@ -50,9 +50,9 @@
 
         <h2 class="subtitle">User Auth Information</h2>
         <table class="table is-striped is-fullwidth">
-            <tr><td>Login Email</td><td>{{.AuthEmail}}</td></tr>
-            <tr><td>Authenticated?</td><td>{{.IsAuthenticated}}</td></tr>
-            <tr><td>Message</td><td>{{.Message}}</td></tr>
+            <tr><td>Login Email</td><td>{{.UserAuth.AuthEmail}}</td></tr>
+            <tr><td>Authenticated?</td><td>{{.UserAuth.IsAuthenticated}}</td></tr>
+            <tr><td>Message</td><td>{{.UserAuth.Message}}</td></tr>
     </div>
     <form method="post" action="/session" class="mt-4">
         <div class="field">
