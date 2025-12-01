@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/sessions"
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 )
 
@@ -21,9 +20,6 @@ var funcMap = template.FuncMap{
 	"formatDemoDescription": formatDemoDescription,
 	"currentYear":           func() int { return time.Now().Year() },
 }
-
-// Session store - in-memory for now, single secret key
-var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
 
 // DeckEstimate holds all data for a deck cost estimate.
 type DeckEstimate struct {
@@ -134,13 +130,14 @@ func init() {
 
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
+	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
 		"templates/header.html", "templates/footer.html"))
 }
 
 // saveEstimate updates the estimate with save details and persists it to the session.
-func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, session *sessions.Session) {
+func saveEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate, sd *SessionData) {
 	estimate.SaveDate = time.Now()
 	// estimate.EstimateID = 1000                                           // Static ID for now
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
@@ -180,12 +177,12 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 		return
 	}
 
-	session.Values["estimate"] = *estimate
-	if err := session.Save(r, w); err != nil {
-		log.Printf("Session save error: %v", err)
-		renderEstimate(w, r, DeckEstimate{Error: "Session save error"})
-		return
+	sd.Estimate = estimate
+	err = sd.Save(r, w)
+	if err != nil {
+		log.Printf("Failed to save Session Data in Deck Estimate - saveEstimate()")
 	}
+
 	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 }
 
@@ -206,26 +203,18 @@ type EstimatePageData struct {
 
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session
-	session, err := store.Get(r, "colout2-session")
+
+	sd, err := GetSession(r)
+
 	if err != nil {
-		log.Printf("Session get error: %v", err)
+		log.Printf("Session failed: %v", err)
 		renderEstimate(w, r, DeckEstimate{Error: "Session error"})
 		return
 	}
 
 	// Load customer from session
-	customer := Customer{}
-	if cust, ok := session.Values["customer"].(Customer); ok {
-		customer = cust
-	} else {
-		log.Printf("Session get error: %v", err)
-	}
-
-	// Load the estimate from session
-	estimate := DeckEstimate{}
-	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
-		estimate = est
-	}
+	customer := sd.Customer
+	estimate := sd.Estimate
 	estimate.Customer = customer // Embed customer in estimate
 
 	// ************* GET  ********************************
@@ -238,7 +227,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
-			saveEstimate(w, r, &estimate, session)
+			saveEstimate(w, r, estimate, sd)
 		} else {
 			renderEstimate(w, r, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
 			return
@@ -250,12 +239,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - Accept  - After Save ********************************
 	if r.FormValue("accept") == "true" && !estimate.SaveDate.IsZero() {
 		estimate.AcceptDate = time.Now()
-		session.Values["estimate"] = estimate
-		if err := session.Save(r, w); err != nil {
-			log.Printf("Session save error: %v", err)
-			renderEstimate(w, r, DeckEstimate{Error: "Session save error"})
-			return
-		}
+		saveEstimate(w, r, estimate, sd)
 		log.Printf("Estimate accepted at %v", estimate.AcceptDate)
 		renderEstimate(w, r, estimate)
 		return
@@ -422,9 +406,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
 	// Save estimate to session
-	session.Values["estimate"] = estimate
-	if err := session.Save(r, w); err != nil {
-		log.Printf("Session save error: %v", err)
+	sd.Estimate = estimate
+	err = sd.Save(r, w)
+	if err != nil {
+		log.Printf("Estimate Handler - Save Session failed")
 	}
 
 	// Pass both estimate and customer to template

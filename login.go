@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"fmt"
 	"html/template"
 	"log"
@@ -14,15 +13,15 @@ type UserAuth struct {
 	Message         string
 }
 
-func init() {
-	gob.Register(&UserAuth{}) // ← register the struct (pointer for safety)
-	// Add any other session types here, e.g., gob.Register(&SessionData{})
-}
-
 func getUserAuth(r *http.Request) UserAuth {
+
 	// Get session
 	sessionData, err := GetSession(r)
-	if err != nil && sessionData.UserAuth.IsAuthenticated {
+	if err != nil {
+		return UserAuth{}
+	}
+
+	if sessionData.UserAuth.IsAuthenticated {
 		return sessionData.UserAuth
 	}
 
@@ -39,15 +38,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
-	userAuth := sessionData.UserAuth
 
 	if r.Method == "POST" {
 		if err := authN(r); err != nil {
-			userAuth.Message = "Login failed.  Try again"
+			sessionData.UserAuth.Message = "Login failed.  Try again"
 		} else {
-			userAuth.AuthEmail = r.FormValue("email")
-			userAuth.IsAuthenticated = true
-			userAuth.Message = fmt.Sprintf("Welcome %s", userAuth.AuthEmail)
+			sessionData.UserAuth.AuthEmail = r.FormValue("email")
+			sessionData.UserAuth.IsAuthenticated = true
+			sessionData.UserAuth.Message = fmt.Sprintf("Welcome %s", sessionData.UserAuth.AuthEmail)
 		}
 	}
 
@@ -55,7 +53,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Session save Error: %v", err)
 	}
 
-	if userAuth.IsAuthenticated {
+	if sessionData.UserAuth.IsAuthenticated {
 		rurl := r.URL.Query().Get("rurl")
 		if rurl == "" {
 			rurl = "/"

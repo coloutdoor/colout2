@@ -34,6 +34,9 @@
             <tr><td>Has Demo</td><td>{{.Estimate.HasDemo}}</td></tr>
             <tr><td>Has Fascia</td><td>{{.Estimate.HasFascia}}</td></tr>
             <tr><td>Total Cost</td><td>{{formatCost .Estimate.TotalCost}}</td></tr>
+            <tr><td>Estimate ID</td><td>{{printf "%d" .Estimate.EstimateID}}</td></tr>
+            <tr><td>Save Date</td><td>{{printf "%v" .Estimate.SaveDate}}</td></tr>
+            <tr><td>Accept Date</td><td>{{printf "%v" .Estimate.AcceptDate}}</td></tr>
         </table>
 
         <h2 class="subtitle">Customer Information</h2>
