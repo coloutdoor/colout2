@@ -21,7 +21,7 @@ case "$1" in
         ## Deploy to GCP.  Run these commands first to get GCP / gcloud working
         ##                   gcloud config set project columbia-outdoor
         ##                   gcloud auth login
-        ##                   gcloud auth configure-docker us.gcr.io
+        ##                   gcloud auth configure-docker us.gcr.io --quiet
         ## 
         echo "Tagging last built image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
