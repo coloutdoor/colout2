@@ -137,7 +137,7 @@ func init() {
 }
 
 // saveEstimate updates the estimate with save details and persists it to the session.
-func saveEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate, sd *SessionData) {
+func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, sd *SessionData) {
 	estimate.SaveDate = time.Now()
 	// estimate.EstimateID = 1000                                           // Static ID for now
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
@@ -177,7 +177,7 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate,
 		return
 	}
 
-	sd.Estimate = estimate
+	sd.Estimate = *estimate
 	err = sd.Save(r, w)
 	if err != nil {
 		log.Printf("Failed to save Session Data in Deck Estimate - saveEstimate()")
@@ -227,7 +227,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
-			saveEstimate(w, r, estimate, sd)
+			saveEstimate(w, r, &estimate, sd)
 		} else {
 			renderEstimate(w, r, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
 			return
@@ -239,7 +239,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// ************* POST - Accept  - After Save ********************************
 	if r.FormValue("accept") == "true" && !estimate.SaveDate.IsZero() {
 		estimate.AcceptDate = time.Now()
-		saveEstimate(w, r, estimate, sd)
+		saveEstimate(w, r, &estimate, sd)
 		log.Printf("Estimate accepted at %v", estimate.AcceptDate)
 		renderEstimate(w, r, estimate)
 		return

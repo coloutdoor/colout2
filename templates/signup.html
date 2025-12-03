@@ -1,0 +1,76 @@
+{{define "signup.html"}}
+{{template "header.html" .Header}}
+
+{{with .Page}}
+<section class="hero is-fullheight-with-navbar">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+
+          <div class="box">
+            <h1 class="title has-text-centered">Create your account</h1>
+            <p class="subtitle has-text-centered has-text-grey">
+              Pacific Northwest’s trusted outdoor platform
+            </p>
+
+            {{if .Message}}
+              <div class="notification is-danger is-light">
+                <button class="delete" onclick="this.parentElement.remove()"></button>
+                {{.Message}}
+              </div>
+            {{end}}
+
+            <form action="/signup" method="post">
+              <div class="field">
+                <label class="label">Full Name</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="text" name="name" placeholder="John Doe" required autofocus>
+                  <span class="icon is-small is-left"><i class="fas fa-user"></i></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Email</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="email" name="email" placeholder="you@example.com" required>
+                  <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Password</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="password" name="password" placeholder="••••••••" required minlength="8">
+                  <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Confirm Password</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="password" name="password2" placeholder="••••••••" required minlength="8">
+                  <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <button class="button is-primary is-fullwidth is-medium">
+                  Create Account
+                </button>
+              </div>
+            </form>
+
+            <div class="has-text-centered mt-5">
+              <p>Already have an account? <a href="/login">Log in</a></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{{end}}
+{{template "footer.html" .}}
+{{end}}
