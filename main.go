@@ -65,6 +65,7 @@ func main() {
 	http.HandleFunc("/contact/", contactHandler)
 	http.HandleFunc("/test", homeHandler)
 	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/signup", signupHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)
