@@ -32,17 +32,19 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// Get session
-	session, err := store.Get(r, "colout2-session")
+	sessionData, err := GetSession(r)
 	if err != nil {
-		log.Printf("Session get error: %v", err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
+		http.Error(w, "Session error - Calculator", http.StatusInternalServerError)
 		return
 	}
 
 	// Load estimate from session
-	estimate := DeckEstimate{}
-	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
-		estimate = est
+	estimate := sessionData.Estimate
+
+	if estimate.Desc != "" {
+		log.Printf("Using previous estimate for values from: %s", estimate.Desc)
+	} else {
+		log.Printf("New Estimate Calculator.")
 	}
 
 	// Success: Route to correct calculator

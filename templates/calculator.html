@@ -55,23 +55,14 @@
                             </div>
                         </div>
                         <div class="field">
-                            <div class="control">
-                                <label class="checkbox">
-                                    <input type="checkbox" name="hasFascia" {{if .HasFascia}}checked{{end}}>
-                                    Include matching fascia?
-                                </label>
-                            </div>
+                            <input id="fascia" class="switch is-success" type="checkbox" name="hasFascia" {{if .HasFascia}}checked{{end}}>
+                            <label for="fascia">Include matching fascia?</label>
                         </div>
                     </div>
                 </div>
-                <div class="field mb-3 is-narrow">
-                    <label class="label is-medium">Demo</label>
-                    <div class="control">
-                        <label class="checkbox">
-                            <input type="checkbox" name="hasDemo" {{if .HasDemo}}checked{{end}}>
-                            Remove Existing Structure?
-                        </label>
-                    </div>
+                <div class="field">
+                        <input id="demo" class="switch is-success" type="checkbox" name="hasDemo" {{if .HasDemo}}checked{{end}}>
+                        <label for="demo"> Remove Existing Structure? </label>
                 </div>
                 <div class="field mb-3 is-narrow">
                     <label class="label is-medium">Rails (optional)</label>
@@ -120,21 +111,13 @@
                             </div>
                         </div>
                     </div>
-                   <div class="control">
-                        <div class="checkbox">
-                                <label class="checkbox">
-                                    <input type="checkbox" name="hasStairFascia" {{if .HasStairFascia}}checked{{end}}>
-                                    Include stair fascia?
-                                </label>
-                        </div>
+                    <div class="field">
+                        <input id="stairfascia" class="switch is-success" type="checkbox" name="hasStairFascia" {{if .HasStairFascia}}checked{{end}}>
+                        <label for="stairfascia">Include Stair Fascia </label>
                     </div>
-                   <div class="control">
-                        <div class="checkbox">
-                                <label class="checkbox">
-                                    <input type="checkbox" name="hasStairTK" {{if .HasStairTK}}checked{{end}}>
-                                    Include stair toe kicks?
-                                </label>
-                        </div>
+                    <div class="field">
+                        <input id="stairtk" class="switch is-success" type="checkbox" name="hasStairTK" {{if .HasStairTK}}checked{{end}}>
+                        <label for="stairtk">Include stair toe kicks </label>
                     </div>
                 </div>
                 <div class="field">
