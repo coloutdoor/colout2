@@ -6,9 +6,11 @@
     <div class="column is-half is-offset-one-quarter">
 
       <h2 class="title is-3 has-text-centered">Contact Columbia Outdoor</h2>
-      <p class="has-text-centered mb-5">
-        Ready to transform your outdoor space? Get in touch with our Pacific Northwest experts.
-      </p>
+      {{if .PageTitle}}
+      <p class="has-text-centered mb-5"> {{.PageTitle}} </p>
+      {{else}}
+      <p class="has-text-centered mb-5"> Ready to transform your outdoor space? Get in touch with our Pacific Northwest experts.  </p>
+      {{end}}
 
       <form action="/contact" method="POST">
         <div class="field">
@@ -57,22 +59,13 @@
 
         <div class="field">
           <div class="control">
-            <button class="button is-primary is-fullwidth" type="submit">
-              Send Message
-            </button>
+              <input class="button is-primary" type="submit" value="Send Message to CO"> 
           </div>
         </div>
       </form>
-
-      <div class="content mt-6 has-text-centered">
-        <p><strong>Or call us:</strong> <a href="tel:+13603553042">(360) 355-3042</a></p>
-        <p><strong>Email:</strong> <a href="mailto:info@columbiaoutdoor.com">info@columbiaoutdoor.com</a></p>
-        <p>Woodland, WA • Serving the Pacific Northwest</p>
-      </div>
-
     </div>
   </div>
    {{end}}
-
+  
   {{template "footer.html" .}}
 {{end}}

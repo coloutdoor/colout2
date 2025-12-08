@@ -62,10 +62,12 @@ func main() {
 	http.HandleFunc("/session", sessionHandler)
 	http.HandleFunc("/calc", calcHandler)
 	http.HandleFunc("/css/", cssHandler)
-	http.HandleFunc("/contact/", contactHandler)
+	http.HandleFunc("/contact", contactHandler)
 	http.HandleFunc("/test", homeHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/signup", signupHandler)
+	http.HandleFunc("/auth/google", googleLoginHandler)
+	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)
