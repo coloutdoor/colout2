@@ -63,6 +63,7 @@ func main() {
 	http.HandleFunc("/calc", calcHandler)
 	http.HandleFunc("/css/", cssHandler)
 	http.HandleFunc("/contact", contactHandler)
+	http.HandleFunc("/contact/", contactHandler)
 	http.HandleFunc("/test", homeHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/signup", signupHandler)

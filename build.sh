@@ -19,10 +19,18 @@ case "$1" in
         ;;
     "deploy")
         ## Deploy to GCP.  Run these commands first to get GCP / gcloud working
-        ##                   gcloud config set project columbia-outdoor
         ##                   gcloud auth login
+        ##                   gcloud config set project columbia-outdoor
         ##                   gcloud auth configure-docker us.gcr.io --quiet
         ## 
+        source .env
+        if [ -n "$SENDGRID_API_KEY" ]; then
+           echo "SendGrid API key is set – ready to deploy"
+        else
+            echo "ERROR: SENDGRID_API_KEY is missing or empty"
+            exit 1
+        fi
+
         echo "Tagging last built image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
         echo "Pushing to GCR..."
@@ -34,7 +42,8 @@ case "$1" in
             --region us-central1 \
             --port 8080 \
             --project $PROJECT_ID \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars SENDGRID_API_KEY=${SENDGRID_API_KEY}
         echo "Deployed to Cloud Run!"
         ;;
     *)
