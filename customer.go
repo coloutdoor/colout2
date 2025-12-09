@@ -57,6 +57,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Render customer page onlyon GET
 	userAuth := getUserAuth(r)
+	userAuth.Title = "Customer Information"
 	rd := renderData{
 		Page:   &customer,
 		Header: &userAuth,

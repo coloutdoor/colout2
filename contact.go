@@ -37,7 +37,7 @@ func init() {
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Contact handler:  Received - %s", r.Method)
+
 	if r.Method == "POST" {
 		// Simple form handling (expand with email, DB, etc.)
 		if err := r.ParseForm(); err != nil {
@@ -115,6 +115,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth := getUserAuth(r)
+	userAuth.Title = "Contact Us"
 	rd := renderData{
 		Page:   &data,
 		Header: &userAuth,

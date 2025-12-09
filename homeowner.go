@@ -58,6 +58,7 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth := getUserAuth(r)
+	userAuth.Title = "Homeowner"
 	rd := renderData{
 		Page:   &homeowner,
 		Header: &userAuth,

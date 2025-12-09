@@ -32,8 +32,13 @@
           <div class="level-left">
               <div class="level-item">
                 <div class="content">
-                  <p class="title"> Columbia Outdoor -  
-
+                  <p class="title"> 
+                        {{if .Title}}
+                           {{.Title}} 
+                        {{else}} 
+                          Outdoor Living 
+                        {{end}}
+                        | Columbia Outdoor
                   </p>
                   <p class="subtitle"> The Premier Solution for Outdoor Living Projects </p>
                 </div>
@@ -41,7 +46,7 @@
           </div>
           <div class="level-right">
             <div class="level-item">
-            <img src="/images/colout2.png" alt="Colout2 Logo" style="max-width: 150px; max-height: 150px;">
+            <img src="/images/colout2.png" alt="Columbia Outdoor Logo" style="max-width: 150px; max-height: 150px;">
             </div>
           </div>
         </div>

@@ -64,6 +64,7 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 
 func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r)
+	userAuth.Title = "Deck Calculator Details"
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,
@@ -80,6 +81,7 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 // Example handlers — expand with real logic
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r)
+	userAuth.Title = "Deck Calculator"
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,
