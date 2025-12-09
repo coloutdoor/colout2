@@ -55,8 +55,9 @@ func main() {
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 
+	http.HandleFunc("/", ownerHandler) // Defualt - also City specific pages...
+
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
-	http.HandleFunc("/", ownerHandler)
 	http.HandleFunc("/estimate", estimateHandler)
 	http.HandleFunc("/customer", customerHandler)
 	http.HandleFunc("/session", sessionHandler)
@@ -69,6 +70,8 @@ func main() {
 	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/auth/google", googleLoginHandler)
 	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
+
+	// City Specific Handlers
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

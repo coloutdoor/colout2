@@ -4,8 +4,18 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="../images/fav_icon.png" type="image/x-icon">
-    <title>Columbia Outdoor - Outdoor Living</title>
+    <meta name="description" content="
+    {{if .MetaDesc}} {{.MetaDesc}} {{else}} Deck Builders Washington {{end}}">
+    <link rel="shortcut icon" href="/images/colout2.png" type="image/x-icon">
+    <title>
+                        {{if .Title}}
+                           {{.Title}} 
+                        {{else}} 
+                          Outdoor Living 
+                        {{end}}
+                          | Columbia Outdoor
+  </title>
+
     <!--
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     -->
@@ -38,7 +48,7 @@
                         {{else}} 
                           Outdoor Living 
                         {{end}}
-                        | Columbia Outdoor
+                          | Columbia Outdoor
                   </p>
                   <p class="subtitle"> The Premier Solution for Outdoor Living Projects </p>
                 </div>

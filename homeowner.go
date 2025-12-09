@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -40,6 +41,24 @@ type renderData struct {
 //	This is the main page for Homeowner - LandingPage
 //	This was created from Bulma Templates
 func ownerHandler(w http.ResponseWriter, r *http.Request) {
+
+	// City specific landing pages ...
+	tmpPath := strings.ToLower(r.URL.Path)
+	if strings.HasPrefix(tmpPath, "/deck-builders-") ||
+		strings.HasPrefix(tmpPath, "/patio-cover-") ||
+		strings.HasPrefix(tmpPath, "/trex-deck-") ||
+		strings.HasPrefix(tmpPath, "/timbertech-deck-") ||
+		strings.HasPrefix(tmpPath, "/composite-decking-") ||
+		strings.HasPrefix(tmpPath, "/outdoor-kitchen-builders-") ||
+		strings.HasPrefix(tmpPath, "/pergola-builders-") ||
+		strings.HasPrefix(tmpPath, "/outdoor-living-") {
+		//	log.Printf("We got a city request... %s", tmpPath)
+		cityHandler(w, r)
+		return
+	}
+
+	// fallback to normal Homeowner
+
 	// Read the YAML file
 	data, err := os.ReadFile("static/homeowner.yaml")
 	if err != nil {

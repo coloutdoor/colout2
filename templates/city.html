@@ -1,0 +1,56 @@
+{{define "city.html"}}
+  {{template "header.html" .Header}}
+
+  {{with .Page}}
+
+<!-- This is in Header.HTML
+<title>{{.Title}}</title>
+<meta name="description" content="{{.MetaDesc}}">
+  -->
+
+<h1>{{.H1}}</h1>
+<p>Serving {{.City}}, {{.State}} with pre-approved plans and permits.</p>
+
+<section class="section">
+  <div class="container">
+    <h2 class="title has-text-centered mb-6">Recent Pacific Northwest Projects</h2>
+
+    <!-- Bulma Carousel -->
+    <div id="projectCarousel">
+      <div class="carousel-item is-active">
+        <img src="/images/cover1.jpeg" alt="Custom timberframe cover with Timbertech deck">
+      </div>
+      <div class="carousel-item">
+        <img src="/images/deck1.jpeg" alt="Trex deck with aluminum rails">
+      </div>
+      <div class="carousel-item">
+        <img src="/images/cover2.jpg" alt="White lean-to patio cover">
+      </div>
+      <div class="carousel-item">
+        <img src="/images/deck2.jpg" alt="Two story Timbertech Azek deck with composite rails and stairs">
+      </div>
+      <div class="carousel-item">
+        <img src="/images/deck3.jpg" alt="Custom Deck with hot tub and pergola">
+      </div>
+    </div>
+
+    <!-- Navigation arrows -->
+    <div class="has-text-centered mt-5">
+      <button class="button is-large prev-btn" aria-label="Previous">
+        <span class="icon is-large">←</span>
+      </button>
+      <button class="button is-large next-btn" aria-label="Next">
+        <span class="icon is-large">→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{{.SchemaJSON}}
+</script>
+
+   {{end}}
+  
+  {{template "footer.html" .}}
+{{end}}

@@ -288,3 +288,74 @@ footer li:before {
   background-color: #001d35;
   opacity: 8%;
 }
+
+/* Columbia Outdoor – Simple Carousel CSS 
+#projectCarousel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1000px;     
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+#projectCarousel .carousel-item {
+  display: none;                  
+  position: relative;
+}
+
+#projectCarousel .carousel-item.is-active {
+  display: block;               
+}
+
+#projectCarousel img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+#projectCarousel .carousel-item {
+  transition: opacity 0.6s ease;
+  opacity: 0;
+}
+
+#projectCarousel .carousel-item.is-active {
+  opacity: 1;
+}
+*/
+
+/********************************************************************************************
+* Carousel
+********************************************************************************************/
+/* Replace your old #projectCarousel CSS with this */
+#projectCarousel {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;           /* adjust if you want it narrower */
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;        /* ← THIS forces identical height on every device */
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  background: #000;
+}
+
+#projectCarousel .carousel-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#projectCarousel .carousel-item.is-active {
+  opacity: 1;
+}
+
+#projectCarousel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* ← THIS is the magic line */
+  object-position: center;
+}
