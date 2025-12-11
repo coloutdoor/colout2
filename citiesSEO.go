@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -17,6 +18,65 @@ type CityPageData struct {
 	MetaDesc   string
 	Phone      string // optional local number
 	SchemaJSON string // for local business schema
+}
+
+// ————————————————————————————————————————
+// ALL CITY-SPECIFIC URL SLUGS – 100% AUTOMATIC
+// ————————————————————————————————————————
+var serviceSlugs = []string{
+	"deck-builders",
+	"patio-cover-contractors",
+	"trex-deck-installers",
+	"timbertech-deck-installers",
+	"composite-decking",
+	"outdoor-kitchen-builders",
+	"pergola-builders",
+	"outdoor-living",
+}
+
+var cities = []struct {
+	Name  string // pretty name
+	Slug  string // URL-safe
+	State string // WA, OR, ID
+}{
+	{"Woodland", "woodland", "wa"},
+	{"Ridgefield", "ridgefield", "wa"},
+	{"Kalama", "kalama", "wa"},
+	{"La Center", "lacenter", "wa"}, // note: "la-center" would also be fine
+}
+
+// Generate every combination once at startup
+var allCityPageSlugs []string
+
+func init() {
+	for _, service := range serviceSlugs {
+		for _, city := range cities {
+			slug := fmt.Sprintf("%s-%s-%s", service, city.Slug, city.State)
+			allCityPageSlugs = append(allCityPageSlugs, slug)
+		}
+	}
+	// Result: 8 services × 4 cities = 32 perfect URLs
+}
+
+func sitemapHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/xml")
+	fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
+
+	base := "https://columbiaoutdoor.com"
+	pages := []string{"/contact", "/login"}
+
+	// Put the main page and Calculator as 1.0
+	fmt.Fprintf(w, "<url><loc>%s</loc><priority>1.0</priority></url>\n", base)
+	fmt.Fprintf(w, "<url><loc>%s/calc</loc><priority>1.0</priority></url>\n", base)
+
+	for _, p := range pages {
+		fmt.Fprintf(w, "<url><loc>%s%s</loc><priority>0.8</priority></url>\n", base, p)
+	}
+	for _, slug := range allCityPageSlugs {
+		fmt.Fprintf(w, "<url><loc>%s/%s</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n", base, slug)
+	}
+	fmt.Fprint(w, "</urlset>")
 }
 
 // Cities

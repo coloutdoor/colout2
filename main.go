@@ -70,6 +70,7 @@ func main() {
 	http.HandleFunc("/signup", signupHandler)
 	http.HandleFunc("/auth/google", googleLoginHandler)
 	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
+	http.HandleFunc("/sitemap.xml", sitemapHandler)
 
 	// City Specific Handlers
 
