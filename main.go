@@ -47,6 +47,24 @@ func cssHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
+func robotsTxtHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+
+	if r.URL.Path == "/robots.txt" {
+		// Read robots.txt from file
+		content, err := os.ReadFile("static/robots.txt")
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		strContent := string(content)
+		fmt.Fprintf(w, "%s", strContent)
+	} else {
+		http.NotFound(w, r)
+	}
+}
+
 func main() {
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
@@ -71,8 +89,7 @@ func main() {
 	http.HandleFunc("/auth/google", googleLoginHandler)
 	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
 	http.HandleFunc("/sitemap.xml", sitemapHandler)
-
-	// City Specific Handlers
+	http.HandleFunc("/robots.txt", robotsTxtHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

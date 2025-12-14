@@ -82,6 +82,8 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r)
 	userAuth.Title = "Deck Calculator"
+	userAuth.Subtitle = "Free and easy Estimate Calculator"
+	userAuth.MetaDesc = "Free deck estimate calculator. Simple and easy to use for decks in Washington.  Select deck, rails, stairs, and details."
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,

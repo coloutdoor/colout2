@@ -77,7 +77,9 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth := getUserAuth(r)
-	userAuth.Title = "Homeowner"
+	userAuth.Title = "Decks"
+	userAuth.Subtitle = "A trusted solution for your Outdoor Living - Decks, Patios, Covers."
+	userAuth.MetaDesc = "Skip the 3-bid hassle. Columbia Outdoor delivers your dream deck, patio cover, or landscape with, fixed pricing, permits handled, and a dedicated project manager."
 	rd := renderData{
 		Page:   &homeowner,
 		Header: &userAuth,

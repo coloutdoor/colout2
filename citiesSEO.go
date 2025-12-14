@@ -108,7 +108,7 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 		Title:    prettifyService(service) + " in " + cityPretty + ", " + stateUpper,
 		H1:       prettifyService(service) + " in " + cityPretty + ", " + stateUpper,
 		MetaDesc: "Top-rated " + strings.ToLower(prettifyService(service)) + " in " + cityPretty + ", " + stateUpper + ". Pre-approved plans, permits included. Get your free quote today.",
-		Phone:    "(360) 555-0123", // or pull from a map of local numbers
+		Phone:    "(360) 219-9434", // or pull from a map of local numbers
 	}
 
 	// Optional: Add JSON-LD schema
