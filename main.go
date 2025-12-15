@@ -91,6 +91,27 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Privacy Handler - / privacy
+func privacyHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.New("error404.html").
+		Funcs(funcMap).
+		ParseFiles("templates/privacy.html", "templates/header.html", "templates/footer.html"))
+
+	data := PageData{PageTitle: "Privacy Policy"}
+
+	userAuth := getUserAuth(r)
+	userAuth.Title = "Privacy"
+	userAuth.Subtitle = "Please review our privacy policy"
+	rd := renderData{
+		Page:   &data,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "privacy.html", rd); err != nil {
+		http.Error(w, "Privacy Policy - Server Error", 500)
+		log.Printf("Privacy Policy page failed: %v", err)
+	}
+}
+
 func main() {
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
@@ -117,7 +138,8 @@ func main() {
 	mux.HandleFunc("/sitemap.xml", sitemapHandler)
 	mux.HandleFunc("/robots.txt", robotsTxtHandler)
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
-	mux.HandleFunc("/", ownerHandler)            // Defualt - also City specific pages.  This should return a 404.
+	mux.HandleFunc("/privacy", privacyHandler)
+	mux.HandleFunc("/", ownerHandler) // Defualt - also City specific pages.  This should return a 404.
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

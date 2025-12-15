@@ -31,6 +31,13 @@ case "$1" in
             exit 1
         fi
 
+        if [ -n "$CLOUDFLARE_SECRET_KEY"]; then
+            echo "Cloudflare Secret Key is set"
+        else 
+            echo "ERROR:  CLOUDFLARE_SECRET_KEY is missing or empty"
+            exit 1
+        fi
+
         echo "Tagging last built image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
         echo "Pushing to GCR..."
@@ -43,7 +50,8 @@ case "$1" in
             --port 8080 \
             --project $PROJECT_ID \
             --allow-unauthenticated \
-            --set-env-vars SENDGRID_API_KEY=${SENDGRID_API_KEY}
+            --set-env-vars SENDGRID_API_KEY=${SENDGRID_API_KEY} \
+            --set-env-vars CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY}
         echo "Deployed to Cloud Run!"
         ;;
     *)

@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -30,20 +33,57 @@ func init() {
 	apiKey := os.Getenv("SENDGRID_API_KEY")
 	if apiKey == "" {
 		log.Fatal("Unable to send email: SENDGRID_API_KEY is required")
-	} else {
-		log.Printf("Sendgrid API Key is set")
 	}
 	sg = sendgrid.NewSendClient(apiKey)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 
+	// POST Response!!!!
 	if r.Method == "POST" {
 		// Simple form handling (expand with email, DB, etc.)
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
+
+		// Start Captcha
+		cfSecretKey := os.Getenv("CLOUDFLARE_SECRET_KEY")
+		if cfSecretKey == "" {
+			log.Fatal("CF Captcha missing secret key")
+		}
+
+		// In your POST handler
+		token := r.FormValue("cf-turnstile-response")
+		if token == "" {
+			// Reject: missing token
+			log.Printf("Missing CF token from POST")
+			return
+		}
+
+		resp, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify", url.Values{
+			"secret":   {cfSecretKey}, // TODO - Replace with SECRET KEY
+			"response": {token},
+			"remoteip": {r.RemoteAddr},
+		})
+		if err != nil { /* handle error */
+			// Reject: BOT
+			log.Printf("Cloudflare Post failed!.")
+			return
+		}
+
+		cf_body, _ := io.ReadAll(resp.Body)
+		var result struct {
+			Success bool `json:"success"`
+		}
+		json.Unmarshal(cf_body, &result)
+
+		if !result.Success {
+			// Spam/bot — reject or log
+			log.Printf("Captcha Failed. Bot - %v", cf_body)
+			return
+		}
+		// End Captcha - Cloudflare
 
 		data := ContactForm{
 			Name:    r.FormValue("name"),
@@ -67,7 +107,6 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		<hr>
 		<small>Sent from columbiaoutdoor.com – Pacific Northwest’s trusted outdoor living platform</small>
 	`
-
 		t := template.Must(template.New("email").Funcs(template.FuncMap{
 			"replace": func(s, old, new string) string { return strings.ReplaceAll(s, old, new) },
 		}).Parse(htmlContent))
@@ -91,7 +130,6 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Send both emails in background
 		go func() {
-			log.Printf("Anonymouse Go Function inline")
 			if _, err := sg.Send(teamMessage); err != nil {
 				log.Printf("Team email failed: %v", err)
 			}
