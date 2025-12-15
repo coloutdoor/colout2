@@ -1,0 +1,18 @@
+{{define "error404.html"}}
+  {{template "header.html" .Header}}
+
+  {{with .Page}}
+    <div class="container">
+        <h1>404</h1>
+        <h2>Oops — Page Not Found</h2>
+        <p>The page you're looking for might have been removed, renamed, or is temporarily unavailable.</p>
+        <p>Let’s get you back on track to your dream outdoor space in the Pacific Northwest.</p>
+        <a href="https://columbiaoutdoor.com/" class="button">Return Home</a>
+        <div class="footer">
+            <p>Columbia Outdoor — Stress-Free Decks, Patios & Outdoor Living<br>
+            Serving Washington, Oregon & Idaho</p>
+        </div>
+    </div>
+    {{end}}
+   {{template "footer.html" .}}
+{{end}}

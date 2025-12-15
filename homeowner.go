@@ -42,6 +42,8 @@ type renderData struct {
 //	This was created from Bulma Templates
 func ownerHandler(w http.ResponseWriter, r *http.Request) {
 
+	log.Printf("Owner Handler:  %s", r.URL.Path)
+
 	// City specific landing pages ...
 	tmpPath := strings.ToLower(r.URL.Path)
 	if strings.HasPrefix(tmpPath, "/deck-builders-") ||
@@ -54,6 +56,10 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 		strings.HasPrefix(tmpPath, "/outdoor-living-") {
 		//	log.Printf("We got a city request... %s", tmpPath)
 		cityHandler(w, r)
+		return
+	} else if r.URL.Path != "/" {
+		// This is a 404
+		notFoundHandler(w, r)
 		return
 	}
 

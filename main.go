@@ -12,6 +12,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// Test - Not used !!!
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// tmpl := template.Must(template.ParseFiles("templates/index.html"))
 	// tmpl := template.Must(template.ParseFiles("templates/index.html").Funcs(funcMap))
@@ -65,6 +66,31 @@ func robotsTxtHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// notFoundHandler serves your custom 404 page
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusNotFound) // 404 status
+
+	log.Printf("Error - 404 - Page not found - %s", r.URL)
+	tmpl := template.Must(template.New("error404.html").
+		Funcs(funcMap).
+		ParseFiles("templates/error404.html", "templates/header.html", "templates/footer.html"))
+
+	data := PageData{PageTitle: "Sorry - Not Found"}
+
+	userAuth := getUserAuth(r)
+	userAuth.Title = "404 - Not Found"
+	userAuth.Subtitle = "Sorry, this page is not available."
+	rd := renderData{
+		Page:   &data,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "error404.html", rd); err != nil {
+		http.Error(w, "Server Error", 500)
+		log.Printf("404 error page failed: %v", err)
+	}
+}
+
 func main() {
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
@@ -73,23 +99,25 @@ func main() {
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 
-	http.HandleFunc("/", ownerHandler) // Defualt - also City specific pages...
+	mux := http.NewServeMux()
 
-	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
-	http.HandleFunc("/estimate", estimateHandler)
-	http.HandleFunc("/customer", customerHandler)
-	http.HandleFunc("/session", sessionHandler)
-	http.HandleFunc("/calc", calcHandler)
-	http.HandleFunc("/css/", cssHandler)
-	http.HandleFunc("/contact", contactHandler)
-	http.HandleFunc("/contact/", contactHandler)
-	http.HandleFunc("/test", homeHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/signup", signupHandler)
-	http.HandleFunc("/auth/google", googleLoginHandler)
-	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
-	http.HandleFunc("/sitemap.xml", sitemapHandler)
-	http.HandleFunc("/robots.txt", robotsTxtHandler)
+	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+	mux.HandleFunc("/estimate", estimateHandler)
+	mux.HandleFunc("/customer", customerHandler)
+	mux.HandleFunc("/session", sessionHandler)
+	mux.HandleFunc("/calc", calcHandler)
+	mux.HandleFunc("/css/", cssHandler)
+	mux.HandleFunc("/contact", contactHandler)
+	mux.HandleFunc("/contact/", contactHandler)
+	mux.HandleFunc("/test", homeHandler)
+	mux.HandleFunc("/login", loginHandler)
+	mux.HandleFunc("/signup", signupHandler)
+	mux.HandleFunc("/auth/google", googleLoginHandler)
+	mux.HandleFunc("/auth/google/callback", googleCallbackHandler)
+	mux.HandleFunc("/sitemap.xml", sitemapHandler)
+	mux.HandleFunc("/robots.txt", robotsTxtHandler)
+	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
+	mux.HandleFunc("/", ownerHandler)            // Defualt - also City specific pages.  This should return a 404.
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)
@@ -103,7 +131,7 @@ func main() {
 	} else {
 		fmt.Println("Default Server starting on :8080...")
 	}
-	err := http.ListenAndServe(addr, nil)
+	err := http.ListenAndServe(addr, mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}

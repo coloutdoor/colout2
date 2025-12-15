@@ -118,7 +118,7 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth.Title = data.Title
 	userAuth.MetaDesc = data.MetaDesc
 
-	log.Printf("Renderign City Data with %+v", data)
+	log.Printf("Renderign City Data for %s", city)
 
 	rd := renderData{
 		Page:   &data,
