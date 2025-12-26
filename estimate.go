@@ -139,13 +139,27 @@ func init() {
 
 // saveEstimate updates the estimate with save details and persists it to the session.
 func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, sd *SessionData) {
+
+	// Before saving, see if the user is authenticated
+	sessionData, err := GetSession(r)
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+	if !sessionData.UserAuth.IsAuthenticated {
+		sessionData.UserAuth.Message = "Please Login to save estimate"
+		sessionData.Save(r, w)
+		loginUrl := "/login?rurl=/estimate"
+		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
+	}
+
 	estimate.SaveDate = time.Now()
 	// estimate.EstimateID = 1000                                           // Static ID for now
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
 
 	// Get next EstimateID from DB - Set to 1000, if it does not exist
 	var nextID int
-	err := db.QueryRow("SELECT COALESCE(MAX(estimate_id), 999) + 1 FROM estimates").Scan(&nextID)
+	err = db.QueryRow("SELECT COALESCE(MAX(estimate_id), 999) + 1 FROM estimates").Scan(&nextID)
 	if err != nil {
 		log.Printf("Failed to get next EstimateID: %v", err)
 		renderEstimate(w, r, DeckEstimate{Error: "Database ID error"})
