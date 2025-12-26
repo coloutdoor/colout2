@@ -31,7 +31,7 @@ case "$1" in
             exit 1
         fi
 
-        if [ -n "$CLOUDFLARE_SECRET_KEY"]; then
+        if [ -n "$CLOUDFLARE_SECRET_KEY" ]; then
             echo "Cloudflare Secret Key is set"
         else 
             echo "ERROR:  CLOUDFLARE_SECRET_KEY is missing or empty"

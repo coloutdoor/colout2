@@ -130,12 +130,22 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Send both emails in background
 		go func() {
-			if _, err := sg.Send(teamMessage); err != nil {
+			teamRR, err := sg.Send(teamMessage)
+			if err != nil {
 				log.Printf("Team email failed: %v", err)
 			}
-			if _, err := sg.Send(visitorMessage); err != nil {
+			if teamRR.StatusCode != 200 {
+				log.Printf("Team Error: send response is: %v", teamRR)
+			}
+
+			visitorRR, err := sg.Send(visitorMessage)
+			if err != nil {
 				log.Printf("Auto-reply failed: %v", err)
 			}
+			if visitorRR.StatusCode != 200 {
+				log.Printf("visitor send response is: %v", visitorRR)
+			}
+
 		}()
 
 		// Redirect to nice thank-you page
