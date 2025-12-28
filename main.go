@@ -123,6 +123,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+	mux.HandleFunc("/f7897e50677c40c4864e7f10255812bd.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/f7897e50677c40c4864e7f10255812bd.txt") // https://www.bing.com/indexnow/getstarted
+	})
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "images/colout2.png") // Adjust path to your file
 	})

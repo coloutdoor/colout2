@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
   <head>
 
     <!-- Google tag (gtag.js) -->
@@ -14,6 +14,7 @@
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv='content-language' content='en-us'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content=" {{if .MetaDesc}} {{.MetaDesc}} {{else}} Deck Builders Washington {{end}}">
 
@@ -39,16 +40,8 @@
     <meta name="author" content="Columbia Outdoor">
 
     <!-- Canonical -->
-    <link rel="canonical" href="https://columbiaoutdoor.com/">
     <link rel="shortcut icon" href="/images/colout2.png" type="image/x-icon">
-    <title>
-                        {{if .Title}}
-                           {{.Title}} 
-                        {{else}} 
-                          Outdoor Living 
-                        {{end}}
-                          | Columbia Outdoor
-  </title>
+    <title>{{if .Title}} {{.Title}} {{else}} Outdoor Living {{end}} | Columbia Outdoor</title>
 
     <!--
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -78,21 +71,8 @@
           <div class="level-left">
               <div class="level-item">
                 <div class="content">
-                  <p class="title"> 
-                        {{if .Title}}
-                           {{.Title}} 
-                        {{else}} 
-                          Outdoor Living 
-                        {{end}}
-                          | Columbia Outdoor
-                  </p>
-                  <h1>
-                    {{if .Subtitle}}
-                      {{.Subtitle}}
-                    {{else}}
-                      The Premier Solution for Outdoor Living Projects 
-                    {{end}}
-                  </h1>
+                  <p class="title">{{if .Title}} {{.Title}} {{else}} Outdoor Living {{end}} | Columbia Outdoor</p>
+                  <h1>{{if .Subtitle}} {{.Subtitle}} {{else}} The Premier Solution for Outdoor Living Projects {{end}}</h1>
                 </div>
               </div>
           </div>
@@ -108,7 +88,7 @@
   <!-- ==== BULMA NAVBAR (brand + menu) ==== -->
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      {{if .IsAuthenticated}} Welcome {{.AuthEmail}} 
+      {{if .IsAuthenticated}} Welcome {{.AuthName}} 
       {{else}}
       <a class="navbar-item" href="/">
         <strong>Columbia Outdoor</strong>

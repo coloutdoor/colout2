@@ -6,6 +6,8 @@
 PROJECT_ID="columbia-outdoor"  # Your GCP project ID
 IMAGE_NAME="colout2"
 
+
+
 ### Change from Container Registry to Artifact Registry 
 ##GCR_IMAGE="gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
 GCR_IMAGE="us.gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
@@ -38,6 +40,13 @@ case "$1" in
             exit 1
         fi
 
+        if [ -n "$GOOGLE_OAUTH_SECRET" ]; then
+            echo "Google Oauth Client Secret is set"
+        else 
+            echo "ERROR:  GOOGLE_OAUTH_SECRET is missing or empty"
+            exit 1
+        fi
+        
         echo "Tagging last built image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
         echo "Pushing to GCR..."
@@ -51,7 +60,8 @@ case "$1" in
             --project $PROJECT_ID \
             --allow-unauthenticated \
             --set-env-vars SENDGRID_API_KEY=${SENDGRID_API_KEY} \
-            --set-env-vars CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY}
+            --set-env-vars CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY} \
+            --set-env-vars GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET}
         echo "Deployed to Cloud Run!"
         ;;
     *)

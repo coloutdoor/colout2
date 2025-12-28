@@ -5,3 +5,5 @@ errors.log
 *.txt
 /images
 .*
+index.sh
+install.sh

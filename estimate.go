@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+
 	"encoding/gob"
 	"html/template"
 	"log"
@@ -10,7 +11,8 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3" // SQLite driver
+	// _ "github.com/mattn/go-sqlite3" // SQLite driver
+	_ "github.com/jackc/pgx/v5/stdlib" // registers "pgx" driver
 )
 
 // Define template functions
@@ -85,49 +87,52 @@ var tmpl *template.Template // tmpl is the global template for estimate.html, in
 var db *sql.DB              // db is the SQLite database connection
 
 func init() {
-	// Initialize SQLite database
-	var err error
-	dbDir := os.Getenv("DB_DIR")
-	if dbDir == "" {
-		dbDir = "./db" // Default to ./db if DB_DIR not set
-	}
-	// Initialize SQLite database
-	db, err = sql.Open("sqlite3", dbDir+"/estimates.db")
-	if err != nil {
-		log.Fatalf("Failed to open SQLite DB: %v", err)
-	}
+	// This is now in PostgreSQL.  See console.neon.tech
+	/*
+			// Initialize SQLite database
+			var err error
+			dbDir := os.Getenv("DB_DIR")
+			if dbDir == "" {
+				dbDir = "./db" // Default to ./db if DB_DIR not set
+			}
+			// Initialize SQLite database
+			db, err = sql.Open("sqlite3", dbDir+"/estimates.db")
+			if err != nil {
+				log.Fatalf("Failed to open SQLite DB: %v", err)
+			}
 
-	// Create Estimates table
-	createTableSQL := `
-    CREATE TABLE IF NOT EXISTS estimates (
-        estimate_id INTEGER PRIMARY KEY,
-		desc TEXT,
-        length REAL,
-        width REAL,
-        height REAL,
-        material TEXT,
-        rail_material TEXT,
-        rail_infill TEXT,
-        stair_width REAL,
-		stair_rail_count REAL,
-        has_demo BOOLEAN,
-        has_fascia BOOLEAN,
-        total_cost REAL,
-        first_name TEXT,
-        last_name TEXT,
-        address TEXT,
-        city TEXT,
-        state TEXT,
-        zip TEXT,
-        phone_number TEXT,
-        email TEXT,
-        save_date TEXT,
-        accept_date TEXT,
-        expiration_date TEXT
-    );`
-	if _, err := db.Exec(createTableSQL); err != nil {
-		log.Fatalf("Failed to create Estimates table: %v", err)
-	}
+			// Create Estimates table
+			createTableSQL := `
+		    CREATE TABLE IF NOT EXISTS estimates (
+		        estimate_id INTEGER PRIMARY KEY,
+				desc TEXT,
+		        length REAL,
+		        width REAL,
+		        height REAL,
+		        material TEXT,
+		        rail_material TEXT,
+		        rail_infill TEXT,
+		        stair_width REAL,
+				stair_rail_count REAL,
+		        has_demo BOOLEAN,
+		        has_fascia BOOLEAN,
+		        total_cost REAL,
+		        first_name TEXT,
+		        last_name TEXT,
+		        address TEXT,
+		        city TEXT,
+		        state TEXT,
+		        zip TEXT,
+		        phone_number TEXT,
+		        email TEXT,
+		        save_date TEXT,
+		        accept_date TEXT,
+		        expiration_date TEXT
+		    );`
+			if _, err := db.Exec(createTableSQL); err != nil {
+				log.Fatalf("Failed to create Estimates table: %v", err)
+			}
+	*/
 
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
@@ -139,6 +144,21 @@ func init() {
 
 // saveEstimate updates the estimate with save details and persists it to the session.
 func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate, sd *SessionData) {
+	// In your init or main
+	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
+
+	if dbURL == "" {
+		log.Printf("DATABASE_URL environment variable is required")
+		renderEstimate(w, r, DeckEstimate{Error: "Database Env - not set up."})
+		return
+	}
+
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		log.Printf("Unable to connect to database: %v", err)
+		renderEstimate(w, r, DeckEstimate{Error: "Database Connect failed."})
+		return
+	}
 
 	// Before saving, see if the user is authenticated
 	sessionData, err := GetSession(r)
@@ -154,44 +174,36 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	}
 
 	estimate.SaveDate = time.Now()
-	// estimate.EstimateID = 1000                                           // Static ID for now
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
 
-	// Get next EstimateID from DB - Set to 1000, if it does not exist
-	var nextID int
-	err = db.QueryRow("SELECT COALESCE(MAX(estimate_id), 999) + 1 FROM estimates").Scan(&nextID)
-	if err != nil {
-		log.Printf("Failed to get next EstimateID: %v", err)
-		renderEstimate(w, r, DeckEstimate{Error: "Database ID error"})
-		return
-	}
-	estimate.EstimateID = nextID
+	//Prepared Statement - PostgreSQL handle the ID
+	stmt := `INSERT INTO estimates (
+    	description, length, width, height, material, rail_material, rail_infill,
+    	stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
+    	first_name, last_name, address, city, state, zip, phone_number, email,
+    	save_date, accept_date, expiration_date) 
+		VALUES (
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23	
+		) RETURNING estimate_id`
 
-	// Save to SQLite database
-	insertSQL := `
-        INSERT INTO estimates (
-            estimate_id, desc, length, width, height, material, rail_material, rail_infill,
-            stair_width, stair_rail_count, has_demo, has_fascia, total_cost, first_name, last_name,
-            address, city, state, zip, phone_number, email, 
-            save_date, accept_date, expiration_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err = db.Exec(insertSQL,
-		estimate.EstimateID, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
+	var newID int64
+	err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
 		estimate.Material, estimate.RailMaterial, estimate.RailInfill,
 		estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
 		estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
 		estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
 		estimate.Customer.PhoneNumber, estimate.Customer.Email,
 		estimate.SaveDate.Format("2006-01-02 15:04:05"),
-		nil, // accept_date - null until accepted
-		estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
-	)
+		nil,
+		estimate.ExpirationDate.Format("2006-01-02 15:04:05")).Scan(&newID)
 	if err != nil {
 		log.Printf("Failed to save estimate to DB: %v", err)
-		renderEstimate(w, r, DeckEstimate{Error: "Database save error"})
+		renderEstimate(w, r, DeckEstimate{Error: "Database error: Save Estimate failed."})
 		return
 	}
 
+	estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
 	sd.Estimate = *estimate
 	err = sd.Save(r, w)
 	if err != nil {

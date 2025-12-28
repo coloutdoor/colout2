@@ -165,7 +165,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r)
 	userAuth.Title = "Contact Us"
 	userAuth.Subtitle = "For any outdoor deck, patio, cover.  One of our experts will get in touch with you soon."
-	userAuth.MetaDesc = "Contact us for a quick and easy estimate for timbertech, trex, or wood deck."
+	userAuth.MetaDesc = "Contact us today for a quick and easy estimate for Timbertech, Trex, or wood deck."
 	rd := renderData{
 		Page:   &data,
 		Header: &userAuth,
