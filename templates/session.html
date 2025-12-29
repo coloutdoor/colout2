@@ -53,7 +53,9 @@
 
         <h2 class="subtitle">User Auth Information</h2>
         <table class="table is-striped is-fullwidth">
-            <tr><td>Login Email</td><td>{{.UserAuth.AuthEmail}}</td></tr>
+            <tr><td>Login Email</td><td>{{.UserAuth.Email}}</td></tr>
+            <tr><td>Name</td><td>{{.UserAuth.Name}}</td></tr>
+            <tr><td>Auth Type</td><td>{{.UserAuth.AuthType}}</td></tr>
             <tr><td>Authenticated?</td><td>{{.UserAuth.IsAuthenticated}}</td></tr>
             <tr><td>Message</td><td>{{.UserAuth.Message}}</td></tr>
     </div>

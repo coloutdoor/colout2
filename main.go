@@ -12,31 +12,6 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-// Test - Not used !!!
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	// tmpl := template.Must(template.ParseFiles("templates/index.html"))
-	// tmpl := template.Must(template.ParseFiles("templates/index.html").Funcs(funcMap))
-	tmpl := template.Must(template.New("index.html").Funcs(funcMap).ParseFiles("templates/index.html"))
-
-	// Get session
-	session, err := store.Get(r, "colout2-session")
-	if err != nil {
-		log.Printf("Session get error: %v", err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
-		return
-	}
-
-	// Load estimate from session
-	estimate := DeckEstimate{}
-	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
-		estimate = est
-	}
-	if err := tmpl.ExecuteTemplate(w, "index.html", estimate); err != nil {
-		log.Printf("homeHandler execute error: %v", err)
-		panic(err)
-	}
-}
-
 func cssHandler(w http.ResponseWriter, r *http.Request) {
 	// log.Printf("CSS Handler for : %s", r.URL.Path)
 	// Set the content type to CSS
@@ -136,7 +111,6 @@ func main() {
 	mux.HandleFunc("/css/", cssHandler)
 	mux.HandleFunc("/contact", contactHandler)
 	mux.HandleFunc("/contact/", contactHandler)
-	mux.HandleFunc("/test", homeHandler)
 	mux.HandleFunc("/login", loginHandler)
 	mux.HandleFunc("/signup", signupHandler)
 	mux.HandleFunc("/auth/google", googleLoginHandler)

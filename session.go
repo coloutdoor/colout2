@@ -87,7 +87,7 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
 
-	log.Printf("Saving User Session for %s", s.UserAuth.AuthEmail)
+	log.Printf("Saving User Session for %s", s.UserAuth.Email)
 
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)
