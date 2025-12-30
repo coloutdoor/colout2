@@ -40,6 +40,9 @@ type UserAuth struct {
 	Name            string
 	AuthType        string // Google or password
 	Role            string // homeowner, admin, or contractor
+	LastName        string
+	IsActive        bool
+	EmailVerified   bool
 	Message         string
 	Title           string // Header this is the Title page shown in <title> ... </title>
 	MetaDesc        string // this is the Meta Description in Header
@@ -69,6 +72,11 @@ func googleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 
 	googleOauthConfig.ClientSecret = os.Getenv("GOOGLE_OAUTH_SECRET")
+	if callBackURL := os.Getenv("GOOGLE_OAUTH_CALLBACK_URL"); callBackURL != "" {
+		googleOauthConfig.RedirectURL = callBackURL
+	}
+	log.Printf("Google OAuth Callback URL: %s", googleOauthConfig.RedirectURL)
+
 	if googleOauthConfig.ClientSecret == "" {
 		http.Error(w, "Env Failed:  Missing Oauth Secret.", http.StatusInternalServerError)
 	}
@@ -111,12 +119,6 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(resp.Body).Decode(&userInfo)
 
-	/* Log them in (same as your normal login)
-	IsAuthenticated bool
-	Email       string
-	Name        string
-	Message         string
-	*/
 	sessionData, err := GetSession(r, w)
 	if err != nil {
 		log.Printf("GetSession Failed!!")
@@ -127,14 +129,52 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the original Rurl
 	rurl := sessionData.UserAuth.Rurl
 
-	sessionData.UserAuth = UserAuth{
-		IsAuthenticated: true,
-		//TODO :       userInfo.ID,
-		Email:   userInfo.Email,
-		Name:    userInfo.Name,
-		Message: "Welcome back, " + userInfo.Name,
+	// In your init or main
+	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
+	if dbURL == "" {
+		log.Printf("DATABASE_URL environment variable is required")
+		return
 	}
 
+	db, err = sql.Open("pgx", dbURL)
+	if err != nil {
+		log.Printf("Unable to connect to database: %v", err)
+		return
+	}
+
+	// Create user in DB if not exists
+	// DEJ
+	var user UserAuth
+	var hash string
+	err = db.QueryRow(`
+        SELECT id, email, password_hash, role, first_name, last_name, is_active, email_verified
+        FROM user_auth 
+        WHERE email = $1`, userInfo.Email).Scan(
+		&user.ID, &user.Email, &hash, &user.Role,
+		&user.Name, &user.LastName, &user.IsActive, &user.EmailVerified,
+	)
+
+	if err == sql.ErrNoRows {
+		var fakePasswordHash string = "GoogleAuth" // No hashable password for Google Auth users
+		uid, err := createUserDB(userInfo.Name, userInfo.Email, fakePasswordHash)
+		if err != nil {
+			log.Printf("Failed to create user in DB: %v", err)
+			http.Redirect(w, r, "/signup", http.StatusSeeOther)
+			return
+		}
+		user.ID = uid
+		log.Printf("New Google user created with UID: %d", uid)
+	}
+
+	sessionData.UserAuth = UserAuth{
+		ID:              user.ID,
+		AuthType:        "google",
+		Role:            "homeowner",
+		IsAuthenticated: true,
+		Email:           userInfo.Email,
+		Name:            userInfo.Name,
+		Message:         "Google Login, " + userInfo.Name,
+	}
 	sessionData.Save(r, w)
 
 	delete(session.Values, "oauth_state")
@@ -199,7 +239,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create user (your existing function)
-		uid, err := createUser(name, email, pass1)
+		uid, err := createUserPassword(name, email, pass1)
 		if err != nil {
 			sessionData.UserAuth.Message = "Create user DB failure."
 			sessionData.Save(r, w)
@@ -227,22 +267,9 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createUser(name string, email string, pass string) (int64, error) {
-	log.Printf("User %s Signed up with email %s.", name, email)
+func createUserPassword(name string, email string, pass string) (int64, error) {
+	log.Printf("Password User %s Signed up with email %s.", name, email)
 
-	// In your init or main
-	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
-
-	if dbURL == "" {
-		log.Printf("DATABASE_URL environment variable is required")
-		return 0, nil
-	}
-	var err error
-	db, err = sql.Open("pgx", dbURL)
-	if err != nil {
-		log.Printf("Unable to connect to database: %v", err)
-		return 0, err
-	}
 	// Hash the plain password before storing (do this in your handler before calling)
 	passwordHash, err := hashPassword(pass)
 	if err != nil {
@@ -250,6 +277,25 @@ func createUser(name string, email string, pass string) (int64, error) {
 		return 0, err
 	}
 
+	return createUserDB(name, email, passwordHash)
+}
+
+func createUserDB(name string, email string, passwordHash string) (int64, error) {
+
+	var err error
+
+	// In your init or main
+	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
+	if dbURL == "" {
+		log.Printf("DATABASE_URL environment variable is required")
+		return 0, nil
+	}
+
+	db, err = sql.Open("pgx", dbURL)
+	if err != nil {
+		log.Printf("Unable to connect to database: %v", err)
+		return 0, err
+	}
 	var userID int64
 	role := "homeowner" // Set to 'homeowner for now
 	lastName := ""
@@ -305,12 +351,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		if err := authN(r); err != nil {
-			sessionData.UserAuth.Message = "Login failed.  Try again"
+		if err := authN(r, w); err != nil {
+			sessionData.UserAuth.Message = err.Error()
 		} else {
-			sessionData.UserAuth.Email = r.FormValue("email")
-			sessionData.UserAuth.IsAuthenticated = true
-			sessionData.UserAuth.Message = fmt.Sprintf("Welcome %s", sessionData.UserAuth.Email)
+			// Update sessionData after successful authN
+			sessionData, _ = GetSession(r, w)
 		}
 	}
 
@@ -353,18 +398,76 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func authN(r *http.Request) error {
+func authN(r *http.Request, w http.ResponseWriter) error {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	var err error
 
-	if email == "" {
-		return fmt.Errorf("missing user name")
+	if email == "" || password == "" {
+		return fmt.Errorf("email and password required")
+	}
+	// In your init or main
+	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
+
+	if dbURL == "" {
+		log.Printf("DATABASE_URL environment variable is required")
+		return fmt.Errorf("db Error")
+	}
+	db, err = sql.Open("pgx", dbURL)
+	if err != nil {
+		log.Printf("Connection failed: %v", err)
+		return fmt.Errorf("db Error")
 	}
 
-	// Success - For now
-	if email == password {
-		return nil
+	// 1. Fetch user from DB
+	var user UserAuth
+	var hash string
+	err = db.QueryRow(`
+        SELECT id, email, password_hash, role, first_name, last_name, is_active, email_verified
+        FROM user_auth 
+        WHERE email = $1`, email).Scan(
+		&user.ID, &user.Email, &hash, &user.Role,
+		&user.Name, &user.LastName, &user.IsActive, &user.EmailVerified,
+	)
+
+	if err == sql.ErrNoRows {
+		// Never reveal if email exists — security best practice
+		return fmt.Errorf("invalid email or password")
+	}
+	if err != nil {
+		log.Printf("DB query error: %v", err)
+		return fmt.Errorf("server error")
 	}
 
-	return fmt.Errorf("incorrect password")
+	// 2. Check account status
+	if !user.IsActive {
+		return fmt.Errorf("account is disabled")
+	}
+	// Optional: require email verification
+	// if !user.EmailVerified {
+	//     http.Error(w, "Please verify your email first", http.StatusUnauthorized)
+	//     return
+	// }
+
+	// 3. Compare password hash
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+		return fmt.Errorf("incorrect email or password")
+	}
+
+	// 4. Create server-side session on success
+	sessionData, err := GetSession(r, w)
+	if err != nil {
+		return fmt.Errorf("session error")
+	}
+
+	sessionData.UserAuth = user
+	sessionData.UserAuth.IsAuthenticated = true
+
+	if err := sessionData.Save(r, w); err != nil {
+		return fmt.Errorf("session Save error")
+	}
+
+	// 5. Success — redirect or respond
+	log.Printf("User %s (ID: %d) logged in successfully", user.Email, user.ID)
+	return nil
 }
