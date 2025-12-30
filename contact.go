@@ -162,7 +162,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		data.PageTitle = "Thank You – Message Sent!"
 	}
 
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contact Us"
 	userAuth.Subtitle = "For any outdoor deck, patio, cover.  One of our experts will get in touch with you soon."
 	userAuth.MetaDesc = "Contact us today for a quick and easy estimate for Timbertech, Trex, or wood deck."

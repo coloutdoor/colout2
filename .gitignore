@@ -7,3 +7,4 @@ errors.log
 .*
 index.sh
 install.sh
+/sessions

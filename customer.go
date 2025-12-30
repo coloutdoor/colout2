@@ -25,7 +25,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		"templates/header.html", "templates/footer.html"))
 
 	// Get session
-	sessionData, err := GetSession(r)
+	sessionData, err := GetSession(r, w)
 	if err != nil {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
@@ -56,7 +56,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render customer page onlyon GET
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Customer Information"
 	rd := renderData{
 		Page:   &customer,

@@ -114,7 +114,7 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 	// Optional: Add JSON-LD schema
 	data.SchemaJSON = generateSchema(data)
 
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = data.Title
 	userAuth.MetaDesc = data.MetaDesc
 

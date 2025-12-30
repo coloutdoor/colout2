@@ -53,7 +53,7 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := PageData{PageTitle: "Sorry - Not Found"}
 
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "404 - Not Found"
 	userAuth.Subtitle = "Sorry, this page is not available."
 	rd := renderData{
@@ -74,7 +74,7 @@ func privacyHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := PageData{PageTitle: "Privacy Policy"}
 
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Privacy"
 	userAuth.Subtitle = "Please review our privacy policy"
 	rd := renderData{

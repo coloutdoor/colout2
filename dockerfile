@@ -19,6 +19,12 @@ COPY static/ ./static/
 COPY templates/ ./templates/
 COPY images/ ./images/
 # COPY costs.yaml ./costs.yaml
+
+# Create the Session store
+# Only our app process can read/write
+RUN mkdir -p /var/sessions/colout2
+RUN chmod 700 /var/sessions/colout2   
+
 RUN echo ":8080" > .env
 ENV DB_DIR=/db
 RUN mkdir -p /db

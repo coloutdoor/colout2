@@ -71,7 +71,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 	}
 	estimate.Terms = string(terms)
 
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Deck Estimate"
 	rd := renderData{
 		Page:   &estimate,
@@ -161,7 +161,7 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	}
 
 	// Before saving, see if the user is authenticated
-	sessionData, err := GetSession(r)
+	sessionData, err := GetSession(r, w)
 	if err != nil {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
@@ -231,7 +231,7 @@ type EstimatePageData struct {
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session
 
-	sd, err := GetSession(r)
+	sd, err := GetSession(r, w)
 
 	if err != nil {
 		log.Printf("Session failed: %v", err)

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gorilla/sessions"
 )
@@ -15,17 +18,60 @@ type SessionData struct {
 	UserAuth UserAuth
 }
 
-var sessionName = "colout2-session2"
-
 // Session store - in-memory for now, single secret key
-var store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
+var sessionName = "colout2-session3"
+var secretKey []byte
+var store *sessions.FilesystemStore
+var sessionStoreDir = "./sessions" // or "./sessions" for local dev
+
+func init() {
+	log.Printf("Initializing Session Store")
+
+	// Secret key (at least 32 bytes) - load from env var in production
+	secretKey = []byte(os.Getenv("SESSION_SECRET")) // e.g., generate with crypto/rand
+	if len(secretKey) == 0 {
+		log.Fatal("SESSION_SECRET env var is required")
+	}
+
+	// store = sessions.NewCookieStore([]byte("super-secret-key-12345"))
+	// In your initialization (e.g., main.go)
+	if err := os.MkdirAll(sessionStoreDir, 0755); err != nil {
+		log.Fatalf("Failed to create session directory: %v", err)
+	}
+
+	// Test write to confirm directory is usable
+	testFile := filepath.Join(sessionStoreDir, "init-test.txt") // Use filepath.Join for cross-platform safety
+	f, err := os.Create(testFile)
+	if err != nil {
+		log.Fatalf("Session directory %s is not writable: %v", sessionStoreDir, err)
+	}
+	fmt.Fprintln(f, "Session dir test - writable on startup")
+	f.Close()
+	log.Printf("Session directory test file created at: %s", testFile)
+
+	store = sessions.NewFilesystemStore(sessionStoreDir, secretKey)
+
+	if store == nil {
+		log.Panic("Init!  Session store is nil!")
+	}
+
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7, // 7 days
+		HttpOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+	}
+}
 
 // This is used to test / debug the session data
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
+	if store == nil {
+		log.Panic("SessionHandler!  Session store is nil!")
+	}
 	//tmpl := template.Must(template.New("session.html").ParseFiles("templates/session.html"))
 	tmpl := template.Must(template.New("session.html").Funcs(funcMap).ParseFiles("templates/session.html"))
 
-	data, err := GetSession(r)
+	data, err := GetSession(r, w)
 	if err != nil {
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
@@ -45,12 +91,22 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetSession(r *http.Request) (*SessionData, error) {
+func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
+	if store == nil {
+		log.Printf("Session store is nil!")
+		return nil, fmt.Errorf("session store is nil")
+	}
+
 	// Get session
 	session, err := store.Get(r, sessionName)
 	if err != nil {
 		log.Printf("Session get error: %v", err)
-		return nil, err
+		// Clear any invalid/old cookie and force a fresh session
+		session.Options.MaxAge = -1 // Deletes the cookie immediately
+		session.Save(r, w)          // Sends deletion header
+		log.Printf("Reset old/invalid session for new FilesystemStore")
+
+		return &SessionData{}, err
 	}
 
 	// Extract session data

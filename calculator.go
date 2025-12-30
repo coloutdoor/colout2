@@ -32,7 +32,7 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// Get session
-	sessionData, err := GetSession(r)
+	sessionData, err := GetSession(r, w)
 	if err != nil {
 		http.Error(w, "Session error - Calculator", http.StatusInternalServerError)
 		return
@@ -63,7 +63,7 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Deck Calculator Details"
 	rd := renderData{
 		Page:   &e,
@@ -80,7 +80,7 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 
 // Example handlers — expand with real logic
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Deck Calculator"
 	userAuth.Subtitle = "Free and easy Estimate Calculator"
 	userAuth.MetaDesc = "Free deck estimate calculator. Simple and easy to use for decks in Washington.  Select deck, rails, stairs, and details."
@@ -98,7 +98,7 @@ func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 }
 
 func handleRailsCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
-	userAuth := getUserAuth(r)
+	userAuth := getUserAuth(r, w)
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,
