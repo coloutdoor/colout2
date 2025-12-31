@@ -87,53 +87,6 @@ var tmpl *template.Template // tmpl is the global template for estimate.html, in
 var db *sql.DB              // db is the SQLite database connection
 
 func init() {
-	// This is now in PostgreSQL.  See console.neon.tech
-	/*
-			// Initialize SQLite database
-			var err error
-			dbDir := os.Getenv("DB_DIR")
-			if dbDir == "" {
-				dbDir = "./db" // Default to ./db if DB_DIR not set
-			}
-			// Initialize SQLite database
-			db, err = sql.Open("sqlite3", dbDir+"/estimates.db")
-			if err != nil {
-				log.Fatalf("Failed to open SQLite DB: %v", err)
-			}
-
-			// Create Estimates table
-			createTableSQL := `
-		    CREATE TABLE IF NOT EXISTS estimates (
-		        estimate_id INTEGER PRIMARY KEY,
-				desc TEXT,
-		        length REAL,
-		        width REAL,
-		        height REAL,
-		        material TEXT,
-		        rail_material TEXT,
-		        rail_infill TEXT,
-		        stair_width REAL,
-				stair_rail_count REAL,
-		        has_demo BOOLEAN,
-		        has_fascia BOOLEAN,
-		        total_cost REAL,
-		        first_name TEXT,
-		        last_name TEXT,
-		        address TEXT,
-		        city TEXT,
-		        state TEXT,
-		        zip TEXT,
-		        phone_number TEXT,
-		        email TEXT,
-		        save_date TEXT,
-		        accept_date TEXT,
-		        expiration_date TEXT
-		    );`
-			if _, err := db.Exec(createTableSQL); err != nil {
-				log.Fatalf("Failed to create Estimates table: %v", err)
-			}
-	*/
-
 	gob.Register(DeckEstimate{})
 	gob.Register(Customer{})
 	gob.Register(UserAuth{})
@@ -176,8 +129,59 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
 
-	//Prepared Statement - PostgreSQL handle the ID
-	stmt := `INSERT INTO estimates (
+	if estimate.EstimateID > 0 {
+		log.Printf("Updating existing estimate ID=%d", estimate.EstimateID)
+		stmt := `UPDATE estimates 
+SET 
+    description = $1,
+    length = $2,
+    width = $3,
+    height = $4,
+    material = $5,
+    rail_material = $6,
+    rail_infill = $7,
+    stair_width = $8,
+    stair_rail_count = $9,
+    has_demo = $10,
+    has_fascia = $11,
+    total_cost = $12,
+    first_name = $13,
+    last_name = $14,
+    address = $15,
+    city = $16,
+    state = $17,
+    zip = $18,
+    phone_number = $19,
+    email = $20,
+    save_date = $21,
+    accept_date = $22,
+    expiration_date = $23
+WHERE estimate_id = $24
+RETURNING estimate_id`
+		var updatedID int64
+		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
+			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //7
+			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //12
+			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
+			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //18
+			estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
+			estimate.SaveDate.Format("2006-01-02 15:04:05"),
+			estimate.AcceptDate.Format("2006-01-02 15:04:05"),
+			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
+			estimate.EstimateID).Scan(&updatedID)
+
+		if err != nil {
+			log.Printf("Failed to prepare statement to update estimate: %v", err)
+			renderEstimate(w, r, DeckEstimate{Error: "Database error: Update Estimate failed."})
+			return
+		}
+
+		log.Printf("Estimate updated: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
+	} else {
+
+		log.Printf("Inserting new estimate")
+		//Prepared Statement - PostgreSQL handle the ID
+		stmt := `INSERT INTO estimates (
     	description, length, width, height, material, rail_material, rail_infill,
     	stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
     	first_name, last_name, address, city, state, zip, phone_number, email,
@@ -186,24 +190,24 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
         $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23	
 		) RETURNING estimate_id`
-
-	var newID int64
-	err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
-		estimate.Material, estimate.RailMaterial, estimate.RailInfill,
-		estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
-		estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
-		estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
-		estimate.Customer.PhoneNumber, estimate.Customer.Email,
-		estimate.SaveDate.Format("2006-01-02 15:04:05"),
-		nil,
-		estimate.ExpirationDate.Format("2006-01-02 15:04:05")).Scan(&newID)
-	if err != nil {
-		log.Printf("Failed to save estimate to DB: %v", err)
-		renderEstimate(w, r, DeckEstimate{Error: "Database error: Save Estimate failed."})
-		return
+		var newID int64
+		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
+			estimate.Material, estimate.RailMaterial, estimate.RailInfill,
+			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
+			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
+			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
+			estimate.Customer.PhoneNumber, estimate.Customer.Email,
+			estimate.SaveDate.Format("2006-01-02 15:04:05"),
+			nil,
+			estimate.ExpirationDate.Format("2006-01-02 15:04:05")).Scan(&newID)
+		if err != nil {
+			log.Printf("Failed to save estimate to DB: %v", err)
+			renderEstimate(w, r, DeckEstimate{Error: "Database error: Save Estimate failed."})
+			return
+		}
+		estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
 	}
 
-	estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
 	sd.Estimate = *estimate
 	err = sd.Save(r, w)
 	if err != nil {
