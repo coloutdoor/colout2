@@ -6,10 +6,23 @@
         <div class="level-left">
             <div class="level-item">
                 <h1 class="title">Deck Estimate</h1>
-                {{if not .SaveDate.IsZero}}
-                    <div class="level-item">
-                    </div>
+                {{if .Error}}
+                <div class="notification is-danger mt-5">
+                 <p>{{.Error}}</p>
+                </div>
                 {{end}}
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                {{if not .SaveDate.IsZero}}
+                <!-- Button to Open the Modal (place where you want it on the estimate page) -->
+                <div class="buttons mt-4">
+                    <button class="button is-primary" onclick="document.getElementById('email-modal').classList.add('is-active')">
+                    Email Estimate
+                    </button>
+                </div>
+               {{end}}
             </div>
         </div>
     </div>
@@ -178,6 +191,52 @@
  
     {{end}}
     </div>
+    <!-- The Modal (embedded, not separate page) -->
+    {{ if .EmailModalShown }}
+    <!-- Email Confirmation Modal -->
+<div id="email-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('email-modal').classList.remove('is-active')"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Send Estimate via Email</p>
+            <button class="delete" aria-label="close" onclick="document.getElementById('email-modal').classList.remove('is-active')"></button>
+        </header>
+        <section class="modal-card-body">
+            <p>Please confirm the email address to send the estimate to:</p>
+            
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success" onclick="confirmEmailSend()">Confirm & Send</button>
+            <button class="button" onclick="document.getElementById('email-modal').classList.remove('is-active')">Cancel</button>
+        </footer>
+    </div>
+</div>
+    {{ else }}
+    <div id="emailModal"> 
+        <P> Not doing Email</P> <!-- For debugging -->
+    </div>
+    {{ end }}
+
+<script>
+function confirmEmailSend() {
+    const email = document.getElementById('email-input').value.trim();
+    if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+    }
+
+    // TODO: Replace alert with real backend call (e.g., fetch('/send-estimate-email', {method: 'POST', body: JSON.stringify({email})}))
+    alert('Estimate sent to: ' + email);
+
+    // Close modal after "send"
+    document.getElementById('email-modal').classList.remove('is-active');
+}
+</script>
 
     {{if .Error}}
     <div class="notification is-danger mt-5">

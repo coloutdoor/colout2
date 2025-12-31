@@ -59,6 +59,22 @@ type DeckEstimate struct {
 	AcceptDate       time.Time
 	Terms            string
 	Error            string
+	EmailModalShown  bool // Flag to indicate if email modal should be shown
+}
+
+var tmpl *template.Template      // tmpl is the global template for estimate.html, initialized at startup.
+var emailtmpl *template.Template // tmpl is the global template for email-confirm.html, initialized at startup.
+var db *sql.DB                   // db is the SQLite database connection
+
+func init() {
+	gob.Register(DeckEstimate{})
+	gob.Register(Customer{})
+	gob.Register(UserAuth{})
+	gob.Register(time.Time{})
+	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
+		"templates/header.html", "templates/footer.html"))
+	emailtmpl = template.Must(template.New("email-confirm.html").Funcs(funcMap).ParseFiles("templates/email-confirm.html",
+		"templates/header.html", "templates/footer.html"))
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
@@ -81,18 +97,6 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 		log.Printf("estimateHandler execute error: %v", err)
 		panic(err)
 	}
-}
-
-var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
-var db *sql.DB              // db is the SQLite database connection
-
-func init() {
-	gob.Register(DeckEstimate{})
-	gob.Register(Customer{})
-	gob.Register(UserAuth{})
-	gob.Register(time.Time{})
-	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
-		"templates/header.html", "templates/footer.html"))
 }
 
 // saveEstimate updates the estimate with save details and persists it to the session.
@@ -208,6 +212,7 @@ RETURNING estimate_id`
 		estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
 	}
 
+	estimate.EmailModalShown = true // Show the email modal after saving
 	sd.Estimate = *estimate
 	err = sd.Save(r, w)
 	if err != nil {
@@ -436,13 +441,43 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
+	// Pass both estimate and customer to template
+	renderEstimate(w, r, estimate)
+
 	// Save estimate to session
+	sd.Estimate.EmailModalShown = false // Reset email modal flag
 	sd.Estimate = estimate
 	err = sd.Save(r, w)
 	if err != nil {
 		log.Printf("Estimate Handler - Save Session failed")
 	}
 
-	// Pass both estimate and customer to template
-	renderEstimate(w, r, estimate)
+}
+
+func emailHandler(w http.ResponseWriter, r *http.Request) {
+	// Get session data
+	sd, err := GetSession(r, w)
+	if err != nil {
+		log.Printf("Email Handler - Get Session failed: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if estimate exists in session
+	if sd.Estimate.EstimateID == 0 {
+		log.Printf("Email Handler - Missing estimate in session")
+		http.Error(w, "No estimate available", http.StatusNotFound)
+		return
+	}
+
+	rd := renderData{
+		Page:   sd.Estimate,
+		Header: sd.UserAuth,
+	}
+
+	if err := emailtmpl.ExecuteTemplate(w, "email-confirm.html", rd); err != nil {
+		log.Printf("emailHandler execute error: %v", err)
+		panic(err)
+	}
+	log.Printf("emailHandler - Complated successfully for Estimate ID=%d", sd.Estimate.EstimateID)
 }

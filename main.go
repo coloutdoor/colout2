@@ -105,6 +105,7 @@ func main() {
 		http.ServeFile(w, r, "images/colout2.png") // Adjust path to your file
 	})
 	mux.HandleFunc("/estimate", estimateHandler)
+	mux.HandleFunc("/estimate/email", emailHandler)
 	mux.HandleFunc("/customer", customerHandler)
 	mux.HandleFunc("/session", sessionHandler)
 	mux.HandleFunc("/calc", calcHandler)
