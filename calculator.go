@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -53,10 +52,12 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 		handleDeckCalc(w, r, estimate)
 	case "rails":
 		handleRailsCalc(w, r, estimate)
-	case "stairs":
-		handleStairsCalc(w, r)
-	case "demo":
-		handleDemoCalc(w, r)
+		/*
+			case "stairs":
+				handleStairsCalc(w, r)
+			case "demo":
+				handleDemoCalc(w, r)
+		*/
 	default:
 		handleFullCalc(w, r, estimate)
 	}
@@ -112,6 +113,7 @@ func handleRailsCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	}
 }
 
+/*
 func handleStairsCalc(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Stairs Calculator\n")
 	fmt.Fprintf(w, "→ Rise/run validation per WA/OR/ID code\n")
@@ -124,3 +126,5 @@ func handleDemoCalc(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "→ Waste haul included\n")
 	fmt.Fprintf(w, "→ Site prep for new build\n")
 }
+
+*/

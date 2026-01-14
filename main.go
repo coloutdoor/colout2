@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 )
 
 func cssHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +88,11 @@ func privacyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Optional: Explicit load with error checking for production
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found — using system env vars")
+	}
+
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
 		os.Exit(1)
@@ -104,8 +109,9 @@ func main() {
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "images/colout2.png") // Adjust path to your file
 	})
+
 	mux.HandleFunc("/estimate", estimateHandler)
-	mux.HandleFunc("/estimate/email", emailHandler)
+	mux.HandleFunc("/estimate/send/{estimateID}", emailSendHandler) //POST only - Send Estimate via Email
 	mux.HandleFunc("/customer", customerHandler)
 	mux.HandleFunc("/session", sessionHandler)
 	mux.HandleFunc("/calc", calcHandler)

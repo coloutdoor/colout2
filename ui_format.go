@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"strconv"
 	"strings"
 )
@@ -50,25 +49,25 @@ func formatDeckDescription(de DeckEstimate) string {
 //
 // * This returns a Template
 // ***************************************************************************************************
-func formatDemoDescription(de DeckEstimate) template.HTML {
+func formatDemoDescription(de DeckEstimate) string {
 	if de.DemoCost <= 0.0 {
-		return template.HTML("Demo and removal of existing structure is not included.")
+		return "Demo and removal of existing structure is not included."
 	}
 
-	demodesc := "<p>" + template.HTMLEscapeString("Remove and dispose of the exsisting structures:") + "</p>"
-	demodesc = fmt.Sprintf("%s "+" <p> * Wood or composite deck and wood frame %.1f sq ft </p>", demodesc, de.DeckArea)
+	demodesc := "Remove and dispose of the exsisting structures."
+	demodesc = fmt.Sprintf("%s "+" * Wood or composite deck and wood frame %.1f sq ft", demodesc, de.DeckArea)
 
 	if de.RailCost <= 0.0 {
-		demodesc = fmt.Sprintf("%s "+"<p> * Rail demo not included. </p>", demodesc)
+		demodesc = fmt.Sprintf("%s "+" Rail demo not included.", demodesc)
 	} else {
-		demodesc = fmt.Sprintf("%s "+"<p> * Rail demo %.1f ln ft. </p>", demodesc, de.RailFeet)
+		demodesc = fmt.Sprintf("%s "+" Rail demo %.1f ln ft. ", demodesc, de.RailFeet)
 	}
 
 	if de.StairCost <= 0.0 {
-		demodesc = fmt.Sprintf("%s "+"<p> * Stair demo not included. </p>", demodesc)
+		demodesc = fmt.Sprintf("%s "+" Stair demo not included. ", demodesc)
 	} else {
-		demodesc = fmt.Sprintf("%s "+"<p> * Stair and Rail demo %.1f ft high. </p>", demodesc, de.Height)
+		demodesc = fmt.Sprintf("%s "+" Stair and Rail demo %.1f ft high.", demodesc, de.Height)
 	}
 
-	return template.HTML(demodesc)
+	return demodesc
 }

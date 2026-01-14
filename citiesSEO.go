@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // CityPageData – everything your template needs
@@ -89,6 +92,9 @@ func sitemapHandler(w http.ResponseWriter, r *http.Request) {
 func cityHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path // e.g. "/deck-builders-seattle-wa"
 
+	// Create a titler once (reuse for performance)
+	var titler = cases.Title(language.AmericanEnglish)
+
 	// 1. Extract service + city + state from slug
 	service, city, state := parseCitySlug(path)
 	if city == "" {
@@ -97,7 +103,7 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Capitalize nicely
-	cityPretty := strings.Title(strings.ReplaceAll(city, "-", " "))
+	cityPretty := titler.String(strings.ReplaceAll(city, "-", " "))
 	stateUpper := strings.ToUpper(state)
 
 	// 3. Build SEO-perfect strings
@@ -164,8 +170,10 @@ func prettifyService(slug string) string {
 	if pretty, ok := m[slug]; ok {
 		return pretty
 	}
+
 	// Fallback: replace hyphens with spaces and title case
-	return strings.Title(strings.ReplaceAll(slug, "-", " "))
+	var titler = cases.Title(language.AmericanEnglish)
+	return titler.String(strings.ReplaceAll(slug, "-", " "))
 }
 
 func generateSchema(data CityPageData) string {

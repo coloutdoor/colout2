@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"encoding/gob"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 
 	// _ "github.com/mattn/go-sqlite3" // SQLite driver
 	_ "github.com/jackc/pgx/v5/stdlib" // registers "pgx" driver
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 // Define template functions
@@ -21,6 +24,13 @@ var funcMap = template.FuncMap{
 	"formatDeckDescription": formatDeckDescription,
 	"formatDemoDescription": formatDemoDescription,
 	"currentYear":           func() int { return time.Now().Year() },
+}
+
+// For presenting the estimate page and emailing estimates.
+type LineItem struct {
+	Name        string
+	Description string
+	Cost        string
 }
 
 // DeckEstimate holds all data for a deck cost estimate.
@@ -62,9 +72,8 @@ type DeckEstimate struct {
 	EmailModalShown  bool // Flag to indicate if email modal should be shown
 }
 
-var tmpl *template.Template      // tmpl is the global template for estimate.html, initialized at startup.
-var emailtmpl *template.Template // tmpl is the global template for email-confirm.html, initialized at startup.
-var db *sql.DB                   // db is the SQLite database connection
+var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
+var db *sql.DB              // db is the SQLite database connection
 
 func init() {
 	gob.Register(DeckEstimate{})
@@ -72,8 +81,6 @@ func init() {
 	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
-		"templates/header.html", "templates/footer.html"))
-	emailtmpl = template.Must(template.New("email-confirm.html").Funcs(funcMap).ParseFiles("templates/email-confirm.html",
 		"templates/header.html", "templates/footer.html"))
 }
 
@@ -454,7 +461,19 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func emailHandler(w http.ResponseWriter, r *http.Request) {
+// emailSendHandler handles the /estimate/send endpoint to render the email confirmation template.
+func emailSendHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("emailSendHandler called")
+	// This is only POST method
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get estimateID from URL
+	estimateIDStr := r.URL.Path[len("/estimate/send/"):]
+	estimateID, _ := strconv.Atoi(estimateIDStr)
+
 	// Get session data
 	sd, err := GetSession(r, w)
 	if err != nil {
@@ -464,20 +483,152 @@ func emailHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if estimate exists in session
-	if sd.Estimate.EstimateID == 0 {
+	estimate := sd.Estimate
+	if estimate.EstimateID == 0 {
 		log.Printf("Email Handler - Missing estimate in session")
 		http.Error(w, "No estimate available", http.StatusNotFound)
 		return
 	}
 
-	rd := renderData{
-		Page:   sd.Estimate,
-		Header: sd.UserAuth,
+	// Check to see if the Estimate ID matches the URI request to email
+	if estimate.EstimateID != estimateID {
+		log.Printf("Email Handler - Estimate ID mismatch: URL ID=%d, Session ID=%d", estimateID, estimate.EstimateID)
+		http.Error(w, "Estimate ID mismatch", http.StatusBadRequest)
+		return
 	}
 
-	if err := emailtmpl.ExecuteTemplate(w, "email-confirm.html", rd); err != nil {
-		log.Printf("emailHandler execute error: %v", err)
-		panic(err)
+	// Check if user is authenticated?
+	// TODO - Is this the owner of the estimate?
+	if !sd.UserAuth.IsAuthenticated {
+		sd.UserAuth.Message = "Please Login to send estimate via Email"
+		sd.Save(r, w)
+		loginUrl := "/login?rurl=/estimate"
+		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
+		return
 	}
-	log.Printf("emailHandler - Complated successfully for Estimate ID=%d", sd.Estimate.EstimateID)
+
+	// Prepare email content
+	// subject := fmt.Sprintf("Your Columbia Outdoor Deck Estimate %d – %s", estimate.EstimateID, estimate.SaveDate.Format("January 2, 2006"))
+	// Subject is set in SendGrid Dynamic Template
+
+	from := mail.NewEmail("Columbia Outdoor", "support@columbiaoutdoor.com") // Your verified SendGrid sender
+	to := mail.NewEmail(estimate.Customer.FirstName+" "+estimate.Customer.LastName, estimate.Customer.Email)
+
+	// Auto-reply using your Dynamic Template (replace with your real template ID)
+	customerMessage := mail.NewV3Mail()
+	customerMessage.SetFrom(from)
+	customerMessage.SetReplyTo(from)
+	customerMessage.SetTemplateID("d-1e52e20550794276a8b914536ee8131f") // SendGrid Dynamic Template - Deck Estimate
+
+	// Terms and Conditions
+	// Terms is not part of session
+	terms, err := os.ReadFile("static/t_and_c.txt")
+	if err != nil {
+		// Fallback if file is missing
+		terms = []byte("Terms and Conditions not available.")
+	}
+	estimate.Terms = string(terms)
+
+	// TODO - Add 'cc' and 'bcc' if needed
+	p := mail.NewPersonalization()
+	p.AddTos(mail.NewEmail(estimate.Customer.FirstName+" "+estimate.Customer.LastName, estimate.Customer.Email))
+	p.SetDynamicTemplateData("TotalCost", formatCost(estimate.TotalCost))
+	p.SetDynamicTemplateData("EstimateID", estimate.EstimateID)
+	p.SetDynamicTemplateData("Customer", estimate.Customer)
+	p.SetDynamicTemplateData("Terms", estimate.Terms)
+
+	// This is the list of line items to pass to the template
+	// DEJ
+	var LineItems = []LineItem{
+		{
+			Name:        "Description",
+			Description: estimate.Desc,
+			Cost:        "",
+		},
+		{
+			Name:        "Deck",
+			Description: formatDeckDescription(estimate),
+			Cost:        formatCost(estimate.DeckCost),
+		},
+		{
+			Name:        "Demo",
+			Description: formatDemoDescription(estimate),
+			Cost:        formatCost(estimate.DemoCost),
+		},
+		{
+			Name:        "Rails",
+			Description: "Supply and install " + estimate.RailMaterial + " with " + estimate.RailInfill,
+			Cost:        formatCost(estimate.RailCost),
+		},
+		{
+			Name:        "Fascia",
+			Description: "Install fascia around deck perimeter (" + strconv.FormatFloat(estimate.FasciaFeet, 'f', 1, 64) + " ft)",
+			Cost:        formatCost(estimate.FasciaCost),
+		},
+		{
+			Name:        "Stairs",
+			Description: "Supply and install stairs, " + strconv.FormatFloat(estimate.StairWidth, 'f', 1, 64) + " ft wide	",
+			Cost:        formatCost(estimate.StairCost),
+		},
+		{
+			Name:        "Stair Rails",
+			Description: "Supply and install stair rails",
+			Cost:        formatCost(estimate.StairRailCost),
+		},
+		{
+			Name:        "Stair Fascia",
+			Description: "Install fascia around stair perimeter",
+			Cost:        formatCost(estimate.FasciaCost),
+		},
+		{
+			Name:        "Stair Toe Kicks",
+			Description: "Supply and install stair toe kicks",
+			Cost:        formatCost(estimate.StairToeKickCost),
+		},
+		{
+			Name:        "Subtotal",
+			Description: "Subtotal of all line items",
+			Cost:        formatCost(estimate.Subtotal),
+		},
+		{
+			Name:        "Sales Tax",
+			Description: "Applicable sales tax",
+			Cost:        formatCost(estimate.SalesTax),
+		},
+	}
+
+	p.SetDynamicTemplateData("LineItems", LineItems)
+	customerMessage.AddPersonalizations(p)
+
+	log.Printf("Preparing to send estimate %d email to: %s", estimate.EstimateID, estimate.Customer.Email)
+	log.Printf("From: %s To: %s", from.Address, to.Address)
+
+	// SendGrid email sending logic goes here
+	apiKey := os.Getenv("SENDGRID_API_KEY")
+	if apiKey == "" {
+		log.Printf("Unable to send email: SENDGRID_API_KEY is required")
+		w.WriteHeader(http.StatusRequestTimeout) // failed
+		return
+	}
+
+	// Send both emails in background
+	go func() {
+		sg = sendgrid.NewSendClient(apiKey)
+		customerRR, err := sg.Send(customerMessage)
+		if err != nil {
+			log.Printf("Auto-reply failed: %v", err)
+		}
+		if customerRR.StatusCode >= 300 {
+			log.Printf("customer send response is: %v", customerRR)
+		}
+
+		log.Printf("emailHandler - Completed successfully for Estimate ID=%d", estimate.EstimateID)
+		// w.WriteHeader(http.StatusOK) // or just write JSON (defaults to 200)
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "queued",
+			"message": "Estimate is being sent",
+		})
+	}()
+
 }
