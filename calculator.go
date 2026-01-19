@@ -9,7 +9,11 @@ import (
 )
 
 // *****************************************************************************************
-// This function calculates the deck and creates the estimate
+// calcHandler
+//
+// This handler routes to a specific handler:
+//
+//   /calc?option=deck
 //
 //	Options:
 //	      deck -
@@ -24,12 +28,6 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Calc Option is %s", option)
 
-	// Validate
-	// if option == "" {
-	//     http.Error(w, "Missing 'option' parameter. Use: ?option=deck|rails|stairs|demo", http.StatusBadRequest)
-	//     return
-	// }
-
 	// Get session
 	sessionData, err := GetSession(r, w)
 	if err != nil {
@@ -39,7 +37,6 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Load estimate from session
 	estimate := sessionData.Estimate
-
 	if estimate.Desc != "" {
 		log.Printf("Using previous estimate for values from: %s", estimate.Desc)
 	} else {
@@ -63,6 +60,11 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// *****************************************************************************************
+//  handleFullCalc
+//
+//    This handler is the full - Detailed Deck estimate
+// *****************************************************************************************
 func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Deck Calculator Details"
@@ -79,7 +81,11 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	}
 }
 
-// Example handlers — expand with real logic
+// *****************************************************************************************
+//  handleDeckCalc
+//
+//    This handler is base deck handler.
+// *****************************************************************************************
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Deck Calculator"

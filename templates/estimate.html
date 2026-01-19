@@ -246,7 +246,7 @@ function confirmEmailSend() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Failed to send estimate');
+            throw new Error('Failed to send estimate - ' + response + ' - end');
         }
         return response.json(); // or .text() if you return plain text
     })

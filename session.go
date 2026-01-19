@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// lSessionData holds session contents for display.
+// SessionData holds session contents for display.
 type SessionData struct {
 	Estimate DeckEstimate
 	Customer Customer
@@ -24,8 +24,14 @@ var secretKey []byte
 var store *sessions.FilesystemStore
 var sessionStoreDir = "./sessions" // or "./sessions" for local dev
 
+
+//**********************************************************************************
+// init
+//
+//   Initialize the session store.  This only runs once at startup
+//**********************************************************************************
 func init() {
-	log.Printf("Initializing Session Store")
+	log.Printf("Initializing Session Store at %s", sessionStoreDir)
 
 	// Secret key (at least 32 bytes) - load from env var in production
 	secretKey = []byte(os.Getenv("SESSION_SECRET")) // e.g., generate with crypto/rand
@@ -52,7 +58,7 @@ func init() {
 	store = sessions.NewFilesystemStore(sessionStoreDir, secretKey)
 
 	if store == nil {
-		log.Panic("Init!  Session store is nil!")
+		log.Panic("Init!  Session store initialization failed.")
 	}
 
 	store.Options = &sessions.Options{
@@ -63,7 +69,11 @@ func init() {
 	}
 }
 
-// This is used to test / debug the session data
+//**********************************************************************************
+// sessionHandler
+// 
+//    This generates the session debug page.
+//**********************************************************************************
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	if store == nil {
 		log.Panic("SessionHandler!  Session store is nil!")
@@ -91,6 +101,11 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//*****************************************************************************
+// GetSession
+//
+//   Get the current session object
+//*****************************************************************************
 func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 	if store == nil {
 		log.Printf("Session store is nil!")
@@ -99,6 +114,7 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 
 	// Get session
 	session, err := store.Get(r, sessionName)
+
 	if err != nil {
 		log.Printf("Session get error: %v", err)
 		// Clear any invalid/old cookie and force a fresh session
@@ -114,6 +130,7 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 	if est, ok := session.Values["estimate"].(DeckEstimate); ok {
 		data.Estimate = est
 	} else {
+		log.Printf("GetSession - No DeckEstimate found")
 		data.Estimate = DeckEstimate{}
 	}
 	if cust, ok := session.Values["customer"].(Customer); ok {
@@ -143,7 +160,12 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
 
-	log.Printf("Saving User Session for %s", s.UserAuth.Email)
+	user_name := s.UserAuth.Email
+	if user_name == "" {
+		user_name = "Unknown - Not authenticated."
+	}
+
+	log.Printf("Saving User Session for %s", user_name)
 
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)

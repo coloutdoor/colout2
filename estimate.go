@@ -448,20 +448,26 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
-	// Pass both estimate and customer to template
-	renderEstimate(w, r, estimate)
 
 	// Save estimate to session
 	sd.Estimate.EmailModalShown = false // Reset email modal flag
 	sd.Estimate = estimate
 	err = sd.Save(r, w)
 	if err != nil {
-		log.Printf("Estimate Handler - Save Session failed")
+		log.Printf("Estimate Handler - Save Session failed.")
+	} else {
+		log.Printf("estimateHandler - Session Saved.")
 	}
 
+	// Pass both estimate and customer to template
+	renderEstimate(w, r, estimate)
 }
 
-// emailSendHandler handles the /estimate/send endpoint to render the email confirmation template.
+//***********************************************************************************************
+// emailSendHandler 
+//  handles the /estimate/send/{estimateID} 
+//   POST - endpoint to send and render the email confirmation template.
+//***********************************************************************************************
 func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("emailSendHandler called")
 	// This is only POST method
@@ -611,7 +617,7 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send both emails in background
+	// Send emails in background
 	go func() {
 		sg = sendgrid.NewSendClient(apiKey)
 		customerRR, err := sg.Send(customerMessage)
@@ -624,11 +630,13 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("emailHandler - Completed successfully for Estimate ID=%d", estimate.EstimateID)
 		// w.WriteHeader(http.StatusOK) // or just write JSON (defaults to 200)
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{
-			"status":  "queued",
-			"message": "Estimate is being sent",
-		})
+		// w.WriteHeader(http.StatusOK)
 	}()
+
+	// Return a message / 200 back to javascript function
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "queued",
+		"message": "Estimate is being sent",
+	})
 
 }
