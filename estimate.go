@@ -11,7 +11,8 @@ import (
 	"os"
 	"strconv"
 	"time"
-
+	"fmt"
+	"strings"
 	// _ "github.com/mattn/go-sqlite3" // SQLite driver
 	_ "github.com/jackc/pgx/v5/stdlib" // registers "pgx" driver
 	"github.com/sendgrid/sendgrid-go"
@@ -69,7 +70,8 @@ type DeckEstimate struct {
 	AcceptDate       time.Time
 	Terms            string
 	Error            string
-	EmailModalShown  bool // Flag to indicate if email modal should be shown
+	EmailModalShown  bool  // Flag to indicate if email modal should be shown
+	UserId           int64 // FK to UserAuth 
 }
 
 var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
@@ -104,6 +106,55 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 		log.Printf("estimateHandler execute error: %v", err)
 		panic(err)
 	}
+}
+
+// ***************************************************************************************************
+//  getEstimate
+//		Get the estimated from the DB
+// ***************************************************************************************************
+func getEstimate (estimateID int) DeckEstimate {
+	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
+
+	log.Printf("Finding estimate %d from DB ", estimateID)
+
+	if dbURL == "" {
+		log.Printf("DATABASE_URL environment variable is required")
+		return DeckEstimate{Error: "Database Env - not set up."}
+	}
+
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		log.Printf("Unable to connect to database: %v", err)
+		return DeckEstimate{Error: "Database Connect failed."}
+	}
+
+	var de DeckEstimate
+	var acceptDate sql.NullTime
+	err = db.QueryRow(`
+        SELECT estimate_id, description, length, width, height, material, rail_material, rail_infill, stair_width,
+        stair_rail_count, has_demo, has_fascia, total_cost, 
+        first_name, last_name, address, city, state, zip, phone_number, email,
+        save_date, accept_date, expiration_date, 
+        user_id   
+        FROM  estimates
+        WHERE estimate_id = $1`, estimateID).Scan(
+        	&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
+        	&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost,
+        	&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State, 
+        	&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
+        	&de.SaveDate, &acceptDate, &de.ExpirationDate, 
+        	&de.UserId)
+
+    if err != nil {
+    	fmt.Println ("GetEstimate Query Error: ", err)
+		return DeckEstimate{Error: "Estimate not found" }
+	} else {
+		log.Printf("Found estimate: %d", estimateID)
+	}
+
+	// TODO convert acceptDate -> de.AcceptDate - this was put in to allow for Nulls
+	de.Error = ""
+	return de
 }
 
 // saveEstimate updates the estimate with save details and persists it to the session.
@@ -233,6 +284,69 @@ RETURNING estimate_id`
 type EstimatePageData struct {
 	Estimate DeckEstimate
 	Customer Customer
+}
+
+
+
+// **********************************************************************************
+// estimateDBHandler
+//
+//    Get the estimate from the specific URI
+//         /estimate/{EstimateID}
+//
+// **********************************************************************************
+func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
+	// Get session
+
+	sd, err := GetSession(r, w)
+	if err != nil {
+		log.Printf("Session failed: %v", err)
+		renderEstimate(w, r, DeckEstimate{Error: "estimateDBHandler: Session error"})
+		return
+	}
+
+	// Get Estimate ID from the URI...
+	idStr := strings.TrimPrefix(r.URL.Path, "/estimate/")
+    if idStr == r.URL.Path { // didn't match prefix
+		renderEstimate(w, r, DeckEstimate{Error: "estimateDBHandler - URI not found!"})
+        return
+    }
+
+	// Check if user is authenticated?
+	//   If not logged in, redirect to the user auth page
+	if !sd.UserAuth.IsAuthenticated {
+		sd.UserAuth.Message = "Please Login to view estimate " + idStr
+		sd.Save(r, w)
+		loginUrl := "/login?rurl=/estimate/" + idStr
+		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
+		return
+	}
+
+	// Read Estimate from DB.
+	idInt, _ := strconv.Atoi(idStr)
+	de := getEstimate(idInt)
+	if de.Error != "" {
+		renderEstimate(w, r, de)
+	}
+
+	// Is this the owner of the estimate?
+	if de.UserId != sd.UserAuth.ID {
+		renderEstimate(w, r, DeckEstimate{Error: "Unauthorized."})
+	}
+
+	// Calculate the costs 
+	de.CalcAllCosts()
+	if de.Error != "" {
+		renderEstimate(w, r, de)
+		return 
+	}
+
+	// Save the session?? Mabye this is needed???
+	sd.Estimate = de 
+	sd.Save(r,w)
+
+	// Render the estimate
+	renderEstimate(w, r, de)
 }
 
 // **********************************************************************************
@@ -412,6 +526,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Calculate the costs 
+	estimate.CalcAllCosts()
+	if estimate.Error != "" {
+		renderEstimate(w, r, estimate)
+		return 
+	}
+
 	// Unsave - if it was previously saved - It is changed :(
 	estimate.SaveDate = time.Time{}
 	estimate.EstimateID = 0 // Static ID for now
@@ -419,36 +540,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.AcceptDate = time.Time{}
 	estimate.Error = ""
 
-	estimate.CalculateDeckCost(costs)
-	if estimate.Error != "" {
-		renderEstimate(w, r, estimate)
-		return
-	}
-
-	estimate.CalcStairCost(costs)
-	if estimate.Error != "" {
-		renderEstimate(w, r, estimate)
-		return
-	}
-	estimate.CalculateRailCost(costs)
-	if estimate.Error != "" {
-		renderEstimate(w, r, estimate)
-		return
-	}
-
-	estimate.CalculateStairRailCost(costs)
-	estimate.CalcStairFasciaCost(costs)
-	estimate.CalcStairToeKickCost(costs)
-	estimate.CalculateDemoCost(costs)
-	estimate.CalculateFasciaCost(costs)
 
 	log.Printf("Estimate: %+v", estimate)
-
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost
-	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
-	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
-
-
 	// Save estimate to session
 	sd.Estimate.EmailModalShown = false // Reset email modal flag
 	sd.Estimate = estimate
@@ -461,6 +554,34 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Pass both estimate and customer to template
 	renderEstimate(w, r, estimate)
+}
+
+func (estimate *DeckEstimate) CalcAllCosts() {
+
+	estimate.CalculateDeckCost(costs)
+	if estimate.Error != "" {
+		return 
+	}
+
+	estimate.CalcStairCost(costs)
+	if estimate.Error != "" {
+		return
+	}
+
+	estimate.CalculateRailCost(costs)
+	if estimate.Error != "" {
+		return
+	}
+
+	estimate.CalculateStairRailCost(costs)
+	estimate.CalcStairFasciaCost(costs)
+	estimate.CalcStairToeKickCost(costs)
+	estimate.CalculateDemoCost(costs)
+	estimate.CalculateFasciaCost(costs)
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost
+	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
+	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
+
 }
 
 //***********************************************************************************************

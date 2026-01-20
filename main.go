@@ -112,6 +112,7 @@ func main() {
 
 	mux.HandleFunc("/estimate", estimateHandler)
 	mux.HandleFunc("/estimate/send/{estimateID}", emailSendHandler) //POST only - Send Estimate via Email
+	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)      //GET a saved estimate from DB
 	mux.HandleFunc("/customer", customerHandler)
 	mux.HandleFunc("/session", sessionHandler)
 	mux.HandleFunc("/calc", calcHandler)

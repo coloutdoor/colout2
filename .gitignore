@@ -2,9 +2,9 @@
 db
 colout2
 errors.log
-*.txt
 /images
 .*
 index.sh
 install.sh
 /sessions
+colout2.sublime*

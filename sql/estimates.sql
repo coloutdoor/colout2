@@ -58,3 +58,13 @@ CREATE TRIGGER trigger_update_estimates_timestamp
     BEFORE UPDATE ON estimates
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+-- Step 1: Add the column with a default value
+ALTER TABLE estimates
+ADD COLUMN user_id BIGINT DEFAULT 1 NOT NULL;
+
+-- Step 2: Add the foreign key constraint
+ALTER TABLE estimates
+ADD CONSTRAINT fk_estimates_user_auth
+    FOREIGN KEY (user_id) 
+    REFERENCES user_auth(id);
