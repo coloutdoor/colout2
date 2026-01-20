@@ -68,3 +68,17 @@ ALTER TABLE estimates
 ADD CONSTRAINT fk_estimates_user_auth
     FOREIGN KEY (user_id) 
     REFERENCES user_auth(id);
+
+ALTER TABLE estimates
+ADD COLUMN "HasStairFascia" BOOLEAN DEFAULT FALSE,
+ADD COLUMN "HasStairTK"      BOOLEAN DEFAULT FALSE;
+
+UPDATE estimates
+SET "HasStairFascia" = FALSE,
+    "HasStairTK"      = FALSE
+WHERE "HasStairFascia" IS NULL OR "HasStairTK" IS NULL;
+
+ALTER TABLE estimates
+RENAME COLUMN "HasStairFascia" TO has_stair_fascia;
+ALTER TABLE estimates
+RENAME COLUMN "HasStairTK"     TO has_stair_tk;

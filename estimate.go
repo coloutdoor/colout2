@@ -131,18 +131,18 @@ func getEstimate (estimateID int) DeckEstimate {
 	var de DeckEstimate
 	var acceptDate sql.NullTime
 	err = db.QueryRow(`
-        SELECT estimate_id, description, length, width, height, material, rail_material, rail_infill, stair_width,
-        stair_rail_count, has_demo, has_fascia, total_cost, 
+        SELECT estimate_id, description, length, width, height, material, rail_material, rail_infill, stair_width, 
+        stair_rail_count, has_demo, has_fascia,  total_cost, has_stair_fascia, has_stair_tk,
         first_name, last_name, address, city, state, zip, phone_number, email,
         save_date, accept_date, expiration_date, 
         user_id   
         FROM  estimates
         WHERE estimate_id = $1`, estimateID).Scan(
-        	&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
-        	&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost,
+        	&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth, //9
+        	&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,    //15
         	&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State, 
-        	&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
-        	&de.SaveDate, &acceptDate, &de.ExpirationDate, 
+        	&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,  //23
+        	&de.SaveDate, &acceptDate, &de.ExpirationDate, //26
         	&de.UserId)
 
     if err != nil {
@@ -218,7 +218,9 @@ SET
     save_date = $21,
     accept_date = $22,
     expiration_date = $23
-WHERE estimate_id = $24
+    has_stair_fascia = $24
+    has_stair_tk = $25
+WHERE estimate_id = $26
 RETURNING estimate_id`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
@@ -227,9 +229,10 @@ RETURNING estimate_id`
 			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
 			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //18
 			estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
-			estimate.SaveDate.Format("2006-01-02 15:04:05"),
-			estimate.AcceptDate.Format("2006-01-02 15:04:05"),
-			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
+			estimate.SaveDate.Format("2006-01-02 15:04:05"),  //21
+			estimate.AcceptDate.Format("2006-01-02 15:04:05"), //22
+			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //23
+			estimate.HasStairFascia, estimate.HasStairTK, //25
 			estimate.EstimateID).Scan(&updatedID)
 
 		if err != nil {
