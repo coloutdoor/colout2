@@ -1,5 +1,5 @@
-{{define "calculator.html"}}
-  {{template "header.html" .Header}}
+{{define "calculator.gohtml"}}
+  {{template "header.gohtml" .Header}}
 
   {{with .Page}}
     <script>
@@ -28,19 +28,19 @@
                     <div class="control">
                         <div class="field">
                             <label class="label">Description</label>
-                            <input class="input is-normal" type="text" name="desc" step="0.1" value="{{printf "%s" .Desc}}" maxlength="50" style="width: 20ch;">
+                            <input class="input is-normal" type="text" name="desc" step="0.1" value="{{ .Desc }}" maxlength="50" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Length (ft):</label>
-                            <input class="input is-normal" type="number" name="length" step="0.1" value="{{printf "%.1f" .Length}}" required maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal" type="number" name="length" step="0.1" value='{{printf "%.1f" .Length}}' required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Width (ft):</label>
-                            <input class="input is-normal" type="number" name="width" step="0.1" value="{{printf "%.1f" .Width}}" required maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal" type="number" name="width" step="0.1" value='{{printf "%.1f" .Width}}' required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Height (ft):</label>
-                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" value="{{printf "%.1f" .Height}}" required maxlength="20" style="width: 20ch;">
+                            <input class="input is-normal" type="number" name="height" step="0.1" min="0" value='{{printf "%.1f" .Height}}' required maxlength="20" style="width: 20ch;">
                         </div>
                         <div class="field">
                             <label class="label">Material:</label>
@@ -116,7 +116,7 @@
                         <label for="stairfascia">Include Stair Fascia </label>
                     </div>
                     <div class="field">
-                        <input id="stairtk" class="switch is-success" type="checkbox" name="hasStairTK" {{if .HasStairTK}}checked{{end}}>
+                        <input id="stairtk" class="switch is-success" type="checkbox" name="hasStairTK" {{ if .HasStairTK }} checked {{ end }}>
                         <label for="stairtk">Include stair toe kicks </label>
                     </div>
                 </div>
@@ -128,5 +128,5 @@
         </div>
     </form>
     {{end}}
-  {{template "footer.html" .}}
+  {{template "footer.gohtml" .}}
 {{end}}

@@ -21,8 +21,8 @@ type Customer struct {
 }
 
 func customerHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.New("customer.html").ParseFiles("templates/customer.html",
-		"templates/header.html", "templates/footer.html"))
+	tmpl := template.Must(template.New("customer.gohtml").ParseFiles("templates/customer.gohtml",
+		"templates/header.gohtml", "templates/footer.gohtml"))
 
 	// Get session
 	sessionData, err := GetSession(r, w)
@@ -55,14 +55,14 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Render customer page onlyon GET
+	// Render customer page only on GET
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Customer Information"
 	rd := renderData{
 		Page:   &customer,
 		Header: &userAuth,
 	}
-	if err := tmpl.ExecuteTemplate(w, "customer.html", rd); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "customer.gohtml", rd); err != nil {
 		log.Printf("customerHandler execute error: %v", err)
 		panic(err)
 	}

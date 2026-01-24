@@ -1,5 +1,5 @@
 {{define "estimate.html"}}
-  {{template "header.html" .Header}}
+  {{template "header.gohtml" .Header}}
 
   {{with .Page}}
     <div class="level mb-5">
@@ -219,7 +219,7 @@
 </div>
     {{ else }}
     <div id="emailModal"> 
-        <P> Not doing Email</P> <!-- For debugging -->
+        <P></P> <!-- For debugging -->
     </div>
     {{ end }}
 
@@ -269,5 +269,5 @@ function confirmEmailSend() {
     {{end}}
 
     {{end}}
-  {{template "footer.html" .}}
+  {{template "footer.gohtml" .}}
 {{end}}

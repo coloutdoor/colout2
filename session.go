@@ -24,12 +24,12 @@ var secretKey []byte
 var store *sessions.FilesystemStore
 var sessionStoreDir = "./sessions" // or "./sessions" for local dev
 
-
-//**********************************************************************************
+// **********************************************************************************
 // init
 //
-//   Initialize the session store.  This only runs once at startup
-//**********************************************************************************
+//	Initialize the session store.  This only runs once at startup
+//
+// **********************************************************************************
 func init() {
 	log.Printf("Initializing Session Store at %s", sessionStoreDir)
 
@@ -51,8 +51,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("Session directory %s is not writable: %v", sessionStoreDir, err)
 	}
-	fmt.Fprintln(f, "Session dir test - writable on startup")
-	f.Close()
+	_, _ = fmt.Fprintln(f, "Session dir test - writable on startup")
+	_ = f.Close()
 	log.Printf("Session directory test file created at: %s", testFile)
 
 	store = sessions.NewFilesystemStore(sessionStoreDir, secretKey)
@@ -69,11 +69,12 @@ func init() {
 	}
 }
 
-//**********************************************************************************
+// **********************************************************************************
 // sessionHandler
-// 
-//    This generates the session debug page.
-//**********************************************************************************
+//
+//	This generates the session debug page.
+//
+// **********************************************************************************
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	if store == nil {
 		log.Panic("SessionHandler!  Session store is nil!")
@@ -87,7 +88,7 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The only post here is a delete :)
+	// The only post here is to delete :)
 	if r.Method == http.MethodPost {
 		err := data.Delete(r, w)
 		if err != nil {
@@ -101,11 +102,7 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//*****************************************************************************
-// GetSession
-//
-//   Get the current session object
-//*****************************************************************************
+// GetSession  Get the current session object
 func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 	if store == nil {
 		log.Printf("Session store is nil!")
@@ -119,7 +116,7 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 		log.Printf("Session get error: %v", err)
 		// Clear any invalid/old cookie and force a fresh session
 		session.Options.MaxAge = -1 // Deletes the cookie immediately
-		session.Save(r, w)          // Sends deletion header
+		_ = session.Save(r, w)      // Sends deletion header
 		log.Printf("Reset old/invalid session for new FilesystemStore")
 
 		return &SessionData{}, err
@@ -133,8 +130,8 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 		log.Printf("GetSession - No DeckEstimate found")
 		data.Estimate = DeckEstimate{}
 	}
-	if cust, ok := session.Values["customer"].(Customer); ok {
-		data.Customer = cust
+	if customer, ok := session.Values["customer"].(Customer); ok {
+		data.Customer = customer
 	} else {
 		data.Customer = Customer{}
 	}
@@ -147,7 +144,7 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 	return &data, nil
 }
 
-// func SaveSession(w http.ResponseWriter, s *SessionData) error
+// Save the session - w http.ResponseWriter, s *SessionData) error
 func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	// Get session
 	session, err := store.Get(r, sessionName)
@@ -160,12 +157,12 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
 
-	user_name := s.UserAuth.Email
-	if user_name == "" {
-		user_name = "Unknown - Not authenticated."
+	userName := s.UserAuth.Email
+	if userName == "" {
+		userName = "Unknown - Not authenticated."
 	}
 
-	log.Printf("Saving User Session for %s", user_name)
+	log.Printf("Saving User Session for %s", userName)
 
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Session save error: %v", err)

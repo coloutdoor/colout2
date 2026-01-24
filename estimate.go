@@ -2,19 +2,18 @@ package main
 
 import (
 	"database/sql"
-
 	"encoding/gob"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"time"
-	"fmt"
 	"strings"
-	// _ "github.com/mattn/go-sqlite3" // SQLite driver
-	_ "github.com/jackc/pgx/v5/stdlib" // registers "pgx" driver
+	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
@@ -27,7 +26,7 @@ var funcMap = template.FuncMap{
 	"currentYear":           func() int { return time.Now().Year() },
 }
 
-// For presenting the estimate page and emailing estimates.
+// LineItem For presenting the estimate page and emailing estimates.
 type LineItem struct {
 	Name        string
 	Description string
@@ -71,7 +70,7 @@ type DeckEstimate struct {
 	Terms            string
 	Error            string
 	EmailModalShown  bool  // Flag to indicate if email modal should be shown
-	UserId           int64 // FK to UserAuth 
+	UserId           int64 // FK to UserAuth
 }
 
 var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
@@ -83,7 +82,7 @@ func init() {
 	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
 	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
-		"templates/header.html", "templates/footer.html"))
+		"templates/header.gohtml", "templates/footer.gohtml"))
 }
 
 // renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
@@ -109,10 +108,12 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 }
 
 // ***************************************************************************************************
-//  getEstimate
-//		Get the estimated from the DB
+//
+//	 getEstimate
+//			Get the estimated from the DB
+//
 // ***************************************************************************************************
-func getEstimate (estimateID int) DeckEstimate {
+func getEstimate(estimateID int) DeckEstimate {
 	dbURL := os.Getenv("DATABASE_URL") // We'll set this to the Neon string
 
 	log.Printf("Finding estimate %d from DB ", estimateID)
@@ -138,19 +139,22 @@ func getEstimate (estimateID int) DeckEstimate {
         user_id   
         FROM  estimates
         WHERE estimate_id = $1`, estimateID).Scan(
-        	&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth, //9
-        	&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,    //15
-        	&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State, 
-        	&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,  //23
-        	&de.SaveDate, &acceptDate, &de.ExpirationDate, //26
-        	&de.UserId)
+		&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth, //9
+		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK, //15
+		&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State,
+		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email, //23
+		&de.SaveDate, &acceptDate, &de.ExpirationDate, //26
+		&de.UserId)
 
-    if err != nil {
-    	fmt.Println ("GetEstimate Query Error: ", err)
-		return DeckEstimate{Error: "Estimate not found" }
-	} else {
-		log.Printf("Found estimate: %d", estimateID)
+	if err != nil {
+		fmt.Println("GetEstimate Query Error: ", err)
+		err = db.Close()
+
+		return DeckEstimate{Error: "Estimate not found"}
 	}
+	log.Printf("Found estimate: %d", estimateID)
+
+	err = db.Close()
 
 	// TODO convert acceptDate -> de.AcceptDate - this was put in to allow for Nulls
 	de.Error = ""
@@ -171,6 +175,7 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	db, err := sql.Open("pgx", dbURL)
 	if err != nil {
 		log.Printf("Unable to connect to database: %v", err)
+		_ = db.Close()
 		renderEstimate(w, r, DeckEstimate{Error: "Database Connect failed."})
 		return
 	}
@@ -179,18 +184,24 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	sessionData, err := GetSession(r, w)
 	if err != nil {
 		http.Error(w, "Session error", http.StatusInternalServerError)
+		_ = db.Close()
 		return
 	}
 	if !sessionData.UserAuth.IsAuthenticated {
 		sessionData.UserAuth.Message = "Please Login to save estimate"
-		sessionData.Save(r, w)
+		if err = sessionData.Save(r, w); err != nil {
+			log.Printf("Unable to save sessionData")
+		}
 		loginUrl := "/login?rurl=/estimate"
+		_ = db.Close()
 		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
 	}
 
+	estimate.UserId = sessionData.UserAuth.ID
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
 
+	// Update Existing estimate
 	if estimate.EstimateID > 0 {
 		log.Printf("Updating existing estimate ID=%d", estimate.EstimateID)
 		stmt := `UPDATE estimates 
@@ -220,7 +231,8 @@ SET
     expiration_date = $23
     has_stair_fascia = $24
     has_stair_tk = $25
-WHERE estimate_id = $26
+    user_id = $26
+WHERE estimate_id = $27
 RETURNING estimate_id`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
@@ -229,49 +241,65 @@ RETURNING estimate_id`
 			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
 			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //18
 			estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
-			estimate.SaveDate.Format("2006-01-02 15:04:05"),  //21
-			estimate.AcceptDate.Format("2006-01-02 15:04:05"), //22
+			estimate.SaveDate.Format("2006-01-02 15:04:05"),       //21
+			estimate.AcceptDate.Format("2006-01-02 15:04:05"),     //22
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //23
-			estimate.HasStairFascia, estimate.HasStairTK, //25
+			estimate.HasStairFascia, estimate.HasStairTK,          //25
+			estimate.UserId, // 26
 			estimate.EstimateID).Scan(&updatedID)
 
 		if err != nil {
 			log.Printf("Failed to prepare statement to update estimate: %v", err)
+			_ = db.Close()
 			renderEstimate(w, r, DeckEstimate{Error: "Database error: Update Estimate failed."})
 			return
 		}
 
+		_ = db.Close()
 		log.Printf("Estimate updated: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 	} else {
 
+		// Create NEW Estimate
 		log.Printf("Inserting new estimate")
 		//Prepared Statement - PostgreSQL handle the ID
 		stmt := `INSERT INTO estimates (
-    	description, length, width, height, material, rail_material, rail_infill,
+    	description, length, width, height, 
+    	material, rail_material, rail_infill,
     	stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
-    	first_name, last_name, address, city, state, zip, phone_number, email,
-    	save_date, accept_date, expiration_date) 
+    	first_name, last_name, address, 
+    	city, state, zip, phone_number, email,
+    	save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id) 
 		VALUES (
-		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23	
+		$1, $2, $3, $4, 
+		$5, $6, $7, 
+		$8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17, $18, $19, $20, 
+        $21, $22, $23, 
+        $24, $25, $26	
 		) RETURNING estimate_id`
 		var newID int64
-		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height,
-			estimate.Material, estimate.RailMaterial, estimate.RailInfill,
-			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost,
-			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address,
-			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip,
-			estimate.Customer.PhoneNumber, estimate.Customer.Email,
+		err = db.QueryRow(stmt,
+			estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
+			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //7
+			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //12
+			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
+			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
 			estimate.SaveDate.Format("2006-01-02 15:04:05"),
 			nil,
-			estimate.ExpirationDate.Format("2006-01-02 15:04:05")).Scan(&newID)
+			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
+			estimate.HasStairFascia, estimate.HasStairTK, //25
+			estimate.UserId).Scan(&newID) //26
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
+			_ = db.Close()
 			renderEstimate(w, r, DeckEstimate{Error: "Database error: Save Estimate failed."})
 			return
 		}
 		estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
+		_ = db.Close()
 	}
+
+	_ = db.Close()
 
 	estimate.EmailModalShown = true // Show the email modal after saving
 	sd.Estimate = *estimate
@@ -283,19 +311,11 @@ RETURNING estimate_id`
 	log.Printf("Estimate saved: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 }
 
-// EstimatePageData holds data for the estimate page, including customer info.
-type EstimatePageData struct {
-	Estimate DeckEstimate
-	Customer Customer
-}
-
-
-
 // **********************************************************************************
 // estimateDBHandler
 //
-//    Get the estimate from the specific URI
-//         /estimate/{EstimateID}
+//	Get the estimate from the specific URI
+//	     /estimate/{EstimateID}
 //
 // **********************************************************************************
 func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
@@ -310,16 +330,16 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get Estimate ID from the URI...
 	idStr := strings.TrimPrefix(r.URL.Path, "/estimate/")
-    if idStr == r.URL.Path { // didn't match prefix
+	if idStr == r.URL.Path { // didn't match prefix
 		renderEstimate(w, r, DeckEstimate{Error: "estimateDBHandler - URI not found!"})
-        return
-    }
+		return
+	}
 
 	// Check if user is authenticated?
 	//   If not logged in, redirect to the user auth page
 	if !sd.UserAuth.IsAuthenticated {
 		sd.UserAuth.Message = "Please Login to view estimate " + idStr
-		sd.Save(r, w)
+		_ = sd.Save(r, w)
 		loginUrl := "/login?rurl=/estimate/" + idStr
 		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
 		return
@@ -337,16 +357,16 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 		renderEstimate(w, r, DeckEstimate{Error: "Unauthorized."})
 	}
 
-	// Calculate the costs 
+	// Calculate the costs
 	de.CalcAllCosts()
 	if de.Error != "" {
 		renderEstimate(w, r, de)
-		return 
+		return
 	}
 
-	// Save the session?? Mabye this is needed???
-	sd.Estimate = de 
-	sd.Save(r,w)
+	// Save the session?? Maybe this is needed???
+	sd.Estimate = de
+	_ = sd.Save(r, w)
 
 	// Render the estimate
 	renderEstimate(w, r, de)
@@ -357,7 +377,7 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 //
 //  Data can be posted to this page from either
 //
-//   Calculater  - Full details
+//   Calculator  - Full details
 //   /calc/deck  - /calc?option=deck - Basic Deck with Finish Level
 // **********************************************************************************
 
@@ -452,12 +472,12 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ************** POST - Finish Level from /calc/deck **************************
 	//
-	// Set the matials and selections based on the Deck options:
+	// Set the materials and selections based on the Deck options:
 	// *****************************************************************************
 	if r.FormValue("finish") != "" {
 		log.Printf("Setting Finish Level to: %s", r.FormValue("finish"))
-		log.Printf("Settign Stairs to: %s", r.FormValue("hasStairs"))
-		// TODO - Make this a funtion and yaml settings
+		log.Printf("Setting Stairs to: %s", r.FormValue("hasStairs"))
+		// TODO - Make this a function and yaml settings
 		switch r.FormValue("finish") {
 		//economy
 		case "1":
@@ -529,11 +549,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Calculate the costs 
+	// Calculate the costs
 	estimate.CalcAllCosts()
 	if estimate.Error != "" {
 		renderEstimate(w, r, estimate)
-		return 
+		return
 	}
 
 	// Unsave - if it was previously saved - It is changed :(
@@ -542,7 +562,6 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.ExpirationDate = time.Time{}
 	estimate.AcceptDate = time.Time{}
 	estimate.Error = ""
-
 
 	log.Printf("Estimate: %+v", estimate)
 	// Save estimate to session
@@ -563,7 +582,7 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 
 	estimate.CalculateDeckCost(costs)
 	if estimate.Error != "" {
-		return 
+		return
 	}
 
 	estimate.CalcStairCost(costs)
@@ -587,11 +606,13 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 
 }
 
-//***********************************************************************************************
-// emailSendHandler 
-//  handles the /estimate/send/{estimateID} 
-//   POST - endpoint to send and render the email confirmation template.
-//***********************************************************************************************
+// ***********************************************************************************************
+// emailSendHandler
+//
+//	handles the /estimate/send/{estimateID}
+//	 POST - endpoint to send and render the email confirmation template.
+//
+// ***********************************************************************************************
 func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("emailSendHandler called")
 	// This is only POST method
@@ -631,7 +652,7 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO - Is this the owner of the estimate?
 	if !sd.UserAuth.IsAuthenticated {
 		sd.UserAuth.Message = "Please Login to send estimate via Email"
-		sd.Save(r, w)
+		_ = sd.Save(r, w)
 		loginUrl := "/login?rurl=/estimate"
 		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
 		return
@@ -757,8 +778,8 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 		// w.WriteHeader(http.StatusOK)
 	}()
 
-	// Return a message / 200 back to javascript function
-	json.NewEncoder(w).Encode(map[string]string{
+	// Return a message / 200 back to JavaScript function
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"status":  "queued",
 		"message": "Estimate is being sent",
 	})

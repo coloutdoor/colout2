@@ -35,7 +35,7 @@ func robotsTxtHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		strContent := string(content)
-		fmt.Fprintf(w, "%s", strContent)
+		_, _ = fmt.Fprintf(w, "%s", strContent)
 	} else {
 		http.NotFound(w, r)
 	}
@@ -49,7 +49,7 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Error - 404 - Page not found - %s", r.URL)
 	tmpl := template.Must(template.New("error404.html").
 		Funcs(funcMap).
-		ParseFiles("templates/error404.html", "templates/header.html", "templates/footer.html"))
+		ParseFiles("templates/error404.html", "templates/header.gohtml", "templates/footer.gohtml"))
 
 	data := PageData{PageTitle: "Sorry - Not Found"}
 
@@ -70,7 +70,7 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 func privacyHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.New("error404.html").
 		Funcs(funcMap).
-		ParseFiles("templates/privacy.html", "templates/header.html", "templates/footer.html"))
+		ParseFiles("templates/privacy.html", "templates/header.gohtml", "templates/footer.gohtml"))
 
 	data := PageData{PageTitle: "Privacy Policy"}
 
@@ -112,7 +112,7 @@ func main() {
 
 	mux.HandleFunc("/estimate", estimateHandler)
 	mux.HandleFunc("/estimate/send/{estimateID}", emailSendHandler) //POST only - Send Estimate via Email
-	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)      //GET a saved estimate from DB
+	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)     //GET a saved estimate from DB
 	mux.HandleFunc("/customer", customerHandler)
 	mux.HandleFunc("/session", sessionHandler)
 	mux.HandleFunc("/calc", calcHandler)
@@ -127,7 +127,7 @@ func main() {
 	mux.HandleFunc("/robots.txt", robotsTxtHandler)
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
 	mux.HandleFunc("/privacy", privacyHandler)
-	mux.HandleFunc("/", ownerHandler) // Defualt - also City specific pages.  This should return a 404.
+	mux.HandleFunc("/", ownerHandler) // Default - also City specific pages.  This should return a 404.
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)

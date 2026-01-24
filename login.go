@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -69,7 +70,7 @@ func googleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	state := randToken() // simple anti-CSRF
 	session, _ := store.Get(r, "session")
 	session.Values["oauth_state"] = state
-	session.Save(r, w)
+	_ = session.Save(r, w)
 
 	googleOauthConfig.ClientSecret = os.Getenv("GOOGLE_OAUTH_SECRET")
 	if callBackURL := os.Getenv("GOOGLE_OAUTH_CALLBACK_URL"); callBackURL != "" {
@@ -108,16 +109,19 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
 	if err != nil || resp.StatusCode != 200 {
 		http.Error(w, "Failed to get user info", http.StatusInternalServerError)
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
 		return
 	}
-	defer resp.Body.Close()
 
 	var userInfo struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
 		ID    string `json:"id"`
 	}
-	json.NewDecoder(resp.Body).Decode(&userInfo)
+	_ = json.NewDecoder(resp.Body).Decode(&userInfo)
+	_ = resp.Body.Close()
 
 	sessionData, err := GetSession(r, w)
 	if err != nil {
@@ -154,8 +158,8 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		&user.Name, &user.LastName, &user.IsActive, &user.EmailVerified,
 	)
 
-	if err == sql.ErrNoRows {
-		var fakePasswordHash string = "GoogleAuth" // No hashable password for Google Auth users
+	if errors.Is(err, sql.ErrNoRows) {
+		fakePasswordHash := "GoogleAuth" // No hashable password for Google Auth users
 		uid, err := createUserDB(userInfo.Name, userInfo.Email, fakePasswordHash)
 		if err != nil {
 			log.Printf("Failed to create user in DB: %v", err)
@@ -175,10 +179,9 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		Name:            userInfo.Name,
 		Message:         "Google Login, " + userInfo.Name,
 	}
-	sessionData.Save(r, w)
 
 	delete(session.Values, "oauth_state")
-	session.Save(r, w)
+	_ = sessionData.Save(r, w)
 
 	// setFlash(w, r, "Welcome back, "+userInfo.Name+"!")
 	if rurl == "" {
@@ -190,14 +193,16 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 func randToken() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
 	return base64.StdEncoding.EncodeToString(b)
 }
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
 
-	tmpl := template.Must(template.New("signup.html").ParseFiles("templates/signup.html",
-		"templates/header.html", "templates/footer.html"))
+	tmpl := template.Must(template.New("signup.gohtml").ParseFiles("templates/signup.gohtml",
+		"templates/header.gohtml", "templates/footer.gohtml"))
 
 	// Get session
 	sessionData, err := GetSession(r, w)
@@ -213,7 +218,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		Header: &sessionData.UserAuth,
 	}
 	if r.Method == http.MethodGet {
-		if err := tmpl.ExecuteTemplate(w, "signup.html", rd); err != nil {
+		if err := tmpl.ExecuteTemplate(w, "signup.gohtml", rd); err != nil {
 			log.Printf("Login Handler execute error: %v", err)
 			panic(err)
 		}
@@ -223,7 +228,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	// POST – handle signup
 	if r.Method == http.MethodPost {
 
-		// Parmas from form
+		// Params
 		name := strings.TrimSpace(r.FormValue("name"))
 		email := strings.TrimSpace(r.FormValue("email"))
 		pass1 := r.FormValue("password")
@@ -232,7 +237,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		// Basic validation
 		if name == "" || email == "" || pass1 == "" || pass1 != pass2 || len(pass1) < 8 {
 			sessionData.UserAuth.Message = "Please fill all fields correctly and ensure passwords match (8+ chars)"
-			sessionData.Save(r, w)
+			_ = sessionData.Save(r, w)
 			log.Printf("%s", sessionData.UserAuth.Message)
 			http.Redirect(w, r, "/signup", http.StatusSeeOther)
 			return
@@ -242,7 +247,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		uid, err := createUserPassword(name, email, pass1)
 		if err != nil {
 			sessionData.UserAuth.Message = "Create user DB failure."
-			sessionData.Save(r, w)
+			_ = sessionData.Save(r, w)
 			log.Printf("%s", sessionData.UserAuth.Message)
 			http.Redirect(w, r, "/signup", http.StatusSeeOther)
 			return
@@ -297,11 +302,9 @@ func createUserDB(name string, email string, passwordHash string) (int64, error)
 		return 0, err
 	}
 	var userID int64
-	role := "homeowner" // Set to 'homeowner for now
+	role := "homeowner" // Set to homeowner for now
 	lastName := ""
 	phone := ""
-	isActive := true
-	isVerified := false
 
 	/* Send the query to the DB - INSERT */
 	const stmt = `
@@ -320,8 +323,8 @@ func createUserDB(name string, email string, passwordHash string) (int64, error)
 		name,
 		lastName,
 		phone,
-		isActive,
-		isVerified,
+		true,  // isActive is always TRUE here
+		false, // isVerified is false here
 	).Scan(&userID)
 
 	if err != nil {
@@ -340,8 +343,8 @@ func hashPassword(password string) (string, error) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.New("login.html").ParseFiles("templates/login.html",
-		"templates/header.html", "templates/footer.html"))
+	tmpl := template.Must(template.New("login.gohtml").ParseFiles("templates/login.gohtml",
+		"templates/header.gohtml", "templates/footer.gohtml"))
 
 	// Get session
 	sessionData, err := GetSession(r, w)
@@ -368,7 +371,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	/* options - logout, signup */
 	if option == "signout" {
-		sessionData.Delete(r, w)
+		_ = sessionData.Delete(r, w)
 		rurl = "/"
 		http.Redirect(w, r, rurl, http.StatusSeeOther)
 		return
@@ -391,8 +394,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		rurl = "/"
 	}
 	sessionData.UserAuth.Rurl = rurl
-	sessionData.Save(r, w)
-	if err := tmpl.ExecuteTemplate(w, "login.html", sessionData.UserAuth); err != nil {
+	_ = sessionData.Save(r, w)
+	if err := tmpl.ExecuteTemplate(w, "login.gohtml", sessionData.UserAuth); err != nil {
 		log.Printf("Login Handler execute error: %v", err)
 		panic(err)
 	}
@@ -430,7 +433,7 @@ func authN(r *http.Request, w http.ResponseWriter) error {
 		&user.Name, &user.LastName, &user.IsActive, &user.EmailVerified,
 	)
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		// Never reveal if email exists — security best practice
 		return fmt.Errorf("invalid email or password")
 	}

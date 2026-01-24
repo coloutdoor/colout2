@@ -11,8 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var doDebug = false
-
 // Homeowner represents the structure of the homeowner marketing strategy
 type Homeowner struct {
 	Objective           string     `yaml:"objective"`
@@ -73,10 +71,10 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	var homeowner Homeowner
 	err = yaml.Unmarshal(data, &homeowner)
 	if err != nil {
-		log.Fatalf("Error unmarshaling YAML: %v", err)
+		log.Fatalf("Error unmarshalling YAML: %v", err)
 	}
 
-	if doDebug {
+	if false {
 		debugStrategy(homeowner)
 	}
 
@@ -88,10 +86,10 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 		Page:   &homeowner,
 		Header: &userAuth,
 	}
-	tmpl := template.Must(template.New("homeowner.html").Funcs(funcMap).
-		ParseFiles("templates/homeowner.html", "templates/header.html", "templates/footer.html"))
+	tmpl := template.Must(template.New("homeowner.gohtml").Funcs(funcMap).
+		ParseFiles("templates/homeowner.gohtml", "templates/header.gohtml", "templates/footer.gohtml"))
 
-	if err := tmpl.ExecuteTemplate(w, "homeowner.html", rd); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "homeowner.gohtml", rd); err != nil {
 		log.Printf("ownerHandler execute error: %v", err)
 		panic(err)
 	}

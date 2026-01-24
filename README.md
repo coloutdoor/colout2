@@ -8,6 +8,8 @@ A simple Go web app to estimate deck building costs, including materials, rails,
 - Accept estimate.
 
 ## Running It
+How to run things
+
 1. Ensure Go 1.24+ is installed. and CGO is enabled:  
 2. `go env CGO_ENABLED`
 3. Clone or cd into `~/Github/colout2`.
@@ -17,14 +19,14 @@ A simple Go web app to estimate deck building costs, including materials, rails,
     SERVER_ADDR=127.0.0.1:8080
 ```
 
-4. Build and run local dev environment:
+1. Build and run local dev environment:
 ```bash
 go build -o colout2
 ./colout2
 ```
 Open `http://localhost:8080` in a browser.
 
-5.  Build and run in a container
+1.  Build and run in a container
 ```bash
 docker build -t colout2:latest .
 docker run -p 8080:8080 colout2:latest
@@ -33,7 +35,7 @@ docker run -p 8080:8080 colout2:latest
 ## Build script
 ```bash
 ./build.sh         # Build the Go file
-./build.sh docker # Build Docker image colut2:latest
+./build.sh docker # Build Docker image colout2:latest
 ./build.sh deploy # Deploy the Docker image to GCP
 ```
 

@@ -1,6 +1,6 @@
-{{define "deck.html"}}
-  {{template "header.html" .Header}}
-  {{template "deckheader.html" .}}
+{{define "deck.gohtml"}}
+  {{template "header.gohtml" .Header}}
+  {{template "deckheader.gohtml" .}}
 
   {{with .Page}}
     <form method="post" action="/estimate" class="box">
@@ -136,5 +136,5 @@
         </div>
     </form>
     {{end}}
-   {{template "footer.html" .}}
+   {{template "footer.gohtml" .}}
 {{end}}

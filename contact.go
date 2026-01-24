@@ -72,15 +72,15 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cf_body, _ := io.ReadAll(resp.Body)
+		cfBody, _ := io.ReadAll(resp.Body)
 		var result struct {
 			Success bool `json:"success"`
 		}
-		json.Unmarshal(cf_body, &result)
-
+		err = json.Unmarshal(cfBody, &result)
+		err = resp.Body.Close()
 		if !result.Success {
 			// Spam/bot — reject or log
-			log.Printf("Captcha Failed. Bot - %v", cf_body)
+			log.Printf("Captcha Failed. Bot - %v", cfBody)
 			return
 		}
 		// End Captcha - Cloudflare
@@ -112,7 +112,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		}).Parse(htmlContent))
 
 		var body bytes.Buffer
-		t.Execute(&body, data)
+		err = t.Execute(&body, data)
 
 		teamMessage := mail.NewSingleEmail(from, "New Lead – "+data.Name, toTeam, "", body.String())
 		teamMessage.SetReplyTo(replyTo)
@@ -153,9 +153,9 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.New("contact.html").
+	tmpl := template.Must(template.New("contact.gohtml").
 		Funcs(funcMap).
-		ParseFiles("templates/contact.html", "templates/header.html", "templates/footer.html"))
+		ParseFiles("templates/contact.gohtml", "templates/header.gohtml", "templates/footer.gohtml"))
 
 	data := PageData{PageTitle: "Contact Us"}
 	if r.URL.Query().Get("sent") == "1" {
@@ -170,7 +170,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		Page:   &data,
 		Header: &userAuth,
 	}
-	if err := tmpl.ExecuteTemplate(w, "contact.html", rd); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "contact.gohtml", rd); err != nil {
 		http.Error(w, "Server Error", 500)
 		log.Printf("contact error: %v", err)
 	}

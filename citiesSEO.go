@@ -62,28 +62,31 @@ func init() {
 }
 
 func sitemapHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		return
+	}
 	w.Header().Set("Content-Type", "application/xml")
-	fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
+	_, _ = fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">`)
 
 	base := "https://columbiaoutdoor.com"
 	pages := []string{"/contact", "/login"}
 
 	// Put the main page and Calculator as 1.0
-	fmt.Fprintf(w, "<url><loc>%s</loc><priority>1.0</priority></url>\n", base)
-	fmt.Fprintf(w, "<url><loc>%s/calc</loc><priority>1.0</priority></url>\n", base)
+	_, _ = fmt.Fprintf(w, "<url><loc>%s</loc><priority>1.0</priority></url>\n", base)
+	_, _ = fmt.Fprintf(w, "<url><loc>%s/calc</loc><priority>1.0</priority></url>\n", base)
 
 	for _, p := range pages {
-		fmt.Fprintf(w, "<url><loc>%s%s</loc><priority>0.8</priority></url>\n", base, p)
+		_, _ = fmt.Fprintf(w, "<url><loc>%s%s</loc><priority>0.8</priority></url>\n", base, p)
 	}
 	for _, slug := range allCityPageSlugs {
-		fmt.Fprintf(w, "<url><loc>%s/%s</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n", base, slug)
+		_, _ = fmt.Fprintf(w, "<url><loc>%s/%s</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n", base, slug)
 	}
-	fmt.Fprint(w, "</urlset>")
+	_, _ = fmt.Fprint(w, "</urlset>")
 }
 
 // Cities
-// City specfic landing pages.
+// City specific landing pages.
 //
 //  /deck-builders-vancouver-wa
 //  /deck-builders-woodland-wa
@@ -92,8 +95,8 @@ func sitemapHandler(w http.ResponseWriter, r *http.Request) {
 func cityHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path // e.g. "/deck-builders-seattle-wa"
 
-	// Create a titler once (reuse for performance)
-	var titler = cases.Title(language.AmericanEnglish)
+	// Create a caser once (reuse for performance)
+	var caser = cases.Title(language.AmericanEnglish)
 
 	// 1. Extract service + city + state from slug
 	service, city, state := parseCitySlug(path)
@@ -103,7 +106,7 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Capitalize nicely
-	cityPretty := titler.String(strings.ReplaceAll(city, "-", " "))
+	cityPretty := caser.String(strings.ReplaceAll(city, "-", " "))
 	stateUpper := strings.ToUpper(state)
 
 	// 3. Build SEO-perfect strings
@@ -124,16 +127,16 @@ func cityHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth.Title = data.Title
 	userAuth.MetaDesc = data.MetaDesc
 
-	log.Printf("Renderign City Data for %s", city)
+	log.Printf("Rendering City Data for %s", city)
 
 	rd := renderData{
 		Page:   &data,
 		Header: &userAuth,
 	}
-	tmpl := template.Must(template.New("city.html").Funcs(funcMap).
-		ParseFiles("templates/city.html", "templates/header.html", "templates/footer.html"))
+	tmpl := template.Must(template.New("city.gohtml").Funcs(funcMap).
+		ParseFiles("templates/city.gohtml", "templates/header.gohtml", "templates/footer.gohtml"))
 
-	if err := tmpl.ExecuteTemplate(w, "city.html", rd); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "city.gohtml", rd); err != nil {
 		log.Printf("ownerHandler execute error: %v", err)
 		panic(err)
 	}
@@ -172,8 +175,8 @@ func prettifyService(slug string) string {
 	}
 
 	// Fallback: replace hyphens with spaces and title case
-	var titler = cases.Title(language.AmericanEnglish)
-	return titler.String(strings.ReplaceAll(slug, "-", " "))
+	var caser = cases.Title(language.AmericanEnglish)
+	return caser.String(strings.ReplaceAll(slug, "-", " "))
 }
 
 func generateSchema(data CityPageData) string {

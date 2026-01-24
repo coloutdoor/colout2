@@ -40,7 +40,7 @@ func formatDeckDescription(de DeckEstimate) string {
 	return fmt.Sprintf("Supply and install concrete footings "+
 		"with premium pressure treated lumber. "+
 		"Supply and install %.1f sq ft of %s deck. "+
-		"Deck size apprimately  %.1f x %.1f ft, %.1f ft high.", de.DeckArea, material,
+		"Deck size approximately  %.1f x %.1f ft, %.1f ft high.", de.DeckArea, material,
 		de.Length, de.Width, de.Height)
 }
 
@@ -54,7 +54,7 @@ func formatDemoDescription(de DeckEstimate) string {
 		return "Demo and removal of existing structure is not included."
 	}
 
-	demodesc := "Remove and dispose of the exsisting structures."
+	demodesc := "Remove and dispose of the existing structures."
 	demodesc = fmt.Sprintf("%s "+" * Wood or composite deck and wood frame %.1f sq ft", demodesc, de.DeckArea)
 
 	if de.RailCost <= 0.0 {

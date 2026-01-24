@@ -1,5 +1,5 @@
-{{define "customer.html"}}
-  {{template "header.html" .Header}}
+{{define "customer.gohtml"}}
+  {{template "header.gohtml" .Header}}
 
   {{with .Page}}
 
@@ -69,5 +69,5 @@
         </div>
     </form>
     {{end}}
-   {{template "footer.html" .}}
+   {{template "footer.gohtml" .}}
 {{end}}
