@@ -1,0 +1,38 @@
+{{define "my-estimates.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  <div class="table-container">
+    {{if .Page}}
+    <table class="table is-striped is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>City</th>
+          <th>Total Cost</th>
+          <th>Saved</th>
+          <th>Accepted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Page}}
+        <tr>
+          <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
+          <td>{{.FirstName}} {{.LastName}}</td>
+          <td>{{.City}}</td>
+          <td>{{formatCost .TotalCost}}</td>
+          <td>{{.SaveDate.Format "2006-01-02"}}</td>
+          <td>{{if .AcceptDate.Valid}}{{.AcceptDate.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{else}}
+    <div class="notification is-info is-light mt-4">
+      You have no saved estimates yet. <a href="/calc?option=deck">Start a new estimate.</a>
+    </div>
+    {{end}}
+  </div>
+
+  {{template "footer.gohtml" .}}
+{{end}}

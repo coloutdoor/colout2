@@ -88,7 +88,8 @@
   <!-- ==== BULMA NAVBAR (brand + menu) ==== -->
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      {{if .IsAuthenticated}} Welcome {{.Name}} 
+      {{if .IsAuthenticated}}
+      <a class="navbar-item" href="/my-estimates"><strong>My Estimates</strong></a>
       {{else}}
       <a class="navbar-item" href="/">
         <strong>Columbia Outdoor</strong>
