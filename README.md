@@ -28,15 +28,22 @@ Server listens on `:8080` by default. Override with `SERVER_ADDR=127.0.0.1:8080`
 ## Build & Run
 
 ```bash
+# Run tests
+go test ./...
+
 # Local binary
 go build -o colout2 .
 ./colout2
 
 # Or via build script
-./build.sh           # local binary
+./build.sh           # run tests then build local binary
 ./build.sh docker    # Docker image (colout2:latest)
 ./build.sh deploy    # Push to GCR and deploy to GCP Cloud Run
 ```
+
+## Tests
+
+Cost calculation logic is covered by table-driven tests in `costs_test.go`. Tests use an inline `Costs` fixture and require no database or file I/O.
 
 ## Database
 

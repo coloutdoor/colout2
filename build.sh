@@ -67,6 +67,8 @@ case "$1" in
         echo "Deployed to Cloud Run!"
         ;;
     *)
+        echo "Running tests..."
+        go test ./... || { echo "Tests failed — aborting build"; exit 1; }
         echo "Building local binary..."
         go build -o colout2 .
         echo "Local binary built: ./colout2"
