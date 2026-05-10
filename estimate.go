@@ -20,17 +20,16 @@ import (
 
 // Define template functions
 var funcMap = template.FuncMap{
-	"formatCost":            formatCost,
-	"formatDeckDescription": formatDeckDescription,
-	"formatDemoDescription": formatDemoDescription,
-	"currentYear":           func() int { return time.Now().Year() },
-}
-
-// LineItem For presenting the estimate page and emailing estimates.
-type LineItem struct {
-	Name        string
-	Description string
-	Cost        string
+	"formatCost":                   formatCost,
+	"formatDeckDescription":        formatDeckDescription,
+	"formatDemoDescription":        formatDemoDescription,
+	"formatRailDescription":        formatRailDescription,
+	"formatStairDescription":       formatStairDescription,
+	"formatFasciaDescription":      formatFasciaDescription,
+	"formatStairRailDescription":   formatStairRailDescription,
+	"formatStairFasciaDescription": formatStairFasciaDescription,
+	"formatStairTKDescription":     formatStairTKDescription,
+	"currentYear":                  func() int { return time.Now().Year() },
 }
 
 // DeckEstimate holds all data for a deck cost estimate.
@@ -73,7 +72,7 @@ type DeckEstimate struct {
 	UserId           int64 // FK to UserAuth
 }
 
-var tmpl *template.Template // tmpl is the global template for estimate.html, initialized at startup.
+var tmpl *template.Template // tmpl is the global template for estimate.gohtml, initialized at startup.
 var db *sql.DB              // db is the SQLite database connection
 
 func init() {
@@ -81,11 +80,11 @@ func init() {
 	gob.Register(Customer{})
 	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
-	tmpl = template.Must(template.New("estimate.html").Funcs(funcMap).ParseFiles("templates/estimate.html",
+	tmpl = template.Must(template.New("estimate.gohtml").Funcs(funcMap).ParseFiles("templates/estimate.gohtml",
 		"templates/header.gohtml", "templates/footer.gohtml"))
 }
 
-// renderEstimate executes the "estimate.html" template with the given estimate, handling errors.
+// renderEstimate executes the "estimate.gohtml" template with the given estimate, handling errors.
 func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate) {
 	// Terms is not part of session
 	terms, err := os.ReadFile("static/t_and_c.txt")
@@ -101,7 +100,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 		Page:   &estimate,
 		Header: &userAuth,
 	}
-	if err := tmpl.ExecuteTemplate(w, "estimate.html", rd); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "estimate.gohtml", rd); err != nil {
 		log.Printf("estimateHandler execute error: %v", err)
 		panic(err)
 	}
@@ -228,9 +227,9 @@ SET
     email = $20,
     save_date = $21,
     accept_date = $22,
-    expiration_date = $23
-    has_stair_fascia = $24
-    has_stair_tk = $25
+    expiration_date = $23,
+    has_stair_fascia = $24,
+    has_stair_tk = $25,
     user_id = $26
 WHERE estimate_id = $27
 RETURNING estimate_id`
@@ -689,66 +688,37 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	p.SetDynamicTemplateData("Terms", estimate.Terms)
 
 	// This is the list of line items to pass to the template
-	// DEJ
-	var LineItems = []LineItem{
-		{
-			Name:        "Description",
-			Description: estimate.Desc,
-			Cost:        "",
-		},
-		{
-			Name:        "Deck",
-			Description: formatDeckDescription(estimate),
-			Cost:        formatCost(estimate.DeckCost),
-		},
-		{
-			Name:        "Demo",
-			Description: formatDemoDescription(estimate),
-			Cost:        formatCost(estimate.DemoCost),
-		},
-		{
-			Name:        "Rails",
-			Description: "Supply and install " + estimate.RailMaterial + " with " + estimate.RailInfill,
-			Cost:        formatCost(estimate.RailCost),
-		},
-		{
-			Name:        "Fascia",
-			Description: "Install fascia around deck perimeter (" + strconv.FormatFloat(estimate.FasciaFeet, 'f', 1, 64) + " ft)",
-			Cost:        formatCost(estimate.FasciaCost),
-		},
-		{
-			Name:        "Stairs",
-			Description: "Supply and install stairs, " + strconv.FormatFloat(estimate.StairWidth, 'f', 1, 64) + " ft wide	",
-			Cost:        formatCost(estimate.StairCost),
-		},
-		{
-			Name:        "Stair Rails",
-			Description: "Supply and install stair rails",
-			Cost:        formatCost(estimate.StairRailCost),
-		},
-		{
-			Name:        "Stair Fascia",
-			Description: "Install fascia around stair perimeter",
-			Cost:        formatCost(estimate.FasciaCost),
-		},
-		{
-			Name:        "Stair Toe Kicks",
-			Description: "Supply and install stair toe kicks",
-			Cost:        formatCost(estimate.StairToeKickCost),
-		},
-		{
-			Name:        "Subtotal",
-			Description: "Subtotal of all line items",
-			Cost:        formatCost(estimate.Subtotal),
-		},
-		{
-			Name:        "Sales Tax",
-			Description: "Applicable sales tax",
-			Cost:        formatCost(estimate.SalesTax),
-		},
-	}
+	var items []LineItem
+	// First
+	items = append(items, newLineItem("Description", estimate.Desc, 0.0))
+	// 1. Main Deck
+	items = append(items, newLineItem("Decking", formatDeckDescription(estimate), estimate.DeckCost))
 
-	p.SetDynamicTemplateData("LineItems", LineItems)
+	// 2. Demo
+	items = append(items, newLineItem("Demolition", formatDemoDescription(estimate), estimate.DemoCost))
+
+	// 3. Rails
+	items = append(items, newLineItem("Deck Rails", formatRailDescription(estimate), estimate.RailCost))
+
+	// 4. Stairs
+	items = append(items, newLineItem("Stairs", formatStairDescription(estimate), estimate.StairCost))
+
+	// 5. Stair Rails
+	items = append(items, newLineItem("Stair Rails", formatStairRailDescription(estimate), estimate.StairRailCost))
+
+	// 6. Fascia
+	items = append(items, newLineItem("Deck Fascia", formatFasciaDescription(estimate), estimate.FasciaCost))
+	items = append(items, newLineItem("Stair Fascia", formatStairFasciaDescription(estimate), estimate.StairFasciaCost))
+
+	// 7. Toe Kicks
+	items = append(items, newLineItem("Toe Kicks", formatStairTKDescription(estimate), estimate.StairToeKickCost))
+
+	// 8. Subtotal
+	items = append(items, newLineItem("Subtotal", "", estimate.Subtotal))
+
+	// 9. Sales Tax
+	items = append(items, newLineItem("Sales Tax", "WA (estimated) sales tax", estimate.SalesTax))
+	p.SetDynamicTemplateData("LineItems", items)
 	customerMessage.AddPersonalizations(p)
 
 	log.Printf("Preparing to send estimate %d email to: %s", estimate.EstimateID, estimate.Customer.Email)

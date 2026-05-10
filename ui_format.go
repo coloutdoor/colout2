@@ -6,6 +6,23 @@ import (
 	"strings"
 )
 
+type LineItem struct {
+	Name          string // e.g., "Decking", "Rails", "Demo"
+	Description   string
+	Cost          float64
+	FormattedCost string
+}
+
+// Update the helper to accept the new 'name' argument
+func newLineItem(name, desc string, cost float64) LineItem {
+	return LineItem{
+		Name:          name,
+		Description:   desc,
+		Cost:          cost,
+		FormattedCost: formatCost(cost),
+	}
+}
+
 // formatCost formats a float64 cost with commas and $ prefix (e.g., $13,680.00).
 func formatCost(cost float64) string {
 	str := strconv.FormatFloat(cost, 'f', 2, 64) // e.g., "13680.00"
@@ -70,4 +87,76 @@ func formatDemoDescription(de DeckEstimate) string {
 	}
 
 	return demodesc
+}
+
+// formatRailDescription
+func formatRailDescription(de DeckEstimate) string {
+	desc := "Deck rails not included"
+	if de.RailCost > 0.0 {
+		desc = fmt.Sprintf("Supply and install %s rail posts and top rail with %s infill. Rails approximately %.1f lineal ft",
+			de.RailMaterial, de.RailInfill, de.RailFeet)
+	}
+	return desc
+}
+
+// formatStairDescription
+func formatStairDescription(de DeckEstimate) string {
+	desc := "Stairs not included"
+	if de.StairCost > 0.0 {
+		desc = fmt.Sprintf(`Supply and install premium pressure treated stair framing at %.1f ft wide. 
+                        Stair treads approximately 11" per step with matching %s decking on treads
+                        Total rise of stairs is %.1f ft.`, de.StairWidth, de.Material, de.Height)
+	}
+	return desc
+}
+
+// formatFasciaDescription
+func formatFasciaDescription(de DeckEstimate) string {
+	desc := "Deck fascia not included"
+	if de.FasciaCost > 0.0 {
+		desc = fmt.Sprintf("Supply and install fascia to match deck material approximately %.1f lineal ft", de.FasciaFeet)
+	}
+	return desc
+}
+
+// formatStairRailDescription
+func formatStairRailDescription(de DeckEstimate) string {
+	desc := "Stair Rails not included"
+	if de.StairRailCost > 0.0 {
+		// 1. Determine the text based on the count first
+		railSideText := "matching stair rail - one side only"
+		if de.StairRailCount > 1.0 {
+			railSideText = "matching stair rails on both sides"
+		}
+
+		// 2. Build the final string
+		desc = fmt.Sprintf("Supply and install %s with %s rail posts and top rail with %s infill.",
+			railSideText,
+			de.RailMaterial,
+			de.RailInfill,
+		)
+
+	}
+	return desc
+}
+
+// formatStairFasciaDescription
+func formatStairFasciaDescription(de DeckEstimate) string {
+	// Default to the negative case
+	desc := "Stair fascia not included"
+
+	// If cost is non-zero (Go template 'if' treats 0 as false)
+	if de.StairFasciaCost > 0.0 {
+		desc = "Add matching stair fascia to stairs"
+	}
+	return desc
+}
+
+// formatStairTKDescription
+func formatStairTKDescription(de DeckEstimate) string {
+	desc := "No toe kicks.  Open."
+	if de.HasStairTK {
+		desc = "Add matching toe kicks to stairs"
+	}
+	return desc
 }
