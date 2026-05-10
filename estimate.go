@@ -102,7 +102,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 	}
 	if err := tmpl.ExecuteTemplate(w, "estimate.gohtml", rd); err != nil {
 		log.Printf("estimateHandler execute error: %v", err)
-		panic(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 

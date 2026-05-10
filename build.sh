@@ -12,13 +12,6 @@ IMAGE_NAME="colout2"
 ##GCR_IMAGE="gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
 GCR_IMAGE="us.gcr.io/$PROJECT_ID/$IMAGE_NAME:latest"
 
-# Force the script to use the specific Go version from GoLand/Modules
-export PATH="${HOME}/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.6.linux-amd64/bin:$PATH"
-
-# Verify it works (optional, for debugging)
-echo "Using Go version: $(go version)"
-echo "Go location: $(which go)"
-
 case "$1" in
     "docker")
         echo "Building Docker image..."
