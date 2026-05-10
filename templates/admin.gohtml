@@ -1,0 +1,173 @@
+{{define "admin.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Administration</h1>
+
+      <!-- Summary Stats -->
+      <div class="columns mb-5">
+        <div class="column">
+          <div class="box has-text-centered">
+            <p class="heading">Total Estimates</p>
+            <p class="title">{{.Page.Stats.TotalEstimates}}</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="box has-text-centered">
+            <p class="heading">This Month</p>
+            <p class="title">{{.Page.Stats.EstimatesThisMonth}}</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="box has-text-centered">
+            <p class="heading">Total Users</p>
+            <p class="title">{{.Page.Stats.TotalUsers}}</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="box has-text-centered">
+            <p class="heading">Total Estimated Revenue</p>
+            <p class="title">{{formatCost .Page.Stats.TotalEstimatedRevenue}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs is-boxed" id="admin-tabs">
+        <ul>
+          <li class="is-active" data-tab="estimates"><a>Estimates</a></li>
+          <li data-tab="users"><a>Users</a></li>
+          <li data-tab="system"><a>System</a></li>
+        </ul>
+      </div>
+
+      <!-- Estimates Tab -->
+      <div id="tab-estimates" class="tab-content">
+        <p class="help mb-3">Showing most recent 20 estimates.</p>
+        <div class="table-container">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>City</th>
+                <th>Total Cost</th>
+                <th>Saved</th>
+                <th>Accepted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Page.Estimates}}
+              <tr>
+                <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
+                <td>{{.FirstName}} {{.LastName}}</td>
+                <td>{{.City}}</td>
+                <td>{{formatCost .TotalCost}}</td>
+                <td>{{.SaveDate.Format "2006-01-02"}}</td>
+                <td>{{if .AcceptDate.Valid}}{{.AcceptDate.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
+              </tr>
+              {{else}}
+              <tr><td colspan="6" class="has-text-centered">No estimates found.</td></tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="tab-users" class="tab-content is-hidden">
+        <p class="help mb-3">Showing most recent 20 users.</p>
+        <div class="table-container">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Active</th>
+                <th>Last Login</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Page.Users}}
+              <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Email}}</td>
+                <td>{{.FirstName}} {{.LastName}}</td>
+                <td><span class="tag {{if eq .Role "admin"}}is-danger{{else if eq .Role "contractor"}}is-warning{{else}}is-info{{end}}">{{.Role}}</span></td>
+                <td>{{if .IsActive}}<span class="tag is-success">Yes</span>{{else}}<span class="tag is-light">No</span>{{end}}</td>
+                <td>{{if .LastLoginAt.Valid}}{{.LastLoginAt.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
+                <td>{{.CreatedAt.Format "2006-01-02"}}</td>
+              </tr>
+              {{else}}
+              <tr><td colspan="7" class="has-text-centered">No users found.</td></tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- System Tab -->
+      <div id="tab-system" class="tab-content is-hidden">
+        <div class="box mb-5">
+          <h2 class="subtitle">Database Connection</h2>
+          <table class="table is-narrow">
+            <tbody>
+              <tr><th>Host</th><td>{{.Page.System.DBHost}}</td></tr>
+              <tr><th>Database</th><td>{{.Page.System.DBName}}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="subtitle">Schema</h2>
+        {{range .Page.System.DBSchema}}
+        <div class="box mb-4">
+          <div class="level">
+            <div class="level-left">
+              <p class="has-text-weight-bold">{{.Name}}</p>
+            </div>
+            <div class="level-right">
+              <span class="tag is-light">{{.RowCount}} rows</span>
+            </div>
+          </div>
+          <table class="table is-narrow is-fullwidth is-striped">
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Type</th>
+                <th>Nullable</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Columns}}
+              <tr>
+                <td><code>{{.ColumnName}}</code></td>
+                <td>{{.DataType}}</td>
+                <td>{{.Nullable}}</td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+        {{end}}
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('#admin-tabs li').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('#admin-tabs li').forEach(function(t) { t.classList.remove('is-active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('is-hidden'); });
+        tab.classList.add('is-active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.remove('is-hidden');
+      });
+    });
+  </script>
+
+  {{template "footer.gohtml" .}}
+{{end}}
