@@ -31,13 +31,14 @@ func isAdminUser(email string) bool {
 }
 
 type AdminEstimateRow struct {
-	EstimateID int64
-	FirstName  string
-	LastName   string
-	City       string
-	TotalCost  float64
-	SaveDate   time.Time
-	AcceptDate sql.NullTime
+	EstimateID  int64
+	UserEmail   string
+	FirstName   string
+	LastName    string
+	Description string
+	TotalCost   float64
+	SaveDate    time.Time
+	AcceptDate  sql.NullTime
 }
 
 type AdminUserRow struct {
@@ -100,10 +101,11 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 
 	// --- Estimates (most recent 20) ---
 	rows, err := db.Query(`
-		SELECT estimate_id, COALESCE(first_name,''), COALESCE(last_name,''),
-		       COALESCE(city,''), COALESCE(total_cost,0), save_date, accept_date
-		FROM estimates
-		ORDER BY created_at DESC
+		SELECT e.estimate_id, COALESCE(u.email,''), COALESCE(e.first_name,''), COALESCE(e.last_name,''),
+		       COALESCE(e.description,''), COALESCE(e.total_cost,0), e.save_date, e.accept_date
+		FROM estimates e
+		LEFT JOIN user_auth u ON u.id = e.user_id
+		ORDER BY e.created_at DESC
 		LIMIT 20`)
 	if err != nil {
 		return AdminPageData{}, err
@@ -111,8 +113,8 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var e AdminEstimateRow
-		if err := rows.Scan(&e.EstimateID, &e.FirstName, &e.LastName,
-			&e.City, &e.TotalCost, &e.SaveDate, &e.AcceptDate); err != nil {
+		if err := rows.Scan(&e.EstimateID, &e.UserEmail, &e.FirstName, &e.LastName,
+			&e.Description, &e.TotalCost, &e.SaveDate, &e.AcceptDate); err != nil {
 			log.Printf("admin: scan estimate row: %v", err)
 			continue
 		}

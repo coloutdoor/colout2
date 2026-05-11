@@ -50,8 +50,9 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>User</th>
                 <th>Customer</th>
-                <th>City</th>
+                <th>Description</th>
                 <th>Total Cost</th>
                 <th>Saved</th>
                 <th>Accepted</th>
@@ -61,8 +62,9 @@
               {{range .Page.Estimates}}
               <tr>
                 <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
+                <td>{{.UserEmail}}</td>
                 <td>{{.FirstName}} {{.LastName}}</td>
-                <td>{{.City}}</td>
+                <td>{{.Description}}</td>
                 <td>{{formatCost .TotalCost}}</td>
                 <td>{{.SaveDate.Format "2006-01-02"}}</td>
                 <td>{{if .AcceptDate.Valid}}{{.AcceptDate.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
@@ -93,7 +95,7 @@
             </thead>
             <tbody>
               {{range .Page.Users}}
-              <tr>
+              <tr style="cursor:pointer" onclick="window.location='/my-estimates?user={{.ID}}'">
                 <td>{{.ID}}</td>
                 <td>{{.Email}}</td>
                 <td>{{.FirstName}} {{.LastName}}</td>
