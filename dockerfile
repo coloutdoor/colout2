@@ -4,9 +4,9 @@ FROM ubuntu:22.04
 WORKDIR /app
 RUN apt-get update && apt-get install -y gcc wget
 
-## Get the latest Go binary 1.24.0
-RUN wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+## Get the latest Go binary 1.25.6
+RUN wget https://go.dev/dl/go1.25.6.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go1.25.6.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 COPY go.mod go.sum ./

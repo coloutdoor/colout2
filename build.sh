@@ -25,6 +25,18 @@ case "$1" in
         ##                   gcloud config set project columbia-outdoor
         ##                   gcloud auth configure-docker us.gcr.io --quiet
         ## 
+        # Verify gcloud is authenticated
+        GCLOUD_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null)
+        if [ -z "$GCLOUD_ACCOUNT" ]; then
+            echo "ERROR: Not authenticated with gcloud. Run: gcloud auth login"
+            exit 1
+        fi
+        echo "Authenticated as: $GCLOUD_ACCOUNT"
+
+        # Configure project and log Docker into the registry
+        gcloud config set project "$PROJECT_ID" --quiet
+        gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin us.gcr.io
+
         source .env
         if [ -n "$SENDGRID_API_KEY" ]; then
            echo "SendGrid API key is set – ready to deploy"
@@ -47,7 +59,9 @@ case "$1" in
             exit 1
         fi
         
-        echo "Tagging last built image for GCR..."
+        echo "Building Docker image..."
+        docker build -t "$IMAGE_NAME:latest" . || { echo "Error: Docker build failed"; exit 1; }
+        echo "Tagging image for GCR..."
         docker tag "$IMAGE_NAME:latest" "$GCR_IMAGE"
         echo "Pushing to GCR..."
         docker push "$GCR_IMAGE" || { echo "Error: **** Docker Push failed for $GCR_IMAGE" >&2; exit 1; }
