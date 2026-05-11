@@ -351,8 +351,8 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 		renderEstimate(w, r, de)
 	}
 
-	// Is this the owner of the estimate?
-	if de.UserId != sd.UserAuth.ID {
+	// Is this the owner of the estimate, or an admin?
+	if de.UserId != sd.UserAuth.ID && !isAdminUser(sd.UserAuth.Email) {
 		renderEstimate(w, r, DeckEstimate{Error: "Unauthorized."})
 	}
 
