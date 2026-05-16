@@ -1,0 +1,175 @@
+{{define "contractor-register.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  <div class="container" style="max-width: 720px;">
+    {{with .Page}}
+
+    {{/* ── Status page (profile already exists) ── */}}
+    {{if .ApprovalStatus}}
+
+      {{if eq .ApprovalStatus "pending"}}
+        <div class="notification is-warning is-light mt-4">
+          <strong>Your application is pending review.</strong><br>
+          We'll contact you once we've verified your license, bond, and insurance. This typically takes 1–2 business days.
+        </div>
+      {{else if eq .ApprovalStatus "approved"}}
+        <div class="notification is-success is-light mt-4">
+          <strong>You're approved!</strong> Welcome to the Columbia Outdoor contractor network.<br>
+          <a href="/calc?option=deck" class="button is-success mt-3">Start an Estimate</a>
+        </div>
+      {{else if eq .ApprovalStatus "rejected"}}
+        <div class="notification is-danger is-light mt-4">
+          <strong>Your application was not approved.</strong><br>
+          {{if .ApprovalNotes}}<p>{{.ApprovalNotes}}</p>{{end}}
+          <p>Please contact us at <a href="/contact">columbia outdoor</a> if you have questions.</p>
+        </div>
+      {{end}}
+
+    {{else}}
+
+    {{/* ── Registration form ── */}}
+    {{if .Message}}
+      <div class="notification is-danger is-light mt-4">
+        <button class="delete" onclick="this.parentElement.remove()"></button>
+        {{.Message}}
+      </div>
+    {{end}}
+
+    <form action="/contractor/register" method="post">
+
+      <h2 class="title is-4 mt-4">Company Information</h2>
+
+      <div class="field">
+        <label class="label">Company Name <span class="has-text-danger">*</span></label>
+        <div class="control has-icons-left">
+          <input class="input" type="text" name="company_name" value="{{.CompanyName}}" required placeholder="Pacific Northwest Decks LLC">
+          <span class="icon is-small is-left"><i class="fas fa-building"></i></span>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">Phone</label>
+            <div class="control has-icons-left">
+              <input class="input" type="tel" name="phone" value="{{.Phone}}" placeholder="(360) 555-0100">
+              <span class="icon is-small is-left"><i class="fas fa-phone"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label">Website</label>
+            <div class="control has-icons-left">
+              <input class="input" type="url" name="website" value="{{.Website}}" placeholder="https://yourcompany.com">
+              <span class="icon is-small is-left"><i class="fas fa-globe"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="title is-4 mt-5">Specialty</h2>
+      <div class="field">
+        <label class="checkbox mr-4">
+          <input type="checkbox" name="specialties" value="decks" checked> Decks
+        </label>
+        <label class="checkbox mr-4 has-text-grey">
+          <input type="checkbox" name="specialties" value="patio_covers" disabled> Patio Covers <span class="tag is-light is-small">coming soon</span>
+        </label>
+        <label class="checkbox has-text-grey">
+          <input type="checkbox" name="specialties" value="pergolas" disabled> Pergolas <span class="tag is-light is-small">coming soon</span>
+        </label>
+      </div>
+
+      <h2 class="title is-4 mt-5">Service Area</h2>
+      <div class="field">
+        <label class="label">States</label>
+        <label class="checkbox mr-4"><input type="checkbox" name="service_states" value="WA"> Washington</label>
+        <label class="checkbox mr-4"><input type="checkbox" name="service_states" value="OR"> Oregon</label>
+        <label class="checkbox"><input type="checkbox" name="service_states" value="ID"> Idaho</label>
+      </div>
+
+      <div class="field">
+        <label class="label">Cities <span class="has-text-grey is-size-7">(comma-separated)</span></label>
+        <div class="control">
+          <input class="input" type="text" name="service_cities" value="{{.ServiceCities}}" placeholder="Woodland, Ridgefield, La Center, Kalama">
+        </div>
+      </div>
+
+      <h2 class="title is-4 mt-5">Licensing &amp; Insurance</h2>
+      <p class="help mb-3">We verify all credentials before approving your account.</p>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">Contractor License Number</label>
+            <div class="control">
+              <input class="input" type="text" name="license_number" value="{{.LicenseNumber}}" placeholder="PACIFND123BX">
+            </div>
+          </div>
+        </div>
+        <div class="column is-narrow">
+          <div class="field">
+            <label class="label">License State</label>
+            <div class="control">
+              <div class="select">
+                <select name="license_state">
+                  <option value="">--</option>
+                  <option value="WA" {{if eq .LicenseState "WA"}}selected{{end}}>WA</option>
+                  <option value="OR" {{if eq .LicenseState "OR"}}selected{{end}}>OR</option>
+                  <option value="ID" {{if eq .LicenseState "ID"}}selected{{end}}>ID</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Bond Number</label>
+        <div class="control">
+          <input class="input" type="text" name="bond_number" value="{{.BondNumber}}" placeholder="Bond number">
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">Insurance Carrier</label>
+            <div class="control">
+              <input class="input" type="text" name="insurance_carrier" value="{{.InsuranceCarrier}}" placeholder="State Farm, Travelers, ...">
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label">Insurance Policy Number</label>
+            <div class="control">
+              <input class="input" type="text" name="insurance_policy" value="{{.InsurancePolicy}}" placeholder="Policy number">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="title is-4 mt-5">Custom Terms &amp; Conditions <span class="has-text-grey is-size-6 has-text-weight-normal">(optional)</span></h2>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" name="terms_text" rows="6" placeholder="Leave blank to use Columbia Outdoor's standard terms and conditions.">{{.TermsText}}</textarea>
+        </div>
+        <p class="help">If left blank, Columbia Outdoor's default terms will appear on your estimates.</p>
+      </div>
+
+      <div class="field mt-5">
+        <button class="button is-primary is-medium is-fullwidth">
+          <span class="icon"><i class="fas fa-paper-plane"></i></span>
+          <span>Submit Application</span>
+        </button>
+      </div>
+
+    </form>
+    {{end}}
+    {{end}}
+  </div>
+
+  {{template "footer.gohtml" .}}
+{{end}}

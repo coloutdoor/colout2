@@ -143,6 +143,7 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	}
 
 	// --- System: DB schema ---
+	// Collect table names first, then close cursor before running per-table queries.
 	trows, err := db.Query(`
 		SELECT table_name FROM information_schema.tables
 		WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
@@ -150,22 +151,26 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	if err != nil {
 		return AdminPageData{}, err
 	}
-	defer trows.Close()
+	var tableNames []string
+	for trows.Next() {
+		var name string
+		if err := trows.Scan(&name); err == nil {
+			tableNames = append(tableNames, name)
+		}
+	}
+	trows.Close()
 
 	var tables []AdminTableInfo
-	for trows.Next() {
-		var t AdminTableInfo
-		if err := trows.Scan(&t.Name); err != nil {
-			continue
-		}
+	for _, name := range tableNames {
+		t := AdminTableInfo{Name: name}
 
-		db.QueryRow(`SELECT COUNT(*) FROM ` + t.Name).Scan(&t.RowCount)
+		db.QueryRow(`SELECT COUNT(*) FROM ` + name).Scan(&t.RowCount)
 
 		crows, err := db.Query(`
 			SELECT column_name, data_type, is_nullable
 			FROM information_schema.columns
 			WHERE table_schema = 'public' AND table_name = $1
-			ORDER BY ordinal_position`, t.Name)
+			ORDER BY ordinal_position`, name)
 		if err == nil {
 			for crows.Next() {
 				var c AdminColumnInfo

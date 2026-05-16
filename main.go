@@ -127,6 +127,7 @@ func main() {
 	mux.HandleFunc("/robots.txt", robotsTxtHandler)
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
 	mux.HandleFunc("/admin", adminHandler)
+	mux.HandleFunc("/contractor/register", contractorRegisterHandler)
 	mux.HandleFunc("/my-estimates", myEstimatesHandler)
 	mux.HandleFunc("/privacy", privacyHandler)
 	mux.HandleFunc("/", ownerHandler) // Default - also City specific pages.  This should return a 404.
