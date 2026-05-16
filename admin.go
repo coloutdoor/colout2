@@ -31,14 +31,15 @@ func isAdminUser(email string) bool {
 }
 
 type AdminEstimateRow struct {
-	EstimateID  int64
-	UserEmail   string
-	FirstName   string
-	LastName    string
-	Description string
-	TotalCost   float64
-	SaveDate    time.Time
-	AcceptDate  sql.NullTime
+	EstimateID     int64
+	UserEmail      string
+	ContractorName string // set if the estimate owner is a contractor
+	FirstName      string
+	LastName       string
+	Description    string
+	TotalCost      float64
+	SaveDate       time.Time
+	Status         string // Accepted, Expired, or Pending
 }
 
 type AdminUserRow struct {
@@ -77,11 +78,33 @@ type AdminStats struct {
 	TotalEstimatedRevenue float64
 }
 
+type AdminContractorRow struct {
+	ID                 int64
+	UserID             int64
+	Email              string
+	CompanyName        string
+	Phone              string
+	Website            string
+	ServiceCity        string
+	ServiceRadius      int
+	LicenseNumber      string
+	LicenseState       string
+	LicenseExpiration  sql.NullTime
+	BondNumber         string
+	BondExpiration     sql.NullTime
+	InsuranceCarrier   string
+	InsurancePolicy    string
+	ApprovalStatus     string
+	ApprovalNotes      string
+	CreatedAt          time.Time
+}
+
 type AdminPageData struct {
-	Stats     AdminStats
-	Estimates []AdminEstimateRow
-	Users     []AdminUserRow
-	System    AdminSystemInfo
+	Stats       AdminStats
+	Estimates   []AdminEstimateRow
+	Users       []AdminUserRow
+	Contractors []AdminContractorRow
+	System      AdminSystemInfo
 }
 
 func loadAdminData(dbURL string) (AdminPageData, error) {
@@ -101,25 +124,33 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 
 	// --- Estimates (most recent 20) ---
 	rows, err := db.Query(`
-		SELECT e.estimate_id, COALESCE(u.email,''), COALESCE(e.first_name,''), COALESCE(e.last_name,''),
-		       COALESCE(e.description,''), COALESCE(e.total_cost,0), e.save_date, e.accept_date
+		SELECT e.estimate_id, COALESCE(u.email,''), COALESCE(cp.company_name,''),
+		       COALESCE(e.first_name,''), COALESCE(e.last_name,''),
+		       COALESCE(e.description,''), COALESCE(e.total_cost,0), e.save_date,
+		       CASE
+		         WHEN e.accept_date IS NOT NULL THEN 'Accepted'
+		         WHEN e.expiration_date IS NOT NULL AND e.expiration_date < NOW() THEN 'Expired'
+		         ELSE 'Pending'
+		       END AS status
 		FROM estimates e
 		LEFT JOIN user_auth u ON u.id = e.user_id
+		LEFT JOIN contractor_profile cp ON cp.user_id = e.user_id
 		ORDER BY e.created_at DESC
 		LIMIT 20`)
 	if err != nil {
 		return AdminPageData{}, err
 	}
-	defer rows.Close()
 	for rows.Next() {
 		var e AdminEstimateRow
-		if err := rows.Scan(&e.EstimateID, &e.UserEmail, &e.FirstName, &e.LastName,
-			&e.Description, &e.TotalCost, &e.SaveDate, &e.AcceptDate); err != nil {
+		if err := rows.Scan(&e.EstimateID, &e.UserEmail, &e.ContractorName,
+			&e.FirstName, &e.LastName,
+			&e.Description, &e.TotalCost, &e.SaveDate, &e.Status); err != nil {
 			log.Printf("admin: scan estimate row: %v", err)
 			continue
 		}
 		data.Estimates = append(data.Estimates, e)
 	}
+	rows.Close()
 
 	// --- Users (most recent 20) ---
 	urows, err := db.Query(`
@@ -131,7 +162,6 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	if err != nil {
 		return AdminPageData{}, err
 	}
-	defer urows.Close()
 	for urows.Next() {
 		var u AdminUserRow
 		if err := urows.Scan(&u.ID, &u.Email, &u.FirstName, &u.LastName,
@@ -141,6 +171,42 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 		}
 		data.Users = append(data.Users, u)
 	}
+	urows.Close()
+
+	// --- Contractors ---
+	crows, err := db.Query(`
+		SELECT cp.id, cp.user_id, u.email, cp.company_name,
+		       COALESCE(cp.phone,''), COALESCE(cp.website,''),
+		       COALESCE(cp.service_city,''), COALESCE(cp.service_radius_miles,50),
+		       COALESCE(cp.license_number,''), COALESCE(cp.license_state,''),
+		       cp.license_expiration,
+		       COALESCE(cp.bond_number,''), cp.bond_expiration,
+		       COALESCE(cp.insurance_carrier,''), COALESCE(cp.insurance_policy,''),
+		       cp.approval_status, COALESCE(cp.approval_notes,''), cp.created_at
+		FROM contractor_profile cp
+		JOIN user_auth u ON u.id = cp.user_id
+		ORDER BY
+		  CASE cp.approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'expired' THEN 2 ELSE 3 END,
+		  cp.created_at DESC`)
+	if err != nil {
+		return AdminPageData{}, err
+	}
+	for crows.Next() {
+		var c AdminContractorRow
+		if err := crows.Scan(
+			&c.ID, &c.UserID, &c.Email, &c.CompanyName,
+			&c.Phone, &c.Website, &c.ServiceCity, &c.ServiceRadius,
+			&c.LicenseNumber, &c.LicenseState, &c.LicenseExpiration,
+			&c.BondNumber, &c.BondExpiration,
+			&c.InsuranceCarrier, &c.InsurancePolicy,
+			&c.ApprovalStatus, &c.ApprovalNotes, &c.CreatedAt,
+		); err != nil {
+			log.Printf("admin: scan contractor row: %v", err)
+			continue
+		}
+		data.Contractors = append(data.Contractors, c)
+	}
+	crows.Close()
 
 	// --- System: DB schema ---
 	// Collect table names first, then close cursor before running per-table queries.
@@ -236,4 +302,73 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("adminHandler execute error: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+// adminContractorActionHandler handles approve/reject POST from the admin page.
+func adminContractorActionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userAuth := getUserAuth(r, w)
+	if !userAuth.IsAuthenticated || !isAdminUser(userAuth.Email) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	contractorID := r.FormValue("contractor_id")
+	action := r.FormValue("action") // "approve", "reject", or "expire"
+	notes := r.FormValue("notes")
+	licenseExp := r.FormValue("license_expiration")
+	bondExp := r.FormValue("bond_expiration")
+
+	validActions := map[string]bool{"approve": true, "reject": true, "expire": true}
+	if contractorID == "" || !validActions[action] {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	dbURL := os.Getenv("DATABASE_URL")
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	statusMap := map[string]string{"approve": "approved", "reject": "rejected", "expire": "expired"}
+	status := statusMap[action]
+
+	// Use NULL for empty date strings
+	var licenseExpVal, bondExpVal interface{}
+	if licenseExp != "" {
+		licenseExpVal = licenseExp
+	}
+	if bondExp != "" {
+		bondExpVal = bondExp
+	}
+
+	_, err = db.Exec(`
+		UPDATE contractor_profile
+		SET approval_status    = $1,
+		    approval_notes     = $2,
+		    license_expiration = $3,
+		    bond_expiration    = $4,
+		    approved_at        = NOW(),
+		    approved_by        = $5
+		WHERE id = $6`,
+		status, notes, licenseExpVal, bondExpVal, userAuth.ID, contractorID)
+	if err != nil {
+		log.Printf("adminContractorActionHandler: update error: %v", err)
+		http.Error(w, "Failed to update contractor", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/admin?tab=contractors", http.StatusSeeOther)
 }

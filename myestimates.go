@@ -18,7 +18,7 @@ type MyEstimateRow struct {
 	City       string
 	TotalCost  float64
 	SaveDate   time.Time
-	AcceptDate sql.NullTime
+	Status     string // Accepted, Expired, or Pending
 }
 
 func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +73,12 @@ func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query(`
 		SELECT estimate_id, COALESCE(first_name,''), COALESCE(last_name,''),
-		       COALESCE(city,''), COALESCE(total_cost,0), save_date, accept_date
+		       COALESCE(city,''), COALESCE(total_cost,0), save_date,
+		       CASE
+		         WHEN accept_date IS NOT NULL THEN 'Accepted'
+		         WHEN expiration_date IS NOT NULL AND expiration_date < NOW() THEN 'Expired'
+		         ELSE 'Pending'
+		       END AS status
 		FROM estimates
 		WHERE user_id = $1
 		ORDER BY created_at DESC`, targetUserID)
@@ -88,7 +93,7 @@ func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var e MyEstimateRow
 		if err := rows.Scan(&e.EstimateID, &e.FirstName, &e.LastName,
-			&e.City, &e.TotalCost, &e.SaveDate, &e.AcceptDate); err != nil {
+			&e.City, &e.TotalCost, &e.SaveDate, &e.Status); err != nil {
 			log.Printf("myEstimatesHandler: scan error: %v", err)
 			continue
 		}

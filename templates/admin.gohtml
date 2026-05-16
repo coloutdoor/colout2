@@ -38,6 +38,7 @@
         <ul>
           <li class="is-active" data-tab="estimates"><a>Estimates</a></li>
           <li data-tab="users"><a>Users</a></li>
+          <li data-tab="contractors"><a>Contractors {{if .Page.Contractors}}<span class="tag is-warning ml-1">{{len .Page.Contractors}}</span>{{end}}</a></li>
           <li data-tab="system"><a>System</a></li>
         </ul>
       </div>
@@ -55,19 +56,36 @@
                 <th>Description</th>
                 <th>Total Cost</th>
                 <th>Saved</th>
-                <th>Accepted</th>
+                <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {{range .Page.Estimates}}
               <tr>
                 <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
-                <td>{{.UserEmail}}</td>
+                <td>
+                  {{if .ContractorName}}
+                    <span class="tag is-warning">{{.ContractorName}}</span>
+                  {{else}}
+                    {{.UserEmail}}
+                  {{end}}
+                </td>
                 <td>{{.FirstName}} {{.LastName}}</td>
                 <td>{{.Description}}</td>
                 <td>{{formatCost .TotalCost}}</td>
                 <td>{{.SaveDate.Format "2006-01-02"}}</td>
-                <td>{{if .AcceptDate.Valid}}{{.AcceptDate.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
+                <td><span class="tag {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">{{.Status}}</span></td>
+                <td>
+                  {{if eq .Status "Expired"}}
+                  <form method="post" action="/estimate/delete/{{.EstimateID}}" onsubmit="return confirm('Delete estimate {{.EstimateID}}? This cannot be undone.')">
+                    <input type="hidden" name="redirect" value="/admin?tab=estimates">
+                    <button class="button is-danger is-small is-light" type="submit" title="Delete expired estimate">
+                      <span class="icon"><i class="fas fa-trash"></i></span>
+                    </button>
+                  </form>
+                  {{end}}
+                </td>
               </tr>
               {{else}}
               <tr><td colspan="6" class="has-text-centered">No estimates found.</td></tr>
@@ -110,6 +128,120 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Contractors Tab -->
+      <div id="tab-contractors" class="tab-content is-hidden">
+        {{if not .Page.Contractors}}
+        <div class="notification is-info is-light mt-3">No contractor applications yet.</div>
+        {{else}}
+        {{range .Page.Contractors}}
+        <div class="box mb-4">
+          <div class="level mb-2">
+            <div class="level-left">
+              <div>
+                <p class="has-text-weight-bold is-size-5">{{.CompanyName}}</p>
+                <p class="has-text-grey is-size-7">{{.Email}} &mdash; Applied {{.CreatedAt.Format "2006-01-02"}}</p>
+              </div>
+            </div>
+            <div class="level-right">
+              <span class="tag is-medium {{if eq .ApprovalStatus "approved"}}is-success{{else if eq .ApprovalStatus "rejected"}}is-danger{{else if eq .ApprovalStatus "expired"}}is-warning{{else}}is-light{{end}}">
+                {{.ApprovalStatus}}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <table class="table is-narrow is-fullwidth mb-2">
+              <tbody>
+                <tr>
+                  <td><strong>Phone</strong></td><td>{{if .Phone}}{{.Phone}}{{else}}&mdash;{{end}}</td>
+                  <td><strong>License</strong></td>
+                  <td>
+                    {{if .LicenseNumber}}
+                      {{if eq .LicenseState "WA"}}
+                        <a href="https://secure.lni.wa.gov/verify/" target="_blank">{{.LicenseNumber}}</a> (WA)
+                      {{else}}
+                        {{.LicenseNumber}} ({{.LicenseState}})
+                      {{end}}
+                      {{if .LicenseExpiration.Valid}} — exp: <strong>{{.LicenseExpiration.Time.Format "2006-01-02"}}</strong>{{end}}
+                    {{else}}&mdash;{{end}}
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Website</strong></td><td>{{if .Website}}<a href="{{.Website}}" target="_blank">{{.Website}}</a>{{else}}&mdash;{{end}}</td>
+                  <td><strong>Bond</strong></td>
+                  <td>
+                    {{if .BondNumber}}{{.BondNumber}}
+                      {{if .BondExpiration.Valid}} — exp: <strong>{{.BondExpiration.Time.Format "2006-01-02"}}</strong>{{end}}
+                    {{else}}&mdash;{{end}}
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Service Area</strong></td><td>{{if .ServiceCity}}{{.ServiceCity}} ({{.ServiceRadius}} mi){{else}}&mdash;{{end}}</td>
+                  <td><strong>Insurance</strong></td><td>{{if .InsuranceCarrier}}{{.InsuranceCarrier}} &mdash; {{.InsurancePolicy}}{{else}}&mdash;{{end}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {{if eq .ApprovalStatus "pending"}}
+          <form action="/admin/contractor/action" method="post">
+            <input type="hidden" name="contractor_id" value="{{.ID}}">
+            <div class="field is-horizontal mb-2">
+              <div class="field-label is-small" style="flex-grow:0; min-width:140px;"><label class="label">License Expiration</label></div>
+              <div class="field-body"><div class="field"><div class="control"><input class="input is-small" type="date" name="license_expiration"></div></div></div>
+              <div class="field-label is-small" style="flex-grow:0; min-width:120px; margin-left:1rem;"><label class="label">Bond Expiration</label></div>
+              <div class="field-body"><div class="field"><div class="control"><input class="input is-small" type="date" name="bond_expiration"></div></div></div>
+            </div>
+            <div class="field">
+              <label class="label is-small">Notes (optional — shown to contractor if rejected)</label>
+              <div class="control">
+                <input class="input is-small" type="text" name="notes" placeholder="e.g. License not found in WA L&I database">
+              </div>
+            </div>
+            {{if .LicenseState}}{{if eq .LicenseState "WA"}}
+            <p class="help mb-2"><a href="https://secure.lni.wa.gov/verify/" target="_blank"><i class="fas fa-external-link-alt"></i> Verify WA contractor license at L&amp;I</a></p>
+            {{end}}{{end}}
+            <div class="buttons">
+              <button class="button is-success is-small" name="action" value="approve">
+                <span class="icon"><i class="fas fa-check"></i></span><span>Approve</span>
+              </button>
+              <button class="button is-danger is-small" name="action" value="reject">
+                <span class="icon"><i class="fas fa-times"></i></span><span>Reject</span>
+              </button>
+            </div>
+          </form>
+          {{else if eq .ApprovalStatus "approved"}}
+          <form action="/admin/contractor/action" method="post">
+            <input type="hidden" name="contractor_id" value="{{.ID}}">
+            <div class="buttons">
+              <button class="button is-warning is-small" name="action" value="expire">
+                <span class="icon"><i class="fas fa-clock"></i></span><span>Mark as Expired</span>
+              </button>
+            </div>
+          </form>
+          {{else if eq .ApprovalStatus "expired"}}
+          <form action="/admin/contractor/action" method="post">
+            <input type="hidden" name="contractor_id" value="{{.ID}}">
+            <div class="field is-horizontal mb-2">
+              <div class="field-label is-small" style="flex-grow:0; min-width:140px;"><label class="label">New License Exp.</label></div>
+              <div class="field-body"><div class="field"><div class="control"><input class="input is-small" type="date" name="license_expiration"></div></div></div>
+              <div class="field-label is-small" style="flex-grow:0; min-width:120px; margin-left:1rem;"><label class="label">New Bond Exp.</label></div>
+              <div class="field-body"><div class="field"><div class="control"><input class="input is-small" type="date" name="bond_expiration"></div></div></div>
+            </div>
+            <div class="buttons">
+              <button class="button is-success is-small" name="action" value="approve">
+                <span class="icon"><i class="fas fa-check"></i></span><span>Re-Approve</span>
+              </button>
+            </div>
+          </form>
+          {{else if .ApprovalNotes}}
+          <p class="help"><strong>Notes:</strong> {{.ApprovalNotes}}</p>
+          {{end}}
+        </div>
+        {{end}}
+        {{end}}
       </div>
 
       <!-- System Tab -->
@@ -161,14 +293,22 @@
   </section>
 
   <script>
+    function activateTab(name) {
+      document.querySelectorAll('#admin-tabs li').forEach(function(t) { t.classList.remove('is-active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('is-hidden'); });
+      var tab = document.querySelector('#admin-tabs li[data-tab="' + name + '"]');
+      if (tab) tab.classList.add('is-active');
+      var content = document.getElementById('tab-' + name);
+      if (content) content.classList.remove('is-hidden');
+    }
+
     document.querySelectorAll('#admin-tabs li').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('#admin-tabs li').forEach(function(t) { t.classList.remove('is-active'); });
-        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.add('is-hidden'); });
-        tab.classList.add('is-active');
-        document.getElementById('tab-' + tab.dataset.tab).classList.remove('is-hidden');
-      });
+      tab.addEventListener('click', function() { activateTab(tab.dataset.tab); });
     });
+
+    // Restore tab from URL param (e.g. ?tab=contractors after approve/reject)
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('tab')) activateTab(params.get('tab'));
   </script>
 
   {{template "footer.gohtml" .}}

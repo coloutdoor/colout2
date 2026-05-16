@@ -40,15 +40,26 @@ type UserAuth struct {
 	Email           string
 	Name            string
 	AuthType        string // Google or password
-	Role            string // homeowner, admin, or contractor
+	Role            string // homeowner, admin, contractor, or project_manager
 	LastName        string
 	IsActive        bool
 	EmailVerified   bool
+	CompanyName      string // Populated from contractor_profile for contractors
+	ContractorStatus string // pending, approved, rejected, expired
 	Message         string
 	Title           string // Header this is the Title page shown in <title> ... </title>
 	MetaDesc        string // this is the Meta Description in Header
 	Subtitle        string // This is the subtitle in "H1" tags
 	Rurl            string // After a successful login - Go here!
+}
+
+// loadContractorInfo fetches company name and approval status for contractors.
+func loadContractorInfo(db *sql.DB, u *UserAuth) {
+	if u.Role != "contractor" {
+		return
+	}
+	db.QueryRow(`SELECT company_name, approval_status FROM contractor_profile WHERE user_id = $1`, u.ID).
+		Scan(&u.CompanyName, &u.ContractorStatus)
 }
 
 func getUserAuth(r *http.Request, w http.ResponseWriter) UserAuth {
@@ -173,12 +184,13 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	sessionData.UserAuth = UserAuth{
 		ID:              user.ID,
 		AuthType:        "google",
-		Role:            "homeowner",
+		Role:            user.Role,
 		IsAuthenticated: true,
 		Email:           userInfo.Email,
 		Name:            userInfo.Name,
 		Message:         "Google Login, " + userInfo.Name,
 	}
+	loadContractorInfo(db, &sessionData.UserAuth)
 
 	delete(session.Values, "oauth_state")
 	_ = sessionData.Save(r, w)
@@ -465,6 +477,7 @@ func authN(r *http.Request, w http.ResponseWriter) error {
 
 	sessionData.UserAuth = user
 	sessionData.UserAuth.IsAuthenticated = true
+	loadContractorInfo(db, &sessionData.UserAuth)
 
 	if err := sessionData.Save(r, w); err != nil {
 		return fmt.Errorf("session Save error")

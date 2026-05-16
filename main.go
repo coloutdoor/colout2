@@ -111,6 +111,7 @@ func main() {
 	})
 
 	mux.HandleFunc("/estimate", estimateHandler)
+	mux.HandleFunc("/estimate/delete/", estimateDeleteHandler)
 	mux.HandleFunc("/estimate/send/{estimateID}", emailSendHandler) //POST only - Send Estimate via Email
 	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)     //GET a saved estimate from DB
 	mux.HandleFunc("/customer", customerHandler)
@@ -127,6 +128,7 @@ func main() {
 	mux.HandleFunc("/robots.txt", robotsTxtHandler)
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
 	mux.HandleFunc("/admin", adminHandler)
+	mux.HandleFunc("/admin/contractor/action", adminContractorActionHandler)
 	mux.HandleFunc("/contractor/register", contractorRegisterHandler)
 	mux.HandleFunc("/my-estimates", myEstimatesHandler)
 	mux.HandleFunc("/privacy", privacyHandler)

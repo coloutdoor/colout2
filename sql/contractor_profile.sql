@@ -36,9 +36,13 @@ CREATE TABLE IF NOT EXISTS contractor_profile (
     insurance_carrier   TEXT,
     insurance_policy    TEXT,
 
+    -- Credential expiration dates (entered by admin at approval time)
+    license_expiration  DATE,
+    bond_expiration     DATE,
+
     -- Approval workflow
     approval_status     TEXT NOT NULL DEFAULT 'pending'
-                            CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+                            CHECK (approval_status IN ('pending', 'approved', 'rejected', 'expired')),
     approval_notes      TEXT,                       -- Admin notes on approval or rejection
     approved_at         TIMESTAMPTZ,
     approved_by         BIGINT REFERENCES user_auth(id),

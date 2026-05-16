@@ -1,6 +1,12 @@
 {{define "my-estimates.gohtml"}}
   {{template "header.gohtml" .Header}}
 
+  {{with .Header}}{{if and (eq .Role "contractor") .CompanyName}}
+  <div class="notification is-warning is-light mb-3">
+    <span class="tag is-warning mr-2">Contractor</span> {{.CompanyName}}
+  </div>
+  {{end}}{{end}}
+
   <div class="table-container">
     {{if .Page}}
     <table class="table is-striped is-hoverable is-fullwidth">
@@ -11,7 +17,8 @@
           <th>City</th>
           <th>Total Cost</th>
           <th>Saved</th>
-          <th>Accepted</th>
+          <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -22,7 +29,17 @@
           <td>{{.City}}</td>
           <td>{{formatCost .TotalCost}}</td>
           <td>{{.SaveDate.Format "2006-01-02"}}</td>
-          <td>{{if .AcceptDate.Valid}}{{.AcceptDate.Time.Format "2006-01-02"}}{{else}}&mdash;{{end}}</td>
+          <td><span class="tag {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">{{.Status}}</span></td>
+          <td>
+            {{if eq .Status "Expired"}}
+            <form method="post" action="/estimate/delete/{{.EstimateID}}" onsubmit="return confirm('Delete estimate {{.EstimateID}}? This cannot be undone.')">
+              <input type="hidden" name="redirect" value="/my-estimates">
+              <button class="button is-danger is-small is-light" type="submit" title="Delete expired estimate">
+                <span class="icon"><i class="fas fa-trash"></i></span>
+              </button>
+            </form>
+            {{end}}
+          </td>
         </tr>
         {{end}}
       </tbody>
