@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS contractor_profile (
 
     -- Service area
     service_states      TEXT[],                     -- e.g. ARRAY['WA', 'OR']
-    service_cities      TEXT[],                     -- e.g. ARRAY['Woodland', 'Ridgefield']
+    service_city        TEXT,                       -- Primary city e.g. 'Woodland'
+    service_radius_miles INT DEFAULT 50,            -- Coverage radius in miles
 
     -- Licensing & credentials (verified manually by admin before approval)
     license_number      TEXT,
@@ -51,6 +52,7 @@ CREATE INDEX IF NOT EXISTS idx_contractor_profile_user_id        ON contractor_p
 CREATE INDEX IF NOT EXISTS idx_contractor_profile_approval_status ON contractor_profile(approval_status);
 CREATE INDEX IF NOT EXISTS idx_contractor_profile_specialties     ON contractor_profile USING GIN(specialties);
 CREATE INDEX IF NOT EXISTS idx_contractor_profile_service_states  ON contractor_profile USING GIN(service_states);
+CREATE INDEX IF NOT EXISTS idx_contractor_profile_service_city    ON contractor_profile(service_city);
 
 -- Auto-update updated_at
 CREATE TRIGGER trigger_update_contractor_profile_timestamp

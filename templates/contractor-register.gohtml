@@ -89,10 +89,30 @@
         <label class="checkbox"><input type="checkbox" name="service_states" value="ID"> Idaho</label>
       </div>
 
-      <div class="field">
-        <label class="label">Cities <span class="has-text-grey is-size-7">(comma-separated)</span></label>
-        <div class="control">
-          <input class="input" type="text" name="service_cities" value="{{.ServiceCities}}" placeholder="Woodland, Ridgefield, La Center, Kalama">
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">Primary Service City</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" name="service_city" value="{{.ServiceCity}}" placeholder="Woodland">
+              <span class="icon is-small is-left"><i class="fas fa-map-marker-alt"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="column is-narrow">
+          <div class="field">
+            <label class="label">Service Radius</label>
+            <div class="control">
+              <div class="select">
+                <select name="service_radius_miles">
+                  <option value="25"  {{if eq .ServiceRadiusMiles 25}}selected{{end}}>25 miles</option>
+                  <option value="50"  {{if eq .ServiceRadiusMiles 50}}selected{{end}}>50 miles</option>
+                  <option value="75"  {{if eq .ServiceRadiusMiles 75}}selected{{end}}>75 miles</option>
+                  <option value="100" {{if eq .ServiceRadiusMiles 100}}selected{{end}}>100 miles</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

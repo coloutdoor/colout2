@@ -11,22 +11,23 @@ import (
 )
 
 type ContractorProfile struct {
-	ID               int64
-	CompanyName      string
-	Phone            string
-	Website          string
-	TermsText        string
-	Specialties      []string
-	ServiceStates    []string
-	ServiceCities    string // comma-separated for form input
-	LicenseNumber    string
-	LicenseState     string
-	BondNumber       string
-	InsuranceCarrier string
-	InsurancePolicy  string
-	ApprovalStatus   string
-	ApprovalNotes    string
-	Message          string
+	ID                 int64
+	CompanyName        string
+	Phone              string
+	Website            string
+	TermsText          string
+	Specialties        []string
+	ServiceStates      []string
+	ServiceCity        string
+	ServiceRadiusMiles int
+	LicenseNumber      string
+	LicenseState       string
+	BondNumber         string
+	InsuranceCarrier   string
+	InsurancePolicy    string
+	ApprovalStatus     string
+	ApprovalNotes      string
+	Message            string
 }
 
 func contractorRegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,23 +53,19 @@ func contractorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if a profile already exists for this user.
 	var existing ContractorProfile
-	var specialties, serviceStates, serviceCities []byte
 	err = db.QueryRow(`
 		SELECT id, company_name, COALESCE(phone,''), COALESCE(website,''),
-		       specialties::text, service_states::text, COALESCE(array_to_string(service_cities,','),''),
+		       COALESCE(service_city,''), COALESCE(service_radius_miles, 50),
 		       COALESCE(license_number,''), COALESCE(license_state,''),
 		       COALESCE(bond_number,''), COALESCE(insurance_carrier,''), COALESCE(insurance_policy,''),
 		       approval_status, COALESCE(approval_notes,'')
 		FROM contractor_profile WHERE user_id = $1`, userAuth.ID).Scan(
 		&existing.ID, &existing.CompanyName, &existing.Phone, &existing.Website,
-		&specialties, &serviceStates, &existing.ServiceCities,
+		&existing.ServiceCity, &existing.ServiceRadiusMiles,
 		&existing.LicenseNumber, &existing.LicenseState,
 		&existing.BondNumber, &existing.InsuranceCarrier, &existing.InsurancePolicy,
 		&existing.ApprovalStatus, &existing.ApprovalNotes,
 	)
-	_ = serviceCities
-	_ = specialties
-	_ = serviceStates
 
 	userAuth.Title = "Contractor Registration"
 	userAuth.Subtitle = "Join the Columbia Outdoor contractor network"
@@ -107,21 +104,21 @@ func contractorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 		specialtiesSlice := r.Form["specialties"]
 		statesSlice := r.Form["service_states"]
-		citiesSlice := strings.Split(r.FormValue("service_cities"), ",")
-		for i := range citiesSlice {
-			citiesSlice[i] = strings.TrimSpace(citiesSlice[i])
+		radius := 50
+		if r.FormValue("service_radius_miles") != "" {
+			fmt.Sscanf(r.FormValue("service_radius_miles"), "%d", &radius)
 		}
 
 		_, insertErr := db.Exec(`
 			INSERT INTO contractor_profile (
 				user_id, company_name, phone, website, terms_text,
-				specialties, service_states, service_cities,
+				specialties, service_states, service_city, service_radius_miles,
 				license_number, license_state, bond_number,
 				insurance_carrier, insurance_policy, approval_status
 			) VALUES (
 				$1, $2, $3, $4, $5,
-				$6::text[], $7::text[], $8::text[],
-				$9, $10, $11, $12, $13, 'pending'
+				$6::text[], $7::text[], $8, $9,
+				$10, $11, $12, $13, $14, 'pending'
 			)`,
 			userAuth.ID,
 			companyName,
@@ -130,7 +127,8 @@ func contractorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			strings.TrimSpace(r.FormValue("terms_text")),
 			formatPGArray(specialtiesSlice),
 			formatPGArray(statesSlice),
-			formatPGArray(citiesSlice),
+			strings.TrimSpace(r.FormValue("service_city")),
+			radius,
 			strings.TrimSpace(r.FormValue("license_number")),
 			strings.TrimSpace(r.FormValue("license_state")),
 			strings.TrimSpace(r.FormValue("bond_number")),
@@ -176,18 +174,21 @@ func formatPGArray(items []string) string {
 }
 
 func buildProfileFromForm(r *http.Request) ContractorProfile {
+	radius := 50
+	fmt.Sscanf(r.FormValue("service_radius_miles"), "%d", &radius)
 	return ContractorProfile{
-		CompanyName:      r.FormValue("company_name"),
-		Phone:            r.FormValue("phone"),
-		Website:          r.FormValue("website"),
-		TermsText:        r.FormValue("terms_text"),
-		Specialties:      r.Form["specialties"],
-		ServiceStates:    r.Form["service_states"],
-		ServiceCities:    r.FormValue("service_cities"),
-		LicenseNumber:    r.FormValue("license_number"),
-		LicenseState:     r.FormValue("license_state"),
-		BondNumber:       r.FormValue("bond_number"),
-		InsuranceCarrier: r.FormValue("insurance_carrier"),
-		InsurancePolicy:  r.FormValue("insurance_policy"),
+		CompanyName:        r.FormValue("company_name"),
+		Phone:              r.FormValue("phone"),
+		Website:            r.FormValue("website"),
+		TermsText:          r.FormValue("terms_text"),
+		Specialties:        r.Form["specialties"],
+		ServiceStates:      r.Form["service_states"],
+		ServiceCity:        r.FormValue("service_city"),
+		ServiceRadiusMiles: radius,
+		LicenseNumber:      r.FormValue("license_number"),
+		LicenseState:       r.FormValue("license_state"),
+		BondNumber:         r.FormValue("bond_number"),
+		InsuranceCarrier:   r.FormValue("insurance_carrier"),
+		InsurancePolicy:    r.FormValue("insurance_policy"),
 	}
 }
