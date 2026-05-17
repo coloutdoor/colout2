@@ -254,18 +254,22 @@ func TestCalculateDemoCost(t *testing.T) {
 func TestCalculateSalesTax(t *testing.T) {
 	tests := []struct {
 		subtotal float64
+		state    string
 		want     float64
 	}{
-		{0, 0},
-		{1000, 87.0},
-		{10000, 870.0},
-		{13680, 1190.16},
+		{0, "WA", 0},
+		{1000, "WA", 87.0},
+		{10000, "WA", 870.0},
+		{13680, "WA", 1190.16},
+		{1000, "OR", 0.0},
+		{1000, "ID", 60.0},
+		{1000, "", 87.0},  // unknown state defaults to WA
 	}
 
 	for _, tt := range tests {
-		got := CalculateSalesTax(tt.subtotal)
+		got := CalculateSalesTax(tt.subtotal, tt.state)
 		if !approxEqual(got, tt.want) {
-			t.Errorf("CalculateSalesTax(%.2f) = %.4f, want %.4f", tt.subtotal, got, tt.want)
+			t.Errorf("CalculateSalesTax(%.2f, %q) = %.4f, want %.4f", tt.subtotal, tt.state, got, tt.want)
 		}
 	}
 }

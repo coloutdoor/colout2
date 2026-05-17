@@ -416,10 +416,20 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ************* POST - Accept  - After Save ********************************
-	if r.FormValue("accept") == "true" && !estimate.SaveDate.IsZero() {
-		estimate.AcceptDate = time.Now()
-		saveEstimate(w, r, &estimate, sd)
-		log.Printf("Estimate accepted at %v", estimate.AcceptDate)
+	if r.FormValue("accept") == "true" {
+		estimateIDStr := r.FormValue("estimate_id")
+		if estimateIDStr != "" {
+			eid, err := strconv.Atoi(estimateIDStr)
+			if err == nil {
+				estimate = getEstimate(eid)
+				estimate.CalcAllCosts()
+			}
+		}
+		if !estimate.SaveDate.IsZero() {
+			estimate.AcceptDate = time.Now()
+			saveEstimate(w, r, &estimate, sd)
+			log.Printf("Estimate %d accepted at %v", estimate.EstimateID, estimate.AcceptDate)
+		}
 		renderEstimate(w, r, estimate)
 		return
 	}
@@ -600,7 +610,7 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
 	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost
-	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal)
+	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 
 }
@@ -717,7 +727,11 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	items = append(items, newLineItem("Subtotal", "", estimate.Subtotal))
 
 	// 9. Sales Tax
-	items = append(items, newLineItem("Sales Tax", "WA (estimated) sales tax", estimate.SalesTax))
+	taxDesc := estimate.Customer.State + " (estimated) sales tax"
+	if estimate.Customer.State == "" {
+		taxDesc = "Sales tax"
+	}
+	items = append(items, newLineItem("Sales Tax", taxDesc, estimate.SalesTax))
 	p.SetDynamicTemplateData("LineItems", items)
 	customerMessage.AddPersonalizations(p)
 

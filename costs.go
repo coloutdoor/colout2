@@ -168,10 +168,20 @@ func (estimate *DeckEstimate) CalcStairToeKickCost(cost Costs) {
 	}
 }
 
-// CalculateSalesTax applies WA sales tax to the subtotal (deck + rail costs).
-// Currently, hardcoded at 8.7%.
-// Future: Replace with dynamic lookup based on address.
-func CalculateSalesTax(subtotal float64) float64 {
-	const taxRate = 0.087 // 8.7% total WA sales tax
-	return subtotal * taxRate
+// stateTaxRates maps US state abbreviations to sales tax rates.
+// OR has no sales tax. ID and WA rates are estimates.
+var stateTaxRates = map[string]float64{
+	"WA": 0.087,
+	"OR": 0.000,
+	"ID": 0.060,
+}
+
+// CalculateSalesTax applies sales tax based on the customer's state.
+// Defaults to WA rate if state is unrecognized or empty.
+func CalculateSalesTax(subtotal float64, state string) float64 {
+	rate, ok := stateTaxRates[state]
+	if !ok {
+		rate = stateTaxRates["WA"]
+	}
+	return subtotal * rate
 }

@@ -36,7 +36,6 @@
             {{end}}
         </h2>
         <div class="content">
-            {{end}}
             <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
             <p>{{.Customer.Address}}</p>
             <p>{{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
@@ -115,13 +114,14 @@
             -->
 
             <div class="column is-2">Sales Tax</div>
-            <div class="column is-8">WA (Estimated) sales tax.</div>
+            <div class="column is-8">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax.</div>
             <div class="column is-2 has-text-right">{{formatCost .SalesTax}}</div>
             <div class="column is-2 has-text-weight-semibold has-background-grey-dark"><strong class="is-size-4">Total</strong></div>
             <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
             <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
         </div>
     </div>
+    {{end}}
     {{if and .TotalCost (ne .Customer.FirstName "") (eq .SaveDate.IsZero true)}}
         <form method="post" action="/estimate" class="mt-4">
         <input type="hidden" name="save" value="true">
@@ -143,6 +143,7 @@
         <div class="buttons mt-4">
             <form method="post" action="/estimate">
                 <input type="hidden" name="accept" value="true">
+                <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
                 <button class="button is-success" type="submit">Accept Estimate</button>
             </form>
             <button class="button is-info" type="button" onclick="window.print()">Print</button>
