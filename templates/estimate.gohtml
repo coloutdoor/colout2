@@ -27,12 +27,35 @@
         </div>
     </div>
     {{if .TotalCost}}
+
+    <!-- Contractor Section -->
     <div class="box mt-5">
-        <h2 class="subtitle">Customer
+      <h2 class="subtitle">Contractor</h2>
+      <div class="content">
+        {{if .Contractor.CompanyName}}
+          <p><strong>{{.Contractor.CompanyName}}</strong></p>
+          {{if .Contractor.Phone}}<p>{{.Contractor.Phone}}</p>{{end}}
+          {{if .Contractor.Website}}<p><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></p>{{end}}
+          {{if .Contractor.LicenseNum}}<p>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</p>{{end}}
+        {{else}}
+          <p>Columbia Outdoor</p>
+          <p>(360) 787-8062</p>
+          <p>columbiaoutdoor.com</p>
+        {{end}}
+      </div>
+    </div>
+
+    <div class="box mt-3">
+        <h2 class="subtitle">
+          {{if eq $.Header.Role "contractor"}}Customer{{else}}Your Information{{end}}
             {{if eq .Customer.FirstName ""}}
-                <span class="is-pulled-right"><a href="/customer" class="button is-danger">Add Customer</a></span>
+                <span class="is-pulled-right">
+                  <a href="/customer" class="button is-danger">
+                    {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
+                  </a>
+                </span>
             {{else if .SaveDate.IsZero}}
-                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit Customer</a></span>
+                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit</a></span>
             {{end}}
         </h2>
         <div class="content">

@@ -62,6 +62,8 @@ type DeckEstimate struct {
 	RailFeet         float64
 	SalesTax         float64
 	Customer         Customer
+	Contractor       ContractorInfo
+	ContractorID     int64
 	EstimateID       int
 	ExpirationDate   time.Time
 	SaveDate         time.Time
@@ -70,6 +72,15 @@ type DeckEstimate struct {
 	Error            string
 	EmailModalShown  bool  // Flag to indicate if email modal should be shown
 	UserId           int64 // FK to UserAuth
+}
+
+type ContractorInfo struct {
+	ID           int64
+	CompanyName  string
+	Phone        string
+	Website      string
+	LicenseNum   string
+	LicenseState string
 }
 
 var tmpl *template.Template // tmpl is the global template for estimate.gohtml, initialized at startup.
@@ -131,19 +142,22 @@ func getEstimate(estimateID int) DeckEstimate {
 	var de DeckEstimate
 	var acceptDate sql.NullTime
 	err = db.QueryRow(`
-        SELECT estimate_id, description, length, width, height, material, rail_material, rail_infill, stair_width, 
-        stair_rail_count, has_demo, has_fascia,  total_cost, has_stair_fascia, has_stair_tk,
-        first_name, last_name, address, city, state, zip, phone_number, email,
-        save_date, accept_date, expiration_date, 
-        user_id   
-        FROM  estimates
-        WHERE estimate_id = $1`, estimateID).Scan(
-		&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth, //9
-		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK, //15
+        SELECT e.estimate_id, e.description, e.length, e.width, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
+        e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
+        e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
+        e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id,
+        COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
+        COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1)
+        FROM estimates e
+        LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
+        WHERE e.estimate_id = $1`, estimateID).Scan(
+		&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
+		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,
 		&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State,
-		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email, //23
-		&de.SaveDate, &acceptDate, &de.ExpirationDate, //26
-		&de.UserId)
+		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
+		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID,
+		&de.Contractor.CompanyName, &de.Contractor.Phone, &de.Contractor.Website,
+		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -198,7 +212,19 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 
 	estimate.UserId = sessionData.UserAuth.ID
 	estimate.SaveDate = time.Now()
-	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour) // Today + 30 days
+	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour)
+
+	// Set contractor_id: use the contractor's profile if they're a contractor, else default to 1
+	if estimate.ContractorID == 0 {
+		estimate.ContractorID = 1
+		if sessionData.UserAuth.Role == "contractor" {
+			db2, err2 := sql.Open("pgx", dbURL)
+			if err2 == nil {
+				db2.QueryRow(`SELECT id FROM contractor_profile WHERE user_id = $1`, estimate.UserId).Scan(&estimate.ContractorID)
+				db2.Close()
+			}
+		}
+	}
 
 	// Update Existing estimate
 	if estimate.EstimateID > 0 {
@@ -230,8 +256,9 @@ SET
     expiration_date = $23,
     has_stair_fascia = $24,
     has_stair_tk = $25,
-    user_id = $26
-WHERE estimate_id = $27
+    user_id = $26,
+    contractor_id = $27
+WHERE estimate_id = $28
 RETURNING estimate_id`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
@@ -244,7 +271,8 @@ RETURNING estimate_id`
 			estimate.AcceptDate.Format("2006-01-02 15:04:05"),     //22
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //23
 			estimate.HasStairFascia, estimate.HasStairTK,          //25
-			estimate.UserId, // 26
+			estimate.UserId,       //26
+			estimate.ContractorID, //27
 			estimate.EstimateID).Scan(&updatedID)
 
 		if err != nil {
@@ -267,14 +295,14 @@ RETURNING estimate_id`
     	stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
     	first_name, last_name, address, 
     	city, state, zip, phone_number, email,
-    	save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id) 
+    	save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id, contractor_id)
 		VALUES (
-		$1, $2, $3, $4, 
-		$5, $6, $7, 
+		$1, $2, $3, $4,
+		$5, $6, $7,
 		$8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17, $18, $19, $20, 
-        $21, $22, $23, 
-        $24, $25, $26	
+        $13, $14, $15, $16, $17, $18, $19, $20,
+        $21, $22, $23,
+        $24, $25, $26, $27
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -287,7 +315,8 @@ RETURNING estimate_id`
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
 			estimate.HasStairFascia, estimate.HasStairTK, //25
-			estimate.UserId).Scan(&newID) //26
+			estimate.UserId,       //26
+			estimate.ContractorID).Scan(&newID) //27
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
 			_ = db.Close()

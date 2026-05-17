@@ -82,3 +82,6 @@ ALTER TABLE estimates
 RENAME COLUMN "HasStairFascia" TO has_stair_fascia;
 ALTER TABLE estimates
 RENAME COLUMN "HasStairTK"     TO has_stair_tk;
+
+ALTER TABLE estimates
+ADD COLUMN contractor_id BIGINT DEFAULT 1 REFERENCES contractor_profile(id);
