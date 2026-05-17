@@ -129,6 +129,7 @@ func main() {
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
 	mux.HandleFunc("/admin", adminHandler)
 	mux.HandleFunc("/admin/contractor/action", adminContractorActionHandler)
+	mux.HandleFunc("/contractor", contractorLandingHandler)
 	mux.HandleFunc("/contractor/register", contractorRegisterHandler)
 	mux.HandleFunc("/my-estimates", myEstimatesHandler)
 	mux.HandleFunc("/privacy", privacyHandler)
