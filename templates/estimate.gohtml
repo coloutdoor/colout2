@@ -2,30 +2,48 @@
   {{template "header.gohtml" .Header}}
 
   {{with .Page}}
-    <div class="level mb-5">
-        <div class="level-left">
-            <div class="level-item">
-                <h1 class="title">Deck Estimate</h1>
-                {{if .Error}}
-                <div class="notification is-danger mt-5">
-                 <p>{{.Error}}</p>
-                </div>
-                {{end}}
-            </div>
+    <h1 class="title">Deck Estimate</h1>
+    {{if .Error}}
+    <div class="notification is-danger mb-4"><p>{{.Error}}</p></div>
+    {{end}}
+
+    <!-- Action Bar -->
+    {{if .TotalCost}}
+    <div class="box mb-4 py-3">
+      <form method="post" action="/estimate" style="display:inline;">
+        <input type="hidden" name="save" value="true">
+        <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
+        <div class="buttons">
+          {{if .AcceptDate.IsZero}}
+          <button class="button is-primary" type="submit">
+            <span class="icon"><i class="fas fa-save"></i></span><span>Save Estimate</span>
+          </button>
+          {{end}}
+          {{if not .SaveDate.IsZero}}
+          <button class="button is-info" type="button"
+            onclick="document.getElementById('email-modal').classList.add('is-active')">
+            <span class="icon"><i class="fas fa-envelope"></i></span><span>Email Estimate</span>
+          </button>
+          {{end}}
+          <button class="button is-light" type="button" onclick="window.print()">
+            <span class="icon"><i class="fas fa-print"></i></span><span>Print</span>
+          </button>
+          {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
+            {{if eq $.Header.Role "homeowner"}}
+            <button class="button is-success" type="button"
+              onclick="document.getElementById('accept-confirm').classList.add('is-active')">
+              <span class="icon"><i class="fas fa-check"></i></span><span>Accept Estimate</span>
+            </button>
+            {{end}}
+          {{end}}
         </div>
-        <div class="level-right">
-            <div class="level-item">
-                {{if not .SaveDate.IsZero}}
-                <!-- Button to Open the Modal (place where you want it on the estimate page) -->
-                <div class="buttons mt-4">
-                    <button class="button is-primary" onclick="document.getElementById('email-modal').classList.add('is-active')">
-                    Email Estimate
-                    </button>
-                </div>
-               {{end}}
-            </div>
-        </div>
+      </form>
+      {{if not .AcceptDate.IsZero}}
+      <p class="has-text-success"><span class="icon"><i class="fas fa-check-circle"></i></span>
+        Accepted on {{.AcceptDate.Format "2006-01-02"}}</p>
+      {{end}}
     </div>
+    {{end}}
     {{if .TotalCost}}
 
     <!-- Contractor Section -->
@@ -183,43 +201,12 @@
         </div>
     </div>
     {{end}}
-    {{if and .TotalCost (ne .Customer.FirstName "") (eq .SaveDate.IsZero true)}}
-        <form method="post" action="/estimate" class="mt-4">
-        <input type="hidden" name="save" value="true">
-        <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
-        <div class="field">
-            <button class="button is-primary" type="submit">Save Estimate</button>
-        <!--
-            <div class="control"> <a href="/calc?option=deck" class="button is-primary">Start  Over</a> </div>
-        -->
-
-        </div>
-    </form>
-    {{end}}
+    {{if and (not .SaveDate.IsZero) .Terms}}
     <div class="content mt-4">
-    {{if .SaveDate.IsZero}}
-      <span></span>
-    {{else if .AcceptDate.IsZero}}
         <h2 class="subtitle">Terms and Conditions</h2>
         <pre>{{ .Terms }}</pre>
-        <div class="buttons mt-4">
-            <form method="post" action="/estimate">
-                <input type="hidden" name="accept" value="true">
-                <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
-                <button class="button is-success" type="submit">Accept Estimate</button>
-            </form>
-            <button class="button is-info" type="button" onclick="window.print()">Print</button>
-        </div>
-    {{else}}
-        <h2 class="subtitle">Terms and Conditions</h2>
-        <pre>{{ .Terms }}</pre>
-        <p>Estimate Accepted on {{.AcceptDate.Format "2006-01-02 15:04:05"}}</p>
-        <div class="buttons mt-4">
-            <button class="button is-info" type="button" onclick="window.print()">Print</button>
-        </div>
- 
-    {{end}}
     </div>
+    {{end}}
     <!-- The Modal (embedded, not separate page) -->
     {{if gt .EstimateID 0}}
     <!-- Email Confirmation Modal -->
@@ -251,6 +238,28 @@
         <P></P>
     </div>
     {{ end }}
+
+<!-- Accept Confirmation Modal -->
+<div id="accept-confirm" class="modal">
+  <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:400px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Accept Estimate</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('accept-confirm').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <p>By accepting this estimate you agree to the terms and conditions and authorize Columbia Outdoor to proceed with the project as described.</p>
+    </section>
+    <footer class="modal-card-foot">
+      <form method="post" action="/estimate">
+        <input type="hidden" name="accept" value="true">
+        <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
+        <button class="button is-success" type="submit">Yes, Accept Estimate</button>
+      </form>
+      <button class="button" onclick="document.getElementById('accept-confirm').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
 
 <!-- Description Modal -->
 <div id="desc-modal" class="modal">

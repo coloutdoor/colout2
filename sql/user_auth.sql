@@ -11,6 +11,10 @@ CREATE TABLE user_auth (
     first_name      TEXT,
     last_name       TEXT,
     phone           TEXT,
+    address         TEXT,
+    city            TEXT,
+    state           TEXT,
+    zip             TEXT,
     
     -- Account status
     is_active       BOOLEAN DEFAULT TRUE,

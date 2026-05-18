@@ -56,6 +56,10 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		if err := sessionData.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
 		}
+		// Save contact info back to user_auth for homeowners
+		if isHomeowner {
+			updateUserAuthContact(userAuth.ID, customer)
+		}
 		http.Redirect(w, r, "/estimate", http.StatusSeeOther)
 		return
 	}
@@ -95,21 +99,40 @@ func autoFillFromUserAuth(userID int64, c Customer) Customer {
 	}
 	defer db.Close()
 
-	var firstName, lastName, email, phone string
-	db.QueryRow(`SELECT COALESCE(first_name,''), COALESCE(last_name,''), email, COALESCE(phone,'')
-		FROM user_auth WHERE id = $1`, userID).Scan(&firstName, &lastName, &email, &phone)
+	var firstName, lastName, email, phone, address, city, state, zip string
+	db.QueryRow(`SELECT COALESCE(first_name,''), COALESCE(last_name,''), email,
+		COALESCE(phone,''), COALESCE(address,''), COALESCE(city,''),
+		COALESCE(state,''), COALESCE(zip,'')
+		FROM user_auth WHERE id = $1`, userID).
+		Scan(&firstName, &lastName, &email, &phone, &address, &city, &state, &zip)
 
-	if firstName != "" {
-		c.FirstName = firstName
-	}
-	if lastName != "" {
-		c.LastName = lastName
-	}
-	if email != "" {
-		c.Email = email
-	}
-	if phone != "" {
-		c.PhoneNumber = phone
-	}
+	if firstName != "" { c.FirstName = firstName }
+	if lastName  != "" { c.LastName  = lastName  }
+	if email     != "" { c.Email     = email      }
+	if phone     != "" { c.PhoneNumber = phone    }
+	if address   != "" { c.Address   = address    }
+	if city      != "" { c.City      = city       }
+	if state     != "" { c.State     = state      }
+	if zip       != "" { c.Zip       = zip        }
 	return c
+}
+
+// updateUserAuthContact saves customer contact info back to user_auth for homeowners.
+func updateUserAuthContact(userID int64, c Customer) {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return
+	}
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	db.Exec(`UPDATE user_auth
+		SET first_name = $1, last_name = $2, phone = $3,
+		    address = $4, city = $5, state = $6, zip = $7
+		WHERE id = $8`,
+		c.FirstName, c.LastName, c.PhoneNumber,
+		c.Address, c.City, c.State, c.Zip, userID)
 }

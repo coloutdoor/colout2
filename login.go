@@ -239,49 +239,81 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST – handle signup
 	if r.Method == http.MethodPost {
+		firstName := strings.TrimSpace(r.FormValue("firstName"))
+		lastName  := strings.TrimSpace(r.FormValue("lastName"))
+		email     := strings.TrimSpace(r.FormValue("email"))
+		phone     := strings.TrimSpace(r.FormValue("phone"))
+		address   := strings.TrimSpace(r.FormValue("address"))
+		city      := strings.TrimSpace(r.FormValue("city"))
+		state     := r.FormValue("state")
+		zip       := strings.TrimSpace(r.FormValue("zip"))
+		pass1     := r.FormValue("password")
+		pass2     := r.FormValue("password2")
 
-		// Params
-		name := strings.TrimSpace(r.FormValue("name"))
-		email := strings.TrimSpace(r.FormValue("email"))
-		pass1 := r.FormValue("password")
-		pass2 := r.FormValue("password2")
-
-		// Basic validation
-		if name == "" || email == "" || pass1 == "" || pass1 != pass2 || len(pass1) < 8 {
-			sessionData.UserAuth.Message = "Please fill all fields correctly and ensure passwords match (8+ chars)"
+		if firstName == "" || lastName == "" || email == "" || pass1 == "" || pass1 != pass2 || len(pass1) < 8 {
+			sessionData.UserAuth.Message = "Please fill all required fields and ensure passwords match (8+ chars)"
 			_ = sessionData.Save(r, w)
-			log.Printf("%s", sessionData.UserAuth.Message)
 			http.Redirect(w, r, "/signup", http.StatusSeeOther)
 			return
 		}
 
-		// Create user (your existing function)
-		uid, err := createUserPassword(name, email, pass1)
+		uid, err := createUserFull(firstName, lastName, email, phone, address, city, state, zip, pass1)
 		if err != nil {
-			sessionData.UserAuth.Message = "Create user DB failure."
+			sessionData.UserAuth.Message = "Could not create account. Email may already be registered."
 			_ = sessionData.Save(r, w)
-			log.Printf("%s", sessionData.UserAuth.Message)
 			http.Redirect(w, r, "/signup", http.StatusSeeOther)
 			return
 		}
 
 		log.Printf("User added to DB with UID: %d", uid)
 
-		// Log them in automatically
-		sessionData.UserAuth.ID = uid
-		sessionData.UserAuth.AuthType = "password"
-		sessionData.UserAuth.Role = "homeowner"
-		sessionData.UserAuth.Email = email
+		sessionData.UserAuth.ID              = uid
+		sessionData.UserAuth.AuthType        = "password"
+		sessionData.UserAuth.Role            = "homeowner"
+		sessionData.UserAuth.Email           = email
+		sessionData.UserAuth.Name            = firstName
+		sessionData.UserAuth.LastName        = lastName
 		sessionData.UserAuth.IsAuthenticated = true
-		sessionData.UserAuth.Message = "Welcome to Columbia Outdoor!"
-		sessionData.UserAuth.Name = name
+		sessionData.UserAuth.Message         = "Welcome to Columbia Outdoor!"
 
 		if err := sessionData.Save(r, w); err != nil {
 			log.Printf("LoginHandler: Session save Error: %v", err)
 		}
-
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
+}
+
+func createUserFull(firstName, lastName, email, phone, address, city, state, zip, pass string) (int64, error) {
+	passwordHash, err := hashPassword(pass)
+	if err != nil {
+		return 0, err
+	}
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return 0, fmt.Errorf("DATABASE_URL not set")
+	}
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var userID int64
+	err = db.QueryRow(`
+		INSERT INTO user_auth (
+			email, password_hash, role,
+			first_name, last_name, phone,
+			address, city, state, zip,
+			is_active, email_verified
+		) VALUES ($1,$2,'homeowner',$3,$4,$5,$6,$7,$8,$9,true,false)
+		RETURNING id`,
+		email, passwordHash, firstName, lastName, phone, address, city, state, zip,
+	).Scan(&userID)
+	if err != nil {
+		log.Printf("createUserFull: %v", err)
+		return 0, err
+	}
+	return userID, nil
 }
 
 func createUserPassword(name string, email string, pass string) (int64, error) {
