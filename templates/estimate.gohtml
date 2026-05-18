@@ -494,25 +494,21 @@ function confirmEmailSend() {
 
     fetch(`/estimate/send/${estimateID}`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to send estimate - ' + response + ' - end');
-        }
-        return response.json(); // or .text() if you return plain text
-    })
+    .then(response => response.json())
     .then(data => {
-        alert('Estimate successfully mailed to: ' + email);
         document.getElementById('email-modal').classList.remove('is-active');
-        // Optional: redirect or refresh if needed
+        if (data.status === 'sent') {
+            alert('Estimate successfully emailed to: ' + email);
+        } else {
+            alert(data.message || 'Email could not be sent. Please call us at (360) 787-8062.');
+        }
     })
     .catch(err => {
         console.error('Send error:', err);
-        alert('Failed to send estimate. Please try again.');
+        alert('Email could not be sent. Please call us at (360) 787-8062.');
     });
 }
 </script>

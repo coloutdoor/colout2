@@ -6,7 +6,7 @@ Go web app for estimating deck construction costs. Homeowners step through a cal
 
 - Go 1.25+
 - PostgreSQL (Neon serverless in prod)
-- SendGrid account (email estimates)
+- Resend account (email estimates — resend.com)
 - Google OAuth2 credentials
 - Cloudflare Turnstile site/secret keys (contact form CAPTCHA)
 
@@ -17,7 +17,7 @@ Copy `.env` to the repo root:
 ```
 SESSION_SECRET=<32+ byte secret>
 DATABASE_URL=postgresql://user:pass@host/db
-SENDGRID_API_KEY=SG.xxxxx
+RESEND_API_KEY=re_xxxxx
 CLOUDFLARE_SECRET_KEY=0x4...
 GOOGLE_OAUTH_SECRET=GOCSPX-...
 GOOGLE_OAUTH_CALLBACK_URL=http://localhost:8080/auth/google/callback
@@ -78,4 +78,4 @@ Material prices live in `static/costs.yaml`. Sales tax is hardcoded at 8.7% (WA 
 
 ## Deployment
 
-GCP Cloud Run. `build.sh deploy` tags the local Docker image, pushes to Artifact Registry (`us.gcr.io/columbia-outdoor/colout2`), and updates the Cloud Run service. Production env vars (`DATABASE_URL`, `SENDGRID_API_KEY`, etc.) are set directly on the Cloud Run service.
+GCP Cloud Run. `build.sh deploy` tags the local Docker image, pushes to Artifact Registry (`us.gcr.io/columbia-outdoor/colout2`), and updates the Cloud Run service. Production env vars (`DATABASE_URL`, `RESEND_API_KEY`, etc.) are set directly on the Cloud Run service.

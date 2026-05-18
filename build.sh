@@ -38,10 +38,10 @@ case "$1" in
         gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin us.gcr.io
 
         source .env
-        if [ -n "$SENDGRID_API_KEY" ]; then
-           echo "SendGrid API key is set – ready to deploy"
+        if [ -n "$RESEND_API_KEY" ]; then
+           echo "Resend API key is set – ready to deploy"
         else
-            echo "ERROR: SENDGRID_API_KEY is missing or empty"
+            echo "ERROR: RESEND_API_KEY is missing or empty"
             exit 1
         fi
 
@@ -73,7 +73,7 @@ case "$1" in
             --port 8080 \
             --project $PROJECT_ID \
             --allow-unauthenticated \
-            --set-env-vars SENDGRID_API_KEY=${SENDGRID_API_KEY} \
+            --set-env-vars RESEND_API_KEY=${RESEND_API_KEY} \
             --set-env-vars CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY} \
             --set-env-vars GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET} \
             --set-env-vars DATABASE_URL=${DATABASE_URL_PROD} \

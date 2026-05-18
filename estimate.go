@@ -14,8 +14,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	resend "github.com/resend/resend-go/v2"
 )
 
 // Define template functions
@@ -763,149 +762,161 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 //
 // ***********************************************************************************************
 func emailSendHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("emailSendHandler called")
-	// This is only POST method
+	w.Header().Set("Content-Type", "application/json")
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Get estimateID from URL
 	estimateIDStr := r.URL.Path[len("/estimate/send/"):]
 	estimateID, _ := strconv.Atoi(estimateIDStr)
 
-	// Get session data
 	sd, err := GetSession(r, w)
+	if err != nil || !sd.UserAuth.IsAuthenticated {
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Please log in first."})
+		return
+	}
+
+	// Load fresh from DB so sections and costs are current
+	estimate := getEstimate(estimateID)
+	if estimate.Error != "" || estimate.EstimateID == 0 {
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Estimate not found."})
+		return
+	}
+	estimate.CalcAllCosts()
+
+	// Read email address from request body
+	var req struct{ Email string `json:"email"` }
+	json.NewDecoder(r.Body).Decode(&req)
+	toEmail := req.Email
+	if toEmail == "" {
+		toEmail = estimate.Customer.Email
+	}
+
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		log.Printf("emailSendHandler: RESEND_API_KEY not set")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "error",
+			"message": "Email service is not configured. Please call us at (360) 787-8062.",
+		})
+		return
+	}
+
+	subject := fmt.Sprintf("Deck Estimate #%d-%d — %s", estimate.EstimateID, estimate.Version, estimate.Desc)
+	html := buildEstimateEmailHTML(estimate)
+
+	client := resend.NewClient(apiKey)
+	params := &resend.SendEmailRequest{
+		From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+		To:      []string{toEmail},
+		Subject: subject,
+		Html:    html,
+	}
+
+	sent, err := client.Emails.Send(params)
 	if err != nil {
-		log.Printf("Email Handler - Get Session failed: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Printf("emailSendHandler: resend error: %v", err)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "error",
+			"message": "Email could not be sent. Please call us at (360) 787-8062.",
+		})
 		return
 	}
 
-	// Check if estimate exists in session
-	estimate := sd.Estimate
-	if estimate.EstimateID == 0 {
-		log.Printf("Email Handler - Missing estimate in session")
-		http.Error(w, "No estimate available", http.StatusNotFound)
-		return
-	}
+	log.Printf("emailSendHandler: sent estimate %d to %s (id: %s)", estimate.EstimateID, toEmail, sent.Id)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "sent",
+		"message": "Estimate emailed to " + toEmail,
+	})
+}
 
-	// Check to see if the Estimate ID matches the URI request to email
-	if estimate.EstimateID != estimateID {
-		log.Printf("Email Handler - Estimate ID mismatch: URL ID=%d, Session ID=%d", estimateID, estimate.EstimateID)
-		http.Error(w, "Estimate ID mismatch", http.StatusBadRequest)
-		return
-	}
-
-	// Check if user is authenticated?
-	// TODO - Is this the owner of the estimate?
-	if !sd.UserAuth.IsAuthenticated {
-		sd.UserAuth.Message = "Please Login to send estimate via Email"
-		_ = sd.Save(r, w)
-		loginUrl := "/login?rurl=/estimate"
-		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
-		return
-	}
-
-	// Prepare email content
-	// subject := fmt.Sprintf("Your Columbia Outdoor Deck Estimate %d – %s", estimate.EstimateID, estimate.SaveDate.Format("January 2, 2006"))
-	// Subject is set in SendGrid Dynamic Template
-
-	from := mail.NewEmail("Columbia Outdoor", "support@columbiaoutdoor.com") // Your verified SendGrid sender
-	to := mail.NewEmail(estimate.Customer.FirstName+" "+estimate.Customer.LastName, estimate.Customer.Email)
-
-	// Auto-reply using your Dynamic Template (replace with your real template ID)
-	customerMessage := mail.NewV3Mail()
-	customerMessage.SetFrom(from)
-	customerMessage.SetReplyTo(from)
-	customerMessage.SetTemplateID("d-1e52e20550794276a8b914536ee8131f") // SendGrid Dynamic Template - Deck Estimate
-
-	// Terms and Conditions
-	// Terms is not part of session
-	terms, err := os.ReadFile("static/t_and_c.txt")
-	if err != nil {
-		// Fallback if file is missing
-		terms = []byte("Terms and Conditions not available.")
-	}
-	estimate.Terms = string(terms)
-
-	// TODO - Add 'cc' and 'bcc' if needed
-	p := mail.NewPersonalization()
-	p.AddTos(mail.NewEmail(estimate.Customer.FirstName+" "+estimate.Customer.LastName, estimate.Customer.Email))
-	p.SetDynamicTemplateData("TotalCost", formatCost(estimate.TotalCost))
-	p.SetDynamicTemplateData("EstimateID", estimate.EstimateID)
-	p.SetDynamicTemplateData("Customer", estimate.Customer)
-	p.SetDynamicTemplateData("Terms", estimate.Terms)
-
-	// This is the list of line items to pass to the template
-	var items []LineItem
-	// First
-	items = append(items, newLineItem("Description", estimate.Desc, 0.0))
-	// 1. Main Deck
-	items = append(items, newLineItem("Decking", formatDeckDescription(estimate), estimate.DeckCost))
-
-	// 2. Demo
-	items = append(items, newLineItem("Demolition", formatDemoDescription(estimate), estimate.DemoCost))
-
-	// 3. Rails
-	items = append(items, newLineItem("Deck Rails", formatRailDescription(estimate), estimate.RailCost))
-
-	// 4. Stairs
-	items = append(items, newLineItem("Stairs", formatStairDescription(estimate), estimate.StairCost))
-
-	// 5. Stair Rails
-	items = append(items, newLineItem("Stair Rails", formatStairRailDescription(estimate), estimate.StairRailCost))
-
-	// 6. Fascia
-	items = append(items, newLineItem("Deck Fascia", formatFasciaDescription(estimate), estimate.FasciaCost))
-	items = append(items, newLineItem("Stair Fascia", formatStairFasciaDescription(estimate), estimate.StairFasciaCost))
-
-	// 7. Toe Kicks
-	items = append(items, newLineItem("Toe Kicks", formatStairTKDescription(estimate), estimate.StairToeKickCost))
-
-	// 8. Subtotal
-	items = append(items, newLineItem("Subtotal", "", estimate.Subtotal))
-
-	// 9. Sales Tax
-	taxDesc := estimate.Customer.State + " (estimated) sales tax"
-	if estimate.Customer.State == "" {
+// buildEstimateEmailHTML builds a clean HTML email for the estimate.
+func buildEstimateEmailHTML(e DeckEstimate) string {
+	taxDesc := e.Customer.State + " sales tax"
+	if e.Customer.State == "" {
 		taxDesc = "Sales tax"
 	}
-	items = append(items, newLineItem("Sales Tax", taxDesc, estimate.SalesTax))
-	p.SetDynamicTemplateData("LineItems", items)
-	customerMessage.AddPersonalizations(p)
 
-	log.Printf("Preparing to send estimate %d email to: %s", estimate.EstimateID, estimate.Customer.Email)
-	log.Printf("From: %s To: %s", from.Address, to.Address)
-
-	// SendGrid email sending logic goes here
-	apiKey := os.Getenv("SENDGRID_API_KEY")
-	if apiKey == "" {
-		log.Printf("Unable to send email: SENDGRID_API_KEY is required")
-		w.WriteHeader(http.StatusRequestTimeout) // failed
-		return
+	lineItems := []LineItem{
+		newLineItem("Deck", formatDeckDescription(e), e.DeckCost),
+		newLineItem("Demolition", formatDemoDescription(e), e.DemoCost),
+		newLineItem("Rails", formatRailDescription(e), e.RailCost),
+		newLineItem("Fascia", formatFasciaDescription(e), e.FasciaCost),
+		newLineItem("Stairs", formatStairDescription(e), e.StairCost),
+		newLineItem("Stair Rails", formatStairRailDescription(e), e.StairRailCost),
+		newLineItem("Stair Fascia", formatStairFasciaDescription(e), e.StairFasciaCost),
+		newLineItem("Toe Kicks", formatStairTKDescription(e), e.StairToeKickCost),
 	}
 
-	// Send emails in background
-	go func() {
-		sg = sendgrid.NewSendClient(apiKey)
-		customerRR, err := sg.Send(customerMessage)
-		if err != nil {
-			log.Printf("Auto-reply failed: %v", err)
-		}
-		if customerRR.StatusCode >= 300 {
-			log.Printf("customer send response is: %v", customerRR)
-		}
+	rows := ""
+	for _, item := range lineItems {
+		rows += fmt.Sprintf(`<tr>
+			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top">%s</td>
+			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top;color:#555;font-size:13px">%s</td>
+			<td style="padding:8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap">%s</td>
+		</tr>`, item.Name, strings.ReplaceAll(item.Description, "\n", "<br>"), formatCost(item.Cost))
+	}
 
-		log.Printf("emailHandler - Completed successfully for Estimate ID=%d", estimate.EstimateID)
-		// w.WriteHeader(http.StatusOK) // or just write JSON (defaults to 200)
-		// w.WriteHeader(http.StatusOK)
-	}()
+	return fmt.Sprintf(`<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:Arial,sans-serif;color:#333;max-width:640px;margin:0 auto;padding:20px">
 
-	// Return a message / 200 back to JavaScript function
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"status":  "queued",
-		"message": "Estimate is being sent",
-	})
+  <div style="background:#2c6e9e;color:white;padding:24px;border-radius:6px 6px 0 0">
+    <h1 style="margin:0;font-size:22px">Columbia Outdoor</h1>
+    <p style="margin:4px 0 0;opacity:.8">(360) 787-8062 · columbiaoutdoor.com</p>
+  </div>
 
+  <div style="background:#f8f8f8;padding:16px;border-left:4px solid #2c6e9e">
+    <strong>Estimate #%d-%d</strong> &mdash; %s<br>
+    <span style="color:#888;font-size:13px">Prepared: %s &nbsp;·&nbsp; Expires: %s</span>
+  </div>
+
+  <div style="display:flex;gap:20px;margin:20px 0">
+    <div style="flex:1">
+      <strong>Customer</strong><br>
+      %s %s<br>%s<br>%s, %s %s<br>%s<br>%s
+    </div>
+  </div>
+
+  <h2 style="font-size:16px;border-bottom:2px solid #2c6e9e;padding-bottom:6px">Scope of Work</h2>
+  <table style="width:100%%;border-collapse:collapse">
+    <thead><tr style="background:#f0f0f0">
+      <th style="padding:8px;text-align:left">Item</th>
+      <th style="padding:8px;text-align:left">Description</th>
+      <th style="padding:8px;text-align:right">Cost</th>
+    </tr></thead>
+    <tbody>%s</tbody>
+    <tfoot>
+      <tr><td colspan="2" style="padding:8px;text-align:right"><strong>Subtotal</strong></td>
+          <td style="padding:8px;text-align:right">%s</td></tr>
+      <tr><td colspan="2" style="padding:8px;text-align:right">%s</td>
+          <td style="padding:8px;text-align:right">%s</td></tr>
+      <tr style="background:#333;color:white">
+        <td colspan="2" style="padding:12px;text-align:right"><strong>Total</strong></td>
+        <td style="padding:12px;text-align:right"><strong>%s</strong></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div style="margin-top:24px;padding:16px;background:#f9f9f9;border:1px solid #ddd;font-size:12px;color:#666">
+    <strong>Terms &amp; Conditions</strong><br>
+    This estimate is valid until %s. To accept, please contact us at (360) 787-8062 or reply to this email.
+  </div>
+
+</body></html>`,
+		e.EstimateID, e.Version, e.Desc,
+		e.SaveDate.Format("Jan 2, 2006"),
+		e.ExpirationDate.Format("Jan 2, 2006"),
+		e.Customer.FirstName, e.Customer.LastName,
+		e.Customer.Address,
+		e.Customer.City, e.Customer.State, e.Customer.Zip,
+		e.Customer.PhoneNumber, e.Customer.Email,
+		rows,
+		formatCost(e.Subtotal),
+		taxDesc, formatCost(e.SalesTax),
+		formatCost(e.TotalCost),
+		e.ExpirationDate.Format("Jan 2, 2006"),
+	)
 }

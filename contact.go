@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -11,8 +12,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	resend "github.com/resend/resend-go/v2"
 )
 
 type PageData struct {
@@ -27,63 +27,53 @@ type ContactForm struct {
 	Message string `json:"message"`
 }
 
-var sg *sendgrid.Client
+var resendClient *resend.Client
 
 func init() {
-	apiKey := os.Getenv("SENDGRID_API_KEY")
+	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
-		log.Fatal("Unable to send email: SENDGRID_API_KEY is required")
+		log.Fatal("RESEND_API_KEY is required — email will not work without it")
 	}
-	sg = sendgrid.NewSendClient(apiKey)
+	resendClient = resend.NewClient(apiKey)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 
-	// POST Response!!!!
 	if r.Method == "POST" {
-		// Simple form handling (expand with email, DB, etc.)
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
 
-		// Start Captcha
+		// Cloudflare Turnstile CAPTCHA
 		cfSecretKey := os.Getenv("CLOUDFLARE_SECRET_KEY")
 		if cfSecretKey == "" {
 			log.Fatal("CF Captcha missing secret key")
 		}
-
-		// In your POST handler
 		token := r.FormValue("cf-turnstile-response")
 		if token == "" {
-			// Reject: missing token
 			log.Printf("Missing CF token from POST")
 			return
 		}
-
 		resp, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify", url.Values{
-			"secret":   {cfSecretKey}, // TODO - Replace with SECRET KEY
+			"secret":   {cfSecretKey},
 			"response": {token},
 			"remoteip": {r.RemoteAddr},
 		})
-		if err != nil { /* handle error */
-			// Reject: BOT
-			log.Printf("Cloudflare Post failed!.")
+		if err != nil {
+			log.Printf("Cloudflare Post failed: %v", err)
 			return
 		}
-
 		cfBody, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
 		var result struct {
 			Success bool `json:"success"`
 		}
-		err = json.Unmarshal(cfBody, &result)
-		err = resp.Body.Close()
+		json.Unmarshal(cfBody, &result)
 		if !result.Success {
-			// Spam/bot — reject or log
-			log.Printf("Captcha Failed. Bot - %v", cfBody)
+			log.Printf("Captcha failed — possible bot: %s", cfBody)
 			return
 		}
-		// End Captcha - Cloudflare
 
 		data := ContactForm{
 			Name:    r.FormValue("name"),
@@ -93,62 +83,60 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 			Message: r.FormValue("message"),
 		}
 
-		from := mail.NewEmail("Columbia Outdoor", "support@columbiaoutdoor.com")
-		toTeam := mail.NewEmail("Team - CO", "support@columbiaoutdoor.com")
-		replyTo := mail.NewEmail(data.Name, data.Email)
-		// 1. Email to your team (rich HTML)
-		htmlContent := `
-		<h2>New Contact Form Submission</h2>
-		<p><strong>Name:</strong> {{.Name}}</p>
-		<p><strong>Email:</strong> {{.Email}}</p>
-		<p><strong>Phone:</strong> {{.Phone}}</p>
-		<p><strong>Project Type:</strong> {{.Project}}</p>
-		<p><strong>Message:</strong><br>{{.Message}}</p>
-		<hr>
-		<small>Sent from columbiaoutdoor.com – Pacific Northwest’s trusted outdoor living platform</small>
-	`
-		t := template.Must(template.New("email").Funcs(template.FuncMap{
-			"replace": func(s, old, new string) string { return strings.ReplaceAll(s, old, new) },
-		}).Parse(htmlContent))
+		// Build team notification HTML
+		teamHTML := fmt.Sprintf(`
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> %s</p>
+<p><strong>Email:</strong> %s</p>
+<p><strong>Phone:</strong> %s</p>
+<p><strong>Project Type:</strong> %s</p>
+<p><strong>Message:</strong><br>%s</p>
+<hr>
+<small>Sent from columbiaoutdoor.com</small>`,
+			data.Name, data.Email, data.Phone, data.Project,
+			strings.ReplaceAll(data.Message, "\n", "<br>"))
 
+		// Build visitor auto-reply HTML
+		visitorHTML := fmt.Sprintf(`
+<h2>Thanks for reaching out, %s!</h2>
+<p>We received your message about your <strong>%s</strong> project and will be in touch shortly.</p>
+<p>In the meantime, feel free to explore our <a href="https://columbiaoutdoor.com/calc?option=deck">free deck estimator</a>.</p>
+<br>
+<p>— The Columbia Outdoor Team<br>(360) 787-8062 · columbiaoutdoor.com</p>`,
+			data.Name, data.Project)
+
+		// Build plain text for team email template
+		htmlTmpl := template.Must(template.New("email").Funcs(template.FuncMap{
+			"replace": func(s, old, newS string) string { return strings.ReplaceAll(s, old, newS) },
+		}).Parse(teamHTML))
 		var body bytes.Buffer
-		err = t.Execute(&body, data)
+		htmlTmpl.Execute(&body, data)
 
-		teamMessage := mail.NewSingleEmail(from, "New Lead – "+data.Name, toTeam, "", body.String())
-		teamMessage.SetReplyTo(replyTo)
-
-		// Auto-reply using your Dynamic Template (replace with your real template ID)
-		visitorMessage := mail.NewV3Mail()
-		visitorMessage.SetFrom(from)
-		visitorMessage.SetTemplateID("d-e9a41a151cec4963a7454f4678deb030") // SendGrid Dynamic Template
-
-		p := mail.NewPersonalization()
-		p.AddTos(mail.NewEmail(data.Name, data.Email))
-		p.SetDynamicTemplateData("name", data.Name)
-		p.SetDynamicTemplateData("project", data.Project)
-		visitorMessage.AddPersonalizations(p)
-
-		// Send both emails in background
 		go func() {
-			teamRR, err := sg.Send(teamMessage)
+			// Team notification
+			_, err := resendClient.Emails.Send(&resend.SendEmailRequest{
+				From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+				To:      []string{"support@columbiaoutdoor.com"},
+				ReplyTo: data.Email,
+				Subject: "New Lead — " + data.Name,
+				Html:    body.String(),
+			})
 			if err != nil {
-				log.Printf("Team email failed: %v", err)
-			}
-			if teamRR.StatusCode != 200 {
-				log.Printf("Team Error: send response is: %v", teamRR)
+				log.Printf("Contact: team email failed: %v", err)
 			}
 
-			visitorRR, err := sg.Send(visitorMessage)
+			// Visitor auto-reply
+			_, err = resendClient.Emails.Send(&resend.SendEmailRequest{
+				From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+				To:      []string{data.Email},
+				Subject: "We received your message — Columbia Outdoor",
+				Html:    visitorHTML,
+			})
 			if err != nil {
-				log.Printf("Auto-reply failed: %v", err)
+				log.Printf("Contact: visitor reply failed: %v", err)
 			}
-			if visitorRR.StatusCode != 200 {
-				log.Printf("visitor send response is: %v", visitorRR)
-			}
-
 		}()
 
-		// Redirect to nice thank-you page
 		http.Redirect(w, r, "/contact?sent=1", http.StatusSeeOther)
 		return
 	}
@@ -164,7 +152,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contact Us"
-	userAuth.Subtitle = "For any outdoor deck, patio, cover.  One of our experts will get in touch with you soon."
+	userAuth.Subtitle = "For any outdoor deck, patio, cover. One of our experts will get in touch with you soon."
 	userAuth.MetaDesc = "Contact us today for a quick and easy estimate for Timbertech, Trex, or wood deck."
 	rd := renderData{
 		Page:   &data,

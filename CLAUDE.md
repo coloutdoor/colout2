@@ -23,7 +23,7 @@ go build -o colout2 .
 ```
 SESSION_SECRET=<32+ byte secret>
 DATABASE_URL=postgresql://user:pass@host/db
-SENDGRID_API_KEY=SG.xxxxx
+RESEND_API_KEY=re_xxxxx
 CLOUDFLARE_SECRET_KEY=0x4...
 GOOGLE_OAUTH_SECRET=GOCSPX-...
 GOOGLE_OAUTH_CALLBACK_URL=http://localhost:8080/auth/google/callback

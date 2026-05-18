@@ -6,7 +6,7 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/joho/godotenv v1.5.1
-	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
+	github.com/resend/resend-go/v2 v2.28.0
 	github.com/tmc/langchaingo v0.1.14
 	golang.org/x/crypto v0.47.0
 	golang.org/x/oauth2 v0.34.0
@@ -54,7 +54,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
-	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
