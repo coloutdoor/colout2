@@ -30,6 +30,11 @@ var funcMap = template.FuncMap{
 	"formatStairFasciaDescription": formatStairFasciaDescription,
 	"formatStairTKDescription":     formatStairTKDescription,
 	"currentYear":                  func() int { return time.Now().Year() },
+	// jsStr encodes a string as a JavaScript string literal, safe inside <script> tags.
+	"jsStr": func(s string) template.JS {
+		b, _ := json.Marshal(s)
+		return template.JS(b)
+	},
 }
 
 // DeckEstimate holds all data for a deck cost estimate.
@@ -434,6 +439,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
+		// Pick up any inline-edited description from the form
+		if desc := r.FormValue("desc"); desc != "" {
+			estimate.Desc = desc
+			sd.Estimate.Desc = desc
+		}
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, sd)
 		} else {
@@ -638,7 +648,7 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalcStairToeKickCost(costs)
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 

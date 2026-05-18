@@ -59,11 +59,11 @@
             {{end}}
         </h2>
         <div class="content">
-            <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
-            <p>{{.Customer.Address}}</p>
-            <p>{{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
-            <p>{{.Customer.PhoneNumber}}</p>
-            <p>{{.Customer.Email}}</p>
+            {{if or .Customer.FirstName .Customer.LastName}}<p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>{{end}}
+            {{if .Customer.Address}}<p>{{.Customer.Address}}</p>{{end}}
+            {{if or .Customer.City .Customer.State}}<p>{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}</p>{{end}}
+            {{if .Customer.PhoneNumber}}<p>{{.Customer.PhoneNumber}}</p>{{end}}
+            {{if .Customer.Email}}<p>{{.Customer.Email}}</p>{{end}}
         </div>
         <hr>
         <h2 class="subtitle">
@@ -83,71 +83,114 @@
         </h2>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
-            <div class="column is-8"><strong>Description</strong></div>
+            <div class="column is-1"></div>
+            <div class="column is-7"><strong>Description</strong></div>
             <div class="column is-2 has-text-right"><strong>Cost</strong></div>
 
             <div class="column is-2">Description</div>
-            <div class="column is-8">{{.Desc}}</div>
-            <div class="column is-2 has-text-right"> </div>
- 
+            <div class="column is-1">
+              <a id="desc-edit-btn" href="#" onclick="startEditDesc(); return false;" title="Edit description">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>
+            </div>
+            <div class="column is-7">
+              <span id="desc-display">{{.Desc}}</span>
+              <input id="desc-input" class="input is-small" type="text" style="display:none;"
+                value="{{.Desc}}" maxlength="50">
+            </div>
+            <div class="column is-2 has-text-right"></div>
+
             <div class="column is-2">Demo</div>
-            <div class="column is-8">{{formatDemoDescription .}} </div>
-            <div class="column is-2 has-text-right">{{formatCost .DemoCost}}</div>
+            <div class="column is-1">
+              <input id="demo-check" type="checkbox" {{if .HasDemo}}checked{{end}}
+                onchange="toggleDemo(this.checked)" title="Toggle demo">
+            </div>
+            <div class="column is-7" id="demo-desc">{{formatDemoDescription .}}</div>
+            <div class="column is-2 has-text-right" id="demo-cost">{{formatCost .DemoCost}}</div>
 
             <div class="column is-2">Deck</div>
-            <div class="column is-8">{{formatDeckDescription .}}</div>
-            <div class="column is-2 has-text-right">{{formatCost .DeckCost}}</div>
+            <div class="column is-1">
+              <a href="#" onclick="openDeckModal(); return false;" title="Edit deck">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>
+            </div>
+            <div class="column is-7" id="deck-desc">{{formatDeckDescription .}}</div>
+            <div class="column is-2 has-text-right" id="deck-cost">{{formatCost .DeckCost}}</div>
 
             <div class="column is-2">Rail</div>
-            <div class="column is-8">{{formatRailDescription .}} </div>
-            <div class="column is-2 has-text-right">{{formatCost .RailCost}}</div>
+            <div class="column is-1">
+              <a href="#" onclick="openRailModal(); return false;" title="Edit rails">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>
+            </div>
+            <div class="column is-7" id="rail-desc">{{formatRailDescription .}}</div>
+            <div class="column is-2 has-text-right" id="rail-cost">{{formatCost .RailCost}}</div>
 
             <div class="column is-2">Fascia</div>
-            <div class="column is-8">{{formatFasciaDescription .}}</div>
-            <div class="column is-2 has-text-right">{{formatCost .FasciaCost}}</div>
+            <div class="column is-1">
+              <input id="fascia-check" type="checkbox" {{if .HasFascia}}checked{{end}}
+                onchange="toggleFascia(this.checked)" title="Toggle fascia">
+            </div>
+            <div class="column is-7" id="fascia-desc">{{formatFasciaDescription .}}</div>
+            <div class="column is-2 has-text-right" id="fascia-cost">{{formatCost .FasciaCost}}</div>
 
             <div class="column is-2">Stairs</div>
-            <div class="column is-8">{{formatStairDescription .}}</div>
-            <div class="column is-2 has-text-right">{{formatCost .StairCost}}</div>
+            <div class="column is-1">
+              <a href="#" onclick="openStairModal(); return false;" title="Edit stairs">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>
+            </div>
+            <div class="column is-7" id="stair-desc">{{formatStairDescription .}}</div>
+            <div class="column is-2 has-text-right" id="stair-cost">{{formatCost .StairCost}}</div>
 
             <div class="column is-2">Stair Rails</div>
-            <div class="column is-8">{{formatStairRailDescription .}}</div>
-            <div class="column is-2 has-text-right">{{formatCost .StairRailCost}}</div>
+            <div class="column is-1">
+              {{if gt .StairWidth 0.0}}
+              <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" title="Edit stair rails">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>
+              {{end}}
+            </div>
+            <div class="column is-7" id="stairrail-desc">{{formatStairRailDescription .}}</div>
+            <div class="column is-2 has-text-right" id="stairrail-cost">{{formatCost .StairRailCost}}</div>
 
             <div class="column is-2">Stair Fascia</div>
-            <div class="column is-8">{{formatStairFasciaDescription .}} </div>
-            <div class="column is-2 has-text-right">{{formatCost .StairFasciaCost}}</div>
+            <div class="column is-1">
+              {{if gt .StairWidth 0.0}}
+              <input id="stairfascia-check" type="checkbox" {{if .HasStairFascia}}checked{{end}}
+                onchange="toggleStairFascia(this.checked)" title="Toggle stair fascia">
+              {{end}}
+            </div>
+            <div class="column is-7" id="stairfascia-desc">{{formatStairFasciaDescription .}}</div>
+            <div class="column is-2 has-text-right" id="stairfascia-cost">{{formatCost .StairFasciaCost}}</div>
 
             <div class="column is-2">Stair Toe Kicks</div>
-            {{if .HasStairTK}}
-                <div class="column is-8"> Add matching toe kicks to stairs </div>
-            {{else}}
-                <div class="column is-8"> No toe kicks.  Open. </div>
-            {{end}}
-            <div class="column is-2 has-text-right">{{formatCost .StairToeKickCost}}</div>
-  
+            <div class="column is-1">
+              {{if gt .StairWidth 0.0}}
+              <input id="stairtk-check" type="checkbox" {{if .HasStairTK}}checked{{end}}
+                onchange="toggleStairTK(this.checked)" title="Toggle stair toe kicks">
+              {{end}}
+            </div>
+            <div class="column is-7" id="stairtk-desc">{{formatStairTKDescription .}}</div>
+            <div class="column is-2 has-text-right" id="stairtk-cost">{{formatCost .StairToeKickCost}}</div>
+
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
-            <div class="column is-2 has-text-weight-semibold has-text-right">{{formatCost .Subtotal}}</div>
-
-            <!--
-            <div class="column is-2 has-background-light">Subtotal</div>
-            <div class="column is-8 has-background-light"></div>
-            <div class="column is-2 has-background-light has-text-right">{{formatCost .Subtotal}}</div>
-            -->
+            <div class="column is-2 has-text-weight-semibold has-text-right" id="subtotal-val">{{formatCost .Subtotal}}</div>
 
             <div class="column is-2">Sales Tax</div>
             <div class="column is-8">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax.</div>
-            <div class="column is-2 has-text-right">{{formatCost .SalesTax}}</div>
+            <div class="column is-2 has-text-right" id="salestax-val">{{formatCost .SalesTax}}</div>
             <div class="column is-2 has-text-weight-semibold has-background-grey-dark"><strong class="is-size-4">Total</strong></div>
             <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
-            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark"><strong class="is-size-4" >{{formatCost .TotalCost}}</strong></div>
+            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark"><strong class="is-size-4" id="total-val">{{formatCost .TotalCost}}</strong></div>
         </div>
     </div>
     {{end}}
     {{if and .TotalCost (ne .Customer.FirstName "") (eq .SaveDate.IsZero true)}}
         <form method="post" action="/estimate" class="mt-4">
         <input type="hidden" name="save" value="true">
+        <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
         <div class="field">
             <button class="button is-primary" type="submit">Save Estimate</button>
         <!--
@@ -208,10 +251,168 @@
     </div>
 </div>
     {{ else }}
-    <div id="emailModal"> 
-        <P></P> <!-- For debugging -->
+    <div id="emailModal">
+        <P></P>
     </div>
     {{ end }}
+
+<!-- Deck Modal -->
+<div id="deck-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:380px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Deck Options</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Length (ft)</label>
+        <div class="control">
+          <input id="deck-length" class="input" type="number" step="0.5" min="1" placeholder="e.g. 20">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Width (ft)</label>
+        <div class="control">
+          <input id="deck-width" class="input" type="number" step="0.5" min="1" placeholder="e.g. 16">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Height above grade (ft)</label>
+        <div class="control">
+          <input id="deck-height" class="input" type="number" step="0.5" min="0" placeholder="e.g. 3">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Finish Level</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="deck-material">
+              <option value="outdoorWood">Economy — Pressure Treated $</option>
+              <option value="cedar">Standard — Cedar $$</option>
+              <option value="timberTechPrime">Enhanced — Composite $$$</option>
+              <option value="timberTechProReserve">Premium — Composite Reserve $$$$</option>
+              <option value="timberTechProLegacy">Premier — Composite Legacy $$$$$</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyDeck()">Apply</button>
+      <button class="button" onclick="document.getElementById('deck-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Rail Modal -->
+<div id="rail-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:360px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Rail Options</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Rail Material</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="rail-material-select" onchange="toggleRailInfill()">
+              <option value="">No Rails</option>
+              <option value="wood">Wood</option>
+              <option value="aluminum">Aluminum</option>
+              <option value="composite">Composite</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="rail-infill-field">
+        <label class="label">Rail Infill</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="rail-infill-select">
+              <option value="balusters">Balusters</option>
+              <option value="cable">Cable</option>
+              <option value="glass">Glass</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyRail()">Apply</button>
+      <button class="button" onclick="document.getElementById('rail-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Stair Rail Modal -->
+<div id="stairrail-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:320px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Stair Rails</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Number of railed sides</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="stairrail-count-select">
+              <option value="0">No Stair Rails</option>
+              <option value="1">1 Side only</option>
+              <option value="2">Both Sides</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyStairRail()">Apply</button>
+      <button class="button" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Stair Width Modal -->
+<div id="stair-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:320px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Stair Width</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Select stair width</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="stair-width-select">
+              <option value="0">No Stairs</option>
+              <option value="3">3 ft</option>
+              <option value="3.5">3.5 ft</option>
+              <option value="4">4 ft</option>
+              <option value="4.5">4.5 ft</option>
+              <option value="5">5 ft</option>
+              <option value="5.5">5.5 ft</option>
+              <option value="6">6 ft</option>
+              <option value="6.5">6.5 ft</option>
+              <option value="7">7 ft</option>
+              <option value="7.5">7.5 ft</option>
+              <option value="8">8 ft</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyStairWidth()">Apply</button>
+      <button class="button" onclick="document.getElementById('stair-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
 
 <script>
 function confirmEmailSend() {
@@ -257,6 +458,205 @@ function confirmEmailSend() {
         <p>{{.Error}}</p>
     </div>
     {{end}}
+
+<script>
+// --- Inline description edit ---
+const estimateData = {
+  description:    {{jsStr .Desc}},
+  length:         {{.Length}},
+  width:          {{.Width}},
+  height:         {{.Height}},
+  material:       {{jsStr .Material}},
+  railMaterial:   {{jsStr .RailMaterial}},
+  railInfill:     {{jsStr .RailInfill}},
+  stairWidth:     {{.StairWidth}},
+  stairRailCount: {{.StairRailCount}},
+  hasDemo:        {{.HasDemo}},
+  hasFascia:      {{.HasFascia}},
+  hasStairFascia: {{.HasStairFascia}},
+  hasStairTK:     {{.HasStairTK}},
+  customerState:  {{jsStr .Customer.State}},
+};
+
+function startEditDesc() {
+  document.getElementById('desc-display').style.display = 'none';
+  document.getElementById('desc-edit-btn').style.display = 'none';
+  const input = document.getElementById('desc-input');
+  input.style.display = 'inline-block';
+  input.focus();
+  input.select();
+  input.addEventListener('blur', commitDescEdit, { once: true });
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') {
+      input.value = estimateData.description;
+      cancelDescEdit();
+    }
+  }, { once: true });
+}
+
+function cancelDescEdit() {
+  document.getElementById('desc-input').style.display = 'none';
+  document.getElementById('desc-display').style.display = 'inline';
+  document.getElementById('desc-edit-btn').style.display = 'inline';
+}
+
+function toggleDemo(checked) {
+  estimateData.hasDemo = checked;
+  calcAndUpdate();
+}
+
+function toggleFascia(checked) {
+  estimateData.hasFascia = checked;
+  calcAndUpdate();
+}
+
+function toggleStairFascia(checked) {
+  estimateData.hasStairFascia = checked;
+  calcAndUpdate();
+}
+
+function toggleStairTK(checked) {
+  estimateData.hasStairTK = checked;
+  calcAndUpdate();
+}
+
+function openDeckModal() {
+  document.getElementById('deck-length').value   = estimateData.length;
+  document.getElementById('deck-width').value    = estimateData.width;
+  document.getElementById('deck-height').value   = estimateData.height;
+  document.getElementById('deck-material').value = estimateData.material;
+  document.getElementById('deck-modal').classList.add('is-active');
+}
+
+function applyDeck() {
+  const length = parseFloat(document.getElementById('deck-length').value);
+  const width  = parseFloat(document.getElementById('deck-width').value);
+  const height = parseFloat(document.getElementById('deck-height').value);
+
+  if (!length || length < 1) { alert('Please enter a valid length (minimum 1 ft)'); return; }
+  if (!width  || width  < 1) { alert('Please enter a valid width (minimum 1 ft)');  return; }
+  if (isNaN(height) || height < 0) { alert('Please enter a valid height'); return; }
+
+  estimateData.length   = length;
+  estimateData.width    = width;
+  estimateData.height   = height;
+  estimateData.material = document.getElementById('deck-material').value;
+  document.getElementById('deck-modal').classList.remove('is-active');
+  calcAndUpdate();
+}
+
+function openRailModal() {
+  document.getElementById('rail-material-select').value = estimateData.railMaterial;
+  document.getElementById('rail-infill-select').value   = estimateData.railInfill || 'balusters';
+  toggleRailInfill();
+  document.getElementById('rail-modal').classList.add('is-active');
+}
+
+function toggleRailInfill() {
+  const mat = document.getElementById('rail-material-select').value;
+  document.getElementById('rail-infill-field').style.display = mat ? '' : 'none';
+}
+
+function applyRail() {
+  const mat = document.getElementById('rail-material-select').value;
+  estimateData.railMaterial = mat;
+  estimateData.railInfill   = mat ? document.getElementById('rail-infill-select').value : '';
+  document.getElementById('rail-modal').classList.remove('is-active');
+  calcAndUpdate();
+}
+
+function openStairRailModal() {
+  const sel = document.getElementById('stairrail-count-select');
+  sel.value = estimateData.stairRailCount.toString();
+  document.getElementById('stairrail-modal').classList.add('is-active');
+}
+
+function applyStairRail() {
+  estimateData.stairRailCount = parseFloat(document.getElementById('stairrail-count-select').value);
+  document.getElementById('stairrail-modal').classList.remove('is-active');
+  calcAndUpdate();
+}
+
+function openStairModal() {
+  const sel = document.getElementById('stair-width-select');
+  sel.value = estimateData.stairWidth.toString();
+  if (!sel.value) sel.value = '0';
+  document.getElementById('stair-modal').classList.add('is-active');
+}
+
+function applyStairWidth() {
+  const width = parseFloat(document.getElementById('stair-width-select').value);
+  estimateData.stairWidth = width;
+  document.getElementById('stair-modal').classList.remove('is-active');
+
+  // Show/hide stair-dependent controls
+  const hasStairs = width > 0;
+  const stairFasciaCheck = document.getElementById('stairfascia-check');
+  const stairTKCheck = document.getElementById('stairtk-check');
+  const stairRailEdit = document.getElementById('stairrail-edit');
+  if (stairFasciaCheck) stairFasciaCheck.parentElement.style.visibility = hasStairs ? '' : 'hidden';
+  if (stairTKCheck) stairTKCheck.parentElement.style.visibility = hasStairs ? '' : 'hidden';
+  if (stairRailEdit) stairRailEdit.style.visibility = hasStairs ? '' : 'hidden';
+  if (!hasStairs) {
+    estimateData.hasStairFascia = false;
+    estimateData.hasStairTK = false;
+    estimateData.stairRailCount = 0;
+    if (stairFasciaCheck) stairFasciaCheck.checked = false;
+    if (stairTKCheck) stairTKCheck.checked = false;
+  }
+
+  calcAndUpdate();
+}
+
+function calcAndUpdate() {
+  fetch('/api/calc/deck', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(estimateData),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { console.error('Calc error:', data.error); return; }
+    // Update costs
+    document.getElementById('deck-cost').textContent       = formatCost(data.deckCost);
+    document.getElementById('demo-cost').textContent       = formatCost(data.demoCost);
+    document.getElementById('rail-cost').textContent       = formatCost(data.railCost);
+    document.getElementById('fascia-cost').textContent     = formatCost(data.fasciaCost);
+    document.getElementById('stair-cost').textContent      = formatCost(data.stairCost);
+    document.getElementById('stairrail-cost').textContent  = formatCost(data.stairRailCost);
+    document.getElementById('stairfascia-cost').textContent= formatCost(data.stairFasciaCost);
+    document.getElementById('stairtk-cost').textContent    = formatCost(data.stairToeKickCost);
+    document.getElementById('subtotal-val').textContent    = formatCost(data.subtotal);
+    document.getElementById('salestax-val').textContent    = formatCost(data.salesTax);
+    document.getElementById('total-val').textContent       = formatCost(data.totalCost);
+    // Update descriptions
+    document.getElementById('deck-desc').textContent       = data.deckDescription;
+    document.getElementById('demo-desc').textContent       = data.demoDescription;
+    document.getElementById('rail-desc').textContent       = data.railDescription;
+    document.getElementById('fascia-desc').textContent     = data.fasciaDescription;
+    document.getElementById('stair-desc').textContent      = data.stairDescription;
+    document.getElementById('stairrail-desc').textContent  = data.stairRailDescription;
+    document.getElementById('stairfascia-desc').textContent= data.stairFasciaDescription;
+    document.getElementById('stairtk-desc').textContent    = data.stairTKDescription;
+  })
+  .catch(err => console.error('API error:', err));
+}
+
+function formatCost(n) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function commitDescEdit() {
+  const newDesc = document.getElementById('desc-input').value.trim();
+  estimateData.description = newDesc;
+  const saveField = document.getElementById('save-desc');
+  if (saveField) saveField.value = newDesc;
+  calcAndUpdate();
+  document.getElementById('desc-display').textContent = newDesc;
+  cancelDescEdit();
+}
+</script>
 
     {{end}}
   {{template "footer.gohtml" .}}

@@ -127,6 +127,11 @@ func main() {
 	mux.HandleFunc("/sitemap.xml", sitemapHandler)
 	mux.HandleFunc("/robots.txt", robotsTxtHandler)
 	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
+	mux.HandleFunc("/.well-known/appspecific/com.chrome.devtools.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("{}"))
+	})
+	mux.HandleFunc("/api/calc/deck", apiCalcDeckHandler)
 	mux.HandleFunc("/admin", adminHandler)
 	mux.HandleFunc("/admin/contractor/action", adminContractorActionHandler)
 	mux.HandleFunc("/contractor", contractorLandingHandler)

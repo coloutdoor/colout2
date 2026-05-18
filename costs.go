@@ -40,6 +40,7 @@ func (estimate *DeckEstimate) CalculateDeckCost(costs Costs) {
 		estimate.Error = "Please select a valid material for Deck"
 		return
 	}
+	estimate.DeckArea = area
 	baseCost := area * costPerSqFt
 
 	if estimate.Height >= 20 {
