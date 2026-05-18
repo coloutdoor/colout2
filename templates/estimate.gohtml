@@ -89,14 +89,12 @@
 
             <div class="column is-2">Description</div>
             <div class="column is-1">
-              <a id="desc-edit-btn" href="#" onclick="startEditDesc(); return false;" title="Edit description">
+              <a href="#" onclick="openDescModal(); return false;" title="Edit description">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
               </a>
             </div>
             <div class="column is-7">
               <span id="desc-display">{{.Desc}}</span>
-              <input id="desc-input" class="input is-small" type="text" style="display:none;"
-                value="{{.Desc}}" maxlength="50">
             </div>
             <div class="column is-2 has-text-right"></div>
 
@@ -181,9 +179,9 @@
             <div class="column is-2">Sales Tax</div>
             <div class="column is-8">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax.</div>
             <div class="column is-2 has-text-right" id="salestax-val">{{formatCost .SalesTax}}</div>
-            <div class="column is-2 has-text-weight-semibold has-background-grey-dark"><strong class="is-size-4">Total</strong></div>
+            <div class="column is-2 has-text-weight-semibold has-background-grey-dark has-text-white"><strong class="is-size-4 has-text-white">Total</strong></div>
             <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
-            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark"><strong class="is-size-4" id="total-val">{{formatCost .TotalCost}}</strong></div>
+            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark has-text-white"><strong class="is-size-4 has-text-white" id="total-val">{{formatCost .TotalCost}}</strong></div>
         </div>
     </div>
     {{end}}
@@ -255,6 +253,29 @@
         <P></P>
     </div>
     {{ end }}
+
+<!-- Description Modal -->
+<div id="desc-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:400px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Project Description</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <div class="control">
+          <input id="desc-modal-input" class="input" type="text" maxlength="50"
+            placeholder="e.g. Back yard deck, master bedroom deck...">
+        </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyDesc()">Apply</button>
+      <button class="button" onclick="document.getElementById('desc-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
 
 <!-- Deck Modal -->
 <div id="deck-modal" class="modal">
@@ -478,27 +499,10 @@ const estimateData = {
   customerState:  {{jsStr .Customer.State}},
 };
 
-function startEditDesc() {
-  document.getElementById('desc-display').style.display = 'none';
-  document.getElementById('desc-edit-btn').style.display = 'none';
-  const input = document.getElementById('desc-input');
-  input.style.display = 'inline-block';
-  input.focus();
-  input.select();
-  input.addEventListener('blur', commitDescEdit, { once: true });
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') input.blur();
-    if (e.key === 'Escape') {
-      input.value = estimateData.description;
-      cancelDescEdit();
-    }
-  }, { once: true });
-}
-
-function cancelDescEdit() {
-  document.getElementById('desc-input').style.display = 'none';
-  document.getElementById('desc-display').style.display = 'inline';
-  document.getElementById('desc-edit-btn').style.display = 'inline';
+function openDescModal() {
+  document.getElementById('desc-modal-input').value = estimateData.description;
+  document.getElementById('desc-modal').classList.add('is-active');
+  setTimeout(() => document.getElementById('desc-modal-input').select(), 50);
 }
 
 function toggleDemo(checked) {
@@ -647,14 +651,14 @@ function formatCost(n) {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function commitDescEdit() {
-  const newDesc = document.getElementById('desc-input').value.trim();
+function applyDesc() {
+  const newDesc = document.getElementById('desc-modal-input').value.trim();
   estimateData.description = newDesc;
   const saveField = document.getElementById('save-desc');
   if (saveField) saveField.value = newDesc;
-  calcAndUpdate();
   document.getElementById('desc-display').textContent = newDesc;
-  cancelDescEdit();
+  document.getElementById('desc-modal').classList.remove('is-active');
+  calcAndUpdate();
 }
 </script>
 
