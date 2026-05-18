@@ -174,7 +174,9 @@ func getEstimate(estimateID int) DeckEstimate {
 
 	err = db.Close()
 
-	// TODO convert acceptDate -> de.AcceptDate - this was put in to allow for Nulls
+	if acceptDate.Valid {
+		de.AcceptDate = acceptDate.Time
+	}
 	de.Error = ""
 	return de
 }
@@ -272,8 +274,13 @@ RETURNING estimate_id`
 			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
 			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //18
 			estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
-			estimate.SaveDate.Format("2006-01-02 15:04:05"),       //21
-			estimate.AcceptDate.Format("2006-01-02 15:04:05"),     //22
+			estimate.SaveDate.Format("2006-01-02 15:04:05"), //21
+			func() interface{} {
+				if estimate.AcceptDate.IsZero() {
+					return nil
+				}
+				return estimate.AcceptDate.Format("2006-01-02 15:04:05")
+			}(), //22
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //23
 			estimate.HasStairFascia, estimate.HasStairTK,          //25
 			estimate.UserId,       //26

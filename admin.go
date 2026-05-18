@@ -128,7 +128,7 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 		       COALESCE(e.first_name,''), COALESCE(e.last_name,''),
 		       COALESCE(e.description,''), COALESCE(e.total_cost,0), e.save_date,
 		       CASE
-		         WHEN e.accept_date IS NOT NULL THEN 'Accepted'
+		         WHEN e.accept_date IS NOT NULL AND e.accept_date > '2000-01-01' THEN 'Accepted'
 		         WHEN e.expiration_date IS NOT NULL AND e.expiration_date < NOW() THEN 'Expired'
 		         ELSE 'Pending'
 		       END AS status

@@ -67,19 +67,17 @@
         </div>
         <hr>
         <h2 class="subtitle">
-            <p class="has-text-white has-background-black"> Details 
+            <p class="has-text-white has-background-black"> Details
             {{if gt .EstimateID 0}}
-                 - EstimateID: {{.EstimateID}} 
-                 {{if .AcceptDate.IsZero}}
-                    Expires: {{.ExpirationDate.Format "2006-01-02"}}
-                 {{else}}
-                     - Accepted on {{.AcceptDate.Format "2006-01-02"}}
-                 {{end}}
+                &mdash; Estimate #{{.EstimateID}}
+                &mdash; Last Updated: {{.SaveDate.Format "2006-01-02"}}
+                {{if .AcceptDate.IsZero}}
+                    &mdash; Expires: {{.ExpirationDate.Format "2006-01-02"}}
+                {{else}}
+                    &mdash; <span class="has-text-success">Accepted {{.AcceptDate.Format "2006-01-02"}}</span>
+                {{end}}
             {{end}}
-           </p>
-           {{if .SaveDate.IsZero}}
-            <span class="is-pulled-right"><a href="/calc" class="button is-primary">Customize</a></span>
-           {{end}}
+            </p>
         </h2>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
