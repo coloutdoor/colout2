@@ -219,22 +219,31 @@ func TestCalculateDemoCost(t *testing.T) {
 	}{
 		{
 			"no demo",
-			func() DeckEstimate { return DeckEstimate{Length: 10, Width: 10, HasDemo: false} },
+			func() DeckEstimate {
+				e := DeckEstimate{Length: 10, Width: 10, HasDemo: false, Material: "outdoorWood"}
+				e.CalculateDeckCost(testCosts)
+				return e
+			},
 			0.0,
 		},
 		{
 			"deck only demo",
-			func() DeckEstimate { return DeckEstimate{Length: 10, Width: 10, HasDemo: true} },
+			func() DeckEstimate {
+				e := DeckEstimate{Length: 10, Width: 10, HasDemo: true, Material: "outdoorWood"}
+				e.CalculateDeckCost(testCosts)
+				return e
+			},
 			10 * 10 * 5.0,
 		},
 		{
 			"deck with rails",
 			func() DeckEstimate {
-				e := DeckEstimate{Length: 10, Width: 10, HasDemo: true, RailMaterial: "wood", RailInfill: "balusters"}
-				e.CalculateRailCost(testCosts) // sets RailFeet=30, RailCost>0
+				e := DeckEstimate{Length: 10, Width: 10, HasDemo: true, Material: "outdoorWood", RailMaterial: "wood", RailInfill: "balusters"}
+				e.CalculateDeckCost(testCosts)
+				e.CalculateRailCost(testCosts)
 				return e
 			},
-			(100 + 30*3) * 5.0, // deck area (100) + rail area (30ft * 3) = 190 * 5
+			(100 + 30*3) * 5.0,
 		},
 	}
 

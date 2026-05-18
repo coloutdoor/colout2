@@ -34,7 +34,15 @@ func loadCosts() error {
 
 // CalculateDeckCost computes the total price of the deck based on the provided material and labor costs.
 func (estimate *DeckEstimate) CalculateDeckCost(costs Costs) {
-	area := estimate.Length * estimate.Width
+	// Sum area across all sections; fall back to L×W for legacy single-section estimates
+	var area float64
+	if len(estimate.Sections) > 0 {
+		for _, s := range estimate.Sections {
+			area += s.Length * s.Width
+		}
+	} else {
+		area = estimate.Length * estimate.Width
+	}
 	costPerSqFt, ok := costs.DeckMaterials[estimate.Material]
 	if !ok {
 		estimate.Error = "Please select a valid material for Deck"
@@ -62,7 +70,7 @@ func (estimate *DeckEstimate) CalculateDemoCost(costs Costs) {
 		return
 	}
 
-	deckArea := estimate.Length * estimate.Width
+	deckArea := estimate.DeckArea // set by CalculateDeckCost
 	railArea := 0.0
 	stairArea := 0.0
 	stairRailArea := 0.0
@@ -102,10 +110,18 @@ func (estimate *DeckEstimate) CalculateRailCost(costs Costs) {
 		estimate.RailInfill = "balusters"
 	}
 
-	// Rails on 3 sides: 2 lengths + 1 width (house on one side) - stair opening
-	railMatCost := costs.RailMaterials[estimate.RailMaterial] // 0.0 if not found
-	railInfCost := costs.RailInfills[estimate.RailInfill]     // 0.0 if not found
-	estimate.RailFeet = (2 * estimate.Length) + estimate.Width - estimate.StairWidth
+	railMatCost := costs.RailMaterials[estimate.RailMaterial]
+	railInfCost := costs.RailInfills[estimate.RailInfill]
+
+	// Use manual override if set; otherwise calculate from primary section
+	if estimate.RailFeetOverride > 0 {
+		estimate.RailFeet = estimate.RailFeetOverride
+	} else if len(estimate.Sections) > 0 {
+		s := estimate.Sections[0]
+		estimate.RailFeet = (2 * s.Length) + s.Width - estimate.StairWidth
+	} else {
+		estimate.RailFeet = (2 * estimate.Length) + estimate.Width - estimate.StairWidth
+	}
 	estimate.RailCost = estimate.RailFeet * (railMatCost + railInfCost)
 }
 

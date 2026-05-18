@@ -77,6 +77,19 @@ type DeckEstimate struct {
 	Error            string
 	EmailModalShown  bool  // Flag to indicate if email modal should be shown
 	UserId           int64 // FK to UserAuth
+	Status           string // Accepted, Expired, or Pending — computed in renderEstimate
+	Version          int    // Increments on each save
+	Sections         []EstimateSection
+	RailFeetOverride float64 // 0 = auto-calculate from primary section
+}
+
+type EstimateSection struct {
+	ID         int64
+	EstimateID int
+	Label      string
+	Length     float64
+	Width      float64
+	SortOrder  int
 }
 
 type ContractorInfo struct {
@@ -93,6 +106,7 @@ var db *sql.DB              // db is the SQLite database connection
 
 func init() {
 	gob.Register(DeckEstimate{})
+	gob.Register(EstimateSection{})
 	gob.Register(Customer{})
 	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
@@ -102,6 +116,15 @@ func init() {
 
 // renderEstimate executes the "estimate.gohtml" template with the given estimate, handling errors.
 func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate) {
+	// Compute status
+	if !estimate.AcceptDate.IsZero() {
+		estimate.Status = "Accepted"
+	} else if estimate.EstimateID > 0 && !estimate.ExpirationDate.IsZero() && estimate.ExpirationDate.Before(time.Now()) {
+		estimate.Status = "Expired"
+	} else if estimate.EstimateID > 0 {
+		estimate.Status = "Pending"
+	}
+
 	// Terms is not part of session
 	terms, err := os.ReadFile("static/t_and_c.txt")
 	if err != nil {
@@ -147,20 +170,20 @@ func getEstimate(estimateID int) DeckEstimate {
 	var de DeckEstimate
 	var acceptDate sql.NullTime
 	err = db.QueryRow(`
-        SELECT e.estimate_id, e.description, e.length, e.width, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
+        SELECT e.estimate_id, e.description, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
         e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
         e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
-        e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id,
+        e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
         COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
-		&de.EstimateID, &de.Desc, &de.Length, &de.Width, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
+		&de.EstimateID, &de.Desc, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
 		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,
 		&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State,
 		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
-		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID,
+		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID, &de.Version,
 		&de.Contractor.CompanyName, &de.Contractor.Phone, &de.Contractor.Website,
 		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID)
 
@@ -172,11 +195,33 @@ func getEstimate(estimateID int) DeckEstimate {
 	}
 	log.Printf("Found estimate: %d", estimateID)
 
-	err = db.Close()
-
 	if acceptDate.Valid {
 		de.AcceptDate = acceptDate.Time
 	}
+
+	// Load sections (before closing DB)
+	srows, serr := db.Query(`
+		SELECT id, estimate_id, label, length, width, sort_order
+		FROM estimate_sections WHERE estimate_id = $1
+		ORDER BY sort_order, id`, estimateID)
+	if serr == nil {
+		for srows.Next() {
+			var s EstimateSection
+			if err := srows.Scan(&s.ID, &s.EstimateID, &s.Label, &s.Length, &s.Width, &s.SortOrder); err == nil {
+				de.Sections = append(de.Sections, s)
+			}
+		}
+		srows.Close()
+	}
+
+	db.Close()
+
+	// Derive L/W from primary section so existing calculations still work
+	if len(de.Sections) > 0 {
+		de.Length = de.Sections[0].Length
+		de.Width  = de.Sections[0].Width
+	}
+
 	de.Error = ""
 	return de
 }
@@ -236,56 +281,55 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	// Update Existing estimate
 	if estimate.EstimateID > 0 {
 		log.Printf("Updating existing estimate ID=%d", estimate.EstimateID)
-		stmt := `UPDATE estimates 
-SET 
+		stmt := `UPDATE estimates
+SET
     description = $1,
-    length = $2,
-    width = $3,
-    height = $4,
-    material = $5,
-    rail_material = $6,
-    rail_infill = $7,
-    stair_width = $8,
-    stair_rail_count = $9,
-    has_demo = $10,
-    has_fascia = $11,
-    total_cost = $12,
-    first_name = $13,
-    last_name = $14,
-    address = $15,
-    city = $16,
-    state = $17,
-    zip = $18,
-    phone_number = $19,
-    email = $20,
-    save_date = $21,
-    accept_date = $22,
-    expiration_date = $23,
-    has_stair_fascia = $24,
-    has_stair_tk = $25,
-    user_id = $26,
-    contractor_id = $27
-WHERE estimate_id = $28
-RETURNING estimate_id`
+    height = $2,
+    material = $3,
+    rail_material = $4,
+    rail_infill = $5,
+    stair_width = $6,
+    stair_rail_count = $7,
+    has_demo = $8,
+    has_fascia = $9,
+    total_cost = $10,
+    first_name = $11,
+    last_name = $12,
+    address = $13,
+    city = $14,
+    state = $15,
+    zip = $16,
+    phone_number = $17,
+    email = $18,
+    save_date = $19,
+    accept_date = $20,
+    expiration_date = $21,
+    has_stair_fascia = $22,
+    has_stair_tk = $23,
+    user_id = $24,
+    contractor_id = $25,
+    version = version + 1
+WHERE estimate_id = $26
+RETURNING estimate_id, version`
 		var updatedID int64
-		err = db.QueryRow(stmt, estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
-			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //7
-			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //12
-			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
-			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //18
-			estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
-			estimate.SaveDate.Format("2006-01-02 15:04:05"), //21
+		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
+			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //5
+			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //10
+			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //13
+			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, //16
+			estimate.Customer.PhoneNumber, estimate.Customer.Email, //18
+			estimate.SaveDate.Format("2006-01-02 15:04:05"), //19
 			func() interface{} {
 				if estimate.AcceptDate.IsZero() {
 					return nil
 				}
 				return estimate.AcceptDate.Format("2006-01-02 15:04:05")
-			}(), //22
-			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //23
-			estimate.HasStairFascia, estimate.HasStairTK,          //25
-			estimate.UserId,       //26
-			estimate.ContractorID, //27
-			estimate.EstimateID).Scan(&updatedID)
+			}(), //20
+			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //21
+			estimate.HasStairFascia, estimate.HasStairTK,          //23
+			estimate.UserId,       //24
+			estimate.ContractorID, //25
+			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
 			log.Printf("Failed to prepare statement to update estimate: %v", err)
@@ -302,32 +346,32 @@ RETURNING estimate_id`
 		log.Printf("Inserting new estimate")
 		//Prepared Statement - PostgreSQL handle the ID
 		stmt := `INSERT INTO estimates (
-    	description, length, width, height, 
-    	material, rail_material, rail_infill,
-    	stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
-    	first_name, last_name, address, 
-    	city, state, zip, phone_number, email,
-    	save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id, contractor_id)
+			description, height,
+			material, rail_material, rail_infill,
+			stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
+			first_name, last_name, address,
+			city, state, zip, phone_number, email,
+			save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id, contractor_id, version)
 		VALUES (
-		$1, $2, $3, $4,
-		$5, $6, $7,
-		$8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17, $18, $19, $20,
-        $21, $22, $23,
-        $24, $25, $26, $27
+		$1, $2,
+		$3, $4, $5,
+		$6, $7, $8, $9, $10,
+		$11, $12, $13, $14, $15, $16, $17, $18,
+		$19, $20, $21,
+		$22, $23, $24, $25, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
-			estimate.Desc, estimate.Length, estimate.Width, estimate.Height, //4
-			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //7
-			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //12
-			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //15
-			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, estimate.Customer.PhoneNumber, estimate.Customer.Email, //20
+			estimate.Desc, estimate.Height, //2
+			estimate.Material, estimate.RailMaterial, estimate.RailInfill, //5
+			estimate.StairWidth, estimate.StairRailCount, estimate.HasDemo, estimate.HasFascia, estimate.TotalCost, //10
+			estimate.Customer.FirstName, estimate.Customer.LastName, estimate.Customer.Address, //13
+			estimate.Customer.City, estimate.Customer.State, estimate.Customer.Zip, estimate.Customer.PhoneNumber, estimate.Customer.Email, //18
 			estimate.SaveDate.Format("2006-01-02 15:04:05"),
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
-			estimate.HasStairFascia, estimate.HasStairTK, //25
-			estimate.UserId,       //26
+			estimate.HasStairFascia, estimate.HasStairTK, //23
+			estimate.UserId,       //24
 			estimate.ContractorID).Scan(&newID) //27
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -335,8 +379,22 @@ RETURNING estimate_id`
 			renderEstimate(w, r, DeckEstimate{Error: "Database error: Save Estimate failed."})
 			return
 		}
-		estimate.EstimateID = int(newID) // Add the new Estimate ID to the Struct
+		estimate.EstimateID = int(newID)
 		_ = db.Close()
+	}
+
+	// Save sections — open fresh connection
+	if len(estimate.Sections) > 0 {
+		db2, err2 := sql.Open("pgx", dbURL)
+		if err2 == nil {
+			db2.Exec(`DELETE FROM estimate_sections WHERE estimate_id = $1`, estimate.EstimateID)
+			for i, s := range estimate.Sections {
+				db2.Exec(`INSERT INTO estimate_sections (estimate_id, label, length, width, sort_order)
+					VALUES ($1, $2, $3, $4, $5)`,
+					estimate.EstimateID, s.Label, s.Length, s.Width, i)
+			}
+			db2.Close()
+		}
 	}
 
 	_ = db.Close()
@@ -404,8 +462,9 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Save the session?? Maybe this is needed???
-	sd.Estimate = de
+	// Sync session with the loaded estimate so /customer pre-fills correctly
+	sd.Estimate  = de
+	sd.Customer  = de.Customer
 	_ = sd.Save(r, w)
 
 	// Render the estimate
@@ -439,25 +498,53 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ************* GET  ********************************
 	if r.Method != http.MethodPost {
-		// Load estimate from session for GET
+		// For saved estimates always reload from DB to ensure fresh sections/costs
+		if estimate.EstimateID > 0 {
+			fresh := getEstimate(estimate.EstimateID)
+			fresh.CalcAllCosts()
+			fresh.Customer = estimate.Customer // keep session customer if set
+			renderEstimate(w, r, fresh)
+			return
+		}
 		renderEstimate(w, r, estimate)
 		return
 	}
 
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
-		// Pick up any inline-edited description from the form
+		// Pick up inline-edited description
 		if desc := r.FormValue("desc"); desc != "" {
 			estimate.Desc = desc
 			sd.Estimate.Desc = desc
 		}
+		// Pick up sections from JS (JSON array)
+		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
+			var parsed []struct {
+				Label  string  `json:"label"`
+				Length float64 `json:"length"`
+				Width  float64 `json:"width"`
+			}
+			if err := json.Unmarshal([]byte(sectionsJSON), &parsed); err == nil && len(parsed) > 0 {
+				estimate.Sections = nil
+				for i, s := range parsed {
+					estimate.Sections = append(estimate.Sections, EstimateSection{
+						Label:     s.Label,
+						Length:    s.Length,
+						Width:     s.Width,
+						SortOrder: i,
+					})
+				}
+				// Keep L/W in sync with primary section
+				estimate.Length = estimate.Sections[0].Length
+				estimate.Width  = estimate.Sections[0].Width
+			}
+		}
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, sd)
+			http.Redirect(w, r, fmt.Sprintf("/estimate/%d", estimate.EstimateID), http.StatusSeeOther)
 		} else {
 			renderEstimate(w, r, DeckEstimate{Error: "Please complete Customer and Estimate before Saving."})
-			return
 		}
-		renderEstimate(w, r, estimate)
 		return
 	}
 
@@ -603,6 +690,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 			estimate.HasStairTK = false
 		}
 	}
+
+	// Build initial section from L/W for new estimates from calculator
+	estimate.Sections = []EstimateSection{{
+		Label:  "Main Deck",
+		Length: estimate.Length,
+		Width:  estimate.Width,
+	}}
 
 	// Calculate the costs
 	estimate.CalcAllCosts()

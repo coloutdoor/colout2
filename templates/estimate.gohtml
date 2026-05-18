@@ -2,7 +2,29 @@
   {{template "header.gohtml" .Header}}
 
   {{with .Page}}
-    <h1 class="title">Deck Estimate</h1>
+    <div class="mb-3">
+      <h1 class="title mb-1">
+        Deck Estimate
+        {{if gt .EstimateID 0}}
+        #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}
+        {{if .Status}}
+        <span class="tag is-medium ml-2 {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">
+          {{.Status}}
+        </span>
+        {{end}}
+        {{end}}
+      </h1>
+      {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+      <p class="has-text-grey is-size-7">
+        Version {{.Version}} &mdash; Last Updated: {{.SaveDate.Format "2006-01-02"}}
+        {{if .AcceptDate.IsZero}}
+          {{if not .ExpirationDate.IsZero}}&mdash; Expires: {{.ExpirationDate.Format "2006-01-02"}}{{end}}
+        {{else}}
+          &mdash; Accepted {{.AcceptDate.Format "2006-01-02"}}
+        {{end}}
+      </p>
+      {{end}}
+    </div>
     {{if .Error}}
     <div class="notification is-danger mb-4"><p>{{.Error}}</p></div>
     {{end}}
@@ -13,30 +35,34 @@
       <form method="post" action="/estimate" style="display:inline;">
         <input type="hidden" name="save" value="true">
         <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
+        <input type="hidden" name="sections" id="save-sections" value="">
         <div class="buttons">
           {{if .AcceptDate.IsZero}}
-          <button class="button is-primary" type="submit">
+          <button id="btn-save" class="button is-primary" type="submit">
             <span class="icon"><i class="fas fa-save"></i></span><span>Save Estimate</span>
           </button>
           {{end}}
           {{if not .SaveDate.IsZero}}
-          <button class="button is-info" type="button"
+          <button id="btn-email" class="button is-info" type="button"
             onclick="document.getElementById('email-modal').classList.add('is-active')">
             <span class="icon"><i class="fas fa-envelope"></i></span><span>Email Estimate</span>
           </button>
           {{end}}
-          <button class="button is-light" type="button" onclick="window.print()">
+          <button id="btn-print" class="button is-light" type="button" onclick="window.print()">
             <span class="icon"><i class="fas fa-print"></i></span><span>Print</span>
           </button>
           {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
             {{if eq $.Header.Role "homeowner"}}
-            <button class="button is-success" type="button"
+            <button id="btn-accept" class="button is-success" type="button"
               onclick="document.getElementById('accept-confirm').classList.add('is-active')">
               <span class="icon"><i class="fas fa-check"></i></span><span>Accept Estimate</span>
             </button>
             {{end}}
           {{end}}
         </div>
+        <span id="unsaved-msg" style="display:none;" class="has-text-warning has-text-weight-semibold">
+          <span class="icon"><i class="fas fa-exclamation-triangle"></i></span> Unsaved changes — save to enable other actions.
+        </span>
       </form>
       {{if not .AcceptDate.IsZero}}
       <p class="has-text-success"><span class="icon"><i class="fas fa-check-circle"></i></span>
@@ -46,57 +72,52 @@
     {{end}}
     {{if .TotalCost}}
 
-    <!-- Contractor Section -->
-    <div class="box mt-5">
-      <h2 class="subtitle">Contractor</h2>
-      <div class="content">
-        {{if .Contractor.CompanyName}}
-          <p><strong>{{.Contractor.CompanyName}}</strong></p>
-          {{if .Contractor.Phone}}<p>{{.Contractor.Phone}}</p>{{end}}
-          {{if .Contractor.Website}}<p><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></p>{{end}}
-          {{if .Contractor.LicenseNum}}<p>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</p>{{end}}
-        {{else}}
-          <p>Columbia Outdoor</p>
-          <p>(360) 787-8062</p>
-          <p>columbiaoutdoor.com</p>
-        {{end}}
-      </div>
-    </div>
+    <!-- Contractor / Customer side by side -->
+    <div class="box mt-4">
+      <div style="display:flex; gap:2rem; flex-wrap:wrap;">
 
-    <div class="box mt-3">
-        <h2 class="subtitle">
-          {{if eq $.Header.Role "contractor"}}Customer{{else}}Your Information{{end}}
-            {{if eq .Customer.FirstName ""}}
-                <span class="is-pulled-right">
-                  <a href="/customer" class="button is-danger">
-                    {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
-                  </a>
-                </span>
-            {{else if .SaveDate.IsZero}}
-                <span class="is-pulled-right"><a href="/customer" class="button is-primary">Edit</a></span>
+        <div style="flex:1; min-width:200px;">
+          <p class="has-text-weight-bold mb-2">Contractor</p>
+          <div class="content is-small">
+            {{if .Contractor.CompanyName}}
+              <p><strong>{{.Contractor.CompanyName}}</strong></p>
+              {{if .Contractor.Phone}}<p>{{.Contractor.Phone}}</p>{{end}}
+              {{if .Contractor.Website}}<p><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></p>{{end}}
+              {{if .Contractor.LicenseNum}}<p>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</p>{{end}}
+            {{else}}
+              <p><strong>Columbia Outdoor</strong></p>
+              <p>(360) 787-8062</p>
+              <p>columbiaoutdoor.com</p>
             {{end}}
-        </h2>
-        <div class="content">
+          </div>
+        </div>
+
+        <div style="flex:1; min-width:200px;">
+          <p class="has-text-weight-bold mb-2">
+            {{if eq $.Header.Role "contractor"}}Customer{{else}}Your Information{{end}}
+            {{if eq .Customer.FirstName ""}}
+              <a href="/customer" class="button is-danger is-small ml-3">
+                {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
+              </a>
+            {{else if .AcceptDate.IsZero}}
+              <a href="/customer" class="button is-primary is-small ml-3">Edit</a>
+            {{end}}
+          </p>
+          <div class="content is-small">
             {{if or .Customer.FirstName .Customer.LastName}}<p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>{{end}}
             {{if .Customer.Address}}<p>{{.Customer.Address}}</p>{{end}}
             {{if or .Customer.City .Customer.State}}<p>{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}</p>{{end}}
             {{if .Customer.PhoneNumber}}<p>{{.Customer.PhoneNumber}}</p>{{end}}
             {{if .Customer.Email}}<p>{{.Customer.Email}}</p>{{end}}
+          </div>
         </div>
-        <hr>
-        <h2 class="subtitle">
-            <p class="has-text-white has-background-black"> Details
-            {{if gt .EstimateID 0}}
-                &mdash; Estimate #{{.EstimateID}}
-                &mdash; Last Updated: {{.SaveDate.Format "2006-01-02"}}
-                {{if .AcceptDate.IsZero}}
-                    &mdash; Expires: {{.ExpirationDate.Format "2006-01-02"}}
-                {{else}}
-                    &mdash; <span class="has-text-success">Accepted {{.AcceptDate.Format "2006-01-02"}}</span>
-                {{end}}
-            {{end}}
-            </p>
-        </h2>
+
+      </div>
+    </div>
+
+    <div class="box mt-3">
+        <p class="has-text-white has-background-black px-3 py-2 mb-3"><strong>Scope of Work</strong></p>
+        <div>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>
             <div class="column is-1"></div>
@@ -199,6 +220,7 @@
             <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
             <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark has-text-white"><strong class="is-size-4 has-text-white" id="total-val">{{formatCost .TotalCost}}</strong></div>
         </div>
+        </div>
     </div>
     {{end}}
     {{if and (not .SaveDate.IsZero) .Terms}}
@@ -284,27 +306,30 @@
   </div>
 </div>
 
-<!-- Deck Modal -->
+<!-- Deck / Sections Modal -->
 <div id="deck-modal" class="modal">
   <div class="modal-background" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:380px;">
+  <div class="modal-card" style="max-width:520px;">
     <header class="modal-card-head">
-      <p class="modal-card-title">Deck Options</p>
+      <p class="modal-card-title">Deck Sections &amp; Options</p>
       <button class="delete" aria-label="close" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></button>
     </header>
     <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Length (ft)</label>
-        <div class="control">
-          <input id="deck-length" class="input" type="number" step="0.5" min="1" placeholder="e.g. 20">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Width (ft)</label>
-        <div class="control">
-          <input id="deck-width" class="input" type="number" step="0.5" min="1" placeholder="e.g. 16">
-        </div>
-      </div>
+
+      <!-- Sections table -->
+      <label class="label">Deck Sections</label>
+      <table class="table is-fullwidth is-narrow mb-2" id="sections-table">
+        <thead>
+          <tr><th>Label</th><th>Length (ft)</th><th>Width (ft)</th><th>Area</th><th></th></tr>
+        </thead>
+        <tbody id="sections-body"></tbody>
+      </table>
+      <button class="button is-small is-info mb-4" type="button" onclick="addSection()">
+        <span class="icon"><i class="fas fa-plus"></i></span><span>Add Section</span>
+      </button>
+      <p class="help mb-4">Total area: <strong id="total-area-preview">0 sq ft</strong></p>
+
+      <!-- Height and material -->
       <div class="field">
         <label class="label">Height above grade (ft)</label>
         <div class="control">
@@ -325,6 +350,17 @@
           </div>
         </div>
       </div>
+
+      <!-- Rail footage override -->
+      <div class="field">
+        <label class="label">Rail Linear Footage
+          <span class="has-text-grey is-size-7 has-text-weight-normal ml-2">(leave 0 to auto-calculate from main section)</span>
+        </label>
+        <div class="control">
+          <input id="rail-override" class="input" type="number" step="0.5" min="0" placeholder="e.g. 52">
+        </div>
+      </div>
+
     </section>
     <footer class="modal-card-foot">
       <button class="button is-primary" onclick="applyDeck()">Apply</button>
@@ -490,20 +526,26 @@ function confirmEmailSend() {
 <script>
 // --- Inline description edit ---
 const estimateData = {
-  description:    {{jsStr .Desc}},
-  length:         {{.Length}},
-  width:          {{.Width}},
-  height:         {{.Height}},
-  material:       {{jsStr .Material}},
-  railMaterial:   {{jsStr .RailMaterial}},
-  railInfill:     {{jsStr .RailInfill}},
-  stairWidth:     {{.StairWidth}},
-  stairRailCount: {{.StairRailCount}},
-  hasDemo:        {{.HasDemo}},
-  hasFascia:      {{.HasFascia}},
-  hasStairFascia: {{.HasStairFascia}},
-  hasStairTK:     {{.HasStairTK}},
-  customerState:  {{jsStr .Customer.State}},
+  description:      {{jsStr .Desc}},
+  length:           {{.Length}},
+  width:            {{.Width}},
+  height:           {{.Height}},
+  material:         {{jsStr .Material}},
+  railMaterial:     {{jsStr .RailMaterial}},
+  railInfill:       {{jsStr .RailInfill}},
+  railFeetOverride: {{.RailFeetOverride}},
+  stairWidth:       {{.StairWidth}},
+  stairRailCount:   {{.StairRailCount}},
+  hasDemo:          {{.HasDemo}},
+  hasFascia:        {{.HasFascia}},
+  hasStairFascia:   {{.HasStairFascia}},
+  hasStairTK:       {{.HasStairTK}},
+  customerState:    {{jsStr .Customer.State}},
+  sections: [
+    {{range .Sections}}
+    { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },
+    {{end}}
+  ],
 };
 
 function openDescModal() {
@@ -532,27 +574,81 @@ function toggleStairTK(checked) {
   calcAndUpdate();
 }
 
+function updateAreaCell(i) {
+  const s = estimateData.sections[i];
+  const area = (s.length * s.width) || 0;
+  const cell = document.getElementById('area-cell-' + i);
+  if (cell) cell.textContent = area.toFixed(1) + ' sf';
+  updateTotalArea();
+}
+
+function updateTotalArea() {
+  const total = estimateData.sections.reduce((sum, s) => sum + ((s.length * s.width) || 0), 0);
+  document.getElementById('total-area-preview').textContent = total.toFixed(1) + ' sq ft';
+}
+
+function renderSectionsTable() {
+  const tbody = document.getElementById('sections-body');
+  tbody.innerHTML = '';
+  estimateData.sections.forEach((s, i) => {
+    const area = (s.length * s.width) || 0;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input class="input is-small" type="text" value="${s.label}" placeholder="e.g. Bump Out"
+        onchange="estimateData.sections[${i}].label=this.value"
+        onfocus="if(this.value===this.placeholder||this.value==='')this.value='';"></td>
+      <td><input class="input is-small" type="number" step="0.5" min="1" value="${s.length || ''}"
+        placeholder="ft"
+        oninput="estimateData.sections[${i}].length=parseFloat(this.value)||0; updateAreaCell(${i})"></td>
+      <td><input class="input is-small" type="number" step="0.5" min="1" value="${s.width || ''}"
+        placeholder="ft"
+        oninput="estimateData.sections[${i}].width=parseFloat(this.value)||0; updateAreaCell(${i})"></td>
+      <td class="is-vcentered" id="area-cell-${i}">${area.toFixed(1)} sf</td>
+      <td>${i > 0 ? `<button class="delete" type="button" onclick="removeSection(${i})"></button>` : ''}</td>`;
+    tbody.appendChild(row);
+  });
+  updateTotalArea();
+}
+
+function addSection() {
+  estimateData.sections.push({ label: '', length: 0, width: 0 });
+  renderSectionsTable();
+  // Focus the label of the new section
+  const rows = document.getElementById('sections-body').querySelectorAll('tr');
+  const lastRow = rows[rows.length - 1];
+  if (lastRow) lastRow.querySelector('input[type=text]').focus();
+}
+
+function removeSection(i) {
+  estimateData.sections.splice(i, 1);
+  renderSectionsTable();
+}
+
 function openDeckModal() {
-  document.getElementById('deck-length').value   = estimateData.length;
-  document.getElementById('deck-width').value    = estimateData.width;
   document.getElementById('deck-height').value   = estimateData.height;
   document.getElementById('deck-material').value = estimateData.material;
+  document.getElementById('rail-override').value = estimateData.railFeetOverride || '';
+  renderSectionsTable();
   document.getElementById('deck-modal').classList.add('is-active');
 }
 
 function applyDeck() {
-  const length = parseFloat(document.getElementById('deck-length').value);
-  const width  = parseFloat(document.getElementById('deck-width').value);
   const height = parseFloat(document.getElementById('deck-height').value);
-
-  if (!length || length < 1) { alert('Please enter a valid length (minimum 1 ft)'); return; }
-  if (!width  || width  < 1) { alert('Please enter a valid width (minimum 1 ft)');  return; }
   if (isNaN(height) || height < 0) { alert('Please enter a valid height'); return; }
+  if (estimateData.sections.length === 0) { alert('Please add at least one deck section'); return; }
+  const s0 = estimateData.sections[0];
+  if (!s0.length || s0.length < 1 || !s0.width || s0.width < 1) {
+    alert('Main section must have valid length and width (minimum 1 ft)'); return;
+  }
 
-  estimateData.length   = length;
-  estimateData.width    = width;
-  estimateData.height   = height;
-  estimateData.material = document.getElementById('deck-material').value;
+  estimateData.height           = height;
+  estimateData.material         = document.getElementById('deck-material').value;
+  estimateData.railFeetOverride = parseFloat(document.getElementById('rail-override').value) || 0;
+  // Keep length/width in sync with primary section for backwards compat
+  estimateData.length = estimateData.sections[0].length;
+  estimateData.width  = estimateData.sections[0].width;
+
+  syncSectionsField();
   document.getElementById('deck-modal').classList.remove('is-active');
   calcAndUpdate();
 }
@@ -620,7 +716,26 @@ function applyStairWidth() {
   calcAndUpdate();
 }
 
+function syncSectionsField() {
+  const f = document.getElementById('save-sections');
+  if (f) f.value = JSON.stringify(estimateData.sections);
+}
+// Initialize on page load
+syncSectionsField();
+
+function markDirty() {
+  const btns = ['btn-email', 'btn-print', 'btn-accept'];
+  btns.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.disabled = true; el.style.opacity = '0.4'; }
+  });
+  const msg = document.getElementById('unsaved-msg');
+  if (msg) msg.style.display = 'inline';
+}
+
 function calcAndUpdate() {
+  syncSectionsField();
+  markDirty();
   fetch('/api/calc/deck', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -5,21 +5,29 @@ import (
 	"net/http"
 )
 
+type CalcSectionRequest struct {
+	Label  string  `json:"label"`
+	Length float64 `json:"length"`
+	Width  float64 `json:"width"`
+}
+
 type CalcDeckRequest struct {
-	Description    string  `json:"description"`
-	Length         float64 `json:"length"`
-	Width          float64 `json:"width"`
-	Height         float64 `json:"height"`
-	Material       string  `json:"material"`
-	RailMaterial   string  `json:"railMaterial"`
-	RailInfill     string  `json:"railInfill"`
-	StairWidth     float64 `json:"stairWidth"`
-	StairRailCount float64 `json:"stairRailCount"`
-	HasDemo        bool    `json:"hasDemo"`
-	HasFascia      bool    `json:"hasFascia"`
-	HasStairFascia bool    `json:"hasStairFascia"`
-	HasStairTK     bool    `json:"hasStairTK"`
-	CustomerState  string  `json:"customerState"`
+	Description      string               `json:"description"`
+	Length           float64              `json:"length"`
+	Width            float64              `json:"width"`
+	Height           float64              `json:"height"`
+	Material         string               `json:"material"`
+	RailMaterial     string               `json:"railMaterial"`
+	RailInfill       string               `json:"railInfill"`
+	RailFeetOverride float64              `json:"railFeetOverride"`
+	StairWidth       float64              `json:"stairWidth"`
+	StairRailCount   float64              `json:"stairRailCount"`
+	HasDemo          bool                 `json:"hasDemo"`
+	HasFascia        bool                 `json:"hasFascia"`
+	HasStairFascia   bool                 `json:"hasStairFascia"`
+	HasStairTK       bool                 `json:"hasStairTK"`
+	CustomerState    string               `json:"customerState"`
+	Sections         []CalcSectionRequest `json:"sections"`
 }
 
 type CalcDeckResponse struct {
@@ -63,20 +71,29 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	e := DeckEstimate{
-		Desc:           req.Description,
-		Length:         req.Length,
-		Width:          req.Width,
-		Height:         req.Height,
-		Material:       req.Material,
-		RailMaterial:   req.RailMaterial,
-		RailInfill:     req.RailInfill,
-		StairWidth:     req.StairWidth,
-		StairRailCount: req.StairRailCount,
-		HasDemo:        req.HasDemo,
-		HasFascia:      req.HasFascia,
-		HasStairFascia: req.HasStairFascia,
-		HasStairTK:     req.HasStairTK,
-		Customer:       Customer{State: req.CustomerState},
+		Desc:             req.Description,
+		Length:           req.Length,
+		Width:            req.Width,
+		Height:           req.Height,
+		Material:         req.Material,
+		RailMaterial:     req.RailMaterial,
+		RailInfill:       req.RailInfill,
+		RailFeetOverride: req.RailFeetOverride,
+		StairWidth:       req.StairWidth,
+		StairRailCount:   req.StairRailCount,
+		HasDemo:          req.HasDemo,
+		HasFascia:        req.HasFascia,
+		HasStairFascia:   req.HasStairFascia,
+		HasStairTK:       req.HasStairTK,
+		Customer:         Customer{State: req.CustomerState},
+	}
+	for i, s := range req.Sections {
+		e.Sections = append(e.Sections, EstimateSection{
+			Label:     s.Label,
+			Length:    s.Length,
+			Width:     s.Width,
+			SortOrder: i,
+		})
 	}
 
 	e.CalcAllCosts()

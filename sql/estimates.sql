@@ -85,3 +85,29 @@ RENAME COLUMN "HasStairTK"     TO has_stair_tk;
 
 ALTER TABLE estimates
 ADD COLUMN contractor_id BIGINT DEFAULT 1 REFERENCES contractor_profile(id);
+
+ALTER TABLE estimates
+ADD COLUMN version INTEGER DEFAULT 1 NOT NULL;
+
+ALTER TABLE estimates
+ADD COLUMN rail_feet_override DOUBLE PRECISION;
+
+ALTER TABLE estimates DROP COLUMN IF EXISTS length;
+ALTER TABLE estimates DROP COLUMN IF EXISTS width;
+
+CREATE TABLE estimate_sections (
+    id          BIGSERIAL PRIMARY KEY,
+    estimate_id BIGINT NOT NULL REFERENCES estimates(estimate_id) ON DELETE CASCADE,
+    label       TEXT NOT NULL DEFAULT 'Main Deck',
+    length      DOUBLE PRECISION NOT NULL,
+    width       DOUBLE PRECISION NOT NULL,
+    sort_order  INTEGER DEFAULT 0,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_estimate_sections_estimate_id ON estimate_sections(estimate_id);
+
+-- Backfill existing estimates as single Main Deck section
+INSERT INTO estimate_sections (estimate_id, label, length, width, sort_order)
+SELECT estimate_id, 'Main Deck', length, width, 0
+FROM estimates WHERE length > 0 AND width > 0;

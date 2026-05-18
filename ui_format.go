@@ -54,11 +54,14 @@ func formatDeckDescription(de DeckEstimate) string {
 	case "timberTechProLegacy":
 		material = "TimberTech Pro Legacy"
 	}
-	return fmt.Sprintf("Supply and install concrete footings "+
-		"with premium pressure treated lumber. "+
-		"Supply and install %.1f sq ft of %s deck. "+
-		"Deck size approximately  %.1f x %.1f ft, %.1f ft high.", de.DeckArea, material,
-		de.Length, de.Width, de.Height)
+	desc := fmt.Sprintf("Supply and install concrete footings with premium pressure treated lumber. "+
+		"Supply and install %.1f sq ft of %s deck. %.1f ft high.",
+		de.DeckArea, material, de.Height)
+	for _, s := range de.Sections {
+		desc += fmt.Sprintf("\n  — %s: %.1f × %.1f ft (%.1f sf)",
+			s.Label, s.Length, s.Width, s.Length*s.Width)
+	}
+	return desc
 }
 
 // ***************************************************************************************************

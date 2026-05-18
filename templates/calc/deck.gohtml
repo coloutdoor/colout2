@@ -3,6 +3,9 @@
   {{template "deckheader.gohtml" .}}
 
   {{with .Page}}
+    <div class="notification is-info is-light mb-4" style="max-width:480px;">
+      Enter your <strong>main deck</strong> dimensions below. You can add additional sections (bump-outs, wraparounds) on the estimate page.
+    </div>
     <form method="post" action="/estimate" class="box" style="max-width: 480px;">
 
         <div class="field">
