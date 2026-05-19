@@ -36,6 +36,7 @@
         <input type="hidden" name="save" value="true">
         <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
         <input type="hidden" name="sections" id="save-sections" value="">
+        <input type="hidden" name="railOverride" id="save-rail-override" value="{{.RailFeetOverride}}">
         <div class="buttons">
           {{if .AcceptDate.IsZero}}
           <button id="btn-save" class="button is-primary" type="submit">
@@ -241,13 +242,20 @@
             <button class="delete" aria-label="close" onclick="document.getElementById('email-modal').classList.remove('is-active')"></button>
         </header>
         <section class="modal-card-body">
-            <p>Please confirm the email address to send the estimate to:</p>
-            
             <div class="field">
+                <label class="label">Send estimate to:</label>
                 <div class="control">
-                    <input class="input is-large" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
+                    <input class="input" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
                 </div>
             </div>
+            {{if $.Header.IsAuthenticated}}
+            <div class="field">
+                <label class="checkbox">
+                    <input type="checkbox" id="cc-self-check">
+                    Also send a copy to me ({{$.Header.Email}})
+                </label>
+            </div>
+            {{end}}
         </section>
         <footer class="modal-card-foot">
             <button class="button is-success" onclick="confirmEmailSend()">Confirm & Send</button>
@@ -492,10 +500,11 @@ function confirmEmailSend() {
     // Get estimate ID from the page 
     // const estimateID = document.getElementById('estimate-id').value;
 
+    const ccSelf = document.getElementById('cc-self-check');
     fetch(`/estimate/send/${estimateID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
+        body: JSON.stringify({ email: email, ccSelf: ccSelf ? ccSelf.checked : false })
     })
     .then(response => response.json())
     .then(data => {
@@ -715,6 +724,8 @@ function applyStairWidth() {
 function syncSectionsField() {
   const f = document.getElementById('save-sections');
   if (f) f.value = JSON.stringify(estimateData.sections);
+  const r = document.getElementById('save-rail-override');
+  if (r) r.value = estimateData.railFeetOverride || 0;
 }
 // Initialize on page load
 syncSectionsField();

@@ -93,7 +93,15 @@ func (estimate *DeckEstimate) CalculateFasciaCost(costs Costs) {
 	estimate.FasciaFeet = 0.0
 	estimate.FasciaCost = 0.0
 	if estimate.HasFascia {
-		estimate.FasciaFeet = (2 * estimate.Length) + estimate.Width // Matches rail calc
+		// Use same perimeter basis as rails (override → primary section → L/W)
+		if estimate.RailFeetOverride > 0 {
+			estimate.FasciaFeet = estimate.RailFeetOverride
+		} else if len(estimate.Sections) > 0 {
+			s := estimate.Sections[0]
+			estimate.FasciaFeet = (2 * s.Length) + s.Width
+		} else {
+			estimate.FasciaFeet = (2 * estimate.Length) + estimate.Width
+		}
 		estimate.FasciaCost = estimate.FasciaFeet * costs.FasciaCost
 	}
 }

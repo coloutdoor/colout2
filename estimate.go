@@ -173,6 +173,7 @@ func getEstimate(estimateID int) DeckEstimate {
         e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
         e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
+        COALESCE(e.rail_feet_override, 0),
         COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
         COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1)
         FROM estimates e
@@ -182,7 +183,7 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,
 		&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State,
 		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
-		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID, &de.Version,
+		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID, &de.Version, &de.RailFeetOverride,
 		&de.Contractor.CompanyName, &de.Contractor.Phone, &de.Contractor.Website,
 		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID)
 
@@ -307,8 +308,9 @@ SET
     has_stair_tk = $23,
     user_id = $24,
     contractor_id = $25,
+    rail_feet_override = $26,
     version = version + 1
-WHERE estimate_id = $26
+WHERE estimate_id = $27
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -326,8 +328,9 @@ RETURNING estimate_id, version`
 			}(), //20
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //21
 			estimate.HasStairFascia, estimate.HasStairTK,          //23
-			estimate.UserId,       //24
-			estimate.ContractorID, //25
+			estimate.UserId,            //24
+			estimate.ContractorID,      //25
+			estimate.RailFeetOverride,  //26
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -350,14 +353,15 @@ RETURNING estimate_id, version`
 			stair_width, stair_rail_count, has_demo, has_fascia, total_cost,
 			first_name, last_name, address,
 			city, state, zip, phone_number, email,
-			save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk, user_id, contractor_id, version)
+			save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk,
+			user_id, contractor_id, rail_feet_override, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
 		$6, $7, $8, $9, $10,
 		$11, $12, $13, $14, $15, $16, $17, $18,
 		$19, $20, $21,
-		$22, $23, $24, $25, 1
+		$22, $23, $24, $25, $26, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -370,8 +374,10 @@ RETURNING estimate_id, version`
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
 			estimate.HasStairFascia, estimate.HasStairTK, //23
-			estimate.UserId,       //24
-			estimate.ContractorID).Scan(&newID) //27
+			estimate.UserId,            //24
+			estimate.ContractorID,      //25
+			estimate.RailFeetOverride). //26
+			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
 			_ = db.Close()
@@ -515,6 +521,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		if desc := r.FormValue("desc"); desc != "" {
 			estimate.Desc = desc
 			sd.Estimate.Desc = desc
+		}
+		// Pick up rail feet override
+		if railOverride := r.FormValue("railOverride"); railOverride != "" {
+			val, err := strconv.ParseFloat(railOverride, 64)
+			if err == nil {
+				estimate.RailFeetOverride = val
+			}
 		}
 		// Pick up sections from JS (JSON array)
 		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
@@ -786,8 +799,11 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	estimate.CalcAllCosts()
 
-	// Read email address from request body
-	var req struct{ Email string `json:"email"` }
+	// Read email address and CC preference from request body
+	var req struct {
+		Email  string `json:"email"`
+		CCSelf bool   `json:"ccSelf"`
+	}
 	json.NewDecoder(r.Body).Decode(&req)
 	toEmail := req.Email
 	if toEmail == "" {
@@ -805,14 +821,23 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	subject := fmt.Sprintf("Deck Estimate #%d-%d — %s", estimate.EstimateID, estimate.Version, estimate.Desc)
-	html := buildEstimateEmailHTML(estimate)
+	scheme := "https"
+	if r.Host == "" || strings.HasPrefix(r.Host, "localhost") {
+		scheme = "http"
+	}
+	estimateURL := fmt.Sprintf("%s://%s/estimate/%d", scheme, r.Host, estimate.EstimateID)
+	html := buildEstimateEmailHTML(estimate, estimateURL)
 
 	client := resend.NewClient(apiKey)
 	params := &resend.SendEmailRequest{
 		From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
 		To:      []string{toEmail},
+		Bcc:     []string{"support@columbiaoutdoor.com"},
 		Subject: subject,
 		Html:    html,
+	}
+	if req.CCSelf && sd.UserAuth.Email != "" && sd.UserAuth.Email != toEmail {
+		params.Cc = []string{sd.UserAuth.Email}
 	}
 
 	sent, err := client.Emails.Send(params)
@@ -833,10 +858,28 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // buildEstimateEmailHTML builds a clean HTML email for the estimate.
-func buildEstimateEmailHTML(e DeckEstimate) string {
+func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 	taxDesc := e.Customer.State + " sales tax"
 	if e.Customer.State == "" {
 		taxDesc = "Sales tax"
+	}
+
+	// Contractor info — fall back to Columbia Outdoor defaults
+	contractorName := "Columbia Outdoor"
+	contractorPhone := "(360) 787-8062"
+	contractorWebsite := "columbiaoutdoor.com"
+	contractorLicense := ""
+	if e.Contractor.CompanyName != "" {
+		contractorName = e.Contractor.CompanyName
+	}
+	if e.Contractor.Phone != "" {
+		contractorPhone = e.Contractor.Phone
+	}
+	if e.Contractor.Website != "" {
+		contractorWebsite = e.Contractor.Website
+	}
+	if e.Contractor.LicenseNum != "" {
+		contractorLicense = fmt.Sprintf("<br>License: %s (%s)", e.Contractor.LicenseNum, e.Contractor.LicenseState)
 	}
 
 	lineItems := []LineItem{
@@ -863,23 +906,50 @@ func buildEstimateEmailHTML(e DeckEstimate) string {
 <html><head><meta charset="utf-8"></head>
 <body style="font-family:Arial,sans-serif;color:#333;max-width:640px;margin:0 auto;padding:20px">
 
+  <!-- Header -->
   <div style="background:#2c6e9e;color:white;padding:24px;border-radius:6px 6px 0 0">
     <h1 style="margin:0;font-size:22px">Columbia Outdoor</h1>
-    <p style="margin:4px 0 0;opacity:.8">(360) 787-8062 · columbiaoutdoor.com</p>
+    <p style="margin:4px 0 0;opacity:.8">Pacific Northwest's Trusted Outdoor Living Platform</p>
   </div>
 
+  <!-- Estimate meta -->
   <div style="background:#f8f8f8;padding:16px;border-left:4px solid #2c6e9e">
     <strong>Estimate #%d-%d</strong> &mdash; %s<br>
     <span style="color:#888;font-size:13px">Prepared: %s &nbsp;·&nbsp; Expires: %s</span>
   </div>
 
-  <div style="display:flex;gap:20px;margin:20px 0">
-    <div style="flex:1">
-      <strong>Customer</strong><br>
-      %s %s<br>%s<br>%s, %s %s<br>%s<br>%s
-    </div>
+  <!-- Intro -->
+  <div style="padding:20px 0">
+    <p>Hi %s,</p>
+    <p><strong>%s</strong> has prepared a detailed outdoor living estimate for your project.
+    %s is a fully verified contractor through <strong>Columbia Outdoor</strong> —
+    our platform verifies contractor licenses, bonds, and insurance so you can move forward
+    with confidence.</p>
+    <p>You can review and accept this estimate directly through Columbia Outdoor's platform.
+    Once accepted, Columbia Outdoor will coordinate scheduling, ensure the project stays on track,
+    and support you through to completion.</p>
+    <p style="text-align:center;margin:24px 0">
+      <a href="%s" style="background:#2c6e9e;color:white;padding:12px 28px;border-radius:4px;text-decoration:none;font-weight:bold">
+        Review &amp; Accept Estimate Online
+      </a>
+    </p>
   </div>
 
+  <!-- Contractor / Customer -->
+  <table style="width:100%%;margin-bottom:20px">
+    <tr>
+      <td style="vertical-align:top;width:50%%;padding-right:12px">
+        <strong>Contractor</strong><br>
+        %s<br>%s<br>%s%s
+      </td>
+      <td style="vertical-align:top;width:50%%">
+        <strong>Customer</strong><br>
+        %s %s<br>%s<br>%s, %s %s<br>%s<br>%s
+      </td>
+    </tr>
+  </table>
+
+  <!-- Scope of Work -->
   <h2 style="font-size:16px;border-bottom:2px solid #2c6e9e;padding-bottom:6px">Scope of Work</h2>
   <table style="width:100%%;border-collapse:collapse">
     <thead><tr style="background:#f0f0f0">
@@ -900,15 +970,20 @@ func buildEstimateEmailHTML(e DeckEstimate) string {
     </tfoot>
   </table>
 
+  <!-- Footer -->
   <div style="margin-top:24px;padding:16px;background:#f9f9f9;border:1px solid #ddd;font-size:12px;color:#666">
-    <strong>Terms &amp; Conditions</strong><br>
-    This estimate is valid until %s. To accept, please contact us at (360) 787-8062 or reply to this email.
+    This estimate is valid until %s. To accept or for any questions, contact us at
+    <a href="mailto:support@columbiaoutdoor.com">support@columbiaoutdoor.com</a> or (360) 787-8062.
   </div>
 
 </body></html>`,
 		e.EstimateID, e.Version, e.Desc,
 		e.SaveDate.Format("Jan 2, 2006"),
 		e.ExpirationDate.Format("Jan 2, 2006"),
+		e.Customer.FirstName,
+		contractorName, contractorName,
+		estimateURL,
+		contractorName, contractorPhone, contractorWebsite, contractorLicense,
 		e.Customer.FirstName, e.Customer.LastName,
 		e.Customer.Address,
 		e.Customer.City, e.Customer.State, e.Customer.Zip,
