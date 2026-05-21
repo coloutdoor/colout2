@@ -5,10 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
 // Homeowner represents the structure of the homeowner marketing strategy
@@ -60,30 +57,12 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// fallback to normal Homeowner
-
-	// Read the YAML file
-	data, err := os.ReadFile("static/homeowner.yaml")
-	if err != nil {
-		log.Fatalf("Error reading YAML file: %v", err)
-	}
-
-	// Unmarshal YAML into Homeowner struct
-	var homeowner Homeowner
-	err = yaml.Unmarshal(data, &homeowner)
-	if err != nil {
-		log.Fatalf("Error unmarshalling YAML: %v", err)
-	}
-
-	if false {
-		debugStrategy(homeowner)
-	}
-
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Decks"
-	userAuth.Subtitle = "A trusted solution for your Outdoor Living - Decks, Patios, Covers."
-	userAuth.MetaDesc = "Skip the 3-bid hassle. Columbia Outdoor delivers your dream deck, patio cover, or landscape with, fixed pricing, permits handled, and a dedicated project manager."
+	userAuth.Title = "Decks & Outdoor Living — Columbia Outdoor"
+	userAuth.Subtitle = "Stop chasing bids. Build your own estimate or hire a vetted PNW contractor."
+	userAuth.MetaDesc = "Columbia Outdoor delivers decks, patios, and outdoor living projects across the Pacific Northwest. Build your own instant estimate or connect with a vetted contractor."
 	rd := renderData{
-		Page:   &homeowner,
+		Page:   nil,
 		Header: &userAuth,
 	}
 	tmpl := template.Must(template.New("homeowner.gohtml").Funcs(funcMap).

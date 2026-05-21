@@ -1,321 +1,219 @@
 {{define "homeowner.gohtml"}}
   {{template "header.gohtml" .Header}}
 
-  <!-- MAIN CONTENT -->
-    <section class="container">
-      <div class="columns features">
-        <div class="column is-4">
-          <div class="card is-shady">
-            <div class="card-image modal-button" data-target="modal-card0">
-              <figure class="image is-4by3">
-                <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg" alt="Deck 1">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="content">
-                <h4>{{ (index .Page.Strategies 0).Strategy }}</h4>
-                <p>{{ (index .Page.Strategies 0).Messaging }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="column is-4">
-          <div class="card is-shady">
-            <div class="card-image modal-button" data-target="modal-card1">
-              <figure class="image is-4by3">
-                <img src="https://storage.googleapis.com/columbiaoutdoor-images/cover1.jpeg" alt="Outdoor Living image">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="content">
-                <h4>{{ (index .Page.Strategies 1).Strategy }}</h4>
-                <p>{{ (index .Page.Strategies 1).Messaging }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="column is-4">
-          <div class="card is-shady">
-            <div class="card-image modal-button" data-target="modal-card2">
-              <figure class="image is-4by3">
-                <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck3.jpg" alt="Deck 3 image">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="content">
-                <h4>{{ (index .Page.Strategies 2).Strategy }}</h4>
-                <p>{{ (index .Page.Strategies 2).Messaging }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Hero -->
+  <section class="section" style="background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg') center/cover no-repeat; padding: 5rem 1.5rem;">
+    <div class="container has-text-centered">
+      <h1 class="title is-1 has-text-white">Stop Chasing Bids. Start Building.</h1>
+      <p class="subtitle has-text-white mt-4" style="max-width:700px; margin:1.5rem auto;">
+        Pacific Northwest homeowners deserve better than weeks of inconsistent quotes from contractors you can't verify.
+        Columbia Outdoor gives you <strong class="has-text-warning">transparent pricing, vetted contractors, and expert oversight</strong> — all in one place.
+      </p>
+      <div class="buttons is-centered mt-5">
+        <a href="/calc?option=deck" class="button is-warning is-large is-rounded">
+          <strong>Build Your Own Estimate</strong>
+        </a>
+        <a href="/contact" class="button is-light is-large is-rounded">
+          Talk to a Professional
+        </a>
       </div>
-      <div class="columns features">
-        <div class="column is-4">
-          <div class="card is-shady">
-            <div class="card-image modal-button" data-target="modal-card3">
-              <figure class="image is-4by3">
-                <img src="https://storage.googleapis.com/columbiaoutdoor-images/gazebo1.jpg" alt="Gazebo image">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="content">
-                <h4>{{ (index .Page.Strategies 3).Strategy }}</h4>
-                <p>{{ (index .Page.Strategies 3).Messaging }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="column is-4">
-          <div class="card is-shady">
-            <div class="card-image modal-button" data-target="modal-card4">
-              <figure class="image is-4by3">
-                <img src="https://storage.googleapis.com/columbiaoutdoor-images/cover2.jpg" alt="White Cover">
-              </figure>
-            </div>
-            <div class="card-content ">
-              <div class="content">
-                <h4>{{ (index .Page.Strategies 4).Strategy }}</h4>
-                <p>{{ (index .Page.Strategies 4).Messaging }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  
-    <!--  ===============
-    HERE BE MODALS
-    ===============  -->
-    <!-- Modal Card 0 -->
-    <div id="modal-card0" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-tiny">
-        <!-- content -->
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-              <img src="https://storage.googleapis.com/columbiaoutdoor-images/rails1.png" alt="Custom cedar deck rails on grey composit deck">
-            </figure>
-          </div>
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="/images/colout2.png" alt="Columbia Outdoor logo">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-4">Columbia Outdoor</p>
-                {{ with index .Page.Strategies 0 }}
-                  {{ range .PainPoints }}
-                    <li>{{ . }}</li>
-                  {{ end }}
-                {{ end }}
-              </div>
-            </div>
-            <div class="content">
-              {{ (index .Page.Strategies 0).Advantage }}
-            </div>
-          </div>
-        </div>
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
+      <p class="has-text-white-ter mt-3 is-size-7">Serving Washington, Oregon, and Idaho.</p>
     </div>
-    <!-- end Modal Card 0-->
+  </section>
 
-    <!-- Modal Card 1 -->
-    <div id="modal-card1" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-tiny">
-        <!-- content -->
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-              <img src="https://storage.googleapis.com/columbiaoutdoor-images/cover2.jpg" alt="Simple white lean2 cover with roller sun shade">
-            </figure>
+  <!-- Sound Familiar? -->
+  <section class="section has-background-light">
+    <div class="container" style="max-width:780px;">
+      <h3 class="title is-3 has-text-centered has-text-dark">Sound Familiar?</h3>
+      <p class="has-text-centered has-text-grey mb-5">Getting an outdoor project done shouldn't feel like a second job.</p>
+
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-danger mt-1"><i class="fas fa-times-circle fa-lg"></i></span>
+          <div>
+            <p class="has-text-weight-bold is-size-5">Weeks spent scheduling consultations</p>
+            <p class="has-text-grey">Researching contractors, playing phone tag, and waiting for quotes takes time you don't have.</p>
           </div>
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="/images/colout2.png" alt="Columbia Outdoor Logo">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Page.Strategies 1 }}
-                  {{ range .PainPoints }}
-                    <li>{{ . }}</li>
-                  {{ end }}
-                {{ end }}
-              </div>
-            </div>
-            <div class="content">
-              {{ (index .Page.Strategies 1).Advantage }}
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-danger mt-1"><i class="fas fa-times-circle fa-lg"></i></span>
+          <div>
+            <p class="has-text-weight-bold is-size-5">Quotes you can't compare</p>
+            <p class="has-text-grey">Every bid uses different assumptions, materials, and formats. You're comparing apples to oranges.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-danger mt-1"><i class="fas fa-times-circle fa-lg"></i></span>
+          <div>
+            <p class="has-text-weight-bold is-size-5">No way to verify who you're hiring</p>
+            <p class="has-text-grey">Is that contractor licensed in Washington? Insured? Have they built in the PNW's wet climate before?</p>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-danger mt-1"><i class="fas fa-times-circle fa-lg"></i></span>
+          <div>
+            <p class="has-text-weight-bold is-size-5">Surprise costs after work starts</p>
+            <p class="has-text-grey">Bids without clear breakdowns lead to change orders, overruns, and budget headaches.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-danger mt-1"><i class="fas fa-times-circle fa-lg"></i></span>
+          <div>
+            <p class="has-text-weight-bold is-size-5">Navigating permits and regulations alone</p>
+            <p class="has-text-grey">Oregon's permitting rules. Washington's wetland setbacks. Nobody explains this in a bid.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Two Paths -->
+  <section class="section has-background-white">
+    <div class="container">
+      <h3 class="title is-3 has-text-centered has-text-dark mb-6">How Can We Help?</h3>
+      <div class="columns is-variable is-6" style="margin-top:0">
+
+        <div class="column">
+          <div class="box has-text-centered" style="height:100%; border-top: 4px solid #3273dc;">
+            <span class="icon is-large has-text-link mb-3"><i class="fas fa-hard-hat fa-2x"></i></span>
+            <h4 class="title is-4">Hire a Contractor</h4>
+            <p class="has-text-grey mb-4">
+              Let Columbia Outdoor match you with a vetted, licensed Pacific Northwest contractor.
+              A dedicated project manager handles communication, permits, and oversight from start to finish.
+            </p>
+            <ul class="has-text-left mb-5" style="list-style:none; padding:0;">
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Pre-vetted, licensed contractors in WA, OR, and ID</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Dedicated project manager as your single point of contact</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Locked-in pricing with no surprise change orders</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Permits and regional regulations handled for you</li>
+            </ul>
+            <a href="/contact" class="button is-link is-rounded is-fullwidth">Get Connected</a>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="box has-text-centered" style="height:100%; border-top: 4px solid #f4c430;">
+            <span class="icon is-large has-text-warning mb-3"><i class="fas fa-calculator fa-2x"></i></span>
+            <h4 class="title is-4">Build Your Own Estimate</h4>
+            <p class="has-text-grey mb-4">
+              Use our free interactive calculator to price your deck project instantly.
+              Choose your materials, dimensions, and options — and see the price update in real time.
+              Perfect for DIYers, planners, or anyone who wants to know what to expect before talking to anyone.
+            </p>
+            <ul class="has-text-left mb-5" style="list-style:none; padding:0;">
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Instant pricing — no waiting, no callbacks</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Choose deck size, materials, rails, stairs, and more</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Save and share your estimate</li>
+              <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> No account required to get started</li>
+            </ul>
+            <a href="/calc?option=deck" class="button is-warning is-rounded is-fullwidth">
+              <strong>Start the Calculator</strong>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Columbia Outdoor -->
+  <section class="section has-background-light">
+    <div class="container" style="max-width:900px;">
+      <h3 class="title is-3 has-text-centered has-text-dark mb-6">Why Columbia Outdoor?</h3>
+      <div class="columns is-multiline" style="margin-top:0">
+
+        <div class="column is-half">
+          <div style="display:flex; align-items:flex-start; gap:1rem;">
+            <span class="icon has-text-success mt-1"><i class="fas fa-shield-alt fa-lg"></i></span>
+            <div>
+              <p class="has-text-weight-bold is-size-5">Vetted Contractors Only</p>
+              <p class="has-text-grey">Every contractor in our network is verified for licensing, insurance, and regional experience in Washington, Oregon, and Idaho.</p>
             </div>
           </div>
         </div>
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!-- end tiny modal card -->
 
-
-    <!-- Modal Card 2  -->
-    <div id="modal-card2" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-tiny">
-        <!-- content -->
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-              <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg" alt="2 story deck with dry space for outdoor living in Camas, WA">
-            </figure>
-          </div>
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="/images/colout2.png" alt="Columbia Outdoor logo">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Page.Strategies 2 }}
-                  {{ range .PainPoints }}
-                    <li>{{ . }}</li>
-                  {{ end }}
-                {{ end }}
-              </div>
-            </div>
-            <div class="content">
-              {{ (index .Page.Strategies 2).Advantage }}
+        <div class="column is-half">
+          <div style="display:flex; align-items:flex-start; gap:1rem;">
+            <span class="icon has-text-success mt-1"><i class="fas fa-dollar-sign fa-lg"></i></span>
+            <div>
+              <p class="has-text-weight-bold is-size-5">Transparent, Locked-In Pricing</p>
+              <p class="has-text-grey">No vague quotes. Our itemized estimates lock in costs upfront. Change orders require explicit approval — no surprises.</p>
             </div>
           </div>
         </div>
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!-- end Modal Card 2-->
 
-    <!-- Modal Card 3  -->
-    <div id="modal-card3" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-tiny">
-        <!-- content -->
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-              <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg" alt="2 story deck with dry space for outdoor living in Camas, WA">
-            </figure>
-          </div>
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="/images/colout2.png" alt="Columbia Outdoor logo">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Page.Strategies 3 }}
-                  {{ range .PainPoints }}
-                    <li>{{ . }}</li>
-                  {{ end }}
-                {{ end }}
-              </div>
-            </div>
-            <div class="content">
-              {{ (index .Page.Strategies 3).Advantage }}
+        <div class="column is-half">
+          <div style="display:flex; align-items:flex-start; gap:1rem;">
+            <span class="icon has-text-success mt-1"><i class="fas fa-user-tie fa-lg"></i></span>
+            <div>
+              <p class="has-text-weight-bold is-size-5">Dedicated Project Manager</p>
+              <p class="has-text-grey">One person handles site visits, permits, contractor coordination, and progress updates. You stay informed without managing the details.</p>
             </div>
           </div>
         </div>
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!-- end Modal Card 3-->
 
-    <!-- Modal Card 4  -->
-    <div id="modal-card4" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-tiny">
-        <!-- content -->
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-               <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck4.jpg" alt="Stairs 1 img">
-            </figure>
-          </div>
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img src="/images/colout2.png" alt="logo small">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-4">Columbia Outdoor</p>
-                  {{ with index .Page.Strategies 4 }}
-                  {{ range .PainPoints }}
-                    <li>{{ . }}</li>
-                  {{ end }}
-                {{ end }}
-              </div>
-            </div>
-            <div class="content">
-              {{ (index .Page.Strategies 4).Advantage }}
+        <div class="column is-half">
+          <div style="display:flex; align-items:flex-start; gap:1rem;">
+            <span class="icon has-text-success mt-1"><i class="fas fa-map-marker-alt fa-lg"></i></span>
+            <div>
+              <p class="has-text-weight-bold is-size-5">Built for the Pacific Northwest</p>
+              <p class="has-text-grey">We understand PNW climate, permitting, and building codes. Every project is designed for the rain, the views, and the regulations.</p>
             </div>
           </div>
         </div>
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!-- end Modal Card 4-->
 
+      </div>
+    </div>
+  </section>
 
+  <!-- Photo Grid -->
+  <section class="section has-background-white">
+    <div class="container">
+      <h3 class="title is-3 has-text-centered has-text-dark mb-2">Our Work</h3>
+      <p class="has-text-centered has-text-grey mb-5">Decks, covers, and outdoor spaces built across the Pacific Northwest.</p>
+      <div class="columns" style="margin-top:0">
+        <div class="column">
+          <figure class="image is-4by3">
+            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg" alt="Custom deck build" style="object-fit:cover; border-radius:6px;">
+          </figure>
+        </div>
+        <div class="column">
+          <figure class="image is-4by3">
+            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck3.jpg" alt="Multi-level deck" style="object-fit:cover; border-radius:6px;">
+          </figure>
+        </div>
+        <div class="column">
+          <figure class="image is-4by3">
+            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck4.jpg" alt="Deck with stairs" style="object-fit:cover; border-radius:6px;">
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Image modal -->
-    <div id="modal-image2" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-huge is-image">
-        <!-- content -->
-        <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg" alt="image">
-        <!-- end content -->
+  <!-- Bottom CTA -->
+  <section class="section" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://storage.googleapis.com/columbiaoutdoor-images/cover1.jpeg') center/cover no-repeat; padding: 4rem 1.5rem;">
+    <div class="container has-text-centered">
+      <h3 class="title is-2 has-text-white">Ready to Get Started?</h3>
+      <p class="subtitle has-text-white mt-3" style="max-width:600px; margin: 1rem auto;">
+        Use our calculator to build your own estimate instantly — or contact us and an outdoor living professional will review your project with you in person.
+      </p>
+      <div class="buttons is-centered mt-5">
+        <a href="/calc?option=deck" class="button is-warning is-large is-rounded">
+          <strong>Build Your Own Estimate</strong>
+        </a>
+        <a href="/contact" class="button is-light is-large is-rounded">
+          Talk to a Professional
+        </a>
       </div>
-      <button class="modal-close is-large" aria-label="close"></button>
     </div>
-    <!-- Image modal -->
-    <div id="modal-image4" class="modal modal-fx-3dSlit">
-      <div class="modal-background"></div>
-      <div class="modal-content is-huge is-image">
-        <!-- content -->
-        <img src="https://images.unsplash.com/photo-1529774172307-627a0ae46dae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80" alt="butterfly">
-        <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!-- Image modal-->
-    <div id="modal-image" class="modal modal-fx-superScaled">
-      <div class="modal-background"></div>
-      <div class="modal-content  is-image">
-        <!-- content -->
-        <img src="https://res.cloudinary.com/ameo/image/upload/v1568711475/pexels-photo-1302883_fjje0f.jpg" alt="Placeholder image">
-        <!--     <img src="https://source.unsplash.com/zFrUz_tNjCY" alt="placeholder">
-        -->    <!-- end content -->
-      </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-    <!--script src="https://unpkg.com/bulma-modal-fx/dist/js/modal-fx.min.js"></script-->
-<script
-  src="https://code.jquery.com/jquery-3.7.0.slim.min.js"
-  integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE="
-  crossorigin="anonymous"></script>  
+  </section>
 
   {{template "footer.gohtml" .}}
 {{end}}
