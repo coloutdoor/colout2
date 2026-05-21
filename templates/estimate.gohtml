@@ -49,7 +49,7 @@
         <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
         <div class="buttons">
           {{if and .AcceptDate.IsZero (not .IsPublicView)}}
-          <button id="btn-save" class="button is-primary" type="submit" style="display:none;">
+          <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
             <span class="icon"><i class="fas fa-save"></i></span><span>Save Estimate</span>
           </button>
           {{end}}
