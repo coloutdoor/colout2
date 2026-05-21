@@ -398,11 +398,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
+		savedRurl := sessionData.UserAuth.Rurl
 		if err := authN(r, w); err != nil {
 			sessionData.UserAuth.Message = err.Error()
 		} else {
-			// Update sessionData after successful authN
+			// Update sessionData after successful authN, restoring Rurl
 			sessionData, _ = GetSession(r, w)
+			if sessionData.UserAuth.Rurl == "" {
+				sessionData.UserAuth.Rurl = savedRurl
+				_ = sessionData.Save(r, w)
+			}
 		}
 	}
 
