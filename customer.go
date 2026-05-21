@@ -53,12 +53,17 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("Customer POST: %+v", customer)
 		sessionData.Customer = customer
+		sessionData.Estimate.Customer = customer
 		if err := sessionData.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
 		}
 		// Save contact info back to user_auth for homeowners
 		if isHomeowner {
 			updateUserAuthContact(userAuth.ID, customer)
+		}
+		// Persist customer fields to the estimate in the DB if one is saved
+		if sessionData.Estimate.EstimateID > 0 {
+			updateEstimateCustomer(sessionData.Estimate.EstimateID, customer)
 		}
 		http.Redirect(w, r, "/estimate", http.StatusSeeOther)
 		return
@@ -115,6 +120,29 @@ func autoFillFromUserAuth(userID int64, c Customer) Customer {
 	if state     != "" { c.State     = state      }
 	if zip       != "" { c.Zip       = zip        }
 	return c
+}
+
+// updateEstimateCustomer persists customer contact fields to a saved estimate in the DB.
+func updateEstimateCustomer(estimateID int, c Customer) {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return
+	}
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`UPDATE estimates
+		SET first_name = $1, last_name = $2, phone_number = $3,
+		    address = $4, city = $5, state = $6, zip = $7, email = $8
+		WHERE estimate_id = $9`,
+		c.FirstName, c.LastName, c.PhoneNumber,
+		c.Address, c.City, c.State, c.Zip, c.Email, estimateID)
+	if err != nil {
+		log.Printf("updateEstimateCustomer: failed to update estimate %d: %v", estimateID, err)
+	}
 }
 
 // updateUserAuthContact saves customer contact info back to user_auth for homeowners.
