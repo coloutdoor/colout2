@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin
+Disallow: /session
+Disallow: /estimate/delete/
+Disallow: /estimate/send/
+Allow: /
+
+Sitemap: https://www.columbiaoutdoor.com/sitemap.xml

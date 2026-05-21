@@ -87,9 +87,22 @@ Template files use `.gohtml` extension (except legacy `.html` files like `sessio
 
 PostgreSQL (Neon serverless). Schema is in `sql/estimates.sql` and `sql/user_auth.sql`. No migration framework — schema is applied manually.
 
+**Database rules:**
+- For all DB queries and changes, always use `DATABASE_URL` from `.env` (this is the test/dev database).
+- `DATABASE_URL_PROD` in `.env` points to the **production** database. Before running any write (INSERT, UPDATE, DELETE, DROP, ALTER) against `DATABASE_URL_PROD`, always stop and ask: "Are you sure you want to modify the production database?" and wait for explicit confirmation before proceeding.
+- Use `psql "$DATABASE_URL" -c "..."` for write operations (the MCP postgres tool is read-only).
+
 Two tables:
 - `estimates` — all estimate data plus customer fields and FK to `user_auth`
 - `user_auth` — email/password (bcrypt) + Google OAuth users, roles: `homeowner | contractor | admin`
+
+**`estimates` columns** (primary key: `estimate_id`):
+`estimate_id`, `description`, `height`, `material`, `rail_material`, `rail_infill`, `stair_width`, `stair_rail_count`, `has_demo`, `has_fascia`, `has_stair_fascia`, `has_stair_tk`, `total_cost`, `first_name`, `last_name`, `address`, `city`, `state`, `zip`, `phone_number`, `email`, `save_date`, `accept_date`, `expiration_date`, `created_at`, `updated_at`, `user_id`, `contractor_id`, `version`, `rail_feet_override`
+
+Related table: `estimate_sections` (columns: `id`, `estimate_id`, `label`, `length`, `width`, `sort_order`, `created_at`)
+
+**`user_auth` columns** (primary key: `id`):
+`id`, `email`, `password_hash`, `google_id`, `role`, `created_at`, `updated_at`
 
 ### Subdirectories
 

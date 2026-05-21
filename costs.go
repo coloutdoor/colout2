@@ -93,15 +93,7 @@ func (estimate *DeckEstimate) CalculateFasciaCost(costs Costs) {
 	estimate.FasciaFeet = 0.0
 	estimate.FasciaCost = 0.0
 	if estimate.HasFascia {
-		// Use same perimeter basis as rails (override → primary section → L/W)
-		if estimate.RailFeetOverride > 0 {
-			estimate.FasciaFeet = estimate.RailFeetOverride
-		} else if len(estimate.Sections) > 0 {
-			s := estimate.Sections[0]
-			estimate.FasciaFeet = (2 * s.Length) + s.Width
-		} else {
-			estimate.FasciaFeet = (2 * estimate.Length) + estimate.Width
-		}
+		estimate.FasciaFeet = estimate.RailFeet
 		estimate.FasciaCost = estimate.FasciaFeet * costs.FasciaCost
 	}
 }
@@ -121,10 +113,17 @@ func (estimate *DeckEstimate) CalculateRailCost(costs Costs) {
 	railMatCost := costs.RailMaterials[estimate.RailMaterial]
 	railInfCost := costs.RailInfills[estimate.RailInfill]
 
-	// Use manual override if set; otherwise calculate from primary section
+	// Use manual override if set; otherwise calculate from sections
 	if estimate.RailFeetOverride > 0 {
 		estimate.RailFeet = estimate.RailFeetOverride
-	} else if len(estimate.Sections) > 0 {
+	} else if len(estimate.Sections) > 1 {
+		total := estimate.Sections[0].Length + estimate.Sections[0].Width
+		for i := 1; i < len(estimate.Sections); i++ {
+			s, prev := estimate.Sections[i], estimate.Sections[i-1]
+			total += s.Length + s.Width + math.Abs(s.Length-prev.Length)
+		}
+		estimate.RailFeet = total - estimate.StairWidth
+	} else if len(estimate.Sections) == 1 {
 		s := estimate.Sections[0]
 		estimate.RailFeet = (2 * s.Length) + s.Width - estimate.StairWidth
 	} else {

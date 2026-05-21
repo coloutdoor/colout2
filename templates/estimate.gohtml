@@ -37,13 +37,23 @@
         <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
         <input type="hidden" name="sections" id="save-sections" value="">
         <input type="hidden" name="railOverride" id="save-rail-override" value="{{.RailFeetOverride}}">
+        <input type="hidden" name="height" id="save-height" value="{{.Height}}">
+        <input type="hidden" name="material" id="save-material" value="{{.Material}}">
+        <input type="hidden" name="railMaterial" id="save-rail-material" value="{{.RailMaterial}}">
+        <input type="hidden" name="railInfill" id="save-rail-infill" value="{{.RailInfill}}">
+        <input type="hidden" name="stairWidth" id="save-stair-width" value="{{.StairWidth}}">
+        <input type="hidden" name="stairRailCount" id="save-stair-rail-count" value="{{.StairRailCount}}">
+        <input type="hidden" name="hasDemo" id="save-has-demo" value="{{.HasDemo}}">
+        <input type="hidden" name="hasFascia" id="save-has-fascia" value="{{.HasFascia}}">
+        <input type="hidden" name="hasStairFascia" id="save-has-stair-fascia" value="{{.HasStairFascia}}">
+        <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
         <div class="buttons">
-          {{if .AcceptDate.IsZero}}
-          <button id="btn-save" class="button is-primary" type="submit">
+          {{if and .AcceptDate.IsZero (not .IsPublicView)}}
+          <button id="btn-save" class="button is-primary" type="submit" style="display:none;">
             <span class="icon"><i class="fas fa-save"></i></span><span>Save Estimate</span>
           </button>
           {{end}}
-          {{if not .SaveDate.IsZero}}
+          {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
           <button id="btn-email" class="button is-info" type="button"
             onclick="document.getElementById('email-modal').classList.add('is-active')">
             <span class="icon"><i class="fas fa-envelope"></i></span><span>Email Estimate</span>
@@ -53,7 +63,7 @@
             <span class="icon"><i class="fas fa-print"></i></span><span>Print</span>
           </button>
           {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
-            {{if eq $.Header.Role "homeowner"}}
+            {{if or (eq $.Header.Role "homeowner") .IsPublicView}}
             <button id="btn-accept" class="button is-success" type="button"
               onclick="document.getElementById('accept-confirm').classList.add('is-active')">
               <span class="icon"><i class="fas fa-check"></i></span><span>Accept Estimate</span>
@@ -96,12 +106,14 @@
         <div style="flex:1; min-width:200px;">
           <p class="has-text-weight-bold mb-2">
             {{if eq $.Header.Role "contractor"}}Customer{{else}}Your Information{{end}}
-            {{if eq .Customer.FirstName ""}}
-              <a href="/customer" class="button is-danger is-small ml-3">
-                {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
-              </a>
-            {{else if .AcceptDate.IsZero}}
-              <a href="/customer" class="button is-primary is-small ml-3">Edit</a>
+            {{if not .IsPublicView}}
+              {{if eq .Customer.FirstName ""}}
+                <a href="/customer" class="button is-danger is-small ml-3">
+                  {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
+                </a>
+              {{else if .AcceptDate.IsZero}}
+                <a href="/customer" class="button is-primary is-small ml-3">Edit</a>
+              {{end}}
             {{end}}
           </p>
           <div class="content is-small">
@@ -127,9 +139,9 @@
 
             <div class="column is-2">Description</div>
             <div class="column is-1">
-              <a href="#" onclick="openDescModal(); return false;" title="Edit description">
+              {{if not .IsPublicView}}<a href="#" onclick="openDescModal(); return false;" title="Edit description">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>
+              </a>{{end}}
             </div>
             <div class="column is-7">
               <span id="desc-display">{{.Desc}}</span>
@@ -138,50 +150,50 @@
 
             <div class="column is-2">Demo</div>
             <div class="column is-1">
-              <input id="demo-check" type="checkbox" {{if .HasDemo}}checked{{end}}
-                onchange="toggleDemo(this.checked)" title="Toggle demo">
+              {{if not .IsPublicView}}<input id="demo-check" type="checkbox" {{if .HasDemo}}checked{{end}}
+                onchange="toggleDemo(this.checked)" title="Toggle demo">{{end}}
             </div>
             <div class="column is-7" id="demo-desc">{{formatDemoDescription .}}</div>
             <div class="column is-2 has-text-right" id="demo-cost">{{formatCost .DemoCost}}</div>
 
             <div class="column is-2">Deck</div>
             <div class="column is-1">
-              <a href="#" onclick="openDeckModal(); return false;" title="Edit deck">
+              {{if not .IsPublicView}}<a href="#" onclick="openDeckModal(); return false;" title="Edit deck">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>
+              </a>{{end}}
             </div>
             <div class="column is-7" id="deck-desc">{{formatDeckDescription .}}</div>
             <div class="column is-2 has-text-right" id="deck-cost">{{formatCost .DeckCost}}</div>
 
             <div class="column is-2">Rail</div>
             <div class="column is-1">
-              <a href="#" onclick="openRailModal(); return false;" title="Edit rails">
+              {{if not .IsPublicView}}<a href="#" onclick="openRailModal(); return false;" title="Edit rails">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>
+              </a>{{end}}
             </div>
             <div class="column is-7" id="rail-desc">{{formatRailDescription .}}</div>
             <div class="column is-2 has-text-right" id="rail-cost">{{formatCost .RailCost}}</div>
 
             <div class="column is-2">Fascia</div>
             <div class="column is-1">
-              <input id="fascia-check" type="checkbox" {{if .HasFascia}}checked{{end}}
-                onchange="toggleFascia(this.checked)" title="Toggle fascia">
+              {{if not .IsPublicView}}<input id="fascia-check" type="checkbox" {{if .HasFascia}}checked{{end}}
+                onchange="toggleFascia(this.checked)" title="Toggle fascia">{{end}}
             </div>
             <div class="column is-7" id="fascia-desc">{{formatFasciaDescription .}}</div>
             <div class="column is-2 has-text-right" id="fascia-cost">{{formatCost .FasciaCost}}</div>
 
             <div class="column is-2">Stairs</div>
             <div class="column is-1">
-              <a href="#" onclick="openStairModal(); return false;" title="Edit stairs">
+              {{if not .IsPublicView}}<a href="#" onclick="openStairModal(); return false;" title="Edit stairs">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>
+              </a>{{end}}
             </div>
             <div class="column is-7" id="stair-desc">{{formatStairDescription .}}</div>
             <div class="column is-2 has-text-right" id="stair-cost">{{formatCost .StairCost}}</div>
 
             <div class="column is-2">Stair Rails</div>
             <div class="column is-1">
-              {{if gt .StairWidth 0.0}}
+              {{if and (gt .StairWidth 0.0) (not .IsPublicView)}}
               <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" title="Edit stair rails">
                 <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
               </a>
@@ -193,8 +205,8 @@
             <div class="column is-2">Stair Fascia</div>
             <div class="column is-1">
               {{if gt .StairWidth 0.0}}
-              <input id="stairfascia-check" type="checkbox" {{if .HasStairFascia}}checked{{end}}
-                onchange="toggleStairFascia(this.checked)" title="Toggle stair fascia">
+              {{if not .IsPublicView}}<input id="stairfascia-check" type="checkbox" {{if .HasStairFascia}}checked{{end}}
+                onchange="toggleStairFascia(this.checked)" title="Toggle stair fascia">{{end}}
               {{end}}
             </div>
             <div class="column is-7" id="stairfascia-desc">{{formatStairFasciaDescription .}}</div>
@@ -203,8 +215,8 @@
             <div class="column is-2">Stair Toe Kicks</div>
             <div class="column is-1">
               {{if gt .StairWidth 0.0}}
-              <input id="stairtk-check" type="checkbox" {{if .HasStairTK}}checked{{end}}
-                onchange="toggleStairTK(this.checked)" title="Toggle stair toe kicks">
+              {{if not .IsPublicView}}<input id="stairtk-check" type="checkbox" {{if .HasStairTK}}checked{{end}}
+                onchange="toggleStairTK(this.checked)" title="Toggle stair toe kicks">{{end}}
               {{end}}
             </div>
             <div class="column is-7" id="stairtk-desc">{{formatStairTKDescription .}}</div>
@@ -281,7 +293,7 @@
       <p>By accepting this estimate you agree to the terms and conditions and authorize Columbia Outdoor to proceed with the project as described.</p>
     </section>
     <footer class="modal-card-foot">
-      <form method="post" action="/estimate">
+      <form method="post" action="{{if .AcceptURL}}{{.AcceptURL}}{{else}}/estimate{{end}}">
         <input type="hidden" name="accept" value="true">
         <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
         <button class="button is-success" type="submit">Yes, Accept Estimate</button>
@@ -724,13 +736,28 @@ function applyStairWidth() {
 function syncSectionsField() {
   const f = document.getElementById('save-sections');
   if (f) f.value = JSON.stringify(estimateData.sections);
-  const r = document.getElementById('save-rail-override');
-  if (r) r.value = estimateData.railFeetOverride || 0;
+  const sync = [
+    ['save-rail-override',    estimateData.railFeetOverride || 0],
+    ['save-height',           estimateData.height],
+    ['save-material',         estimateData.material],
+    ['save-rail-material',    estimateData.railMaterial],
+    ['save-rail-infill',      estimateData.railInfill],
+    ['save-stair-width',      estimateData.stairWidth],
+    ['save-stair-rail-count', estimateData.stairRailCount],
+    ['save-has-demo',         estimateData.hasDemo],
+    ['save-has-fascia',       estimateData.hasFascia],
+    ['save-has-stair-fascia', estimateData.hasStairFascia],
+    ['save-has-stair-tk',     estimateData.hasStairTK],
+  ];
+  sync.forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
 }
 // Initialize on page load
 syncSectionsField();
 
 function markDirty() {
+  const saveBtn = document.getElementById('btn-save');
+  if (saveBtn) saveBtn.style.display = '';
+
   const btns = ['btn-email', 'btn-print', 'btn-accept'];
   btns.forEach(id => {
     const el = document.getElementById(id);

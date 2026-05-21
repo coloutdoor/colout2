@@ -197,7 +197,7 @@ func TestCalculateFasciaCost(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := DeckEstimate{Length: tt.length, Width: tt.width, HasFascia: tt.hasFascia}
+			e := DeckEstimate{Length: tt.length, Width: tt.width, HasFascia: tt.hasFascia, RailFeet: tt.wantFeet}
 			e.CalculateFasciaCost(testCosts)
 			if !approxEqual(e.FasciaCost, tt.wantCost) {
 				t.Errorf("FasciaCost = %.2f, want %.2f", e.FasciaCost, tt.wantCost)

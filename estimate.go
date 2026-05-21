@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"encoding/gob"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -80,6 +82,9 @@ type DeckEstimate struct {
 	Version          int    // Increments on each save
 	Sections         []EstimateSection
 	RailFeetOverride float64 // 0 = auto-calculate from primary section
+	AccessToken      string  // Random token for customer view/accept link
+	IsPublicView     bool    // True when accessed via token link — hides edit controls
+	AcceptURL        string  // Form action for accept modal; defaults to /estimate
 }
 
 type EstimateSection struct {
@@ -175,7 +180,12 @@ func getEstimate(estimateID int) DeckEstimate {
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(e.rail_feet_override, 0),
         COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
-        COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1)
+        COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1),
+        COALESCE(e.deck_cost, 0), COALESCE(e.deck_area, 0), COALESCE(e.rail_cost, 0), COALESCE(e.rail_feet, 0),
+        COALESCE(e.stair_cost, 0), COALESCE(e.stair_rail_cost, 0), COALESCE(e.fascia_cost, 0), COALESCE(e.fascia_feet, 0),
+        COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
+        COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
+        COALESCE(e.access_token, '')
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -185,7 +195,12 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
 		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID, &de.Version, &de.RailFeetOverride,
 		&de.Contractor.CompanyName, &de.Contractor.Phone, &de.Contractor.Website,
-		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID)
+		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID,
+		&de.DeckCost, &de.DeckArea, &de.RailCost, &de.RailFeet,
+		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
+		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
+		&de.Subtotal, &de.SalesTax,
+		&de.AccessToken)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -220,6 +235,80 @@ func getEstimate(estimateID int) DeckEstimate {
 	if len(de.Sections) > 0 {
 		de.Length = de.Sections[0].Length
 		de.Width  = de.Sections[0].Width
+	}
+
+	de.Error = ""
+	return de
+}
+
+// getEstimateByToken loads an estimate by its public access token.
+func getEstimateByToken(token string) DeckEstimate {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return DeckEstimate{Error: "Database Env - not set up."}
+	}
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		return DeckEstimate{Error: "Database Connect failed."}
+	}
+	defer db.Close()
+
+	var de DeckEstimate
+	var acceptDate sql.NullTime
+	err = db.QueryRow(`
+        SELECT e.estimate_id, e.description, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
+        e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
+        e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
+        e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
+        COALESCE(e.rail_feet_override, 0),
+        COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
+        COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1),
+        COALESCE(e.deck_cost, 0), COALESCE(e.deck_area, 0), COALESCE(e.rail_cost, 0), COALESCE(e.rail_feet, 0),
+        COALESCE(e.stair_cost, 0), COALESCE(e.stair_rail_cost, 0), COALESCE(e.fascia_cost, 0), COALESCE(e.fascia_feet, 0),
+        COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
+        COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
+        COALESCE(e.access_token, '')
+        FROM estimates e
+        LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
+        WHERE e.access_token = $1`, token).Scan(
+		&de.EstimateID, &de.Desc, &de.Height, &de.Material, &de.RailMaterial, &de.RailInfill, &de.StairWidth,
+		&de.StairRailCount, &de.HasDemo, &de.HasFascia, &de.TotalCost, &de.HasStairFascia, &de.HasStairTK,
+		&de.Customer.FirstName, &de.Customer.LastName, &de.Customer.Address, &de.Customer.City, &de.Customer.State,
+		&de.Customer.Zip, &de.Customer.PhoneNumber, &de.Customer.Email,
+		&de.SaveDate, &acceptDate, &de.ExpirationDate, &de.UserId, &de.ContractorID, &de.Version, &de.RailFeetOverride,
+		&de.Contractor.CompanyName, &de.Contractor.Phone, &de.Contractor.Website,
+		&de.Contractor.LicenseNum, &de.Contractor.LicenseState, &de.Contractor.ID,
+		&de.DeckCost, &de.DeckArea, &de.RailCost, &de.RailFeet,
+		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
+		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
+		&de.Subtotal, &de.SalesTax,
+		&de.AccessToken)
+
+	if err != nil {
+		return DeckEstimate{Error: "Estimate not found"}
+	}
+
+	if acceptDate.Valid {
+		de.AcceptDate = acceptDate.Time
+	}
+
+	srows, serr := db.Query(`
+		SELECT id, estimate_id, label, length, width, sort_order
+		FROM estimate_sections WHERE estimate_id = $1
+		ORDER BY sort_order, id`, de.EstimateID)
+	if serr == nil {
+		for srows.Next() {
+			var s EstimateSection
+			if err := srows.Scan(&s.ID, &s.EstimateID, &s.Label, &s.Length, &s.Width, &s.SortOrder); err == nil {
+				de.Sections = append(de.Sections, s)
+			}
+		}
+		srows.Close()
+	}
+
+	if len(de.Sections) > 0 {
+		de.Length = de.Sections[0].Length
+		de.Width = de.Sections[0].Width
 	}
 
 	de.Error = ""
@@ -266,6 +355,13 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour)
 
+	// Generate a public access token if this estimate doesn't have one yet
+	if estimate.AccessToken == "" {
+		b := make([]byte, 16)
+		rand.Read(b)
+		estimate.AccessToken = hex.EncodeToString(b)
+	}
+
 	// Set contractor_id: use the contractor's profile if they're a contractor, else default to 1
 	if estimate.ContractorID == 0 {
 		estimate.ContractorID = 1
@@ -309,8 +405,22 @@ SET
     user_id = $24,
     contractor_id = $25,
     rail_feet_override = $26,
+    deck_cost = $27,
+    deck_area = $28,
+    rail_cost = $29,
+    rail_feet = $30,
+    stair_cost = $31,
+    stair_rail_cost = $32,
+    fascia_cost = $33,
+    fascia_feet = $34,
+    stair_fascia_cost = $35,
+    stair_toe_kick_cost = $36,
+    demo_cost = $37,
+    subtotal = $38,
+    sales_tax = $39,
+    access_token = $40,
     version = version + 1
-WHERE estimate_id = $27
+WHERE estimate_id = $41
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -328,9 +438,14 @@ RETURNING estimate_id, version`
 			}(), //20
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //21
 			estimate.HasStairFascia, estimate.HasStairTK,          //23
-			estimate.UserId,            //24
-			estimate.ContractorID,      //25
-			estimate.RailFeetOverride,  //26
+			estimate.UserId,           //24
+			estimate.ContractorID,     //25
+			estimate.RailFeetOverride, //26
+			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,         //30
+			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet, //34
+			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost,              //37
+			estimate.Subtotal, estimate.SalesTax,                                                //39
+			estimate.AccessToken,                                                                //40
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -354,14 +469,22 @@ RETURNING estimate_id, version`
 			first_name, last_name, address,
 			city, state, zip, phone_number, email,
 			save_date, accept_date, expiration_date, has_stair_fascia, has_stair_tk,
-			user_id, contractor_id, rail_feet_override, version)
+			user_id, contractor_id, rail_feet_override,
+			deck_cost, deck_area, rail_cost, rail_feet,
+			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
+			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
+			access_token, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
 		$6, $7, $8, $9, $10,
 		$11, $12, $13, $14, $15, $16, $17, $18,
 		$19, $20, $21,
-		$22, $23, $24, $25, $26, 1
+		$22, $23, $24, $25, $26,
+		$27, $28, $29, $30,
+		$31, $32, $33, $34,
+		$35, $36, $37, $38, $39,
+		$40, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -373,10 +496,12 @@ RETURNING estimate_id, version`
 			estimate.SaveDate.Format("2006-01-02 15:04:05"),
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
-			estimate.HasStairFascia, estimate.HasStairTK, //23
-			estimate.UserId,            //24
-			estimate.ContractorID,      //25
-			estimate.RailFeetOverride). //26
+			estimate.HasStairFascia, estimate.HasStairTK,                                                          //23
+			estimate.UserId, estimate.ContractorID, estimate.RailFeetOverride,                                     //26
+			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,                            //30
+			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet,                  //34
+			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
+			estimate.AccessToken). //40
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -460,11 +585,13 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 		renderEstimate(w, r, DeckEstimate{Error: "Unauthorized."})
 	}
 
-	// Calculate the costs
-	de.CalcAllCosts()
-	if de.Error != "" {
-		renderEstimate(w, r, de)
-		return
+	// Use stored costs if available; recalculate only for old estimates saved before line items were persisted.
+	if de.Subtotal == 0 {
+		de.CalcAllCosts()
+		if de.Error != "" {
+			renderEstimate(w, r, de)
+			return
+		}
 	}
 
 	// Sync session with the loaded estimate so /customer pre-fills correctly
@@ -517,19 +644,43 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ************* POST - SAVE  ********************************
 	if r.FormValue("save") == "true" {
-		// Pick up inline-edited description
 		if desc := r.FormValue("desc"); desc != "" {
 			estimate.Desc = desc
 			sd.Estimate.Desc = desc
 		}
-		// Pick up rail feet override
+		if h := r.FormValue("height"); h != "" {
+			if val, err := strconv.ParseFloat(h, 64); err == nil {
+				estimate.Height = val
+			}
+		}
+		if m := r.FormValue("material"); m != "" {
+			estimate.Material = m
+		}
+		if m := r.FormValue("railMaterial"); m != "" {
+			estimate.RailMaterial = m
+		}
+		if m := r.FormValue("railInfill"); m != "" {
+			estimate.RailInfill = m
+		}
+		if sw := r.FormValue("stairWidth"); sw != "" {
+			if val, err := strconv.ParseFloat(sw, 64); err == nil {
+				estimate.StairWidth = val
+			}
+		}
+		if src := r.FormValue("stairRailCount"); src != "" {
+			if val, err := strconv.ParseFloat(src, 64); err == nil {
+				estimate.StairRailCount = val
+			}
+		}
 		if railOverride := r.FormValue("railOverride"); railOverride != "" {
-			val, err := strconv.ParseFloat(railOverride, 64)
-			if err == nil {
+			if val, err := strconv.ParseFloat(railOverride, 64); err == nil {
 				estimate.RailFeetOverride = val
 			}
 		}
-		// Pick up sections from JS (JSON array)
+		estimate.HasDemo        = r.FormValue("hasDemo") == "true"
+		estimate.HasFascia      = r.FormValue("hasFascia") == "true"
+		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
+		estimate.HasStairTK     = r.FormValue("hasStairTK") == "true"
 		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
 			var parsed []struct {
 				Label  string  `json:"label"`
@@ -546,11 +697,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 						SortOrder: i,
 					})
 				}
-				// Keep L/W in sync with primary section
 				estimate.Length = estimate.Sections[0].Length
 				estimate.Width  = estimate.Sections[0].Width
 			}
 		}
+		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, sd)
 			http.Redirect(w, r, fmt.Sprintf("/estimate/%d", estimate.EstimateID), http.StatusSeeOther)
@@ -825,7 +976,7 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Host == "" || strings.HasPrefix(r.Host, "localhost") {
 		scheme = "http"
 	}
-	estimateURL := fmt.Sprintf("%s://%s/estimate/%d", scheme, r.Host, estimate.EstimateID)
+	estimateURL := fmt.Sprintf("%s://%s/estimate/view/%s", scheme, r.Host, estimate.AccessToken)
 	html := buildEstimateEmailHTML(estimate, estimateURL)
 
 	client := resend.NewClient(apiKey)
@@ -994,4 +1145,86 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		formatCost(e.TotalCost),
 		e.ExpirationDate.Format("Jan 2, 2006"),
 	)
+}
+
+// estimateTokenHandler serves the public customer view of an estimate via access token.
+// No authentication required — the token acts as the credential.
+func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	de := getEstimateByToken(token)
+	if de.Error != "" {
+		renderEstimate(w, r, de)
+		return
+	}
+
+	if de.Subtotal == 0 {
+		de.CalcAllCosts()
+		if de.Error != "" {
+			renderEstimate(w, r, de)
+			return
+		}
+	}
+
+	de.IsPublicView = true
+	de.AcceptURL = "/estimate/accept/" + token
+	renderEstimate(w, r, de)
+}
+
+// estimateAcceptHandler handles POST /estimate/accept/{token}.
+// Sets accept_date and re-renders the estimate as accepted.
+func estimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	de := getEstimateByToken(token)
+	if de.Error != "" {
+		renderEstimate(w, r, de)
+		return
+	}
+
+	if !de.AcceptDate.IsZero() {
+		de.IsPublicView = true
+		de.AcceptURL = "/estimate/accept/" + token
+		renderEstimate(w, r, de)
+		return
+	}
+
+	if !de.ExpirationDate.IsZero() && time.Now().After(de.ExpirationDate) {
+		de.Error = "This estimate has expired and can no longer be accepted."
+		renderEstimate(w, r, de)
+		return
+	}
+
+	dbURL := os.Getenv("DATABASE_URL")
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		renderEstimate(w, r, DeckEstimate{Error: "Database Connect failed."})
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`UPDATE estimates SET accept_date = NOW() WHERE access_token = $1`, token)
+	if err != nil {
+		log.Printf("estimateAcceptHandler: failed to set accept_date: %v", err)
+		renderEstimate(w, r, DeckEstimate{Error: "Failed to accept estimate."})
+		return
+	}
+
+	de.AcceptDate = time.Now()
+	de.IsPublicView = true
+	de.AcceptURL = "/estimate/accept/" + token
+	renderEstimate(w, r, de)
 }
