@@ -115,3 +115,23 @@ Related table: `estimate_sections` (columns: `id`, `estimate_id`, `label`, `leng
 ## Deployment
 
 Deployed to GCP Cloud Run as a Docker container. `build.sh deploy` builds the image, pushes to Artifact Registry, and updates the Cloud Run service. Production `DATABASE_URL` is set as a Cloud Run environment variable (`DATABASE_URL_PROD`).
+
+## Workflow
+
+### Bug Fixes and Features
+1. **One issue per bug or feature** — created on GitHub (`github.com/coloutdoor/colout2/issues`)
+2. Read the issue with `gh issue view N --repo coloutdoor/colout2`, discuss before coding
+3. Implement the fix or feature
+4. `/deploy-test` to build and start the local server
+5. Manual verification in the browser + `/smoke-test` to catch regressions
+6. Commit using `fixes #N` (bugs) or `closes #N` (features) — auto-closes the issue on push
+7. `git push` — issue closes automatically
+
+### Branching
+- Commit directly to `master` for bug fixes and single-session features
+- Create a branch only for major multi-session features that aren't ready to ship
+- `master` should always be deployable
+
+### Slash Commands
+- `/deploy-test` — build local binary and start dev server on :8080
+- `/smoke-test` — run 9 endpoint checks against a running server (default: localhost:8080, accepts a base URL argument)
