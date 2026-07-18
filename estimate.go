@@ -138,6 +138,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 	estimate.Terms = string(terms)
 
 	userAuth := getUserAuth(r, w)
+	userAuth.IsAdmin = isAdminUser(userAuth.Email)
 	userAuth.Title = "Deck Estimate"
 	rd := renderData{
 		Page:   &estimate,

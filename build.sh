@@ -54,8 +54,15 @@ case "$1" in
 
         if [ -n "$GOOGLE_OAUTH_SECRET" ]; then
             echo "Google Oauth Client Secret is set"
-        else 
+        else
             echo "ERROR:  GOOGLE_OAUTH_SECRET is missing or empty"
+            exit 1
+        fi
+
+        if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "Anthropic API key is set"
+        else
+            echo "ERROR: ANTHROPIC_API_KEY is missing or empty"
             exit 1
         fi
         
@@ -77,7 +84,8 @@ case "$1" in
             --set-env-vars CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY} \
             --set-env-vars GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET} \
             --set-env-vars DATABASE_URL=${DATABASE_URL_PROD} \
-            --set-env-vars SESSION_SECRET=${SESSION_SECRET}
+            --set-env-vars SESSION_SECRET=${SESSION_SECRET} \
+            --set-env-vars ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
         echo "Deployed to Cloud Run!"
         ;;
     *)

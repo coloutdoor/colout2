@@ -37,6 +37,7 @@ var googleOauthConfig = &oauth2.Config{
 type UserAuth struct {
 	ID              int64
 	IsAuthenticated bool
+	IsAdmin         bool
 	Email           string
 	Name            string
 	AuthType        string // Google or password

@@ -9,5 +9,6 @@ install.sh
 /sessions
 colout2.sublime*
 /designer/
-/materials/
+materials/Build_Material
+materials/test/
 /docs

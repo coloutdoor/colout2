@@ -59,6 +59,11 @@
             <span class="icon"><i class="fas fa-envelope"></i></span><span>Email Estimate</span>
           </button>
           {{end}}
+          {{if and (not .SaveDate.IsZero) (or $.Header.IsAdmin (eq $.Header.Role "contractor"))}}
+          <button id="btn-materials" class="button is-warning" type="button" onclick="generateMaterials()">
+            <span class="icon"><i class="fas fa-hammer"></i></span><span>Generate Materials</span>
+          </button>
+          {{end}}
           <button id="btn-print" class="button is-light" type="button" onclick="window.print()">
             <span class="icon"><i class="fas fa-print"></i></span><span>Print</span>
           </button>
@@ -499,6 +504,25 @@
 </div>
 
 <script>
+function generateMaterials() {
+    const estimateID = document.getElementById('estimate-id').value;
+    const btn = document.getElementById('btn-materials');
+    btn.classList.add('is-loading');
+    btn.disabled = true;
+    fetch(`/estimate/materials/${estimateID}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            alert(data.message || (data.status === 'sent' ? 'Materials list sent!' : 'Error generating materials.'));
+        })
+        .catch(() => {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            alert('Error generating materials list.');
+        });
+}
+
 function confirmEmailSend() {
     const emailInput = document.getElementById('email-input');
     const estimateID = document.getElementById('estimate-id').value;
