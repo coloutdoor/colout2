@@ -30,6 +30,7 @@ var funcMap = template.FuncMap{
 	"formatStairRailDescription":   formatStairRailDescription,
 	"formatStairFasciaDescription": formatStairFasciaDescription,
 	"formatStairTKDescription":     formatStairTKDescription,
+	"formatPermitDescription":      formatPermitDescription,
 	"currentYear":                  func() int { return time.Now().Year() },
 	// jsStr encodes a string as a JavaScript string literal, safe inside <script> tags.
 	"jsStr": func(s string) template.JS {
@@ -87,6 +88,8 @@ type DeckEstimate struct {
 	AcceptURL        string  // Form action for accept modal; defaults to /estimate
 	DiscountCode     string
 	DiscountAmount   float64
+	PermitLevel      int     // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
+	PermitCost       float64
 }
 
 type EstimateSection struct {
@@ -189,7 +192,8 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
         COALESCE(e.access_token, ''),
-        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0)
+        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
+        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -204,7 +208,8 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
-		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount)
+		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
+		&de.PermitLevel, &de.PermitCost)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -272,7 +277,8 @@ func getEstimateByToken(token string) DeckEstimate {
         COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
         COALESCE(e.access_token, ''),
-        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0)
+        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
+        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.access_token = $1`, token).Scan(
@@ -287,7 +293,8 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
-		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount)
+		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
+		&de.PermitLevel, &de.PermitCost)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -426,8 +433,10 @@ SET
     access_token = $40,
     discount_code = $41,
     discount_amount = $42,
+    permit_level = $43,
+    permit_cost = $44,
     version = version + 1
-WHERE estimate_id = $43
+WHERE estimate_id = $45
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -453,7 +462,8 @@ RETURNING estimate_id, version`
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost,               //37
 			estimate.Subtotal, estimate.SalesTax,                                                 //39
 			estimate.AccessToken,                                                                 //40
-			estimate.DiscountCode, estimate.DiscountAmount,                                      //42
+			estimate.DiscountCode, estimate.DiscountAmount,   //42
+			estimate.PermitLevel, estimate.PermitCost,         //44
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -481,7 +491,7 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, discount_code, discount_amount, version)
+			access_token, discount_code, discount_amount, permit_level, permit_cost, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -492,7 +502,7 @@ RETURNING estimate_id, version`
 		$27, $28, $29, $30,
 		$31, $32, $33, $34,
 		$35, $36, $37, $38, $39,
-		$40, $41, $42, 1
+		$40, $41, $42, $43, $44, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -509,7 +519,8 @@ RETURNING estimate_id, version`
 			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,                            //30
 			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet,                  //34
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
-			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount). //42
+			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount, //42
+			estimate.PermitLevel, estimate.PermitCost).                           //44
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -690,6 +701,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
 		estimate.HasStairTK     = r.FormValue("hasStairTK") == "true"
 		estimate.DiscountCode   = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+		if pl := r.FormValue("permitLevel"); pl != "" {
+			if v, err := strconv.Atoi(pl); err == nil {
+				estimate.PermitLevel = v
+			}
+		}
 		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
 			var parsed []struct {
 				Label  string  `json:"label"`
@@ -870,6 +886,13 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		Width:  estimate.Width,
 	}}
 
+	// Default permit level: Design for most decks, Design+Engineering for tall decks
+	if estimate.Height >= 12 {
+		estimate.PermitLevel = 2
+	} else {
+		estimate.PermitLevel = 1
+	}
+
 	// Calculate the costs
 	estimate.CalcAllCosts()
 	if estimate.Error != "" {
@@ -921,7 +944,8 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalcStairToeKickCost(costs)
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost
+	estimate.CalcPermitCost(costs)
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost + estimate.PermitCost
 
 	estimate.DiscountAmount = 0
 	if estimate.DiscountCode != "" {
@@ -1061,6 +1085,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		newLineItem("Stair Rails", formatStairRailDescription(e), e.StairRailCost),
 		newLineItem("Stair Fascia", formatStairFasciaDescription(e), e.StairFasciaCost),
 		newLineItem("Toe Kicks", formatStairTKDescription(e), e.StairToeKickCost),
+		newLineItem("Design & Permits", formatPermitDescription(e), e.PermitCost),
 	}
 
 	discountRow := ""

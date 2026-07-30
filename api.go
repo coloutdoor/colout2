@@ -28,6 +28,7 @@ type CalcDeckRequest struct {
 	HasStairTK       bool                 `json:"hasStairTK"`
 	CustomerState    string               `json:"customerState"`
 	DiscountCode     string               `json:"discountCode"`
+	PermitLevel      int                  `json:"permitLevel"`
 	Sections         []CalcSectionRequest `json:"sections"`
 }
 
@@ -51,8 +52,10 @@ type CalcDeckResponse struct {
 	StairFasciaDescription string `json:"stairFasciaDescription"`
 	StairToeKickCost float64 `json:"stairToeKickCost"`
 	StairTKDescription string `json:"stairTKDescription"`
-	DiscountCode     string  `json:"discountCode"`
-	DiscountAmount   float64 `json:"discountAmount"`
+	DiscountCode        string  `json:"discountCode"`
+	DiscountAmount      float64 `json:"discountAmount"`
+	PermitCost          float64 `json:"permitCost"`
+	PermitDescription   string  `json:"permitDescription"`
 	Subtotal         float64 `json:"subtotal"`
 	SalesTax         float64 `json:"salesTax"`
 	TotalCost        float64 `json:"totalCost"`
@@ -90,6 +93,7 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 		HasStairTK:       req.HasStairTK,
 		Customer:         Customer{State: req.CustomerState},
 		DiscountCode:     req.DiscountCode,
+		PermitLevel:      req.PermitLevel,
 	}
 	for i, s := range req.Sections {
 		e.Sections = append(e.Sections, EstimateSection{
@@ -124,6 +128,8 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 		StairTKDescription:     formatStairTKDescription(e),
 		DiscountCode:           e.DiscountCode,
 		DiscountAmount:         e.DiscountAmount,
+		PermitCost:             e.PermitCost,
+		PermitDescription:      formatPermitDescription(e),
 		Subtotal:               e.Subtotal,
 		SalesTax:               e.SalesTax,
 		TotalCost:              e.TotalCost,

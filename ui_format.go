@@ -163,3 +163,17 @@ func formatStairTKDescription(de DeckEstimate) string {
 	}
 	return desc
 }
+
+// formatPermitDescription returns a scope description based on the selected permit tier.
+func formatPermitDescription(de DeckEstimate) string {
+	switch de.PermitLevel {
+	case 1:
+		return "Professional architectural design included. Engineering not included but may be required for your project."
+	case 2:
+		return "Professional architectural design and structural engineering included. Permits not included but may be required for your project."
+	case 3:
+		return "Professional architectural design, structural engineering, and permit application included."
+	default:
+		return "Design, engineering, and permits not included. May be required for your project."
+	}
+}

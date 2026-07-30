@@ -48,6 +48,7 @@
         <input type="hidden" name="hasStairFascia" id="save-has-stair-fascia" value="{{.HasStairFascia}}">
         <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
         <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
+        <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
         <div class="buttons">
           {{if and .AcceptDate.IsZero (not .IsPublicView)}}
           <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
@@ -227,6 +228,15 @@
             </div>
             <div class="column is-7" id="stairtk-desc">{{formatStairTKDescription .}}</div>
             <div class="column is-2 has-text-right" id="stairtk-cost">{{formatCost .StairToeKickCost}}</div>
+
+            <div class="column is-2">Design &amp; Permits</div>
+            <div class="column is-1">
+              {{if not .IsPublicView}}<a href="#" onclick="openPermitModal(); return false;" title="Edit design &amp; permits">
+                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+              </a>{{end}}
+            </div>
+            <div class="column is-7" id="permit-desc">{{formatPermitDescription .}}</div>
+            <div class="column is-2 has-text-right" id="permit-cost">{{formatCost .PermitCost}}</div>
 
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
@@ -526,6 +536,37 @@
   </div>
 </div>
 
+<!-- Design & Permits Modal -->
+<div id="permit-modal" class="modal">
+  <div class="modal-background" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></div>
+  <div class="modal-card" style="max-width:400px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Design &amp; Permits</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Select services to include</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="permit-level-select">
+              <option value="0">None</option>
+              <option value="1">Design ($1,500)</option>
+              <option value="2">Design + Engineering ($3,000)</option>
+              <option value="3">Design + Engineering + Permits ($4,500)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <p class="help mt-3">Design and engineering may be required by your local jurisdiction depending on deck height and size.</p>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyPermit()">Apply</button>
+      <button class="button" onclick="document.getElementById('permit-modal').classList.remove('is-active')">Cancel</button>
+    </footer>
+  </div>
+</div>
+
 <script>
 function generateMaterials() {
     const estimateID = document.getElementById('estimate-id').value;
@@ -606,6 +647,7 @@ const estimateData = {
   hasStairTK:       {{.HasStairTK}},
   customerState:    {{jsStr .Customer.State}},
   discountCode:     {{jsStr .DiscountCode}},
+  permitLevel:      {{.PermitLevel}},
   sections: [
     {{range .Sections}}
     { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },
@@ -636,6 +678,20 @@ function toggleStairFascia(checked) {
 
 function toggleStairTK(checked) {
   estimateData.hasStairTK = checked;
+  calcAndUpdate();
+}
+
+function openPermitModal() {
+  document.getElementById('permit-level-select').value = estimateData.permitLevel.toString();
+  document.getElementById('permit-modal').classList.add('is-active');
+}
+
+function applyPermit() {
+  const level = parseInt(document.getElementById('permit-level-select').value);
+  estimateData.permitLevel = level;
+  const saveField = document.getElementById('save-permit-level');
+  if (saveField) saveField.value = level;
+  document.getElementById('permit-modal').classList.remove('is-active');
   calcAndUpdate();
 }
 
@@ -805,6 +861,7 @@ function syncSectionsField() {
     ['save-has-stair-fascia', estimateData.hasStairFascia],
     ['save-has-stair-tk',     estimateData.hasStairTK],
     ['save-discount-code',    estimateData.discountCode],
+    ['save-permit-level',     estimateData.permitLevel],
   ];
   sync.forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
 }
@@ -844,6 +901,8 @@ function calcAndUpdate() {
     document.getElementById('stairrail-cost').textContent  = formatCost(data.stairRailCost);
     document.getElementById('stairfascia-cost').textContent= formatCost(data.stairFasciaCost);
     document.getElementById('stairtk-cost').textContent    = formatCost(data.stairToeKickCost);
+    document.getElementById('permit-cost').textContent     = formatCost(data.permitCost);
+    document.getElementById('permit-desc').textContent     = data.permitDescription;
     document.getElementById('subtotal-val').textContent    = formatCost(data.subtotal);
     document.getElementById('salestax-val').textContent    = formatCost(data.salesTax);
     document.getElementById('total-val').textContent       = formatCost(data.totalCost);

@@ -14,5 +14,6 @@ rail_infills:
   glass: 109.0
 demo_cost: 5.0
 fascia_cost: 21.0
+permit_cost_per_level: 1500.0
 discount_codes:
   DECKS26: 0.10

@@ -13,9 +13,10 @@ type Costs struct {
 	DeckMaterials map[string]float64 `yaml:"deck_materials"`
 	RailMaterials map[string]float64 `yaml:"rail_materials"`
 	RailInfills   map[string]float64 `yaml:"rail_infills"`
-	DemoCost      float64            `yaml:"demo_cost"`
-	FasciaCost    float64            `yaml:"fascia_cost"`
-	DiscountCodes map[string]float64 `yaml:"discount_codes"`
+	DemoCost            float64            `yaml:"demo_cost"`
+	FasciaCost          float64            `yaml:"fascia_cost"`
+	PermitCostPerLevel  float64            `yaml:"permit_cost_per_level"`
+	DiscountCodes       map[string]float64 `yaml:"discount_codes"`
 }
 
 // costs is the global pricing data, loaded at startup.
@@ -191,6 +192,12 @@ func (estimate *DeckEstimate) CalcStairToeKickCost(cost Costs) {
 		steps := math.Ceil(estimate.Height * 1.6)                                 // ~1.6 steps/ft, round up
 		estimate.StairToeKickCost = steps * estimate.StairWidth * cost.FasciaCost // Fascia 2 sides
 	}
+}
+
+// CalcPermitCost computes design/engineering/permit cost based on the selected tier.
+// Level 0 = none, 1 = design, 2 = design+engineering, 3 = design+engineering+permits.
+func (estimate *DeckEstimate) CalcPermitCost(costs Costs) {
+	estimate.PermitCost = float64(estimate.PermitLevel) * costs.PermitCostPerLevel
 }
 
 var stateTaxRates = map[string]float64{
