@@ -47,6 +47,7 @@
         <input type="hidden" name="hasFascia" id="save-has-fascia" value="{{.HasFascia}}">
         <input type="hidden" name="hasStairFascia" id="save-has-stair-fascia" value="{{.HasStairFascia}}">
         <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
+        <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
         <div class="buttons">
           {{if and .AcceptDate.IsZero (not .IsPublicView)}}
           <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
@@ -230,6 +231,28 @@
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
             <div class="column is-2 has-text-weight-semibold has-text-right" id="subtotal-val">{{formatCost .Subtotal}}</div>
+
+            {{if not .IsPublicView}}
+            <div class="column is-2">Discount Code</div>
+            <div class="column is-8">
+              <div class="field has-addons">
+                <div class="control">
+                  <input class="input is-small" type="text" id="discount-code-input" placeholder="Enter promo code"
+                    value="{{.DiscountCode}}"
+                    onkeydown="if(event.key==='Enter'){applyDiscountCode();event.preventDefault();}">
+                </div>
+                <div class="control">
+                  <button class="button is-small is-info" type="button" onclick="applyDiscountCode()">Apply</button>
+                </div>
+              </div>
+              <p id="discount-msg" class="help"></p>
+            </div>
+            <div class="column is-2"></div>
+            {{end}}
+
+            <div class="column is-2 has-text-success" id="discount-row-label" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>Discount</div>
+            <div class="column is-8 has-text-success" id="discount-desc" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>{{if .DiscountCode}}{{.DiscountCode}} — 10% off{{end}}</div>
+            <div class="column is-2 has-text-right has-text-success" id="discount-val" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>{{if gt .DiscountAmount 0.0}}-{{formatCost .DiscountAmount}}{{end}}</div>
 
             <div class="column is-2">Sales Tax</div>
             <div class="column is-8">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax.</div>
@@ -582,6 +605,7 @@ const estimateData = {
   hasStairFascia:   {{.HasStairFascia}},
   hasStairTK:       {{.HasStairTK}},
   customerState:    {{jsStr .Customer.State}},
+  discountCode:     {{jsStr .DiscountCode}},
   sections: [
     {{range .Sections}}
     { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },
@@ -612,6 +636,14 @@ function toggleStairFascia(checked) {
 
 function toggleStairTK(checked) {
   estimateData.hasStairTK = checked;
+  calcAndUpdate();
+}
+
+function applyDiscountCode() {
+  const code = document.getElementById('discount-code-input').value.trim().toUpperCase();
+  estimateData.discountCode = code;
+  const saveField = document.getElementById('save-discount-code');
+  if (saveField) saveField.value = code;
   calcAndUpdate();
 }
 
@@ -772,6 +804,7 @@ function syncSectionsField() {
     ['save-has-fascia',       estimateData.hasFascia],
     ['save-has-stair-fascia', estimateData.hasStairFascia],
     ['save-has-stair-tk',     estimateData.hasStairTK],
+    ['save-discount-code',    estimateData.discountCode],
   ];
   sync.forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
 }
@@ -814,6 +847,20 @@ function calcAndUpdate() {
     document.getElementById('subtotal-val').textContent    = formatCost(data.subtotal);
     document.getElementById('salestax-val').textContent    = formatCost(data.salesTax);
     document.getElementById('total-val').textContent       = formatCost(data.totalCost);
+    // Discount
+    const discountRows = ['discount-row-label','discount-desc','discount-val'];
+    const msg = document.getElementById('discount-msg');
+    if (data.discountAmount > 0) {
+      document.getElementById('discount-desc').textContent = data.discountCode + ' — 10% off';
+      document.getElementById('discount-val').textContent  = '-' + formatCost(data.discountAmount);
+      discountRows.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = ''; });
+      if (msg) { msg.textContent = 'Discount applied!'; msg.className = 'help has-text-success'; }
+    } else {
+      discountRows.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      const inp = document.getElementById('discount-code-input');
+      if (msg && inp && inp.value.trim()) { msg.textContent = 'Invalid code.'; msg.className = 'help has-text-danger'; }
+      else if (msg) { msg.textContent = ''; }
+    }
     // Update descriptions
     document.getElementById('deck-desc').textContent       = data.deckDescription;
     document.getElementById('demo-desc').textContent       = data.demoDescription;

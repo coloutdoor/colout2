@@ -10,7 +10,7 @@ func contractorLandingHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contractors"
 	userAuth.Subtitle = "Build More. Earn More. Columbia Outdoor."
-	userAuth.MetaDesc = "Pacific Northwest outdoor living contractors — stop working for free. Columbia Outdoor handles leads, estimates, permits, scheduling, and contracts so you can focus on building."
+	userAuth.MetaDesc = "SW Washington outdoor living contractors — stop working for free. Columbia Outdoor handles leads, estimates, permits, scheduling, and contracts so you can focus on building."
 
 	tmpl := template.Must(template.New("contractor.gohtml").Funcs(funcMap).ParseFiles(
 		"templates/contractor.gohtml",

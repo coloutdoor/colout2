@@ -15,6 +15,7 @@ type Costs struct {
 	RailInfills   map[string]float64 `yaml:"rail_infills"`
 	DemoCost      float64            `yaml:"demo_cost"`
 	FasciaCost    float64            `yaml:"fascia_cost"`
+	DiscountCodes map[string]float64 `yaml:"discount_codes"`
 }
 
 // costs is the global pricing data, loaded at startup.
@@ -192,12 +193,8 @@ func (estimate *DeckEstimate) CalcStairToeKickCost(cost Costs) {
 	}
 }
 
-// stateTaxRates maps US state abbreviations to sales tax rates.
-// OR has no sales tax. ID and WA rates are estimates.
 var stateTaxRates = map[string]float64{
 	"WA": 0.087,
-	"OR": 0.000,
-	"ID": 0.060,
 }
 
 // CalculateSalesTax applies sales tax based on the customer's state.

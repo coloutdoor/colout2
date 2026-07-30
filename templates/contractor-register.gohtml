@@ -42,7 +42,7 @@
       <div class="field">
         <label class="label">Company Name <span class="has-text-danger">*</span></label>
         <div class="control has-icons-left">
-          <input class="input" type="text" name="company_name" value="{{.CompanyName}}" required placeholder="Pacific Northwest Decks LLC">
+          <input class="input" type="text" name="company_name" value="{{.CompanyName}}" required placeholder="SW Washington Decks LLC">
           <span class="icon is-small is-left"><i class="fas fa-building"></i></span>
         </div>
       </div>
@@ -83,10 +83,8 @@
 
       <h2 class="title is-4 mt-5">Service Area</h2>
       <div class="field">
-        <label class="label">States</label>
-        <label class="checkbox mr-4"><input type="checkbox" name="service_states" value="WA"> Washington</label>
-        <label class="checkbox mr-4"><input type="checkbox" name="service_states" value="OR"> Oregon</label>
-        <label class="checkbox"><input type="checkbox" name="service_states" value="ID"> Idaho</label>
+        <label class="label">SW Washington</label>
+        <label class="checkbox mr-4"><input type="checkbox" name="service_states" value="WA" checked> Washington</label>
       </div>
 
       <div class="columns">
@@ -136,8 +134,6 @@
                 <select name="license_state">
                   <option value="">--</option>
                   <option value="WA" {{if eq .LicenseState "WA"}}selected{{end}}>WA</option>
-                  <option value="OR" {{if eq .LicenseState "OR"}}selected{{end}}>OR</option>
-                  <option value="ID" {{if eq .LicenseState "ID"}}selected{{end}}>ID</option>
                 </select>
               </div>
             </div>

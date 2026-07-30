@@ -85,6 +85,8 @@ type DeckEstimate struct {
 	AccessToken      string  // Random token for customer view/accept link
 	IsPublicView     bool    // True when accessed via token link — hides edit controls
 	AcceptURL        string  // Form action for accept modal; defaults to /estimate
+	DiscountCode     string
+	DiscountAmount   float64
 }
 
 type EstimateSection struct {
@@ -186,7 +188,8 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.stair_cost, 0), COALESCE(e.stair_rail_cost, 0), COALESCE(e.fascia_cost, 0), COALESCE(e.fascia_feet, 0),
         COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
-        COALESCE(e.access_token, '')
+        COALESCE(e.access_token, ''),
+        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -201,7 +204,7 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
-		&de.AccessToken)
+		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -268,7 +271,8 @@ func getEstimateByToken(token string) DeckEstimate {
         COALESCE(e.stair_cost, 0), COALESCE(e.stair_rail_cost, 0), COALESCE(e.fascia_cost, 0), COALESCE(e.fascia_feet, 0),
         COALESCE(e.stair_fascia_cost, 0), COALESCE(e.stair_toe_kick_cost, 0), COALESCE(e.demo_cost, 0),
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
-        COALESCE(e.access_token, '')
+        COALESCE(e.access_token, ''),
+        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.access_token = $1`, token).Scan(
@@ -283,7 +287,7 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairCost, &de.StairRailCost, &de.FasciaCost, &de.FasciaFeet,
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
-		&de.AccessToken)
+		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -420,8 +424,10 @@ SET
     subtotal = $38,
     sales_tax = $39,
     access_token = $40,
+    discount_code = $41,
+    discount_amount = $42,
     version = version + 1
-WHERE estimate_id = $41
+WHERE estimate_id = $43
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -442,11 +448,12 @@ RETURNING estimate_id, version`
 			estimate.UserId,           //24
 			estimate.ContractorID,     //25
 			estimate.RailFeetOverride, //26
-			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,         //30
+			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,           //30
 			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet, //34
-			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost,              //37
-			estimate.Subtotal, estimate.SalesTax,                                                //39
-			estimate.AccessToken,                                                                //40
+			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost,               //37
+			estimate.Subtotal, estimate.SalesTax,                                                 //39
+			estimate.AccessToken,                                                                 //40
+			estimate.DiscountCode, estimate.DiscountAmount,                                      //42
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -474,7 +481,7 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, version)
+			access_token, discount_code, discount_amount, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -485,7 +492,7 @@ RETURNING estimate_id, version`
 		$27, $28, $29, $30,
 		$31, $32, $33, $34,
 		$35, $36, $37, $38, $39,
-		$40, 1
+		$40, $41, $42, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -502,7 +509,7 @@ RETURNING estimate_id, version`
 			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,                            //30
 			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet,                  //34
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
-			estimate.AccessToken). //40
+			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount). //42
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -682,6 +689,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		estimate.HasFascia      = r.FormValue("hasFascia") == "true"
 		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
 		estimate.HasStairTK     = r.FormValue("hasStairTK") == "true"
+		estimate.DiscountCode   = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
 		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
 			var parsed []struct {
 				Label  string  `json:"label"`
@@ -914,8 +922,18 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
 	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost
-	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
-	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
+
+	estimate.DiscountAmount = 0
+	if estimate.DiscountCode != "" {
+		code := strings.ToUpper(strings.TrimSpace(estimate.DiscountCode))
+		if rate, ok := costs.DiscountCodes[code]; ok {
+			estimate.DiscountAmount = estimate.Subtotal * rate
+			estimate.DiscountCode = code
+		}
+	}
+
+	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal-estimate.DiscountAmount, estimate.Customer.State)
+	estimate.TotalCost = estimate.Subtotal - estimate.DiscountAmount + estimate.SalesTax
 
 }
 
@@ -1045,6 +1063,12 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		newLineItem("Toe Kicks", formatStairTKDescription(e), e.StairToeKickCost),
 	}
 
+	discountRow := ""
+	if e.DiscountAmount > 0 {
+		discountRow = fmt.Sprintf(`<tr><td colspan="2" style="padding:8px;text-align:right;color:#257942"><strong>Discount (%s)</strong></td>
+          <td style="padding:8px;text-align:right;color:#257942">-%s</td></tr>`, e.DiscountCode, formatCost(e.DiscountAmount))
+	}
+
 	rows := ""
 	for _, item := range lineItems {
 		rows += fmt.Sprintf(`<tr>
@@ -1061,7 +1085,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
   <!-- Header -->
   <div style="background:#2c6e9e;color:white;padding:24px;border-radius:6px 6px 0 0">
     <h1 style="margin:0;font-size:22px">Columbia Outdoor</h1>
-    <p style="margin:4px 0 0;opacity:.8">Pacific Northwest's Trusted Outdoor Living Platform</p>
+    <p style="margin:4px 0 0;opacity:.8">SW Washington's Trusted Outdoor Living Platform</p>
   </div>
 
   <!-- Estimate meta -->
@@ -1113,6 +1137,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
     <tfoot>
       <tr><td colspan="2" style="padding:8px;text-align:right"><strong>Subtotal</strong></td>
           <td style="padding:8px;text-align:right">%s</td></tr>
+      %s
       <tr><td colspan="2" style="padding:8px;text-align:right">%s</td>
           <td style="padding:8px;text-align:right">%s</td></tr>
       <tr style="background:#333;color:white">
@@ -1142,6 +1167,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		e.Customer.PhoneNumber, e.Customer.Email,
 		rows,
 		formatCost(e.Subtotal),
+		discountRow,
 		taxDesc, formatCost(e.SalesTax),
 		formatCost(e.TotalCost),
 		e.ExpirationDate.Format("Jan 2, 2006"),

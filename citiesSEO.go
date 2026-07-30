@@ -40,7 +40,7 @@ var serviceSlugs = []string{
 var cities = []struct {
 	Name  string // pretty name
 	Slug  string // URL-safe
-	State string // WA, OR, ID
+	State string // WA
 }{
 	{"Woodland", "woodland", "wa"},
 	{"Ridgefield", "ridgefield", "wa"},
