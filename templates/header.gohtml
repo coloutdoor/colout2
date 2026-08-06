@@ -66,6 +66,7 @@
 
   <!-- ==== BULMA NAVBAR (brand + menu) ==== -->
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+    <div class="container">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/images/colout2.png" alt="Columbia Outdoor" style="max-height:44px; width:auto;">
@@ -87,14 +88,19 @@
     <div id="mainNavbar" class="navbar-menu">
       <div class="navbar-end">
         <a class="navbar-item" href="/">Home</a>
-      {{if .IsAuthenticated}} 
+      {{if .IsAuthenticated}}
         <a class="navbar-item" href="/login?option=signout">Sign Out</a>
       {{else}}
         <a class="navbar-item" href="/login">Log in</a>
       {{end}}
-        <a class="navbar-item" href="/calc?option=deck">Cost Calculator</a>
         <a class="navbar-item" href="/contact">Contact Us</a>
+        <div class="navbar-item">
+          <a href="/calc?option=deck" class="button is-warning">
+            <strong>Cost Calculator</strong>
+          </a>
+        </div>
       </div>
+    </div>
     </div>
   </nav>
 
