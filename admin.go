@@ -134,7 +134,7 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 		       END AS status
 		FROM estimates e
 		LEFT JOIN user_auth u ON u.id = e.user_id
-		LEFT JOIN contractor_profile cp ON cp.user_id = e.user_id
+		LEFT JOIN contractor_profile cp ON cp.user_id = e.contractor_id
 		ORDER BY e.created_at DESC
 		LIMIT 20`)
 	if err != nil {
