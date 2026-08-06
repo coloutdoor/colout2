@@ -61,6 +61,9 @@ func init() {
 		log.Panic("Init!  Session store initialization failed.")
 	}
 
+	// FilesystemStore writes data to disk, not the cookie — no size limit needed
+	store.MaxLength(0)
+
 	store.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
@@ -153,7 +156,11 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 		return err
 	}
 
-	session.Values["estimate"] = s.Estimate
+	// Strip render-only fields that are reloaded each request — keeps session small
+	estimateForSession := s.Estimate
+	estimateForSession.Terms = ""
+	estimateForSession.TermsHTML = ""
+	session.Values["estimate"] = estimateForSession
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
 

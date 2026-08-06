@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"database/sql"
 	"encoding/gob"
@@ -17,6 +18,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	resend "github.com/resend/resend-go/v2"
+	"github.com/yuin/goldmark"
 )
 
 // Define template functions
@@ -76,6 +78,7 @@ type DeckEstimate struct {
 	SaveDate         time.Time
 	AcceptDate       time.Time
 	Terms            string
+	TermsHTML        template.HTML
 	Error            string
 	EmailModalShown  bool  // Flag to indicate if email modal should be shown
 	UserId           int64 // FK to UserAuth
@@ -90,6 +93,8 @@ type DeckEstimate struct {
 	DiscountAmount   float64
 	PermitLevel      int     // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
 	PermitCost       float64
+	CustomItems      []EstimateCustomItem
+	CustomItemsTotal float64
 }
 
 type EstimateSection struct {
@@ -99,6 +104,15 @@ type EstimateSection struct {
 	Length     float64
 	Width      float64
 	SortOrder  int
+}
+
+type EstimateCustomItem struct {
+	ID          int64
+	EstimateID  int
+	Description string
+	Notes       string
+	Cost        float64
+	SortOrder   int
 }
 
 type ContractorInfo struct {
@@ -116,6 +130,7 @@ var db *sql.DB              // db is the SQLite database connection
 func init() {
 	gob.Register(DeckEstimate{})
 	gob.Register(EstimateSection{})
+	gob.Register(EstimateCustomItem{})
 	gob.Register(Customer{})
 	gob.Register(UserAuth{})
 	gob.Register(time.Time{})
@@ -134,13 +149,21 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 		estimate.Status = "Pending"
 	}
 
-	// Terms is not part of session
-	terms, err := os.ReadFile("static/t_and_c.txt")
-	if err != nil {
-		// Fallback if file is missing
-		terms = []byte("Terms and Conditions not available.")
+	// Terms is not part of session — read and convert markdown each render
+	if mdBytes, err := os.ReadFile("static/t_and_c.md"); err == nil {
+		var buf bytes.Buffer
+		if err := goldmark.Convert(mdBytes, &buf); err == nil {
+			estimate.TermsHTML = template.HTML(buf.String())
+		}
 	}
-	estimate.Terms = string(terms)
+	if estimate.TermsHTML == "" {
+		// fallback to plain text
+		if txt, err := os.ReadFile("static/t_and_c.txt"); err == nil {
+			estimate.Terms = string(txt)
+		} else {
+			estimate.Terms = "Terms and Conditions not available."
+		}
+	}
 
 	userAuth := getUserAuth(r, w)
 	userAuth.IsAdmin = isAdminUser(userAuth.Email)
@@ -238,6 +261,21 @@ func getEstimate(estimateID int) DeckEstimate {
 		srows.Close()
 	}
 
+	// Load custom items
+	cirows, cierr := db.Query(`
+		SELECT id, estimate_id, description, COALESCE(notes,''), cost, sort_order
+		FROM estimate_custom_items WHERE estimate_id = $1
+		ORDER BY sort_order, id`, estimateID)
+	if cierr == nil {
+		for cirows.Next() {
+			var ci EstimateCustomItem
+			if err := cirows.Scan(&ci.ID, &ci.EstimateID, &ci.Description, &ci.Notes, &ci.Cost, &ci.SortOrder); err == nil {
+				de.CustomItems = append(de.CustomItems, ci)
+			}
+		}
+		cirows.Close()
+	}
+
 	db.Close()
 
 	// Derive L/W from primary section so existing calculations still work
@@ -318,6 +356,20 @@ func getEstimateByToken(token string) DeckEstimate {
 		srows.Close()
 	}
 
+	cirows, cierr := db.Query(`
+		SELECT id, estimate_id, description, COALESCE(notes,''), cost, sort_order
+		FROM estimate_custom_items WHERE estimate_id = $1
+		ORDER BY sort_order, id`, de.EstimateID)
+	if cierr == nil {
+		for cirows.Next() {
+			var ci EstimateCustomItem
+			if err := cirows.Scan(&ci.ID, &ci.EstimateID, &ci.Description, &ci.Notes, &ci.Cost, &ci.SortOrder); err == nil {
+				de.CustomItems = append(de.CustomItems, ci)
+			}
+		}
+		cirows.Close()
+	}
+
 	if len(de.Sections) > 0 {
 		de.Length = de.Sections[0].Length
 		de.Width = de.Sections[0].Width
@@ -366,13 +418,6 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	estimate.UserId = sessionData.UserAuth.ID
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour)
-
-	// Generate a public access token if this estimate doesn't have one yet
-	if estimate.AccessToken == "" {
-		b := make([]byte, 16)
-		rand.Read(b)
-		estimate.AccessToken = hex.EncodeToString(b)
-	}
 
 	// Set contractor_id: use the contractor's profile if they're a contractor, else default to 1
 	if estimate.ContractorID == 0 {
@@ -477,7 +522,10 @@ RETURNING estimate_id, version`
 		log.Printf("Estimate updated: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
 	} else {
 
-		// Create NEW Estimate
+		// Create NEW Estimate — always generate a fresh token to avoid session bleed-through
+		b := make([]byte, 16)
+		rand.Read(b)
+		estimate.AccessToken = hex.EncodeToString(b)
 		log.Printf("Inserting new estimate")
 		//Prepared Statement - PostgreSQL handle the ID
 		stmt := `INSERT INTO estimates (
@@ -544,6 +592,20 @@ RETURNING estimate_id, version`
 			}
 			db2.Close()
 		}
+	}
+
+	// Save custom items (always run to clear deleted items)
+	db3, err3 := sql.Open("pgx", dbURL)
+	if err3 == nil {
+		db3.Exec(`DELETE FROM estimate_custom_items WHERE estimate_id = $1`, estimate.EstimateID)
+		for i, ci := range estimate.CustomItems {
+			if ci.Description != "" || ci.Cost != 0 {
+				db3.Exec(`INSERT INTO estimate_custom_items (estimate_id, description, notes, cost, sort_order)
+					VALUES ($1, $2, $3, $4, $5)`,
+					estimate.EstimateID, ci.Description, ci.Notes, ci.Cost, i)
+			}
+		}
+		db3.Close()
 	}
 
 	_ = db.Close()
@@ -726,6 +788,26 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 				estimate.Width  = estimate.Sections[0].Width
 			}
 		}
+		if ciJSON := r.FormValue("customItems"); ciJSON != "" {
+			var parsed []struct {
+				Description string  `json:"description"`
+				Notes       string  `json:"notes"`
+				Cost        float64 `json:"cost"`
+			}
+			if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
+				estimate.CustomItems = nil
+				for i, ci := range parsed {
+					if ci.Description != "" || ci.Cost != 0 {
+						estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
+							Description: ci.Description,
+							Notes:       ci.Notes,
+							Cost:        ci.Cost,
+							SortOrder:   i,
+						})
+					}
+				}
+			}
+		}
 		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, sd)
@@ -902,7 +984,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Unsave - if it was previously saved - It is changed :(
 	estimate.SaveDate = time.Time{}
-	estimate.EstimateID = 0 // Static ID for now
+	estimate.EstimateID = 0
+	estimate.AccessToken = "" // clear so saveEstimate generates a fresh token
 	estimate.ExpirationDate = time.Time{}
 	estimate.AcceptDate = time.Time{}
 	estimate.Error = ""
@@ -945,7 +1028,11 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
 	estimate.CalcPermitCost(costs)
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost + estimate.PermitCost
+	estimate.CustomItemsTotal = 0
+	for _, ci := range estimate.CustomItems {
+		estimate.CustomItemsTotal += ci.Cost
+	}
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost + estimate.PermitCost + estimate.CustomItemsTotal
 
 	estimate.DiscountAmount = 0
 	if estimate.DiscountCode != "" {
@@ -1088,6 +1175,24 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		newLineItem("Design & Permits", formatPermitDescription(e), e.PermitCost),
 	}
 
+	customItemRows := ""
+	for _, ci := range e.CustomItems {
+		if ci.Description == "" && ci.Cost == 0 {
+			continue
+		}
+		costStr := formatCost(ci.Cost)
+		costStyle := "padding:8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap"
+		if ci.Cost < 0 {
+			costStyle += ";color:#257942"
+			costStr = "-" + formatCost(-ci.Cost)
+		}
+		customItemRows += fmt.Sprintf(`<tr>
+			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top">%s</td>
+			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top;color:#555;font-size:13px">%s</td>
+			<td style="%s">%s</td>
+		</tr>`, template.HTMLEscapeString(ci.Description), template.HTMLEscapeString(ci.Notes), costStyle, costStr)
+	}
+
 	discountRow := ""
 	if e.DiscountAmount > 0 {
 		discountRow = fmt.Sprintf(`<tr><td colspan="2" style="padding:8px;text-align:right;color:#257942"><strong>Discount (%s)</strong></td>
@@ -1122,10 +1227,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
   <!-- Intro -->
   <div style="padding:20px 0">
     <p>Hi %s,</p>
-    <p><strong>%s</strong> has prepared a detailed outdoor living estimate for your project.
-    %s is a fully verified contractor through <strong>Columbia Outdoor</strong> —
-    our platform verifies contractor licenses, bonds, and insurance so you can move forward
-    with confidence.</p>
+    <p><strong>%s</strong> has prepared a detailed outdoor living estimate for your project.</p>
     <p>You can review and accept this estimate directly through Columbia Outdoor's platform.
     Once accepted, Columbia Outdoor will coordinate scheduling, ensure the project stays on track,
     and support you through to completion.</p>
@@ -1158,7 +1260,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
       <th style="padding:8px;text-align:left">Description</th>
       <th style="padding:8px;text-align:right">Cost</th>
     </tr></thead>
-    <tbody>%s</tbody>
+    <tbody>%s%s</tbody>
     <tfoot>
       <tr><td colspan="2" style="padding:8px;text-align:right"><strong>Subtotal</strong></td>
           <td style="padding:8px;text-align:right">%s</td></tr>
@@ -1183,7 +1285,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		e.SaveDate.Format("Jan 2, 2006"),
 		e.ExpirationDate.Format("Jan 2, 2006"),
 		e.Customer.FirstName,
-		contractorName, contractorName,
+		contractorName,
 		estimateURL,
 		contractorName, contractorPhone, contractorWebsite, contractorLicense,
 		e.Customer.FirstName, e.Customer.LastName,
@@ -1191,6 +1293,7 @@ func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
 		e.Customer.City, e.Customer.State, e.Customer.Zip,
 		e.Customer.PhoneNumber, e.Customer.Email,
 		rows,
+		customItemRows,
 		formatCost(e.Subtotal),
 		discountRow,
 		taxDesc, formatCost(e.SalesTax),

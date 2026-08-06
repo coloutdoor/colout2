@@ -49,6 +49,7 @@
         <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
         <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
         <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
+        <input type="hidden" name="customItems" id="save-custom-items" value="">
         <div class="buttons">
           {{if and .AcceptDate.IsZero (not .IsPublicView)}}
           <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
@@ -238,6 +239,17 @@
             <div class="column is-7" id="permit-desc">{{formatPermitDescription .}}</div>
             <div class="column is-2 has-text-right" id="permit-cost">{{formatCost .PermitCost}}</div>
 
+            <!-- Custom line items — rendered by JS -->
+            <div id="custom-items-rows" style="display:contents;"></div>
+            {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}
+            <div class="column is-12 pt-1 pb-2">
+              <button type="button" class="button is-small is-light" onclick="openCustomItemModal()">
+                <span class="icon is-small"><i class="fas fa-plus"></i></span>
+                <span>Add Custom Line</span>
+              </button>
+            </div>
+            {{end}}
+
             <div class="column is-2 has-text-weight-semibold">Subtotal</div>
             <div class="column is-8 has-text-weight-semibold"></div>
             <div class="column is-2 has-text-weight-semibold has-text-right" id="subtotal-val">{{formatCost .Subtotal}}</div>
@@ -274,10 +286,14 @@
         </div>
     </div>
     {{end}}
-    {{if and (not .SaveDate.IsZero) .Terms}}
+    {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
     <div class="content mt-4">
         <h2 class="subtitle">Terms and Conditions</h2>
-        <pre>{{ .Terms }}</pre>
+        {{if .TermsHTML}}
+        <div class="content is-small">{{.TermsHTML}}</div>
+        {{else}}
+        <pre class="is-size-7">{{.Terms}}</pre>
+        {{end}}
     </div>
     {{end}}
     <!-- The Modal (embedded, not separate page) -->
@@ -567,6 +583,48 @@
   </div>
 </div>
 
+<!-- Custom Line Item Modal -->
+<div id="custom-item-modal" class="modal">
+  <div class="modal-background" onclick="closeCustomItemModal()"></div>
+  <div class="modal-card" style="max-width:420px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Custom Line Item</p>
+      <button class="delete" aria-label="close" onclick="closeCustomItemModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label">Item</label>
+        <div class="control">
+          <input id="ci-item" class="input" type="text" placeholder="e.g. Concrete landing"
+            onkeydown="if(event.key==='Enter'){document.getElementById('ci-notes').focus();}">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Description <span class="has-text-grey is-size-7 has-text-weight-normal">(optional)</span></label>
+        <div class="control">
+          <input id="ci-notes" class="input" type="text" placeholder="Additional details"
+            onkeydown="if(event.key==='Enter'){document.getElementById('ci-cost').focus();}">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Cost</label>
+        <div class="field has-addons mb-1">
+          <p class="control"><span class="button is-static">$</span></p>
+          <p class="control is-expanded">
+            <input id="ci-cost" class="input" type="number" step="0.01" placeholder="0.00"
+              onkeydown="if(event.key==='Enter'){applyCustomItem();}">
+          </p>
+        </div>
+        <p class="help has-text-grey">Enter a negative amount to apply a credit or discount.</p>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-primary" onclick="applyCustomItem()">Apply</button>
+      <button class="button" onclick="closeCustomItemModal()">Cancel</button>
+    </footer>
+  </div>
+</div>
+
 <script>
 function generateMaterials() {
     const estimateID = document.getElementById('estimate-id').value;
@@ -653,7 +711,14 @@ const estimateData = {
     { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },
     {{end}}
   ],
+  customItems: [
+    {{range .CustomItems}}
+    { description: {{jsStr .Description}}, notes: {{jsStr .Notes}}, cost: {{.Cost}} },
+    {{end}}
+  ],
 };
+
+const canEditCustomItems = {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}true{{else}}false{{end}};
 
 function openDescModal() {
   document.getElementById('desc-modal-input').value = estimateData.description;
@@ -700,6 +765,91 @@ function applyDiscountCode() {
   estimateData.discountCode = code;
   const saveField = document.getElementById('save-discount-code');
   if (saveField) saveField.value = code;
+  calcAndUpdate();
+}
+
+// --- Custom line items ---
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function syncCustomItems() {
+  const field = document.getElementById('save-custom-items');
+  if (field) field.value = JSON.stringify(estimateData.customItems.filter(ci => ci.description !== '' || ci.cost !== 0));
+}
+
+function renderCustomItems() {
+  const container = document.getElementById('custom-items-rows');
+  if (!container) return;
+  let html = '';
+  estimateData.customItems.forEach((item, idx) => {
+    const cost = item.cost || 0;
+    const costColor = cost < 0 ? ' has-text-success' : '';
+    const costDisplay = cost === 0 ? '—' : (cost < 0 ? '-' + formatCost(Math.abs(cost)) : formatCost(cost));
+    if (canEditCustomItems) {
+      html += `
+        <div class="column is-2">${escHtml(item.description)}</div>
+        <div class="column is-1" style="display:flex; align-items:center; gap:6px;">
+          <a href="#" onclick="openCustomItemModal(${idx}); return false;" title="Edit">
+            <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
+          </a>
+          <a href="#" onclick="removeCustomItem(${idx}); return false;" title="Remove">
+            <span class="icon is-small has-text-danger"><i class="fas fa-times"></i></span>
+          </a>
+        </div>
+        <div class="column is-7">${escHtml(item.notes)}</div>
+        <div class="column is-2 has-text-right${costColor}">${costDisplay}</div>
+      `;
+    } else if (item.description || cost !== 0) {
+      html += `
+        <div class="column is-2">${escHtml(item.description)}</div>
+        <div class="column is-1"></div>
+        <div class="column is-7">${escHtml(item.notes)}</div>
+        <div class="column is-2 has-text-right${costColor}">${costDisplay}</div>
+      `;
+    }
+  });
+  container.innerHTML = html;
+  syncCustomItems();
+}
+
+let customItemEditIdx = -1;
+
+function openCustomItemModal(idx) {
+  customItemEditIdx = (idx !== undefined) ? idx : -1;
+  const item = (idx !== undefined) ? estimateData.customItems[idx] : { description: '', notes: '', cost: 0 };
+  document.getElementById('ci-item').value = item.description || '';
+  document.getElementById('ci-notes').value = item.notes || '';
+  document.getElementById('ci-cost').value = item.cost || '';
+  document.getElementById('custom-item-modal').classList.add('is-active');
+  setTimeout(() => document.getElementById('ci-item').focus(), 50);
+}
+
+function closeCustomItemModal() {
+  document.getElementById('custom-item-modal').classList.remove('is-active');
+}
+
+function applyCustomItem() {
+  const label = document.getElementById('ci-item').value.trim();
+  const notes = document.getElementById('ci-notes').value.trim();
+  const cost = parseFloat(document.getElementById('ci-cost').value) || 0;
+  if (!label && cost === 0) { closeCustomItemModal(); return; }
+  if (customItemEditIdx >= 0) {
+    estimateData.customItems[customItemEditIdx] = { description: label, notes: notes, cost: cost };
+  } else {
+    estimateData.customItems.push({ description: label, notes: notes, cost: cost });
+  }
+  closeCustomItemModal();
+  renderCustomItems();
+  syncCustomItems();
+  markDirty();
+  calcAndUpdate();
+}
+
+function removeCustomItem(idx) {
+  estimateData.customItems.splice(idx, 1);
+  renderCustomItems();
+  syncCustomItems();
   calcAndUpdate();
 }
 
@@ -867,6 +1017,7 @@ function syncSectionsField() {
 }
 // Initialize on page load
 syncSectionsField();
+renderCustomItems();
 
 function markDirty() {
   const saveBtn = document.getElementById('btn-save');

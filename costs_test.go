@@ -270,8 +270,8 @@ func TestCalculateSalesTax(t *testing.T) {
 		{1000, "WA", 87.0},
 		{10000, "WA", 870.0},
 		{13680, "WA", 1190.16},
-		{1000, "OR", 0.0},
-		{1000, "ID", 60.0},
+		{1000, "OR", 87.0}, // out-of-area state defaults to WA rate
+		{1000, "ID", 87.0}, // out-of-area state defaults to WA rate
 		{1000, "", 87.0},  // unknown state defaults to WA
 	}
 

@@ -30,6 +30,11 @@ type CalcDeckRequest struct {
 	DiscountCode     string               `json:"discountCode"`
 	PermitLevel      int                  `json:"permitLevel"`
 	Sections         []CalcSectionRequest `json:"sections"`
+	CustomItems      []struct {
+		Description string  `json:"description"`
+		Notes       string  `json:"notes"`
+		Cost        float64 `json:"cost"`
+	} `json:"customItems"`
 }
 
 type CalcDeckResponse struct {
@@ -56,6 +61,7 @@ type CalcDeckResponse struct {
 	DiscountAmount      float64 `json:"discountAmount"`
 	PermitCost          float64 `json:"permitCost"`
 	PermitDescription   string  `json:"permitDescription"`
+	CustomItemsTotal    float64 `json:"customItemsTotal"`
 	Subtotal         float64 `json:"subtotal"`
 	SalesTax         float64 `json:"salesTax"`
 	TotalCost        float64 `json:"totalCost"`
@@ -103,6 +109,16 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 			SortOrder: i,
 		})
 	}
+	for i, ci := range req.CustomItems {
+		if ci.Description != "" || ci.Cost != 0 {
+			e.CustomItems = append(e.CustomItems, EstimateCustomItem{
+				Description: ci.Description,
+				Notes:       ci.Notes,
+				Cost:        ci.Cost,
+				SortOrder:   i,
+			})
+		}
+	}
 
 	e.CalcAllCosts()
 
@@ -130,6 +146,7 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 		DiscountAmount:         e.DiscountAmount,
 		PermitCost:             e.PermitCost,
 		PermitDescription:      formatPermitDescription(e),
+		CustomItemsTotal:       e.CustomItemsTotal,
 		Subtotal:               e.Subtotal,
 		SalesTax:               e.SalesTax,
 		TotalCost:              e.TotalCost,
