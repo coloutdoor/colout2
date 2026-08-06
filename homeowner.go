@@ -59,8 +59,8 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	// fallback to normal Homeowner
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Decks & Outdoor Living"
-	userAuth.Subtitle = "Stop chasing bids. Build your own estimate or hire a vetted SW Washington contractor."
-	userAuth.MetaDesc = "Columbia Outdoor delivers decks, patios, and outdoor living projects across SW Washington. Build your own instant estimate or connect with a vetted contractor."
+	userAuth.Subtitle = "Quality decks and outdoor structures built right. Transparent pricing, expert craftsmanship."
+	userAuth.MetaDesc = "Columbia Outdoor builds quality decks, patios, and outdoor structures across SW Washington. Transparent pricing, experienced builders, and expert project management."
 	rd := renderData{
 		Page:   nil,
 		Header: &userAuth,
