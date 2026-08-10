@@ -43,6 +43,11 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("New Estimate Calculator.")
 	}
 
+	// Carry DIY flag from URL into the estimate for the calculator template
+	if query.Get("diy") == "true" {
+		estimate.IsDIY = true
+	}
+
 	// Success: Route to correct calculator
 	switch option {
 	case "deck":

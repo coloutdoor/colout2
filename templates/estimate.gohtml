@@ -7,11 +7,14 @@
         Deck Estimate
         {{if gt .EstimateID 0}}
         #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}
+        {{end}}
+        {{if .IsDIY}}
+        <span class="tag is-success is-medium ml-2">DIY Only</span>
+        {{end}}
         {{if .Status}}
         <span class="tag is-medium ml-2 {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">
           {{.Status}}
         </span>
-        {{end}}
         {{end}}
       </h1>
       {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
@@ -706,6 +709,7 @@ const estimateData = {
   customerState:    {{jsStr .Customer.State}},
   discountCode:     {{jsStr .DiscountCode}},
   permitLevel:      {{.PermitLevel}},
+  isDIY:            {{.IsDIY}},
   sections: [
     {{range .Sections}}
     { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },

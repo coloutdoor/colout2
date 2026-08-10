@@ -9,6 +9,26 @@
     <form method="post" action="/estimate" class="box" style="max-width: 480px;">
 
         <div class="field">
+            <label class="label">Project Type</label>
+            <div class="buttons has-addons mb-1">
+              <button type="button" id="btn-full-service" onclick="setDIY(false)"
+                class="button{{if not .IsDIY}} is-link is-selected{{end}}">
+                <span class="icon is-small"><i class="fas fa-hard-hat"></i></span>
+                <span>Full Service</span>
+              </button>
+              <button type="button" id="btn-diy" onclick="setDIY(true)"
+                class="button{{if .IsDIY}} is-success is-selected{{end}}">
+                <span class="icon is-small"><i class="fas fa-tools"></i></span>
+                <span>DIY Package</span>
+              </button>
+            </div>
+            <p id="diy-help" class="help">
+              {{if .IsDIY}}Design, engineering, permits, materials list &amp; installation instructions.{{else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
+            </p>
+            <input type="hidden" name="diy" id="diy-hidden" value="{{if .IsDIY}}true{{else}}false{{end}}">
+        </div>
+
+        <div class="field">
             <label class="label">Project Description</label>
             <div class="control">
                 <input class="input" type="text" name="desc" value="{{printf "%s" .Desc}}" maxlength="50" placeholder="e.g. Back yard deck, master bedroom deck...">
@@ -140,11 +160,23 @@
                 </div>
         <div class="field mt-5">
             <div class="control">
-                <input class="button is-primary is-fullwidth is-medium" type="submit" value="Get Estimate">
+                <input id="submit-btn" class="button is-primary is-fullwidth is-medium" type="submit"
+                  value="{{if .IsDIY}}Get DIY Package Estimate{{else}}Get Estimate{{end}}">
             </div>
         </div>
 
     </form>
+    <script>
+    function setDIY(isDIY) {
+      document.getElementById('diy-hidden').value = isDIY ? 'true' : 'false';
+      document.getElementById('btn-diy').className = 'button' + (isDIY ? ' is-success is-selected' : '');
+      document.getElementById('btn-full-service').className = 'button' + (!isDIY ? ' is-link is-selected' : '');
+      document.getElementById('diy-help').textContent = isDIY
+        ? 'Design, engineering, permits, materials list & installation instructions.'
+        : 'Columbia Outdoor builds your project from estimate to final walkthrough.';
+      document.getElementById('submit-btn').value = isDIY ? 'Get DIY Package Estimate' : 'Get Estimate';
+    }
+    </script>
     {{end}}
    {{template "footer.gohtml" .}}
 {{end}}

@@ -54,9 +54,15 @@ func formatDeckDescription(de DeckEstimate) string {
 	case "timberTechProLegacy":
 		material = "TimberTech Pro Legacy"
 	}
-	desc := fmt.Sprintf("Supply and install concrete footings with premium pressure treated lumber. "+
-		"Supply and install %.1f sq ft of %s deck. %.1f ft high.",
-		de.DeckArea, material, de.Height)
+	var desc string
+	if de.IsDIY {
+		desc = fmt.Sprintf("DIY materials only — concrete footings, pressure treated framing, and %.1f sq ft of %s decking. %.1f ft high.",
+			de.DeckArea, material, de.Height)
+	} else {
+		desc = fmt.Sprintf("Supply and install concrete footings with premium pressure treated lumber. "+
+			"Supply and install %.1f sq ft of %s deck. %.1f ft high.",
+			de.DeckArea, material, de.Height)
+	}
 	for _, s := range de.Sections {
 		desc += fmt.Sprintf("\n  — %s: %.1f × %.1f ft (%.1f sf)",
 			s.Label, s.Length, s.Width, s.Length*s.Width)
@@ -70,6 +76,9 @@ func formatDeckDescription(de DeckEstimate) string {
 // * This returns a Template
 // ***************************************************************************************************
 func formatDemoDescription(de DeckEstimate) string {
+	if de.IsDIY {
+		return "Homeowner is responsible for demo and disposal of any existing structure."
+	}
 	if de.DemoCost <= 0.0 {
 		return "Demo and removal of existing structure is not included."
 	}
@@ -96,8 +105,13 @@ func formatDemoDescription(de DeckEstimate) string {
 func formatRailDescription(de DeckEstimate) string {
 	desc := "Deck rails not included"
 	if de.RailCost > 0.0 {
-		desc = fmt.Sprintf("Supply and install %s rail posts and top rail with %s infill. Rails approximately %.1f lineal ft",
-			de.RailMaterial, de.RailInfill, de.RailFeet)
+		if de.IsDIY {
+			desc = fmt.Sprintf("DIY materials only — %s rail posts, top rail, and %s infill. Approximately %.1f lineal ft.",
+				de.RailMaterial, de.RailInfill, de.RailFeet)
+		} else {
+			desc = fmt.Sprintf("Supply and install %s rail posts and top rail with %s infill. Rails approximately %.1f lineal ft",
+				de.RailMaterial, de.RailInfill, de.RailFeet)
+		}
 	}
 	return desc
 }
@@ -106,9 +120,14 @@ func formatRailDescription(de DeckEstimate) string {
 func formatStairDescription(de DeckEstimate) string {
 	desc := "Stairs not included"
 	if de.StairCost > 0.0 {
-		desc = fmt.Sprintf(`Supply and install premium pressure treated stair framing at %.1f ft wide. 
+		if de.IsDIY {
+			desc = fmt.Sprintf(`DIY materials only — pressure treated stair framing, %.1f ft wide with matching %s treads. Total rise %.1f ft.`,
+				de.StairWidth, de.Material, de.Height)
+		} else {
+			desc = fmt.Sprintf(`Supply and install premium pressure treated stair framing at %.1f ft wide.
                         Stair treads approximately 11" per step with matching %s decking on treads
                         Total rise of stairs is %.1f ft.`, de.StairWidth, de.Material, de.Height)
+		}
 	}
 	return desc
 }
@@ -117,7 +136,11 @@ func formatStairDescription(de DeckEstimate) string {
 func formatFasciaDescription(de DeckEstimate) string {
 	desc := "Deck fascia not included"
 	if de.FasciaCost > 0.0 {
-		desc = fmt.Sprintf("Supply and install fascia to match deck material approximately %.1f lineal ft", de.FasciaFeet)
+		if de.IsDIY {
+			desc = fmt.Sprintf("DIY materials only — fascia to match deck material, approximately %.1f lineal ft.", de.FasciaFeet)
+		} else {
+			desc = fmt.Sprintf("Supply and install fascia to match deck material approximately %.1f lineal ft", de.FasciaFeet)
+		}
 	}
 	return desc
 }
@@ -126,31 +149,34 @@ func formatFasciaDescription(de DeckEstimate) string {
 func formatStairRailDescription(de DeckEstimate) string {
 	desc := "Stair Rails not included"
 	if de.StairRailCost > 0.0 {
-		// 1. Determine the text based on the count first
-		railSideText := "matching stair rail - one side only"
+		railSideText := "one side only"
 		if de.StairRailCount > 1.0 {
-			railSideText = "matching stair rails on both sides"
+			railSideText = "both sides"
 		}
-
-		// 2. Build the final string
-		desc = fmt.Sprintf("Supply and install %s with %s rail posts and top rail with %s infill.",
-			railSideText,
-			de.RailMaterial,
-			de.RailInfill,
-		)
-
+		if de.IsDIY {
+			desc = fmt.Sprintf("DIY materials only — %s rail posts, top rail, and %s infill. Stair rails %s.",
+				de.RailMaterial, de.RailInfill, railSideText)
+		} else {
+			sidePhrase := "matching stair rail - one side only"
+			if de.StairRailCount > 1.0 {
+				sidePhrase = "matching stair rails on both sides"
+			}
+			desc = fmt.Sprintf("Supply and install %s with %s rail posts and top rail with %s infill.",
+				sidePhrase, de.RailMaterial, de.RailInfill)
+		}
 	}
 	return desc
 }
 
 // formatStairFasciaDescription
 func formatStairFasciaDescription(de DeckEstimate) string {
-	// Default to the negative case
 	desc := "Stair fascia not included"
-
-	// If cost is non-zero (Go template 'if' treats 0 as false)
 	if de.StairFasciaCost > 0.0 {
-		desc = "Add matching stair fascia to stairs"
+		if de.IsDIY {
+			desc = "DIY materials only — matching stair fascia."
+		} else {
+			desc = "Add matching stair fascia to stairs"
+		}
 	}
 	return desc
 }
@@ -159,7 +185,11 @@ func formatStairFasciaDescription(de DeckEstimate) string {
 func formatStairTKDescription(de DeckEstimate) string {
 	desc := "No toe kicks.  Open."
 	if de.HasStairTK {
-		desc = "Add matching toe kicks to stairs"
+		if de.IsDIY {
+			desc = "DIY materials only — matching toe kicks."
+		} else {
+			desc = "Add matching toe kicks to stairs"
+		}
 	}
 	return desc
 }

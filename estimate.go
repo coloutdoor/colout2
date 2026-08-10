@@ -95,6 +95,7 @@ type DeckEstimate struct {
 	PermitCost       float64
 	CustomItems      []EstimateCustomItem
 	CustomItemsTotal float64
+	IsDIY            bool
 }
 
 type EstimateSection struct {
@@ -216,7 +217,8 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
-        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0)
+        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
+        COALESCE(e.is_diy, false)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -232,7 +234,7 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost)
+		&de.PermitLevel, &de.PermitCost, &de.IsDIY)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -332,7 +334,7 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost)
+		&de.PermitLevel, &de.PermitCost, &de.IsDIY)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -480,8 +482,9 @@ SET
     discount_amount = $42,
     permit_level = $43,
     permit_cost = $44,
+    is_diy = $45,
     version = version + 1
-WHERE estimate_id = $45
+WHERE estimate_id = $46
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -509,6 +512,7 @@ RETURNING estimate_id, version`
 			estimate.AccessToken,                                                                 //40
 			estimate.DiscountCode, estimate.DiscountAmount,   //42
 			estimate.PermitLevel, estimate.PermitCost,         //44
+			estimate.IsDIY,                                    //45
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -539,7 +543,7 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, discount_code, discount_amount, permit_level, permit_cost, version)
+			access_token, discount_code, discount_amount, permit_level, permit_cost, is_diy, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -550,7 +554,7 @@ RETURNING estimate_id, version`
 		$27, $28, $29, $30,
 		$31, $32, $33, $34,
 		$35, $36, $37, $38, $39,
-		$40, $41, $42, $43, $44, 1
+		$40, $41, $42, $43, $44, $45, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -568,7 +572,8 @@ RETURNING estimate_id, version`
 			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet,                  //34
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
 			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount, //42
-			estimate.PermitLevel, estimate.PermitCost).                           //44
+			estimate.PermitLevel, estimate.PermitCost,                           //44
+			estimate.IsDIY).                                                     //45
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -961,6 +966,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	estimate.IsDIY = r.FormValue("diy") == "true"
+
 	// Build initial section from L/W for new estimates from calculator
 	estimate.Sections = []EstimateSection{{
 		Label:  "Main Deck",
@@ -1028,6 +1035,19 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalculateDemoCost(costs)
 	estimate.CalculateFasciaCost(costs)
 	estimate.CalcPermitCost(costs)
+
+	// DIY package: homeowner handles demo; all other items are materials-only at cost + 50%
+	if estimate.IsDIY {
+		estimate.DemoCost = 0
+		estimate.DeckCost *= 0.5
+		estimate.RailCost *= 0.5
+		estimate.StairCost *= 0.5
+		estimate.StairRailCost *= 0.5
+		estimate.FasciaCost *= 0.5
+		estimate.StairFasciaCost *= 0.5
+		estimate.StairToeKickCost *= 0.5
+	}
+
 	estimate.CustomItemsTotal = 0
 	for _, ci := range estimate.CustomItems {
 		estimate.CustomItemsTotal += ci.Cost
