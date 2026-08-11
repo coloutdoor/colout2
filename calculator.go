@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -43,9 +44,11 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("New Estimate Calculator.")
 	}
 
-	// Carry DIY flag from URL into the estimate for the calculator template
-	if query.Get("diy") == "true" {
-		estimate.IsDIY = true
+	// Carry DIY mode from URL into the estimate for the calculator template
+	if dm := query.Get("diyMode"); dm != "" {
+		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+			estimate.DIYMode = v
+		}
 	}
 
 	// Success: Route to correct calculator

@@ -198,6 +198,9 @@ func (estimate *DeckEstimate) CalcStairToeKickCost(cost Costs) {
 // Level 0 = none, 1 = design, 2 = design+engineering, 3 = design+engineering+permits.
 func (estimate *DeckEstimate) CalcPermitCost(costs Costs) {
 	estimate.PermitCost = float64(estimate.PermitLevel) * costs.PermitCostPerLevel
+	if estimate.DIYMode == 1 || estimate.DIYMode == 2 {
+		estimate.PermitCost += 500
+	}
 }
 
 var stateTaxRates = map[string]float64{

@@ -29,7 +29,7 @@ type CalcDeckRequest struct {
 	CustomerState    string               `json:"customerState"`
 	DiscountCode     string               `json:"discountCode"`
 	PermitLevel      int                  `json:"permitLevel"`
-	IsDIY            bool                 `json:"isDIY"`
+	DIYMode          int                  `json:"diyMode"`
 	Sections         []CalcSectionRequest `json:"sections"`
 	CustomItems      []struct {
 		Description string  `json:"description"`
@@ -101,7 +101,7 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 		Customer:         Customer{State: req.CustomerState},
 		DiscountCode:     req.DiscountCode,
 		PermitLevel:      req.PermitLevel,
-		IsDIY:            req.IsDIY,
+		DIYMode:          req.DIYMode,
 	}
 	for i, s := range req.Sections {
 		e.Sections = append(e.Sections, EstimateSection{

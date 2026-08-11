@@ -8,15 +8,28 @@
         {{if gt .EstimateID 0}}
         #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}
         {{end}}
-        {{if .IsDIY}}
-        <span class="tag is-success is-medium ml-2">DIY Only</span>
-        {{end}}
         {{if .Status}}
         <span class="tag is-medium ml-2 {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">
           {{.Status}}
         </span>
         {{end}}
       </h1>
+      {{if not .IsPublicView}}
+      <div class="buttons has-addons mb-2">
+        <button type="button" id="mode-btn-0" onclick="setDIYMode(0)"
+          class="button is-small{{if eq .DIYMode 0}} is-link is-selected{{end}}">
+          <span class="icon is-small"><i class="fas fa-hard-hat"></i></span><span>Full Service</span>
+        </button>
+        <button type="button" id="mode-btn-1" onclick="setDIYMode(1)"
+          class="button is-small{{if eq .DIYMode 1}} is-success is-selected{{end}}">
+          <span class="icon is-small"><i class="fas fa-tools"></i></span><span>Plans + Materials</span>
+        </button>
+        <button type="button" id="mode-btn-2" onclick="setDIYMode(2)"
+          class="button is-small{{if eq .DIYMode 2}} is-warning is-selected{{end}}">
+          <span class="icon is-small"><i class="fas fa-drafting-compass"></i></span><span>Plans Only</span>
+        </button>
+      </div>
+      {{end}}
       {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
       <p class="has-text-grey is-size-7">
         Version {{.Version}} &mdash; Last Updated: {{.SaveDate.Format "2006-01-02"}}
@@ -53,6 +66,7 @@
         <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
         <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
         <input type="hidden" name="customItems" id="save-custom-items" value="">
+        <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
         <div class="buttons">
           {{if and .AcceptDate.IsZero (not .IsPublicView)}}
           <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
@@ -569,10 +583,10 @@
         <div class="control">
           <div class="select is-fullwidth">
             <select id="permit-level-select">
-              <option value="0">None</option>
-              <option value="1">Design ($1,500)</option>
-              <option value="2">Design + Engineering ($3,000)</option>
-              <option value="3">Design + Engineering + Permits ($4,500)</option>
+              <option value="0">Material Takeoff</option>
+              <option value="1">Design</option>
+              <option value="2">Design + Engineering</option>
+              <option value="3">Design + Engineering + Permits</option>
             </select>
           </div>
         </div>
@@ -709,7 +723,7 @@ const estimateData = {
   customerState:    {{jsStr .Customer.State}},
   discountCode:     {{jsStr .DiscountCode}},
   permitLevel:      {{.PermitLevel}},
-  isDIY:            {{.IsDIY}},
+  diyMode:          {{.DIYMode}},
   sections: [
     {{range .Sections}}
     { label: {{jsStr .Label}}, length: {{.Length}}, width: {{.Width}} },
@@ -769,6 +783,20 @@ function applyDiscountCode() {
   estimateData.discountCode = code;
   const saveField = document.getElementById('save-discount-code');
   if (saveField) saveField.value = code;
+  calcAndUpdate();
+}
+
+// --- DIY mode toggle ---
+const modeColors = ['is-link', 'is-success', 'is-warning'];
+
+function setDIYMode(mode) {
+  estimateData.diyMode = mode;
+  const field = document.getElementById('save-diy-mode');
+  if (field) field.value = mode;
+  [0, 1, 2].forEach(m => {
+    const btn = document.getElementById('mode-btn-' + m);
+    if (btn) btn.className = 'button is-small' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
+  });
   calcAndUpdate();
 }
 

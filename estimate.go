@@ -95,7 +95,7 @@ type DeckEstimate struct {
 	PermitCost       float64
 	CustomItems      []EstimateCustomItem
 	CustomItemsTotal float64
-	IsDIY            bool
+	DIYMode          int // 0=Full Service, 1=Plans+Materials, 2=Plans Only
 }
 
 type EstimateSection struct {
@@ -218,7 +218,7 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
-        COALESCE(e.is_diy, false)
+        COALESCE(e.diy_mode, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -234,7 +234,7 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.IsDIY)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -334,7 +334,7 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.IsDIY)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -482,7 +482,7 @@ SET
     discount_amount = $42,
     permit_level = $43,
     permit_cost = $44,
-    is_diy = $45,
+    diy_mode = $45,
     version = version + 1
 WHERE estimate_id = $46
 RETURNING estimate_id, version`
@@ -512,7 +512,7 @@ RETURNING estimate_id, version`
 			estimate.AccessToken,                                                                 //40
 			estimate.DiscountCode, estimate.DiscountAmount,   //42
 			estimate.PermitLevel, estimate.PermitCost,         //44
-			estimate.IsDIY,                                    //45
+			estimate.DIYMode,                                  //45
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -543,7 +543,7 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, discount_code, discount_amount, permit_level, permit_cost, is_diy, version)
+			access_token, discount_code, discount_amount, permit_level, permit_cost, diy_mode, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -573,7 +573,7 @@ RETURNING estimate_id, version`
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
 			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount, //42
 			estimate.PermitLevel, estimate.PermitCost,                           //44
-			estimate.IsDIY).                                                     //45
+			estimate.DIYMode).                                                   //45
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -768,6 +768,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
 		estimate.HasStairTK     = r.FormValue("hasStairTK") == "true"
 		estimate.DiscountCode   = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+		if dm := r.FormValue("diyMode"); dm != "" {
+			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+				estimate.DIYMode = v
+			}
+		}
 		if pl := r.FormValue("permitLevel"); pl != "" {
 			if v, err := strconv.Atoi(pl); err == nil {
 				estimate.PermitLevel = v
@@ -966,7 +971,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	estimate.IsDIY = r.FormValue("diy") == "true"
+	if dm := r.FormValue("diyMode"); dm != "" {
+		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+			estimate.DIYMode = v
+		}
+	}
 
 	// Build initial section from L/W for new estimates from calculator
 	estimate.Sections = []EstimateSection{{
@@ -1036,8 +1045,8 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	estimate.CalculateFasciaCost(costs)
 	estimate.CalcPermitCost(costs)
 
-	// DIY package: homeowner handles demo; all other items are materials-only at cost + 50%
-	if estimate.IsDIY {
+	switch estimate.DIYMode {
+	case 1: // Plans + Materials: homeowner installs, we supply materials at 50% of full-service
 		estimate.DemoCost = 0
 		estimate.DeckCost *= 0.5
 		estimate.RailCost *= 0.5
@@ -1046,6 +1055,15 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 		estimate.FasciaCost *= 0.5
 		estimate.StairFasciaCost *= 0.5
 		estimate.StairToeKickCost *= 0.5
+	case 2: // Plans Only: design/engineering/permits only — no materials
+		estimate.DemoCost = 0
+		estimate.DeckCost = 0
+		estimate.RailCost = 0
+		estimate.StairCost = 0
+		estimate.StairRailCost = 0
+		estimate.FasciaCost = 0
+		estimate.StairFasciaCost = 0
+		estimate.StairToeKickCost = 0
 	}
 
 	estimate.CustomItemsTotal = 0
