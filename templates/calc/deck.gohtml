@@ -2,6 +2,11 @@
   {{template "header.gohtml" .Header}}
   {{template "deckheader.gohtml" .}}
 
+  <div style="max-width:480px;">
+    <h2 class="title is-4 mt-4">How Much Does a Deck Cost in SW Washington?</h2>
+    <p class="has-text-grey mb-4">Deck costs in SW Washington typically range from <strong>$8,000 to $45,000+</strong> depending on size, materials, height, and complexity. Use this calculator to get an instant itemized estimate — no callbacks, no salesperson.</p>
+  </div>
+
   {{with .Page}}
     <div class="notification is-info is-light mb-4" style="max-width:480px;">
       Enter your <strong>main deck</strong> dimensions below. You can add additional sections (bump-outs, wraparounds) on the estimate page.
@@ -43,7 +48,7 @@
         </div>
 
         <div class="field">
-            <label class="label">Length (ft)</label>
+            <label class="label">Projection (ft)</label>
             <div class="control">
                 <input class="input" type="number" name="length" step="0.1" min="1" value="{{if .Length}}{{printf "%.1f" .Length}}{{end}}" required placeholder="e.g. 20">
             </div>
@@ -173,6 +178,28 @@
         </div>
 
     </form>
+
+    <div style="max-width:480px; margin-top:2rem;">
+      <h2 class="title is-4">How It Works</h2>
+      <div class="columns is-mobile mt-2">
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-ruler-combined fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">1. Enter Dimensions</p>
+          <p class="has-text-grey is-size-7">Projection, width, height, and materials. Takes about 60 seconds.</p>
+        </div>
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-dollar-sign fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">2. Get Instant Estimate</p>
+          <p class="has-text-grey is-size-7">See a full itemized cost breakdown — deck, rails, stairs, permits, and more.</p>
+        </div>
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-share-alt fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">3. Save or Share</p>
+          <p class="has-text-grey is-size-7">Save your estimate, email it to yourself, or share it with a contractor.</p>
+        </div>
+      </div>
+    </div>
+
     <script>
     const modeHelp = [
       'Columbia Outdoor builds your project from estimate to final walkthrough.',

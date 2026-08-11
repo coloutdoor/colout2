@@ -68,7 +68,7 @@ func formatDeckDescription(de DeckEstimate) string {
 			de.DeckArea, material, de.Height)
 	}
 	for _, s := range de.Sections {
-		desc += fmt.Sprintf("\n  — %s: %.1f × %.1f ft (%.1f sf)",
+		desc += fmt.Sprintf("\n  — %s: %.1f proj × %.1f ft wide (%.1f sf)",
 			s.Label, s.Length, s.Width, s.Length*s.Width)
 	}
 	return desc

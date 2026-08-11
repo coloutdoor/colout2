@@ -5,8 +5,35 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strings"
+	"os"
+
+	"gopkg.in/yaml.v3"
 )
+
+type Photo struct {
+	URI         string `yaml:"uri"`
+	Category    string `yaml:"category"`
+	City        string `yaml:"city"`
+	Description string `yaml:"description"`
+}
+
+type PhotoLibrary struct {
+	Photos []Photo `yaml:"photos"`
+}
+
+func loadPhotos() []Photo {
+	data, err := os.ReadFile("static/photos.yaml")
+	if err != nil {
+		log.Printf("loadPhotos: %v", err)
+		return nil
+	}
+	var lib PhotoLibrary
+	if err := yaml.Unmarshal(data, &lib); err != nil {
+		log.Printf("loadPhotos unmarshal: %v", err)
+		return nil
+	}
+	return lib.Photos
+}
 
 // Homeowner represents the structure of the homeowner marketing strategy
 type Homeowner struct {
@@ -37,21 +64,7 @@ type renderData struct {
 //	This was created from Bulma Templates
 func ownerHandler(w http.ResponseWriter, r *http.Request) {
 
-	// City specific landing pages ...
-	tmpPath := strings.ToLower(r.URL.Path)
-	if strings.HasPrefix(tmpPath, "/deck-builders-") ||
-		strings.HasPrefix(tmpPath, "/patio-cover-") ||
-		strings.HasPrefix(tmpPath, "/trex-deck-") ||
-		strings.HasPrefix(tmpPath, "/timbertech-deck-") ||
-		strings.HasPrefix(tmpPath, "/composite-decking-") ||
-		strings.HasPrefix(tmpPath, "/outdoor-kitchen-builders-") ||
-		strings.HasPrefix(tmpPath, "/pergola-builders-") ||
-		strings.HasPrefix(tmpPath, "/outdoor-living-") {
-		//	log.Printf("We got a city request... %s", tmpPath)
-		cityHandler(w, r)
-		return
-	} else if r.URL.Path != "/" {
-		// This is a 404
+	if r.URL.Path != "/" {
 		notFoundHandler(w, r)
 		return
 	}
@@ -61,8 +74,10 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth.Title = "Decks & Outdoor Living"
 	userAuth.Subtitle = "Quality decks and outdoor structures built right. Transparent pricing, expert craftsmanship."
 	userAuth.MetaDesc = "Columbia Outdoor builds quality decks, patios, and outdoor structures across SW Washington. Transparent pricing, experienced builders, and expert project management."
+	userAuth.CanonicalPath = "/"
+	photos := loadPhotos()
 	rd := renderData{
-		Page:   nil,
+		Page:   photos,
 		Header: &userAuth,
 	}
 	tmpl := template.Must(template.New("homeowner.gohtml").Funcs(funcMap).

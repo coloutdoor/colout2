@@ -96,9 +96,10 @@ func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 // *****************************************************************************************
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Deck Calculator"
-	userAuth.Subtitle = "Free and easy Estimate Calculator"
-	userAuth.MetaDesc = "Free deck estimate calculator. Simple and easy to use for decks in SW Washington. Select deck, rails, stairs, and details."
+	userAuth.Title = "Free Deck Calculator — SW Washington"
+	userAuth.Subtitle = "Instant deck cost estimates for SW Washington homeowners"
+	userAuth.MetaDesc = "Free deck cost calculator for SW Washington. Get an instant estimate for deck size, materials, rails, stairs, and permits. No salesperson, no callbacks."
+	userAuth.CanonicalPath = "/deck-calculator"
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,

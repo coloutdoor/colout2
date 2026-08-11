@@ -4,16 +4,15 @@
   <!-- Hero -->
   <section class="section" style="background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg') center/cover no-repeat; padding: 5rem 1.5rem;">
     <div class="container has-text-centered">
-      <h1 class="title is-1 has-text-white">Stop Chasing Bids. Start Building.</h1>
+      <h1 class="title is-1 has-text-white">SW Washington Deck Builder — Instant Estimates</h1>
       <p class="subtitle has-text-white mt-4" style="max-width:700px; margin:1.5rem auto;">
-        SW Washington homeowners deserve a deck builder they can trust.
-        Columbia Outdoor delivers <strong class="has-text-warning">transparent pricing, quality craftsmanship, and expert project management</strong> — so your project is done right the first time.
+        Stop chasing bids. Start building. Columbia Outdoor delivers <strong class="has-text-warning">transparent pricing, quality craftsmanship, and expert project management</strong> — so your project is done right the first time.
       </p>
       <div class="buttons is-centered mt-5">
         <a href="/contact" class="button is-light is-large is-rounded">
           Talk to a Professional
         </a>
-        <a href="/calc?option=deck" class="button is-large is-rounded" style="background-color:#6b7280; border-color:#6b7280; color:white;">
+        <a href="/deck-calculator?option=deck" class="button is-large is-rounded" style="background-color:#6b7280; border-color:#6b7280; color:white;">
           <strong>Build Your Own Deck Estimate</strong>
         </a>
       </div>
@@ -24,7 +23,7 @@
   <!-- Two Paths -->
   <section class="section has-background-white">
     <div class="container">
-      <h3 class="title is-3 has-text-centered has-text-dark mb-6">How Can We Help?</h3>
+      <h2 class="title is-3 has-text-centered has-text-dark mb-6">Quick Deck Estimates with DIY Options</h2>
       <div class="columns is-variable is-6" style="margin-top:0">
 
         <div class="column">
@@ -61,7 +60,7 @@
               <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> No account required to get started</li>
               <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Zero sales pressure to compare options</li>
             </ul>
-            <a href="/calc?option=deck" class="button is-rounded is-fullwidth" style="background-color:#6b7280; border-color:#6b7280; color:white;">
+            <a href="/deck-calculator?option=deck" class="button is-rounded is-fullwidth" style="background-color:#6b7280; border-color:#6b7280; color:white;">
               <strong>Start the Deck Calculator</strong>
             </a>
           </div>
@@ -83,7 +82,7 @@
               <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> On site consultation</li>
               <li class="mb-2"><span class="icon has-text-success"><i class="fas fa-check"></i></span> Optional full materials delivery</li>
             </ul>
-            <a href="/calc?option=deck&amp;diyMode=1" class="button is-success is-rounded is-fullwidth">
+            <a href="/deck-calculator?option=deck&amp;diyMode=1" class="button is-success is-rounded is-fullwidth">
               <strong>Get DIY Deck Package Estimate</strong>
             </a>
           </div>
@@ -96,7 +95,7 @@
   <!-- Why Columbia Outdoor -->
   <section class="section has-background-light">
     <div class="container" style="max-width:900px;">
-      <h3 class="title is-3 has-text-centered has-text-dark mb-6">Why Columbia Outdoor?</h3>
+      <h2 class="title is-3 has-text-centered has-text-dark mb-6">Deck Build Process</h2>
       <div class="columns is-multiline" style="margin-top:0">
 
         <div class="column is-half">
@@ -146,25 +145,49 @@
   <!-- Photo Grid -->
   <section class="section has-background-white">
     <div class="container">
-      <h3 class="title is-3 has-text-centered has-text-dark mb-2">Our Work</h3>
+      <h2 class="title is-3 has-text-centered has-text-dark mb-2">Recent Deck Projects in Woodland, Ridgefield, Kalama, and La Center</h2>
       <p class="has-text-centered has-text-grey mb-5">Decks, covers, and outdoor spaces built across SW Washington.</p>
-      <div class="columns" style="margin-top:0">
-        <div class="column">
-          <figure class="image is-4by3">
-            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg" alt="Custom deck build" style="object-fit:cover; border-radius:6px;">
-          </figure>
+      {{if .Page}}
+      <div style="position:relative; max-width:900px; margin:0 auto;">
+        <div id="co-carousel" style="overflow:hidden; border-radius:8px; aspect-ratio:4/3;">
+          <div id="co-slides" style="display:flex; transition:transform 0.5s ease; height:100%;">
+            {{range .Page}}
+            <img src="{{.URI}}" alt="{{.Description}} — {{.City}}, WA" style="min-width:100%; object-fit:cover;">
+            {{end}}
+          </div>
         </div>
-        <div class="column">
-          <figure class="image is-4by3">
-            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck3.jpg" alt="Multi-level deck" style="object-fit:cover; border-radius:6px;">
-          </figure>
-        </div>
-        <div class="column">
-          <figure class="image is-4by3">
-            <img src="https://storage.googleapis.com/columbiaoutdoor-images/deck4.jpg" alt="Deck with stairs" style="object-fit:cover; border-radius:6px;">
-          </figure>
+        <button onclick="coSlide(-1)" aria-label="Previous" style="position:absolute; top:50%; left:-1.25rem; transform:translateY(-50%); background:rgba(0,0,0,0.45); border:none; color:white; border-radius:50%; width:2.5rem; height:2.5rem; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8249;</button>
+        <button onclick="coSlide(1)"  aria-label="Next"     style="position:absolute; top:50%; right:-1.25rem; transform:translateY(-50%); background:rgba(0,0,0,0.45); border:none; color:white; border-radius:50%; width:2.5rem; height:2.5rem; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8250;</button>
+        <div id="co-dots" style="display:flex; justify-content:center; gap:0.4rem; margin-top:0.75rem;">
+          {{range $i, $p := .Page}}
+          <span class="co-dot" onclick="coGoTo({{$i}})" style="width:10px;height:10px;border-radius:50%;background:{{if eq $i 0}}#3273dc{{else}}#ccc{{end}};cursor:pointer;display:inline-block;"></span>
+          {{end}}
         </div>
       </div>
+      <script>
+      (function() {
+        var current = 0;
+        var total = {{len .Page}};
+        var autoTimer = setInterval(function(){ coSlide(1); }, 5000);
+
+        window.coSlide = function(dir) {
+          coGoTo((current + dir + total) % total);
+          resetTimer();
+        };
+        window.coGoTo = function(idx) {
+          current = idx;
+          document.getElementById('co-slides').style.transform = 'translateX(-' + (current * 100) + '%)';
+          document.querySelectorAll('.co-dot').forEach(function(d, i) {
+            d.style.background = i === current ? '#3273dc' : '#ccc';
+          });
+        };
+        function resetTimer() {
+          clearInterval(autoTimer);
+          autoTimer = setInterval(function(){ coSlide(1); }, 5000);
+        }
+      })();
+      </script>
+      {{end}}
       <div class="has-text-centered mt-5">
         <p class="has-text-grey mb-4">Follow us and leave a review</p>
         <div class="buttons is-centered">
@@ -189,23 +212,35 @@
     </div>
   </section>
 
-  <!-- Bottom CTA -->
-  <section class="section" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://storage.googleapis.com/columbiaoutdoor-images/cover1.jpeg') center/cover no-repeat; padding: 4rem 1.5rem;">
-    <div class="container has-text-centered">
-      <h3 class="title is-2 has-text-white">Ready to Get Started?</h3>
-      <p class="subtitle has-text-white mt-3" style="max-width:600px; margin: 1rem auto;">
-        Use our deck calculator to build your own estimate instantly — or contact us and an outdoor living professional will review your project with you in person.
-      </p>
-      <div class="buttons is-centered mt-5">
-        <a href="/contact" class="button is-light is-large is-rounded">
-          Talk to a Professional
-        </a>
-        <a href="/calc?option=deck" class="button is-large is-rounded" style="background-color:#6b7280; border-color:#6b7280; color:white;">
-          <strong>Build Your Own Deck Estimate</strong>
-        </a>
-      </div>
-    </div>
-  </section>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HomeAndConstructionBusiness",
+    "name": "Columbia Outdoor",
+    "url": "https://columbiaoutdoor.com",
+    "telephone": "+13607878062",
+    "email": "info@columbiaoutdoor.com",
+    "description": "Custom deck builder serving SW Washington. Transparent pricing, professional design, and DIY packages for Woodland, Ridgefield, Kalama, and La Center.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Woodland",
+      "addressRegion": "WA",
+      "addressCountry": "US"
+    },
+    "areaServed": [
+      {"@type": "City", "name": "Woodland, WA"},
+      {"@type": "City", "name": "Ridgefield, WA"},
+      {"@type": "City", "name": "Kalama, WA"},
+      {"@type": "City", "name": "La Center, WA"}
+    ],
+    "sameAs": [
+      "https://www.facebook.com/columbiaoutdoor/",
+      "https://www.instagram.com/outdoorcolumbia/",
+      "https://x.com/OutdoorColumbia"
+    ]
+  }
+  </script>
 
   {{template "footer.gohtml" .}}
 {{end}}

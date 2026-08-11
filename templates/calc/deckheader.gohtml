@@ -2,6 +2,6 @@
       integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" 
       crossorigin="anonymous" referrerpolicy="no-referrer" />
     <div class="mb-4">
-        <h2 class="title">Deck Estimate Calculator</h2>
-        <p class="subtitle is-6 has-text-grey">Get an instant cost estimate in under a minute. No account required.</p>
+        <h1 class="title">{{if .Header.Title}}{{.Header.Title}}{{else}}Free Deck Calculator{{end}}</h1>
+        <p class="subtitle is-6 has-text-grey">{{if .Header.Subtitle}}{{.Header.Subtitle}}{{else}}Get an instant cost estimate in under a minute. No account required.{{end}}</p>
     </div>

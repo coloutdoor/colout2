@@ -119,7 +119,15 @@ func main() {
 	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)       //GET a saved estimate from DB
 	mux.HandleFunc("/customer", customerHandler)
 	mux.HandleFunc("/session", sessionHandler)
-	mux.HandleFunc("/calc", calcHandler)
+	mux.HandleFunc("/deck-calculator", calcHandler)
+	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
+		// Preserve query string on redirect
+		target := "/deck-calculator"
+		if r.URL.RawQuery != "" {
+			target += "?" + r.URL.RawQuery
+		}
+		http.Redirect(w, r, target, http.StatusMovedPermanently)
+	})
 	mux.HandleFunc("/css/", cssHandler)
 	mux.HandleFunc("/contact", contactHandler)
 	mux.HandleFunc("/contact/", contactHandler)

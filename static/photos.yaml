@@ -1,0 +1,25 @@
+photos:
+  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg
+    category: deck
+    city: Woodland
+    description: Custom deck build with pressure treated framing
+
+  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg
+    category: deck
+    city: Ridgefield
+    description: Two-story TimberTech deck with composite rails and stairs
+
+  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck3.jpg
+    category: deck
+    city: Kalama
+    description: Multi-level deck with hot tub and pergola
+
+  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck4.jpg
+    category: deck
+    city: Woodland
+    description: Deck with stairs and matching fascia
+
+  - uri: https://storage.googleapis.com/columbiaoutdoor-images/cover1.jpeg
+    category: cover
+    city: Woodland
+    description: Timber frame patio cover with TimberTech deck

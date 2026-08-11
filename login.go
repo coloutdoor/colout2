@@ -52,6 +52,7 @@ type UserAuth struct {
 	MetaDesc        string // this is the Meta Description in Header
 	Subtitle        string // This is the subtitle in "H1" tags
 	Rurl            string // After a successful login - Go here!
+	CanonicalPath   string // Canonical URL path, e.g. "/" or "/calc"
 }
 
 // loadContractorInfo fetches company name and approval status for contractors.
