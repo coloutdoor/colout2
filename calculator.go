@@ -53,18 +53,10 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Success: Route to correct calculator
 	switch option {
-	case "deck":
-		handleDeckCalc(w, r, estimate)
 	case "rails":
 		handleRailsCalc(w, r, estimate)
-		/*
-			case "stairs":
-				handleStairsCalc(w, r)
-			case "demo":
-				handleDemoCalc(w, r)
-		*/
 	default:
-		handleFullCalc(w, r, estimate)
+		handleDeckCalc(w, r, estimate)
 	}
 }
 

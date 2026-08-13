@@ -12,6 +12,37 @@ These Terms and Conditions ("Terms") apply to all estimates, proposals, and work
 - Columbia Outdoor coordinates subcontractors as needed for project completion.
 - **Service Area:** Columbia Outdoor provides services in Clark and Cowlitz Counties, Washington only.
 
+## 1a. Service Tier Options
+
+Estimates are issued under one of three service tiers selected at the time of estimate. The selected tier determines scope, responsibilities, and warranty coverage.
+
+**Full Service**
+Columbia Outdoor manages the project from estimate through final inspection.
+- Labor, materials, permits, inspections, and project management are included as specified in the Estimate.
+- Labor warranty (Section 6) applies.
+- All terms in these Terms and Conditions apply in full.
+
+**Plans + Materials (DIY Installation)**
+Columbia Outdoor provides professional design drawings, a complete material takeoff list, and a materials package. Installation is performed by the Owner or Owner's contractor.
+- Includes: design drawings, material takeoff list, structural engineering (if selected), permit application package (if selected), and materials delivery.
+- Does not include: installation labor, inspections, or project management.
+- Permits are included only if the Design + Engineering + Permits option was selected. Otherwise, Owner is responsible for obtaining all required permits and scheduling inspections.
+- Owner is responsible for demolition and disposal of any existing structure.
+- Labor warranty (Section 6) does not apply. Materials warranties from suppliers are passed to Owner.
+- Columbia Outdoor is not liable for improper installation or code violations arising from Owner-performed work.
+
+**Plans Only (Design Package)**
+Columbia Outdoor provides professional design drawings, a material takeoff list, and documentation only. No materials or installation are included.
+- Includes: design drawings, material takeoff list, structural engineering (if selected), and permit application package (if selected).
+- Does not include: materials, installation labor, inspections, or project management.
+- Permits are included only if the Design + Engineering + Permits option was selected. Otherwise, Owner is responsible for obtaining all required permits and scheduling inspections.
+- Owner is responsible for demolition and disposal of any existing structure.
+- Labor and materials warranties (Section 6) do not apply.
+- Columbia Outdoor is not liable for improper installation or code violations arising from Owner-performed work.
+
+**Design & Permits Base Fee**
+All Plans + Materials and Plans Only estimates include a base fee covering project intake, professional design drawings, and a complete material takeoff list. This fee is non-refundable once design work has commenced.
+
 ## 2. Pricing & Payment
 
 - Estimate is valid for 30 days from issuance.

@@ -154,7 +154,7 @@
     </div>
 
     <div class="box mt-3">
-        <p class="has-text-white has-background-black px-3 py-2 mb-3"><strong>Scope of Work</strong></p>
+        <p class="has-text-white has-background-black px-3 py-2 mb-3"><strong>Scope of Work — {{if eq .DIYMode 1}}Plans + Materials{{else if eq .DIYMode 2}}Plans Only{{else}}Full Service{{end}}</strong></p>
         <div>
         <div class="columns is-multiline">
             <div class="column is-2"><strong>Item</strong></div>

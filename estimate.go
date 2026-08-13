@@ -158,12 +158,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 		}
 	}
 	if estimate.TermsHTML == "" {
-		// fallback to plain text
-		if txt, err := os.ReadFile("static/t_and_c.txt"); err == nil {
-			estimate.Terms = string(txt)
-		} else {
-			estimate.Terms = "Terms and Conditions not available."
-		}
+		estimate.Terms = "Terms and Conditions not available."
 	}
 
 	userAuth := getUserAuth(r, w)
