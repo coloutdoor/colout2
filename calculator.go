@@ -60,24 +60,6 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleFullCalc This handler is the full - Detailed Deck estimate
-func handleFullCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
-	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Deck Calculator Details"
-	rd := renderData{
-		Page:   &e,
-		Header: &userAuth,
-	}
-	tmpl := template.Must(template.New("calculator.gohtml").Funcs(funcMap).ParseFiles("templates/calculator.gohtml",
-		"templates/header.gohtml", "templates/footer.gohtml"))
-
-	log.Printf("Calculator template loaded")
-	if err := tmpl.ExecuteTemplate(w, "calculator.gohtml", rd); err != nil {
-		log.Printf("handleFullCalc execute error: %v", err)
-		panic(err)
-	}
-	log.Printf("Calculator template complete")
-}
 
 // *****************************************************************************************
 //
