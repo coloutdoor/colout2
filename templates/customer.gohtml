@@ -2,85 +2,198 @@
   {{template "header.gohtml" .Header}}
 
   {{with .Page}}
-  <form method="post" action="/customer" class="box" style="max-width:480px;">
+<style>
+:root {
+  --cust-surface: #0d2035;
+  --cust-border:  #1a3450;
+  --cust-border2: #254868;
+  --cust-text:    #d8eaf8;
+  --cust-text2:   #7aaac8;
+  --cust-text3:   #3f6080;
+  --cust-accent:  #3d8c65;
+  --cust-accent-l:#1a3328;
+  --cust-accent-m:#2a5c44;
+  --cust-input:   #071018;
+}
 
-    <h2 class="title is-4">
+.cust-wrap {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.cust-card {
+  background: var(--cust-surface);
+  border: 1px solid var(--cust-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.6);
+  padding: 2rem 2rem 1.75rem;
+}
+
+.cust-eyebrow {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cust-text3);
+  margin-bottom: .4rem;
+}
+
+.cust-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cust-text);
+  margin-bottom: .3rem;
+}
+
+.cust-subtitle {
+  font-size: .85rem;
+  color: var(--cust-text2);
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--cust-border);
+}
+
+.cust-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.cust-field {
+  margin-bottom: 1.1rem;
+}
+
+.cust-label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--cust-text2);
+  margin-bottom: .35rem;
+}
+
+.cust-input,
+.cust-select {
+  width: 100%;
+  background: var(--cust-input);
+  border: 1px solid var(--cust-border2);
+  border-radius: 5px;
+  color: var(--cust-text);
+  font-size: .95rem;
+  padding: .55rem .75rem;
+  transition: border-color .15s;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cust-input:focus,
+.cust-select:focus {
+  outline: none;
+  border-color: var(--cust-accent);
+}
+
+.cust-input::placeholder { color: var(--cust-text3); }
+
+.cust-select-wrap {
+  position: relative;
+}
+.cust-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cust-text3);
+  pointer-events: none;
+  font-size: .8rem;
+}
+
+.cust-submit {
+  width: 100%;
+  background: var(--cust-accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: .75rem 1rem;
+  cursor: pointer;
+  margin-top: .75rem;
+  transition: background .15s;
+}
+.cust-submit:hover { background: #4aaa7a; }
+</style>
+
+<div class="cust-wrap">
+  <div class="cust-card">
+    <p class="cust-eyebrow">Columbia Outdoor</p>
+    <h1 class="cust-title">
       {{if .IsHomeowner}}Your Contact Information{{else}}Customer Information{{end}}
-    </h2>
-    {{if .IsHomeowner}}
-    <p class="help mb-4">We'll use this to send you a copy of the estimate.</p>
-    {{else}}
-    <p class="help mb-4">Enter your customer's contact details for the estimate.</p>
-    {{end}}
+    </h1>
+    <p class="cust-subtitle">
+      {{if .IsHomeowner}}We'll use this to send you a copy of the estimate.{{else}}Enter your customer's contact details for the estimate.{{end}}
+    </p>
 
-    <div class="field">
-      <label class="label">First Name</label>
-      <div class="control">
-        <input class="input" type="text" name="firstName" value="{{.FirstName}}" required>
+    <form method="post" action="/customer">
+
+      <div class="cust-row">
+        <div class="cust-field">
+          <label class="cust-label" for="firstName">First Name</label>
+          <input class="cust-input" type="text" id="firstName" name="firstName" value="{{.FirstName}}" required>
+        </div>
+        <div class="cust-field">
+          <label class="cust-label" for="lastName">Last Name</label>
+          <input class="cust-input" type="text" id="lastName" name="lastName" value="{{.LastName}}" required>
+        </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label">Last Name</label>
-      <div class="control">
-        <input class="input" type="text" name="lastName" value="{{.LastName}}" required>
+      <div class="cust-field">
+        <label class="cust-label" for="address">Street Address</label>
+        <input class="cust-input" type="text" id="address" name="address" value="{{.Address}}" required>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label">Address</label>
-      <div class="control">
-        <input class="input" type="text" name="address" value="{{.Address}}" required>
+      <div class="cust-row">
+        <div class="cust-field">
+          <label class="cust-label" for="city">City</label>
+          <input class="cust-input" type="text" id="city" name="city" value="{{.City}}" required>
+        </div>
+        <div class="cust-field">
+          <label class="cust-label" for="zip">Zip Code</label>
+          <input class="cust-input" type="text" id="zip" name="zip" value="{{.Zip}}" required>
+        </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label">City</label>
-      <div class="control">
-        <input class="input" type="text" name="city" value="{{.City}}" required>
-      </div>
-    </div>
-
-    <div class="field">
-      <label class="label">State</label>
-      <div class="control">
-        <div class="select is-fullwidth">
-          <select name="state" required>
+      <div class="cust-field">
+        <label class="cust-label" for="state">State</label>
+        <div class="cust-select-wrap">
+          <select class="cust-select" id="state" name="state" required>
             <option value="WA" {{if eq .State "WA"}}selected{{else if eq .State ""}}selected{{end}}>WA — Washington</option>
           </select>
         </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label">Zip</label>
-      <div class="control">
-        <input class="input" type="text" name="zip" value="{{.Zip}}" required>
+      <div class="cust-row">
+        <div class="cust-field">
+          <label class="cust-label" for="phoneNumber">Phone</label>
+          <input class="cust-input" type="tel" id="phoneNumber" name="phoneNumber" value="{{.PhoneNumber}}" required>
+        </div>
+        <div class="cust-field">
+          <label class="cust-label" for="email">Email</label>
+          <input class="cust-input" type="email" id="email" name="email" value="{{.Email}}" required>
+        </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label class="label">Phone</label>
-      <div class="control">
-        <input class="input" type="tel" name="phoneNumber" value="{{.PhoneNumber}}" required>
-      </div>
-    </div>
+      <button type="submit" class="cust-submit">
+        {{if .IsHomeowner}}Save My Info{{else}}Save Customer{{end}}
+      </button>
 
-    <div class="field">
-      <label class="label">Email</label>
-      <div class="control">
-        <input class="input" type="email" name="email" value="{{.Email}}" required>
-      </div>
-    </div>
+    </form>
+  </div>
+</div>
 
-    <div class="field mt-5">
-      <div class="control">
-        <input class="button is-primary is-fullwidth is-medium" type="submit"
-          value="{{if .IsHomeowner}}Save My Info{{else}}Save Customer{{end}}">
-      </div>
-    </div>
-
-  </form>
   {{end}}
   {{template "footer.gohtml" .}}
 {{end}}

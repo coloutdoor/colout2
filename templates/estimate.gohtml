@@ -1,647 +1,1086 @@
 {{define "estimate.gohtml"}}
   {{template "header.gohtml" .Header}}
 
+<style>
+:root {
+  --est-bg:      #081420;
+  --est-surface: #0d2035;
+  --est-border:  #1a3450;
+  --est-border2: #254868;
+  --est-text:    #d8eaf8;
+  --est-text2:   #7aaac8;
+  --est-text3:   #3f6080;
+  --est-accent:  #3d8c65;
+  --est-accent-l:#1a3328;
+  --est-accent-m:#2a5c44;
+  --est-amber:   #f59e0b;
+  --est-amber-l: #251d08;
+  --est-slate:   #64748b;
+  --est-slate-l: #1a2538;
+  --est-red:     #e05040;
+  --est-shadow:  0 1px 4px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.4);
+  --est-shadow-md: 0 4px 16px rgba(0,0,0,.6);
+}
+
+/* ── Header card ── */
+.est-header-card {
+  background: var(--est-surface);
+  border: 1px solid var(--est-border);
+  border-radius: 10px;
+  box-shadow: var(--est-shadow-md);
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .85rem;
+  flex-wrap: wrap;
+}
+.est-eyebrow {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--est-text3);
+  margin-bottom: .3rem;
+}
+.est-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--est-text);
+  line-height: 1.2;
+  margin-bottom: .25rem;
+}
+.est-project-line {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .45rem;
+}
+.est-project {
+  font-size: .9rem;
+  color: var(--est-text2);
+  font-style: italic;
+}
+.est-project-edit {
+  font-size: .7rem;
+  color: var(--est-accent);
+  text-decoration: none;
+  border: 1px solid var(--est-accent-m);
+  padding: .1rem .4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+.est-project-edit:hover { background: var(--est-accent-l); }
+.est-status-wrap { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.est-status-pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: .2rem .6rem; border-radius: 20px;
+}
+.pill-pending { background: var(--est-amber-l); color: var(--est-amber); }
+.pill-accepted { background: var(--est-accent-l); color: var(--est-accent); }
+.pill-expired { background: #fce8e8; color: var(--est-red); }
+.est-date-note { font-size: .75rem; color: var(--est-text3); line-height: 1.7; }
+/* Total callout */
+.est-total-callout { text-align: right; min-width: 150px; }
+.est-total-label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--est-text3); margin-bottom: .2rem; }
+.est-total-amount {
+  font-family: 'SF Mono', 'Consolas', 'Lucida Console', monospace;
+  font-size: 2.2rem; font-weight: 700; color: var(--est-accent);
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1;
+}
+.est-total-note { font-size: .7rem; color: var(--est-text3); margin-top: .3rem; }
+
+/* ── Tier bar ── */
+.est-tier-bar {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+  background: var(--est-surface); border: 1px solid var(--est-border);
+  border-radius: 8px; padding: .65rem 1.25rem; margin-bottom: .85rem;
+}
+.est-tier-label {
+  font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--est-text2); flex-shrink: 0;
+}
+.est-tier-group { display: flex; gap: .35rem; flex-wrap: wrap; }
+.est-tier-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .8rem; font-weight: 500;
+  padding: .3rem .8rem; border: 1.5px solid var(--est-border2);
+  border-radius: 20px; background: transparent; color: var(--est-text2);
+  cursor: pointer; transition: all .15s;
+}
+.est-tier-btn:hover { border-color: var(--est-accent); color: var(--est-accent); }
+.est-tier-btn.tier-active-full { background: var(--est-accent-l); border-color: var(--est-accent); color: var(--est-accent); font-weight: 600; }
+.est-tier-btn.tier-active-plans { background: var(--est-amber-l); border-color: var(--est-amber); color: var(--est-amber); font-weight: 600; }
+.est-tier-btn.tier-active-diy { background: var(--est-slate-l); border-color: var(--est-slate); color: var(--est-slate); font-weight: 600; }
+
+/* ── Action bar ── */
+.est-action-bar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .5rem; }
+.est-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .82rem; font-weight: 500; padding: .45rem 1rem;
+  border-radius: 6px; border: 1.5px solid var(--est-border2);
+  background: var(--est-surface); color: var(--est-text);
+  cursor: pointer; transition: all .15s; white-space: nowrap; text-decoration: none;
+}
+.est-btn:hover { border-color: var(--est-text2); }
+.est-btn i { font-size: .75rem; color: var(--est-text3); }
+.est-btn-primary { background: var(--est-accent); border-color: var(--est-accent); color: #fff; font-weight: 600; }
+.est-btn-primary:hover { background: #235a41; border-color: #235a41; color: #fff; }
+.est-btn-primary i { color: rgba(255,255,255,.8); }
+.est-btn-success { background: var(--est-accent-l); border-color: var(--est-accent); color: var(--est-accent); font-weight: 600; }
+.est-btn-success i { color: var(--est-accent); }
+.est-unsaved-note {
+  font-size: .75rem; color: var(--est-amber); font-weight: 500;
+  display: none; align-items: center; gap: .3rem; margin-left: .25rem;
+}
+
+/* ── Party cards ── */
+.est-parties { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .85rem; }
+@media (max-width: 560px) { .est-parties { grid-template-columns: 1fr; } }
+.est-party-card { background: var(--est-surface); border: 1px solid var(--est-border); border-radius: 8px; padding: 1rem 1.25rem; }
+.est-party-role {
+  font-size: .65rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--est-text3); margin-bottom: .5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.est-party-name { font-size: .95rem; font-weight: 600; color: var(--est-text); margin-bottom: .15rem; }
+.est-party-detail { font-size: .8rem; color: var(--est-text2); line-height: 1.7; }
+.est-party-edit {
+  font-size: .7rem; color: var(--est-accent); font-weight: 500;
+  text-decoration: none; border: 1px solid var(--est-accent-m);
+  padding: .1rem .4rem; border-radius: 3px;
+}
+.est-party-edit:hover { background: var(--est-accent-l); }
+.est-party-missing { font-size: .8rem; color: var(--est-red); font-style: italic; }
+
+/* ── Scope card ── */
+.est-scope-card {
+  background: var(--est-surface); border: 1px solid var(--est-border);
+  border-radius: 10px; box-shadow: var(--est-shadow); overflow: hidden; margin-bottom: 1rem;
+}
+.est-scope-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .7rem 1.25rem; border-bottom: 1px solid var(--est-border); background: var(--est-bg);
+}
+.est-scope-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--est-text); }
+.est-tier-badge { font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .55rem; border-radius: 20px; }
+.badge-full  { background: var(--est-accent-l); color: var(--est-accent); }
+.badge-plans { background: var(--est-amber-l);  color: var(--est-amber);  }
+.badge-diy   { background: var(--est-slate-l);  color: var(--est-slate);  }
+
+/* ── Line items table ── */
+.est-scope-table-wrap { overflow-x: auto; }
+table.est-line-items { width: 100%; border-collapse: collapse; }
+table.est-line-items colgroup col.col-item { width: 155px; }
+table.est-line-items colgroup col.col-ctl  { width: 36px; }
+table.est-line-items colgroup col.col-cost { width: 120px; }
+.est-line-items th {
+  font-size: .64rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--est-text3); font-weight: 600;
+  padding: .5rem 1rem .5rem 1.25rem; border-bottom: 1px solid var(--est-border); text-align: left;
+}
+.est-line-items th.th-cost { text-align: right; padding-right: 1.25rem; }
+.est-line-items td { padding: .65rem 1rem .65rem 1.25rem; vertical-align: middle; font-size: .85rem; border-bottom: 1px solid var(--est-border); color: var(--est-text); }
+.est-line-items tr:last-child td { border-bottom: none; }
+.est-line-items td.td-item { font-weight: 500; white-space: nowrap; }
+.est-line-items td.td-ctl { padding-left: .5rem; padding-right: .25rem; }
+.est-line-items td.td-desc { color: var(--est-text2); font-size: .8rem; }
+.est-line-items td.td-cost {
+  text-align: right; padding-right: 1.25rem;
+  font-family: 'SF Mono', 'Consolas', 'Lucida Console', monospace;
+  font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* Zero / unchecked rows — show dimmed, not hidden */
+.est-line-items tr.zero-row td.td-item { color: var(--est-border2); font-weight: 400; }
+.est-line-items tr.zero-row td.td-desc { color: var(--est-border2); }
+.est-line-items tr.zero-row td.td-cost { color: var(--est-border2); }
+.est-line-items tr.zero-row .est-check { opacity: .4; }
+.est-line-items tr.zero-row .est-edit-btn { opacity: .4; pointer-events: none; }
+/* Edit / checkbox controls */
+.est-edit-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 4px; color: var(--est-text2);
+  background: var(--est-border); border: 1px solid var(--est-border2);
+  text-decoration: none; transition: background .12s, color .12s, border-color .12s; font-size: .72rem;
+}
+.est-edit-btn:hover { background: var(--est-accent-l); color: var(--est-accent); border-color: var(--est-accent-m); }
+.est-check { accent-color: var(--est-accent); width: 14px; height: 14px; cursor: pointer; }
+/* Subtotal / totals */
+.est-line-items tr.est-subtotal-row td {
+  background: var(--est-bg); font-weight: 600; font-size: .88rem;
+  border-top: 2px solid var(--est-border2); border-bottom: 1px solid var(--est-border);
+}
+.est-line-items tr.est-discount-row td { color: var(--est-accent); font-size: .82rem; }
+.est-line-items tr.est-discount-row td.td-cost { color: var(--est-accent); }
+.est-line-items tr.est-tax-row td { color: var(--est-text2); font-size: .8rem; }
+.est-line-items tr.est-total-row td {
+  background: var(--est-accent); color: #fff; font-weight: 700;
+  padding-top: 1rem; padding-bottom: 1rem; border-bottom: none;
+}
+.est-line-items tr.est-total-row td.td-item { font-size: 1rem; }
+.est-line-items tr.est-total-row td.td-desc { color: rgba(255,255,255,.5); font-size: .75rem; }
+.est-line-items tr.est-total-row td.td-cost { font-size: 1.3rem; color: #fff; }
+/* Add custom line */
+.est-add-custom-row td { background: var(--est-bg); padding: .5rem 1.25rem !important; }
+.est-add-custom-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .75rem; color: var(--est-text2); cursor: pointer;
+  padding: .2rem .55rem; border-radius: 4px;
+  border: 1px dashed var(--est-border2); background: none; transition: all .12s;
+}
+.est-add-custom-btn:hover { border-color: var(--est-accent); color: var(--est-accent); }
+/* Promo code */
+.est-promo-row td { padding-top: .45rem !important; padding-bottom: .45rem !important; background: var(--est-bg); }
+.est-promo-wrap { display: flex; gap: .4rem; align-items: center; }
+.est-promo-input {
+  font-size: .78rem; padding: .25rem .55rem; border: 1px solid var(--est-border2);
+  border-radius: 4px; background: var(--est-bg); color: var(--est-text); width: 140px;
+}
+.est-promo-btn {
+  font-size: .72rem; padding: .25rem .65rem; font-weight: 600; cursor: pointer;
+  background: var(--est-accent-l); color: var(--est-accent);
+  border: 1px solid var(--est-accent-m); border-radius: 4px;
+}
+
+/* ── Modal dark theme overrides ── */
+.modal-card {
+  background: var(--est-surface);
+  border: 1px solid var(--est-border2);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.7);
+}
+.modal-card-head {
+  background: var(--est-surface);
+  border-bottom: 1px solid var(--est-border);
+  border-radius: 10px 10px 0 0;
+  padding: 1rem 1.25rem;
+}
+.modal-card-title {
+  color: var(--est-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.modal-card-body {
+  background: var(--est-surface);
+  color: var(--est-text);
+  padding: 1.25rem 1.5rem;
+}
+.modal-card-foot {
+  background: #071018;
+  border-top: 1px solid var(--est-border);
+  border-radius: 0 0 10px 10px;
+  padding: .85rem 1.25rem;
+  gap: .6rem;
+}
+/* Labels */
+.modal-card-body .label {
+  color: var(--est-text2);
+  font-size: .78rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+/* Text inputs */
+.modal-card-body .input {
+  background: #071018;
+  border-color: var(--est-border2);
+  color: var(--est-text);
+  box-shadow: none;
+}
+.modal-card-body .input:focus {
+  border-color: var(--est-accent);
+  box-shadow: 0 0 0 2px var(--est-accent-l);
+}
+.modal-card-body .input::placeholder { color: var(--est-text3); }
+/* Selects */
+.modal-card-body .select select,
+.modal-card-body .select:not(.is-multiple):not(.is-loading)::after {
+  background: #071018;
+  border-color: var(--est-border2);
+  color: var(--est-text);
+  box-shadow: none;
+}
+.modal-card-body .select select:focus { border-color: var(--est-accent); box-shadow: none; }
+.modal-card-body .select::after { border-color: var(--est-text2) !important; }
+/* Help text */
+.modal-card-body .help { color: var(--est-text3); }
+/* Checkbox label */
+.modal-card-body .checkbox { color: var(--est-text2); font-size: .9rem; }
+/* Buttons in footer */
+.modal-card-foot .button.is-primary,
+.modal-card-foot .button.is-success {
+  background: var(--est-accent);
+  border-color: var(--est-accent);
+  color: #fff;
+  font-weight: 600;
+}
+.modal-card-foot .button.is-primary:hover,
+.modal-card-foot .button.is-success:hover { background: #4aaa7a; border-color: #4aaa7a; }
+.modal-card-foot .button:not(.is-primary):not(.is-success) {
+  background: var(--est-border);
+  border-color: var(--est-border2);
+  color: var(--est-text2);
+}
+.modal-card-foot .button:not(.is-primary):not(.is-success):hover {
+  background: var(--est-border2);
+  color: var(--est-text);
+}
+/* Static $ prefix on custom item cost */
+.modal-card-body .button.is-static {
+  background: var(--est-border);
+  border-color: var(--est-border2);
+  color: var(--est-text2);
+}
+/* Close × button */
+.modal-card-head .delete {
+  background: var(--est-border2);
+}
+.modal-card-head .delete:hover { background: var(--est-text3); }
+/* Deck sections table */
+.modal-card-body .table {
+  background: #071018;
+  color: var(--est-text);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.modal-card-body .table thead th {
+  background: var(--est-border);
+  color: var(--est-text2);
+  border-color: var(--est-border2);
+  font-size: .75rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.modal-card-body .table tbody td {
+  border-color: var(--est-border);
+  color: var(--est-text);
+  vertical-align: middle;
+}
+.modal-card-body .table tbody tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+/* Add Section button in deck modal */
+.modal-card-body .button.is-info.is-small {
+  background: var(--est-slate-l);
+  border-color: var(--est-slate);
+  color: var(--est-text2);
+  font-size: .78rem;
+}
+.modal-card-body .button.is-info.is-small:hover { background: var(--est-border2); color: var(--est-text); }
+/* Area preview in deck modal */
+.modal-card-body #total-area-preview { color: var(--est-accent); }
+</style>
+
   {{with .Page}}
-    <div class="mb-3">
-      <h1 class="title mb-1">
-        Deck Estimate
-        {{if gt .EstimateID 0}}
-        #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}
+
+  {{if .Error}}
+  <div class="notification is-danger mb-4"><p>{{.Error}}</p></div>
+  {{end}}
+
+  {{/* ── HEADER CARD ── */}}
+  <div class="est-header-card">
+    <div>
+      <p class="est-eyebrow">Columbia Outdoor{{if .Contractor.CompanyName}} · {{.Contractor.CompanyName}}{{end}}</p>
+      <h1 class="est-title">
+        Deck Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}{{end}}
+      </h1>
+      <div class="est-project-line">
+        {{if .Desc}}
+        <span class="est-project" id="desc-display">{{.Desc}}</span>
+        {{else}}
+        <span class="est-project" id="desc-display" style="color:var(--est-text3);">No description added</span>
         {{end}}
+        {{if not .IsPublicView}}
+        <button type="button" onclick="openDescModal()" class="est-project-edit">edit</button>
+        {{end}}
+      </div>
+      <div class="est-status-wrap">
         {{if .Status}}
-        <span class="tag is-medium ml-2 {{if eq .Status "Accepted"}}is-success{{else if eq .Status "Expired"}}is-danger{{else}}is-light has-text-black{{end}}">
-          {{.Status}}
+        <span class="est-status-pill {{if eq .Status "Accepted"}}pill-accepted{{else if eq .Status "Expired"}}pill-expired{{else}}pill-pending{{end}}">
+          {{if eq .Status "Accepted"}}&#10003; {{end}}{{.Status}}
         </span>
         {{end}}
-      </h1>
-      {{if not .IsPublicView}}
-      <div class="buttons has-addons mb-2">
-        <button type="button" id="mode-btn-0" onclick="setDIYMode(0)"
-          class="button is-small{{if eq .DIYMode 0}} is-link is-selected{{end}}">
-          <span class="icon is-small"><i class="fas fa-hard-hat"></i></span><span>Full Service</span>
+        {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+          {{if not .AcceptDate.IsZero}}
+          <span class="est-date-note">Accepted {{.AcceptDate.Format "Jan 2, 2006"}}</span>
+          {{else}}
+            {{if not .ExpirationDate.IsZero}}
+            <span class="est-date-note">Expires {{.ExpirationDate.Format "Jan 2, 2006"}}</span>
+            {{end}}
+          {{end}}
+        {{end}}
+      </div>
+      {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+      <p class="est-date-note">Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
+      {{end}}
+    </div>
+    {{if .TotalCost}}
+    <div class="est-total-callout">
+      <p class="est-total-label">Estimated Total</p>
+      <p class="est-total-amount" id="header-total">{{formatCost .TotalCost}}</p>
+      <p class="est-total-note">Incl. {{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} sales tax</p>
+    </div>
+    {{end}}
+  </div>
+
+  {{/* ── TIER TOGGLE ── */}}
+  {{if not .IsPublicView}}
+  <div class="est-tier-bar">
+    <span class="est-tier-label">Service Tier</span>
+    <div class="est-tier-group">
+      <button type="button" id="mode-btn-0" onclick="setDIYMode(0)"
+        class="est-tier-btn{{if eq .DIYMode 0}} tier-active-full{{end}}">
+        <i class="fas fa-hard-hat"></i> Full Service
+      </button>
+      <button type="button" id="mode-btn-1" onclick="setDIYMode(1)"
+        class="est-tier-btn{{if eq .DIYMode 1}} tier-active-plans{{end}}">
+        <i class="fas fa-tools"></i> Plans + Materials
+      </button>
+      <button type="button" id="mode-btn-2" onclick="setDIYMode(2)"
+        class="est-tier-btn{{if eq .DIYMode 2}} tier-active-diy{{end}}">
+        <i class="fas fa-drafting-compass"></i> Plans Only
+      </button>
+    </div>
+  </div>
+  {{end}}
+
+  {{/* ── ACTION BAR ── */}}
+  {{if .TotalCost}}
+  <form method="post" action="/estimate" style="margin-bottom:.85rem;">
+    <input type="hidden" name="save" value="true">
+    <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
+    <input type="hidden" name="sections" id="save-sections" value="">
+    <input type="hidden" name="railOverride" id="save-rail-override" value="{{.RailFeetOverride}}">
+    <input type="hidden" name="height" id="save-height" value="{{.Height}}">
+    <input type="hidden" name="material" id="save-material" value="{{.Material}}">
+    <input type="hidden" name="railMaterial" id="save-rail-material" value="{{.RailMaterial}}">
+    <input type="hidden" name="railInfill" id="save-rail-infill" value="{{.RailInfill}}">
+    <input type="hidden" name="stairWidth" id="save-stair-width" value="{{.StairWidth}}">
+    <input type="hidden" name="stairRailCount" id="save-stair-rail-count" value="{{.StairRailCount}}">
+    <input type="hidden" name="hasDemo" id="save-has-demo" value="{{.HasDemo}}">
+    <input type="hidden" name="hasFascia" id="save-has-fascia" value="{{.HasFascia}}">
+    <input type="hidden" name="hasStairFascia" id="save-has-stair-fascia" value="{{.HasStairFascia}}">
+    <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
+    <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
+    <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
+    <input type="hidden" name="customItems" id="save-custom-items" value="">
+    <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
+
+    <div class="est-action-bar">
+      {{if and .AcceptDate.IsZero (not .IsPublicView)}}
+      <button id="btn-save" class="est-btn est-btn-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
+        <i class="fas fa-save"></i> Save Estimate
+      </button>
+      {{end}}
+      {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
+      <button id="btn-email" class="est-btn" type="button"
+        onclick="document.getElementById('email-modal').classList.add('is-active')">
+        <i class="fas fa-envelope"></i> Email
+      </button>
+      {{end}}
+      {{if and (not .SaveDate.IsZero) (or $.Header.IsAdmin (eq $.Header.Role "contractor"))}}
+      <button id="btn-materials" class="est-btn" type="button" onclick="generateMaterials()">
+        <i class="fas fa-hammer"></i> Generate Materials
+      </button>
+      {{end}}
+      <button id="btn-print" class="est-btn" type="button" onclick="window.print()">
+        <i class="fas fa-print"></i> Print
+      </button>
+      {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
+        {{if or (eq $.Header.Role "homeowner") .IsPublicView}}
+        <button id="btn-accept" class="est-btn est-btn-success" type="button"
+          onclick="document.getElementById('accept-confirm').classList.add('is-active')">
+          <i class="fas fa-check"></i> Accept Estimate
         </button>
-        <button type="button" id="mode-btn-1" onclick="setDIYMode(1)"
-          class="button is-small{{if eq .DIYMode 1}} is-success is-selected{{end}}">
-          <span class="icon is-small"><i class="fas fa-tools"></i></span><span>Plans + Materials</span>
-        </button>
-        <button type="button" id="mode-btn-2" onclick="setDIYMode(2)"
-          class="button is-small{{if eq .DIYMode 2}} is-warning is-selected{{end}}">
-          <span class="icon is-small"><i class="fas fa-drafting-compass"></i></span><span>Plans Only</span>
-        </button>
+        {{end}}
+      {{end}}
+      <div id="unsaved-msg" class="est-unsaved-note">
+        <i class="fas fa-exclamation-triangle"></i> Unsaved changes — save to enable other actions.
+      </div>
+    </div>
+  </form>
+  {{if not .AcceptDate.IsZero}}
+  <p class="mb-3" style="color:var(--est-accent); font-size:.85rem; font-weight:500;">
+    <i class="fas fa-check-circle"></i> Accepted on {{.AcceptDate.Format "Jan 2, 2006"}}
+  </p>
+  {{end}}
+  {{end}}
+
+  {{if .TotalCost}}
+
+  {{/* ── PARTY CARDS ── */}}
+  <div class="est-parties">
+    <div class="est-party-card">
+      <p class="est-party-role">From</p>
+      {{if .Contractor.CompanyName}}
+      <p class="est-party-name">{{.Contractor.CompanyName}}</p>
+      <div class="est-party-detail">
+        {{if .Contractor.Phone}}<div>{{.Contractor.Phone}}</div>{{end}}
+        {{if .Contractor.Website}}<div><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></div>{{end}}
+        {{if .Contractor.LicenseNum}}<div>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</div>{{end}}
+      </div>
+      {{else}}
+      <p class="est-party-name">Columbia Outdoor</p>
+      <div class="est-party-detail">
+        <div>(360) 787-8062</div>
+        <div>columbiaoutdoor.com</div>
       </div>
       {{end}}
-      {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
-      <p class="has-text-grey is-size-7">
-        Version {{.Version}} &mdash; Last Updated: {{.SaveDate.Format "2006-01-02"}}
-        {{if .AcceptDate.IsZero}}
-          {{if not .ExpirationDate.IsZero}}&mdash; Expires: {{.ExpirationDate.Format "2006-01-02"}}{{end}}
-        {{else}}
-          &mdash; Accepted {{.AcceptDate.Format "2006-01-02"}}
+    </div>
+
+    <div class="est-party-card">
+      <p class="est-party-role">
+        <span>{{if eq $.Header.Role "contractor"}}Customer{{else}}Prepared For{{end}}</span>
+        {{if not .IsPublicView}}
+          {{if eq .Customer.FirstName ""}}
+          <a href="/customer" class="est-party-edit" style="color:var(--est-red); border-color:#f5c6c2;">
+            {{if eq $.Header.Role "contractor"}}+ Add Customer{{else}}+ Add Your Info{{end}}
+          </a>
+          {{else if .AcceptDate.IsZero}}
+          <a href="/customer" class="est-party-edit">Edit</a>
+          {{end}}
         {{end}}
       </p>
+      {{if or .Customer.FirstName .Customer.LastName}}
+      <p class="est-party-name">{{.Customer.FirstName}} {{.Customer.LastName}}</p>
+      {{else}}
+      <p class="est-party-missing">No customer info added yet</p>
       {{end}}
-    </div>
-    {{if .Error}}
-    <div class="notification is-danger mb-4"><p>{{.Error}}</p></div>
-    {{end}}
-
-    <!-- Action Bar -->
-    {{if .TotalCost}}
-    <div class="box mb-4 py-3">
-      <form method="post" action="/estimate" style="display:inline;">
-        <input type="hidden" name="save" value="true">
-        <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
-        <input type="hidden" name="sections" id="save-sections" value="">
-        <input type="hidden" name="railOverride" id="save-rail-override" value="{{.RailFeetOverride}}">
-        <input type="hidden" name="height" id="save-height" value="{{.Height}}">
-        <input type="hidden" name="material" id="save-material" value="{{.Material}}">
-        <input type="hidden" name="railMaterial" id="save-rail-material" value="{{.RailMaterial}}">
-        <input type="hidden" name="railInfill" id="save-rail-infill" value="{{.RailInfill}}">
-        <input type="hidden" name="stairWidth" id="save-stair-width" value="{{.StairWidth}}">
-        <input type="hidden" name="stairRailCount" id="save-stair-rail-count" value="{{.StairRailCount}}">
-        <input type="hidden" name="hasDemo" id="save-has-demo" value="{{.HasDemo}}">
-        <input type="hidden" name="hasFascia" id="save-has-fascia" value="{{.HasFascia}}">
-        <input type="hidden" name="hasStairFascia" id="save-has-stair-fascia" value="{{.HasStairFascia}}">
-        <input type="hidden" name="hasStairTK" id="save-has-stair-tk" value="{{.HasStairTK}}">
-        <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
-        <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
-        <input type="hidden" name="customItems" id="save-custom-items" value="">
-        <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
-        <div class="buttons">
-          {{if and .AcceptDate.IsZero (not .IsPublicView)}}
-          <button id="btn-save" class="button is-primary" type="submit" {{if gt .EstimateID 0}}style="display:none;"{{end}}>
-            <span class="icon"><i class="fas fa-save"></i></span><span>Save Estimate</span>
-          </button>
-          {{end}}
-          {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
-          <button id="btn-email" class="button is-info" type="button"
-            onclick="document.getElementById('email-modal').classList.add('is-active')">
-            <span class="icon"><i class="fas fa-envelope"></i></span><span>Email Estimate</span>
-          </button>
-          {{end}}
-          {{if and (not .SaveDate.IsZero) (or $.Header.IsAdmin (eq $.Header.Role "contractor"))}}
-          <button id="btn-materials" class="button is-warning" type="button" onclick="generateMaterials()">
-            <span class="icon"><i class="fas fa-hammer"></i></span><span>Generate Materials</span>
-          </button>
-          {{end}}
-          <button id="btn-print" class="button is-light" type="button" onclick="window.print()">
-            <span class="icon"><i class="fas fa-print"></i></span><span>Print</span>
-          </button>
-          {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
-            {{if or (eq $.Header.Role "homeowner") .IsPublicView}}
-            <button id="btn-accept" class="button is-success" type="button"
-              onclick="document.getElementById('accept-confirm').classList.add('is-active')">
-              <span class="icon"><i class="fas fa-check"></i></span><span>Accept Estimate</span>
-            </button>
-            {{end}}
-          {{end}}
-        </div>
-        <span id="unsaved-msg" style="display:none;" class="has-text-warning has-text-weight-semibold">
-          <span class="icon"><i class="fas fa-exclamation-triangle"></i></span> Unsaved changes — save to enable other actions.
-        </span>
-      </form>
-      {{if not .AcceptDate.IsZero}}
-      <p class="has-text-success"><span class="icon"><i class="fas fa-check-circle"></i></span>
-        Accepted on {{.AcceptDate.Format "2006-01-02"}}</p>
-      {{end}}
-    </div>
-    {{end}}
-    {{if .TotalCost}}
-
-    <!-- Contractor / Customer side by side -->
-    <div class="box mt-4">
-      <div style="display:flex; gap:2rem; flex-wrap:wrap;">
-
-        <div style="flex:1; min-width:200px;">
-          <p class="has-text-weight-bold mb-2">Contractor</p>
-          <div class="content is-small">
-            {{if .Contractor.CompanyName}}
-              <p><strong>{{.Contractor.CompanyName}}</strong></p>
-              {{if .Contractor.Phone}}<p>{{.Contractor.Phone}}</p>{{end}}
-              {{if .Contractor.Website}}<p><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></p>{{end}}
-              {{if .Contractor.LicenseNum}}<p>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</p>{{end}}
-            {{else}}
-              <p><strong>Columbia Outdoor</strong></p>
-              <p>(360) 787-8062</p>
-              <p>columbiaoutdoor.com</p>
-            {{end}}
-          </div>
-        </div>
-
-        <div style="flex:1; min-width:200px;">
-          <p class="has-text-weight-bold mb-2">
-            {{if eq $.Header.Role "contractor"}}Customer{{else}}Your Information{{end}}
-            {{if not .IsPublicView}}
-              {{if eq .Customer.FirstName ""}}
-                <a href="/customer" class="button is-danger is-small ml-3">
-                  {{if eq $.Header.Role "contractor"}}Add Customer{{else}}Add Your Info{{end}}
-                </a>
-              {{else if .AcceptDate.IsZero}}
-                <a href="/customer" class="button is-primary is-small ml-3">Edit</a>
-              {{end}}
-            {{end}}
-          </p>
-          <div class="content is-small">
-            {{if or .Customer.FirstName .Customer.LastName}}<p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>{{end}}
-            {{if .Customer.Address}}<p>{{.Customer.Address}}</p>{{end}}
-            {{if or .Customer.City .Customer.State}}<p>{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}</p>{{end}}
-            {{if .Customer.PhoneNumber}}<p>{{.Customer.PhoneNumber}}</p>{{end}}
-            {{if .Customer.Email}}<p>{{.Customer.Email}}</p>{{end}}
-          </div>
-        </div>
-
+      <div class="est-party-detail">
+        {{if .Customer.Address}}<div>{{.Customer.Address}}</div>{{end}}
+        {{if or .Customer.City .Customer.State}}<div>{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}</div>{{end}}
+        {{if .Customer.PhoneNumber}}<div>{{.Customer.PhoneNumber}}</div>{{end}}
+        {{if .Customer.Email}}<div>{{.Customer.Email}}</div>{{end}}
       </div>
     </div>
+  </div>
 
-    <div class="box mt-3">
-        <p class="has-text-white has-background-black px-3 py-2 mb-3"><strong>Scope of Work — {{if eq .DIYMode 1}}Plans + Materials{{else if eq .DIYMode 2}}Plans Only{{else}}Full Service{{end}}</strong></p>
-        <div>
-        <div class="columns is-multiline">
-            <div class="column is-2"><strong>Item</strong></div>
-            <div class="column is-1"></div>
-            <div class="column is-7"><strong>Description</strong></div>
-            <div class="column is-2 has-text-right"><strong>Cost</strong></div>
-
-            <div class="column is-2">Description</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<a href="#" onclick="openDescModal(); return false;" title="Edit description">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>{{end}}
-            </div>
-            <div class="column is-7">
-              <span id="desc-display">{{.Desc}}</span>
-            </div>
-            <div class="column is-2 has-text-right"></div>
-
-            <div class="column is-2">Demo</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<input id="demo-check" type="checkbox" {{if .HasDemo}}checked{{end}}
-                onchange="toggleDemo(this.checked)" title="Toggle demo">{{end}}
-            </div>
-            <div class="column is-7" id="demo-desc">{{formatDemoDescription .}}</div>
-            <div class="column is-2 has-text-right" id="demo-cost">{{formatCost .DemoCost}}</div>
-
-            <div class="column is-2">Deck</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<a href="#" onclick="openDeckModal(); return false;" title="Edit deck">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>{{end}}
-            </div>
-            <div class="column is-7" id="deck-desc">{{formatDeckDescription .}}</div>
-            <div class="column is-2 has-text-right" id="deck-cost">{{formatCost .DeckCost}}</div>
-
-            <div class="column is-2">Rail</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<a href="#" onclick="openRailModal(); return false;" title="Edit rails">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>{{end}}
-            </div>
-            <div class="column is-7" id="rail-desc">{{formatRailDescription .}}</div>
-            <div class="column is-2 has-text-right" id="rail-cost">{{formatCost .RailCost}}</div>
-
-            <div class="column is-2">Fascia</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<input id="fascia-check" type="checkbox" {{if .HasFascia}}checked{{end}}
-                onchange="toggleFascia(this.checked)" title="Toggle fascia">{{end}}
-            </div>
-            <div class="column is-7" id="fascia-desc">{{formatFasciaDescription .}}</div>
-            <div class="column is-2 has-text-right" id="fascia-cost">{{formatCost .FasciaCost}}</div>
-
-            <div class="column is-2">Stairs</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<a href="#" onclick="openStairModal(); return false;" title="Edit stairs">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>{{end}}
-            </div>
-            <div class="column is-7" id="stair-desc">{{formatStairDescription .}}</div>
-            <div class="column is-2 has-text-right" id="stair-cost">{{formatCost .StairCost}}</div>
-
-            <div class="column is-2">Stair Rails</div>
-            <div class="column is-1">
-              {{if and (gt .StairWidth 0.0) (not .IsPublicView)}}
-              <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" title="Edit stair rails">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>
-              {{end}}
-            </div>
-            <div class="column is-7" id="stairrail-desc">{{formatStairRailDescription .}}</div>
-            <div class="column is-2 has-text-right" id="stairrail-cost">{{formatCost .StairRailCost}}</div>
-
-            <div class="column is-2">Stair Fascia</div>
-            <div class="column is-1">
-              {{if gt .StairWidth 0.0}}
-              {{if not .IsPublicView}}<input id="stairfascia-check" type="checkbox" {{if .HasStairFascia}}checked{{end}}
-                onchange="toggleStairFascia(this.checked)" title="Toggle stair fascia">{{end}}
-              {{end}}
-            </div>
-            <div class="column is-7" id="stairfascia-desc">{{formatStairFasciaDescription .}}</div>
-            <div class="column is-2 has-text-right" id="stairfascia-cost">{{formatCost .StairFasciaCost}}</div>
-
-            <div class="column is-2">Stair Toe Kicks</div>
-            <div class="column is-1">
-              {{if gt .StairWidth 0.0}}
-              {{if not .IsPublicView}}<input id="stairtk-check" type="checkbox" {{if .HasStairTK}}checked{{end}}
-                onchange="toggleStairTK(this.checked)" title="Toggle stair toe kicks">{{end}}
-              {{end}}
-            </div>
-            <div class="column is-7" id="stairtk-desc">{{formatStairTKDescription .}}</div>
-            <div class="column is-2 has-text-right" id="stairtk-cost">{{formatCost .StairToeKickCost}}</div>
-
-            <div class="column is-2">Design &amp; Permits</div>
-            <div class="column is-1">
-              {{if not .IsPublicView}}<a href="#" onclick="openPermitModal(); return false;" title="Edit design &amp; permits">
-                <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-              </a>{{end}}
-            </div>
-            <div class="column is-7" id="permit-desc">{{formatPermitDescription .}}</div>
-            <div class="column is-2 has-text-right" id="permit-cost">{{formatCost .PermitCost}}</div>
-
-            <!-- Custom line items — rendered by JS -->
-            <div id="custom-items-rows" style="display:contents;"></div>
-            {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}
-            <div class="column is-12 pt-1 pb-2">
-              <button type="button" class="button is-small is-light" onclick="openCustomItemModal()">
-                <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                <span>Add Custom Line</span>
-              </button>
-            </div>
-            {{end}}
-
-            <div class="column is-2 has-text-weight-semibold">Subtotal</div>
-            <div class="column is-8 has-text-weight-semibold"></div>
-            <div class="column is-2 has-text-weight-semibold has-text-right" id="subtotal-val">{{formatCost .Subtotal}}</div>
-
-            {{if not .IsPublicView}}
-            <div class="column is-2">Discount Code</div>
-            <div class="column is-8">
-              <div class="field has-addons">
-                <div class="control">
-                  <input class="input is-small" type="text" id="discount-code-input" placeholder="Enter promo code"
-                    value="{{.DiscountCode}}"
-                    onkeydown="if(event.key==='Enter'){applyDiscountCode();event.preventDefault();}">
-                </div>
-                <div class="control">
-                  <button class="button is-small is-info" type="button" onclick="applyDiscountCode()">Apply</button>
-                </div>
-              </div>
-              <p id="discount-msg" class="help"></p>
-            </div>
-            <div class="column is-2"></div>
-            {{end}}
-
-            <div class="column is-2 has-text-success" id="discount-row-label" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>Discount</div>
-            <div class="column is-8 has-text-success" id="discount-desc" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>{{if .DiscountCode}}{{.DiscountCode}} — 10% off{{end}}</div>
-            <div class="column is-2 has-text-right has-text-success" id="discount-val" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>{{if gt .DiscountAmount 0.0}}-{{formatCost .DiscountAmount}}{{end}}</div>
-
-            <div class="column is-2">Sales Tax</div>
-            <div class="column is-8">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax.</div>
-            <div class="column is-2 has-text-right" id="salestax-val">{{formatCost .SalesTax}}</div>
-            <div class="column is-2 has-text-weight-semibold has-background-grey-dark has-text-white"><strong class="is-size-4 has-text-white">Total</strong></div>
-            <div class="column is-8 has-text-weight-semibold has-background-grey-dark"> </div>
-            <div class="column is-2 has-text-weight-semibold has-text-right has-background-grey-dark has-text-white"><strong class="is-size-4 has-text-white" id="total-val">{{formatCost .TotalCost}}</strong></div>
-        </div>
-        </div>
+  {{/* ── SCOPE TABLE ── */}}
+  <div class="est-scope-card">
+    <div class="est-scope-head">
+      <span class="est-scope-title">Scope of Work</span>
+      <span class="est-tier-badge {{if eq .DIYMode 1}}badge-plans{{else if eq .DIYMode 2}}badge-diy{{else}}badge-full{{end}}" id="scope-tier-badge">
+        {{if eq .DIYMode 1}}Plans + Materials{{else if eq .DIYMode 2}}Plans Only{{else}}Full Service{{end}}
+      </span>
     </div>
-    {{end}}
-    {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
-    <div class="content mt-4">
-        <h2 class="subtitle">Terms and Conditions</h2>
-        {{if .TermsHTML}}
-        <div class="content is-small">{{.TermsHTML}}</div>
-        {{else}}
-        <pre class="is-size-7">{{.Terms}}</pre>
+    <div class="est-scope-table-wrap">
+    <table class="est-line-items">
+      <colgroup>
+        <col class="col-item">
+        <col class="col-ctl">
+        <col>
+        <col class="col-cost">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th></th>
+          <th>Description</th>
+          <th class="th-cost">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {{/* Demo */}}
+        <tr id="demo-row"{{if not .HasDemo}} class="zero-row"{{end}}>
+          <td class="td-item">Demo</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<input id="demo-check" type="checkbox" class="est-check" {{if .HasDemo}}checked{{end}}
+              onchange="toggleDemo(this.checked)">{{end}}
+          </td>
+          <td class="td-desc" id="demo-desc">{{formatDemoDescription .}}</td>
+          <td class="td-cost" id="demo-cost">{{formatCost .DemoCost}}</td>
+        </tr>
+
+        {{/* Deck */}}
+        <tr id="deck-row">
+          <td class="td-item">Deck</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<a href="#" onclick="openDeckModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
+          </td>
+          <td class="td-desc" id="deck-desc">{{formatDeckDescription .}}</td>
+          <td class="td-cost" id="deck-cost">{{formatCost .DeckCost}}</td>
+        </tr>
+
+        {{/* Rail */}}
+        <tr id="rail-row">
+          <td class="td-item">Rail</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<a href="#" onclick="openRailModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
+          </td>
+          <td class="td-desc" id="rail-desc">{{formatRailDescription .}}</td>
+          <td class="td-cost" id="rail-cost">{{formatCost .RailCost}}</td>
+        </tr>
+
+        {{/* Fascia */}}
+        <tr id="fascia-row"{{if not .HasFascia}} class="zero-row"{{end}}>
+          <td class="td-item">Fascia</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<input id="fascia-check" type="checkbox" class="est-check" {{if .HasFascia}}checked{{end}}
+              onchange="toggleFascia(this.checked)">{{end}}
+          </td>
+          <td class="td-desc" id="fascia-desc">{{formatFasciaDescription .}}</td>
+          <td class="td-cost" id="fascia-cost">{{formatCost .FasciaCost}}</td>
+        </tr>
+
+        {{/* Stairs */}}
+        <tr id="stairs-row"{{if eq .StairWidth 0.0}} class="zero-row"{{end}}>
+          <td class="td-item">Stairs</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<a href="#" onclick="openStairModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
+          </td>
+          <td class="td-desc" id="stair-desc">{{formatStairDescription .}}</td>
+          <td class="td-cost" id="stair-cost">{{formatCost .StairCost}}</td>
+        </tr>
+
+        {{/* Stair Rails */}}
+        <tr id="stairrail-row"{{if or (eq .StairWidth 0.0) (eq .StairRailCount 0.0)}} class="zero-row"{{end}}>
+          <td class="td-item">Stair Rails</td>
+          <td class="td-ctl">
+            {{if and (gt .StairWidth 0.0) (not .IsPublicView)}}
+            <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+            {{end}}
+          </td>
+          <td class="td-desc" id="stairrail-desc">{{formatStairRailDescription .}}</td>
+          <td class="td-cost" id="stairrail-cost">{{formatCost .StairRailCost}}</td>
+        </tr>
+
+        {{/* Stair Fascia */}}
+        <tr id="stairfascia-row"{{if or (eq .StairWidth 0.0) (not .HasStairFascia)}} class="zero-row"{{end}}>
+          <td class="td-item">Stair Fascia</td>
+          <td class="td-ctl">
+            {{if gt .StairWidth 0.0}}
+            {{if not .IsPublicView}}<input id="stairfascia-check" type="checkbox" class="est-check" {{if .HasStairFascia}}checked{{end}}
+              onchange="toggleStairFascia(this.checked)">{{end}}
+            {{end}}
+          </td>
+          <td class="td-desc" id="stairfascia-desc">{{formatStairFasciaDescription .}}</td>
+          <td class="td-cost" id="stairfascia-cost">{{formatCost .StairFasciaCost}}</td>
+        </tr>
+
+        {{/* Stair Toe Kicks */}}
+        <tr id="stairtk-row"{{if or (eq .StairWidth 0.0) (not .HasStairTK)}} class="zero-row"{{end}}>
+          <td class="td-item">Stair Toe Kicks</td>
+          <td class="td-ctl">
+            {{if gt .StairWidth 0.0}}
+            {{if not .IsPublicView}}<input id="stairtk-check" type="checkbox" class="est-check" {{if .HasStairTK}}checked{{end}}
+              onchange="toggleStairTK(this.checked)">{{end}}
+            {{end}}
+          </td>
+          <td class="td-desc" id="stairtk-desc">{{formatStairTKDescription .}}</td>
+          <td class="td-cost" id="stairtk-cost">{{formatCost .StairToeKickCost}}</td>
+        </tr>
+
+        {{/* Design & Permits */}}
+        <tr id="permit-row">
+          <td class="td-item">Design &amp; Permits</td>
+          <td class="td-ctl">
+            {{if not .IsPublicView}}<a href="#" onclick="openPermitModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
+          </td>
+          <td class="td-desc" id="permit-desc">{{formatPermitDescription .}}</td>
+          <td class="td-cost" id="permit-cost">{{formatCost .PermitCost}}</td>
+        </tr>
+
+        {{/* Custom line items */}}
+      </tbody>
+      <tbody id="custom-items-rows"></tbody>
+      <tbody>
+        {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}
+        <tr class="est-add-custom-row">
+          <td colspan="4">
+            <button type="button" class="est-add-custom-btn" onclick="openCustomItemModal()">
+              <i class="fas fa-plus"></i> Add Custom Line
+            </button>
+          </td>
+        </tr>
         {{end}}
-    </div>
+
+        {{/* Subtotal */}}
+        <tr class="est-subtotal-row">
+          <td class="td-item">Subtotal</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc"></td>
+          <td class="td-cost" id="subtotal-val">{{formatCost .Subtotal}}</td>
+        </tr>
+
+        {{/* Promo code (edit view only) */}}
+        {{if not .IsPublicView}}
+        <tr class="est-promo-row">
+          <td class="td-item" style="color:var(--est-text2); font-weight:400; font-size:.8rem;">Promo Code</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">
+            <div class="est-promo-wrap">
+              <input class="est-promo-input" type="text" id="discount-code-input" placeholder="Enter promo code"
+                value="{{.DiscountCode}}"
+                onkeydown="if(event.key==='Enter'){applyDiscountCode();event.preventDefault();}">
+              <button class="est-promo-btn" type="button" onclick="applyDiscountCode()">Apply</button>
+            </div>
+            <p id="discount-msg" class="help"></p>
+          </td>
+          <td class="td-cost"></td>
+        </tr>
+        {{end}}
+
+        {{/* Discount row */}}
+        <tr id="discount-row-label" class="est-discount-row" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>
+          <td class="td-item">Discount</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc" id="discount-desc">{{if .DiscountCode}}{{.DiscountCode}} — 10% off{{end}}</td>
+          <td class="td-cost" id="discount-val">{{if gt .DiscountAmount 0.0}}-{{formatCost .DiscountAmount}}{{end}}</td>
+        </tr>
+
+        {{/* Sales Tax */}}
+        <tr class="est-tax-row">
+          <td class="td-item">Sales Tax</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (Estimated) sales tax</td>
+          <td class="td-cost" id="salestax-val">{{formatCost .SalesTax}}</td>
+        </tr>
+
+        {{/* Total */}}
+        <tr class="est-total-row">
+          <td class="td-item">Total</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">
+            {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
+          </td>
+          <td class="td-cost" id="total-val">{{formatCost .TotalCost}}</td>
+        </tr>
+
+      </tbody>
+    </table>
+    </div>{{/* end scope-table-wrap */}}
+  </div>{{/* end scope-card */}}
+
+  {{end}}{{/* end if .TotalCost */}}
+
+  {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
+  <div class="content mt-4">
+    <h2 class="subtitle">Terms and Conditions</h2>
+    {{if .TermsHTML}}
+    <div class="content is-small">{{.TermsHTML}}</div>
+    {{else}}
+    <pre class="is-size-7">{{.Terms}}</pre>
     {{end}}
-    <!-- The Modal (embedded, not separate page) -->
-    {{if gt .EstimateID 0}}
-    <!-- Email Confirmation Modal -->
-<div id="email-modal" class="modal">
+  </div>
+  {{end}}
+
+  {{/* ── MODALS (unchanged) ── */}}
+  {{if gt .EstimateID 0}}
+  <div id="email-modal" class="modal">
     <input type="hidden" id="estimate-id" value="{{ .EstimateID }}">
     <div class="modal-background" onclick="document.getElementById('email-modal').classList.remove('is-active')"></div>
     <div class="modal-card">
-        <header class="modal-card-head">
-            <p class="modal-card-title">Send Estimate via Email</p>
-            <button class="delete" aria-label="close" onclick="document.getElementById('email-modal').classList.remove('is-active')"></button>
-        </header>
-        <section class="modal-card-body">
-            <div class="field">
-                <label class="label">Send estimate to:</label>
-                <div class="control">
-                    <input class="input" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
-                </div>
-            </div>
-            {{if $.Header.IsAuthenticated}}
-            <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox" id="cc-self-check">
-                    Also send a copy to me ({{$.Header.Email}})
-                </label>
-            </div>
-            {{end}}
-        </section>
-        <footer class="modal-card-foot">
-            <button class="button is-success" onclick="confirmEmailSend()">Confirm & Send</button>
-            <button class="button" onclick="document.getElementById('email-modal').classList.remove('is-active')">Cancel</button>
-        </footer>
+      <header class="modal-card-head">
+        <p class="modal-card-title">Send Estimate via Email</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('email-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Send estimate to:</label>
+          <div class="control">
+            <input class="input" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
+          </div>
+        </div>
+        {{if $.Header.IsAuthenticated}}
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" id="cc-self-check">
+            Also send a copy to me ({{$.Header.Email}})
+          </label>
+        </div>
+        {{end}}
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" onclick="confirmEmailSend()">Confirm &amp; Send</button>
+        <button class="button" onclick="document.getElementById('email-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
     </div>
-</div>
-    {{ else }}
-    <div id="emailModal">
-        <P></P>
+  </div>
+  {{else}}
+  <div id="emailModal"><p></p></div>
+  {{end}}
+
+  <div id="accept-confirm" class="modal">
+    <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:400px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Accept Estimate</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('accept-confirm').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <p>By accepting this estimate you agree to the terms and conditions and authorize Columbia Outdoor to proceed with the project as described.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <form method="post" action="{{if .AcceptURL}}{{.AcceptURL}}{{else}}/estimate{{end}}">
+          <input type="hidden" name="accept" value="true">
+          <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
+          <button class="button is-success" type="submit">Yes, Accept Estimate</button>
+        </form>
+        <button class="button" onclick="document.getElementById('accept-confirm').classList.remove('is-active')">Cancel</button>
+      </footer>
     </div>
-    {{ end }}
-
-<!-- Accept Confirmation Modal -->
-<div id="accept-confirm" class="modal">
-  <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:400px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Accept Estimate</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('accept-confirm').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <p>By accepting this estimate you agree to the terms and conditions and authorize Columbia Outdoor to proceed with the project as described.</p>
-    </section>
-    <footer class="modal-card-foot">
-      <form method="post" action="{{if .AcceptURL}}{{.AcceptURL}}{{else}}/estimate{{end}}">
-        <input type="hidden" name="accept" value="true">
-        <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
-        <button class="button is-success" type="submit">Yes, Accept Estimate</button>
-      </form>
-      <button class="button" onclick="document.getElementById('accept-confirm').classList.remove('is-active')">Cancel</button>
-    </footer>
   </div>
-</div>
 
-<!-- Description Modal -->
-<div id="desc-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:400px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Project Description</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <div class="control">
-          <input id="desc-modal-input" class="input" type="text" maxlength="50"
-            placeholder="e.g. Back yard deck, master bedroom deck...">
-        </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyDesc()">Apply</button>
-      <button class="button" onclick="document.getElementById('desc-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
-  </div>
-</div>
-
-<!-- Deck / Sections Modal -->
-<div id="deck-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:520px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Deck Sections &amp; Options</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-
-      <!-- Sections table -->
-      <label class="label">Deck Sections</label>
-      <table class="table is-fullwidth is-narrow mb-2" id="sections-table">
-        <thead>
-          <tr><th>Label</th><th>Projection (ft)</th><th>Width (ft)</th><th>Area</th><th></th></tr>
-        </thead>
-        <tbody id="sections-body"></tbody>
-      </table>
-      <button class="button is-small is-info mb-4" type="button" onclick="addSection()">
-        <span class="icon"><i class="fas fa-plus"></i></span><span>Add Section</span>
-      </button>
-      <p class="help mb-4">Total area: <strong id="total-area-preview">0 sq ft</strong></p>
-
-      <!-- Height and material -->
-      <div class="field">
-        <label class="label">Height above grade (ft)</label>
-        <div class="control">
-          <input id="deck-height" class="input" type="number" step="0.5" min="0" placeholder="e.g. 3">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Finish Level</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="deck-material">
-              <option value="outdoorWood">Economy — Pressure Treated $</option>
-              <option value="cedar">Standard — Cedar $$</option>
-              <option value="timberTechPrime">Enhanced — Composite $$$</option>
-              <option value="timberTechProReserve">Premium — Composite Reserve $$$$</option>
-              <option value="timberTechProLegacy">Premier — Composite Legacy $$$$$</option>
-            </select>
+  <div id="desc-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:400px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Project Description</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('desc-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <div class="control">
+            <input id="desc-modal-input" class="input" type="text" maxlength="50"
+              placeholder="e.g. Back yard deck, master bedroom deck...">
           </div>
         </div>
-      </div>
-
-      <!-- Rail footage override -->
-      <div class="field">
-        <label class="label">Rail Linear Footage
-          <span class="has-text-grey is-size-7 has-text-weight-normal ml-2">(leave 0 to auto-calculate from main section)</span>
-        </label>
-        <div class="control">
-          <input id="rail-override" class="input" type="number" step="0.5" min="0" placeholder="e.g. 52">
-        </div>
-      </div>
-
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyDeck()">Apply</button>
-      <button class="button" onclick="document.getElementById('deck-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyDesc()">Apply</button>
+        <button class="button" onclick="document.getElementById('desc-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
   </div>
-</div>
 
-<!-- Rail Modal -->
-<div id="rail-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:360px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Rail Options</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Rail Material</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="rail-material-select" onchange="toggleRailInfill()">
-              <option value="">No Rails</option>
-              <option value="wood">Wood</option>
-              <option value="aluminum">Aluminum</option>
-              <option value="composite">Composite</option>
-            </select>
+  <div id="deck-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:520px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Deck Sections &amp; Options</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('deck-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <label class="label">Deck Sections</label>
+        <table class="table is-fullwidth is-narrow mb-2" id="sections-table">
+          <thead>
+            <tr><th>Label</th><th>Projection (ft)</th><th>Width (ft)</th><th>Area</th><th></th></tr>
+          </thead>
+          <tbody id="sections-body"></tbody>
+        </table>
+        <button class="button is-small is-info mb-4" type="button" onclick="addSection()">
+          <span class="icon"><i class="fas fa-plus"></i></span><span>Add Section</span>
+        </button>
+        <p class="help mb-4">Total area: <strong id="total-area-preview">0 sq ft</strong></p>
+        <div class="field">
+          <label class="label">Height above grade (ft)</label>
+          <div class="control">
+            <input id="deck-height" class="input" type="number" step="0.5" min="0" placeholder="e.g. 3">
           </div>
         </div>
-      </div>
-      <div class="field" id="rail-infill-field">
-        <label class="label">Rail Infill</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="rail-infill-select">
-              <option value="balusters">Balusters</option>
-              <option value="cable">Cable</option>
-              <option value="glass">Glass</option>
-            </select>
+        <div class="field">
+          <label class="label">Finish Level</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="deck-material">
+                <option value="outdoorWood">Economy — Pressure Treated $</option>
+                <option value="cedar">Standard — Cedar $$</option>
+                <option value="timberTechPrime">Enhanced — Composite $$$</option>
+                <option value="timberTechProReserve">Premium — Composite Reserve $$$$</option>
+                <option value="timberTechProLegacy">Premier — Composite Legacy $$$$$</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyRail()">Apply</button>
-      <button class="button" onclick="document.getElementById('rail-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
-  </div>
-</div>
-
-<!-- Stair Rail Modal -->
-<div id="stairrail-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:320px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Stair Rails</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Number of railed sides</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="stairrail-count-select">
-              <option value="0">No Stair Rails</option>
-              <option value="1">1 Side only</option>
-              <option value="2">Both Sides</option>
-            </select>
+        <div class="field">
+          <label class="label">Rail Linear Footage
+            <span class="has-text-grey is-size-7 has-text-weight-normal ml-2">(leave 0 to auto-calculate from main section)</span>
+          </label>
+          <div class="control">
+            <input id="rail-override" class="input" type="number" step="0.5" min="0" placeholder="e.g. 52">
           </div>
         </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyStairRail()">Apply</button>
-      <button class="button" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyDeck()">Apply</button>
+        <button class="button" onclick="document.getElementById('deck-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
   </div>
-</div>
 
-<!-- Stair Width Modal -->
-<div id="stair-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:320px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Stair Width</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Select stair width</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="stair-width-select">
-              <option value="0">No Stairs</option>
-              <option value="3">3 ft</option>
-              <option value="3.5">3.5 ft</option>
-              <option value="4">4 ft</option>
-              <option value="4.5">4.5 ft</option>
-              <option value="5">5 ft</option>
-              <option value="5.5">5.5 ft</option>
-              <option value="6">6 ft</option>
-              <option value="6.5">6.5 ft</option>
-              <option value="7">7 ft</option>
-              <option value="7.5">7.5 ft</option>
-              <option value="8">8 ft</option>
-            </select>
+  <div id="rail-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:360px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Rail Options</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('rail-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Rail Material</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="rail-material-select" onchange="toggleRailInfill()">
+                <option value="">No Rails</option>
+                <option value="wood">Wood</option>
+                <option value="aluminum">Aluminum</option>
+                <option value="composite">Composite</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyStairWidth()">Apply</button>
-      <button class="button" onclick="document.getElementById('stair-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
-  </div>
-</div>
-
-<!-- Design & Permits Modal -->
-<div id="permit-modal" class="modal">
-  <div class="modal-background" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></div>
-  <div class="modal-card" style="max-width:400px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Design &amp; Permits</p>
-      <button class="delete" aria-label="close" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Select services to include</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="permit-level-select">
-              <option value="0">Material Takeoff</option>
-              <option value="1">Design</option>
-              <option value="2">Design + Engineering</option>
-              <option value="3">Design + Engineering + Permits</option>
-            </select>
+        <div class="field" id="rail-infill-field">
+          <label class="label">Rail Infill</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="rail-infill-select">
+                <option value="balusters">Balusters</option>
+                <option value="cable">Cable</option>
+                <option value="glass">Glass</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <p class="help mt-3">Design and engineering may be required by your local jurisdiction depending on deck height and size.</p>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyPermit()">Apply</button>
-      <button class="button" onclick="document.getElementById('permit-modal').classList.remove('is-active')">Cancel</button>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyRail()">Apply</button>
+        <button class="button" onclick="document.getElementById('rail-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
   </div>
-</div>
 
-<!-- Custom Line Item Modal -->
-<div id="custom-item-modal" class="modal">
-  <div class="modal-background" onclick="closeCustomItemModal()"></div>
-  <div class="modal-card" style="max-width:420px;">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Custom Line Item</p>
-      <button class="delete" aria-label="close" onclick="closeCustomItemModal()"></button>
-    </header>
-    <section class="modal-card-body">
-      <div class="field">
-        <label class="label">Item</label>
-        <div class="control">
-          <input id="ci-item" class="input" type="text" placeholder="e.g. Concrete landing"
-            onkeydown="if(event.key==='Enter'){document.getElementById('ci-notes').focus();}">
+  <div id="stairrail-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:320px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Stair Rails</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Number of railed sides</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="stairrail-count-select">
+                <option value="0">No Stair Rails</option>
+                <option value="1">1 Side only</option>
+                <option value="2">Both Sides</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Description <span class="has-text-grey is-size-7 has-text-weight-normal">(optional)</span></label>
-        <div class="control">
-          <input id="ci-notes" class="input" type="text" placeholder="Additional details"
-            onkeydown="if(event.key==='Enter'){document.getElementById('ci-cost').focus();}">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Cost</label>
-        <div class="field has-addons mb-1">
-          <p class="control"><span class="button is-static">$</span></p>
-          <p class="control is-expanded">
-            <input id="ci-cost" class="input" type="number" step="0.01" placeholder="0.00"
-              onkeydown="if(event.key==='Enter'){applyCustomItem();}">
-          </p>
-        </div>
-        <p class="help has-text-grey">Enter a negative amount to apply a credit or discount.</p>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-primary" onclick="applyCustomItem()">Apply</button>
-      <button class="button" onclick="closeCustomItemModal()">Cancel</button>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyStairRail()">Apply</button>
+        <button class="button" onclick="document.getElementById('stairrail-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
   </div>
-</div>
 
+  <div id="stair-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:320px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Stair Width</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('stair-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Select stair width</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="stair-width-select">
+                <option value="0">No Stairs</option>
+                <option value="3">3 ft</option>
+                <option value="3.5">3.5 ft</option>
+                <option value="4">4 ft</option>
+                <option value="4.5">4.5 ft</option>
+                <option value="5">5 ft</option>
+                <option value="5.5">5.5 ft</option>
+                <option value="6">6 ft</option>
+                <option value="6.5">6.5 ft</option>
+                <option value="7">7 ft</option>
+                <option value="7.5">7.5 ft</option>
+                <option value="8">8 ft</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyStairWidth()">Apply</button>
+        <button class="button" onclick="document.getElementById('stair-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="permit-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:400px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Design &amp; Permits</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('permit-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Select services to include</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="permit-level-select">
+                <option value="0">Material Takeoff</option>
+                <option value="1">Design</option>
+                <option value="2">Design + Engineering</option>
+                <option value="3">Design + Engineering + Permits</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <p class="help mt-3">Design and engineering may be required by your local jurisdiction depending on deck height and size.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyPermit()">Apply</button>
+        <button class="button" onclick="document.getElementById('permit-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="custom-item-modal" class="modal">
+    <div class="modal-background" onclick="closeCustomItemModal()"></div>
+    <div class="modal-card" style="max-width:420px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Custom Line Item</p>
+        <button class="delete" aria-label="close" onclick="closeCustomItemModal()"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Item</label>
+          <div class="control">
+            <input id="ci-item" class="input" type="text" placeholder="e.g. Concrete landing"
+              onkeydown="if(event.key==='Enter'){document.getElementById('ci-notes').focus();}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Description <span class="has-text-grey is-size-7 has-text-weight-normal">(optional)</span></label>
+          <div class="control">
+            <input id="ci-notes" class="input" type="text" placeholder="Additional details"
+              onkeydown="if(event.key==='Enter'){document.getElementById('ci-cost').focus();}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Cost</label>
+          <div class="field has-addons mb-1">
+            <p class="control"><span class="button is-static">$</span></p>
+            <p class="control is-expanded">
+              <input id="ci-cost" class="input" type="number" step="0.01" placeholder="0.00"
+                onkeydown="if(event.key==='Enter'){applyCustomItem();}">
+            </p>
+          </div>
+          <p class="help has-text-grey">Enter a negative amount to apply a credit or discount.</p>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyCustomItem()">Apply</button>
+        <button class="button" onclick="closeCustomItemModal()">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  {{/* ── SCRIPTS ── */}}
 <script>
 function generateMaterials() {
     const estimateID = document.getElementById('estimate-id').value;
@@ -666,15 +1105,7 @@ function confirmEmailSend() {
     const emailInput = document.getElementById('email-input');
     const estimateID = document.getElementById('estimate-id').value;
     const email = emailInput.value.trim();
-
-    if (!email || !email.includes('@')) {
-        alert('Please enter a valid email address');
-        return;
-    }
-
-    // Get estimate ID from the page 
-    // const estimateID = document.getElementById('estimate-id').value;
-
+    if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
     const ccSelf = document.getElementById('cc-self-check');
     fetch(`/estimate/send/${estimateID}`, {
         method: 'POST',
@@ -697,14 +1128,11 @@ function confirmEmailSend() {
 }
 </script>
 
-    {{if .Error}}
-    <div class="notification is-danger mt-5">
-        <p>{{.Error}}</p>
-    </div>
-    {{end}}
+  {{if .Error}}
+  <div class="notification is-danger mt-5"><p>{{.Error}}</p></div>
+  {{end}}
 
 <script>
-// --- Inline description edit ---
 const estimateData = {
   description:      {{jsStr .Desc}},
   length:           {{.Length}},
@@ -746,21 +1174,29 @@ function openDescModal() {
 
 function toggleDemo(checked) {
   estimateData.hasDemo = checked;
+  const row = document.getElementById('demo-row');
+  if (row) row.classList.toggle('zero-row', !checked);
   calcAndUpdate();
 }
 
 function toggleFascia(checked) {
   estimateData.hasFascia = checked;
+  const row = document.getElementById('fascia-row');
+  if (row) row.classList.toggle('zero-row', !checked);
   calcAndUpdate();
 }
 
 function toggleStairFascia(checked) {
   estimateData.hasStairFascia = checked;
+  const row = document.getElementById('stairfascia-row');
+  if (row) row.classList.toggle('zero-row', !checked);
   calcAndUpdate();
 }
 
 function toggleStairTK(checked) {
   estimateData.hasStairTK = checked;
+  const row = document.getElementById('stairtk-row');
+  if (row) row.classList.toggle('zero-row', !checked);
   calcAndUpdate();
 }
 
@@ -787,7 +1223,9 @@ function applyDiscountCode() {
 }
 
 // --- DIY mode toggle ---
-const modeColors = ['is-link', 'is-success', 'is-warning'];
+const tierActiveClasses = ['tier-active-full', 'tier-active-plans', 'tier-active-diy'];
+const tierLabels = ['Full Service', 'Plans + Materials', 'Plans Only'];
+const tierBadgeClasses = ['badge-full', 'badge-plans', 'badge-diy'];
 
 function setDIYMode(mode) {
   estimateData.diyMode = mode;
@@ -795,8 +1233,10 @@ function setDIYMode(mode) {
   if (field) field.value = mode;
   [0, 1, 2].forEach(m => {
     const btn = document.getElementById('mode-btn-' + m);
-    if (btn) btn.className = 'button is-small' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
+    if (btn) btn.className = 'est-tier-btn' + (m === mode ? ' ' + tierActiveClasses[m] : '');
   });
+  const badge = document.getElementById('scope-tier-badge');
+  if (badge) { badge.textContent = tierLabels[mode]; badge.className = 'est-tier-badge ' + tierBadgeClasses[mode]; }
   calcAndUpdate();
 }
 
@@ -816,29 +1256,25 @@ function renderCustomItems() {
   let html = '';
   estimateData.customItems.forEach((item, idx) => {
     const cost = item.cost || 0;
-    const costColor = cost < 0 ? ' has-text-success' : '';
+    const costStyle = cost < 0 ? ' style="color:var(--est-accent);"' : '';
     const costDisplay = cost === 0 ? '—' : (cost < 0 ? '-' + formatCost(Math.abs(cost)) : formatCost(cost));
     if (canEditCustomItems) {
-      html += `
-        <div class="column is-2">${escHtml(item.description)}</div>
-        <div class="column is-1" style="display:flex; align-items:center; gap:6px;">
-          <a href="#" onclick="openCustomItemModal(${idx}); return false;" title="Edit">
-            <span class="icon is-small has-text-grey"><i class="fas fa-pencil-alt"></i></span>
-          </a>
-          <a href="#" onclick="removeCustomItem(${idx}); return false;" title="Remove">
-            <span class="icon is-small has-text-danger"><i class="fas fa-times"></i></span>
-          </a>
-        </div>
-        <div class="column is-7">${escHtml(item.notes)}</div>
-        <div class="column is-2 has-text-right${costColor}">${costDisplay}</div>
-      `;
+      html += `<tr>
+        <td class="td-item">${escHtml(item.description)}</td>
+        <td class="td-ctl" style="white-space:nowrap;">
+          <a href="#" onclick="openCustomItemModal(${idx}); return false;" class="est-edit-btn" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          <a href="#" onclick="removeCustomItem(${idx}); return false;" class="est-edit-btn" title="Remove" style="color:var(--est-red);"><i class="fas fa-times"></i></a>
+        </td>
+        <td class="td-desc">${escHtml(item.notes)}</td>
+        <td class="td-cost"${costStyle}>${costDisplay}</td>
+      </tr>`;
     } else if (item.description || cost !== 0) {
-      html += `
-        <div class="column is-2">${escHtml(item.description)}</div>
-        <div class="column is-1"></div>
-        <div class="column is-7">${escHtml(item.notes)}</div>
-        <div class="column is-2 has-text-right${costColor}">${costDisplay}</div>
-      `;
+      html += `<tr>
+        <td class="td-item">${escHtml(item.description)}</td>
+        <td class="td-ctl"></td>
+        <td class="td-desc">${escHtml(item.notes)}</td>
+        <td class="td-cost"${costStyle}>${costDisplay}</td>
+      </tr>`;
     }
   });
   container.innerHTML = html;
@@ -924,7 +1360,6 @@ function renderSectionsTable() {
 function addSection() {
   estimateData.sections.push({ label: '', length: 0, width: 0 });
   renderSectionsTable();
-  // Focus the label of the new section
   const rows = document.getElementById('sections-body').querySelectorAll('tr');
   const lastRow = rows[rows.length - 1];
   if (lastRow) lastRow.querySelector('input[type=text]').focus();
@@ -951,14 +1386,11 @@ function applyDeck() {
   if (!s0.length || s0.length < 1 || !s0.width || s0.width < 1) {
     alert('Main section must have valid length and width (minimum 1 ft)'); return;
   }
-
   estimateData.height           = height;
   estimateData.material         = document.getElementById('deck-material').value;
   estimateData.railFeetOverride = parseFloat(document.getElementById('rail-override').value) || 0;
-  // Keep length/width in sync with primary section for backwards compat
   estimateData.length = estimateData.sections[0].length;
   estimateData.width  = estimateData.sections[0].width;
-
   syncSectionsField();
   document.getElementById('deck-modal').classList.remove('is-active');
   calcAndUpdate();
@@ -992,6 +1424,8 @@ function openStairRailModal() {
 
 function applyStairRail() {
   estimateData.stairRailCount = parseFloat(document.getElementById('stairrail-count-select').value);
+  const row = document.getElementById('stairrail-row');
+  if (row) row.classList.toggle('zero-row', estimateData.stairRailCount === 0);
   document.getElementById('stairrail-modal').classList.remove('is-active');
   calcAndUpdate();
 }
@@ -1008,21 +1442,25 @@ function applyStairWidth() {
   estimateData.stairWidth = width;
   document.getElementById('stair-modal').classList.remove('is-active');
 
-  // Show/hide stair-dependent controls
   const hasStairs = width > 0;
   const stairFasciaCheck = document.getElementById('stairfascia-check');
-  const stairTKCheck = document.getElementById('stairtk-check');
-  const stairRailEdit = document.getElementById('stairrail-edit');
+  const stairTKCheck     = document.getElementById('stairtk-check');
+  const stairRailEdit    = document.getElementById('stairrail-edit');
   if (stairFasciaCheck) stairFasciaCheck.parentElement.style.visibility = hasStairs ? '' : 'hidden';
-  if (stairTKCheck) stairTKCheck.parentElement.style.visibility = hasStairs ? '' : 'hidden';
-  if (stairRailEdit) stairRailEdit.style.visibility = hasStairs ? '' : 'hidden';
+  if (stairTKCheck)     stairTKCheck.parentElement.style.visibility     = hasStairs ? '' : 'hidden';
+  if (stairRailEdit)    stairRailEdit.style.visibility                   = hasStairs ? '' : 'hidden';
   if (!hasStairs) {
     estimateData.hasStairFascia = false;
-    estimateData.hasStairTK = false;
+    estimateData.hasStairTK     = false;
     estimateData.stairRailCount = 0;
     if (stairFasciaCheck) stairFasciaCheck.checked = false;
-    if (stairTKCheck) stairTKCheck.checked = false;
+    if (stairTKCheck)     stairTKCheck.checked     = false;
   }
+  // Update zero-row on stair-related rows
+  ['stairs-row','stairrail-row','stairfascia-row','stairtk-row'].forEach(id => {
+    const r = document.getElementById(id);
+    if (r) r.classList.toggle('zero-row', !hasStairs);
+  });
 
   calcAndUpdate();
 }
@@ -1047,21 +1485,18 @@ function syncSectionsField() {
   ];
   sync.forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
 }
-// Initialize on page load
 syncSectionsField();
 renderCustomItems();
 
 function markDirty() {
   const saveBtn = document.getElementById('btn-save');
   if (saveBtn) saveBtn.style.display = '';
-
-  const btns = ['btn-email', 'btn-print', 'btn-accept'];
-  btns.forEach(id => {
+  ['btn-email', 'btn-print', 'btn-accept'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.disabled = true; el.style.opacity = '0.4'; }
   });
   const msg = document.getElementById('unsaved-msg');
-  if (msg) msg.style.display = 'inline';
+  if (msg) msg.style.display = 'flex';
 }
 
 function calcAndUpdate() {
@@ -1075,43 +1510,43 @@ function calcAndUpdate() {
   .then(r => r.json())
   .then(data => {
     if (data.error) { console.error('Calc error:', data.error); return; }
-    // Update costs
-    document.getElementById('deck-cost').textContent       = formatCost(data.deckCost);
-    document.getElementById('demo-cost').textContent       = formatCost(data.demoCost);
-    document.getElementById('rail-cost').textContent       = formatCost(data.railCost);
-    document.getElementById('fascia-cost').textContent     = formatCost(data.fasciaCost);
-    document.getElementById('stair-cost').textContent      = formatCost(data.stairCost);
-    document.getElementById('stairrail-cost').textContent  = formatCost(data.stairRailCost);
-    document.getElementById('stairfascia-cost').textContent= formatCost(data.stairFasciaCost);
-    document.getElementById('stairtk-cost').textContent    = formatCost(data.stairToeKickCost);
-    document.getElementById('permit-cost').textContent     = formatCost(data.permitCost);
-    document.getElementById('permit-desc').textContent     = data.permitDescription;
-    document.getElementById('subtotal-val').textContent    = formatCost(data.subtotal);
-    document.getElementById('salestax-val').textContent    = formatCost(data.salesTax);
-    document.getElementById('total-val').textContent       = formatCost(data.totalCost);
+    document.getElementById('deck-cost').textContent        = formatCost(data.deckCost);
+    document.getElementById('demo-cost').textContent        = formatCost(data.demoCost);
+    document.getElementById('rail-cost').textContent        = formatCost(data.railCost);
+    document.getElementById('fascia-cost').textContent      = formatCost(data.fasciaCost);
+    document.getElementById('stair-cost').textContent       = formatCost(data.stairCost);
+    document.getElementById('stairrail-cost').textContent   = formatCost(data.stairRailCost);
+    document.getElementById('stairfascia-cost').textContent = formatCost(data.stairFasciaCost);
+    document.getElementById('stairtk-cost').textContent     = formatCost(data.stairToeKickCost);
+    document.getElementById('permit-cost').textContent      = formatCost(data.permitCost);
+    document.getElementById('permit-desc').textContent      = data.permitDescription;
+    document.getElementById('subtotal-val').textContent     = formatCost(data.subtotal);
+    document.getElementById('salestax-val').textContent     = formatCost(data.salesTax);
+    document.getElementById('total-val').textContent        = formatCost(data.totalCost);
+    const headerTotal = document.getElementById('header-total');
+    if (headerTotal) headerTotal.textContent = formatCost(data.totalCost);
     // Discount
-    const discountRows = ['discount-row-label','discount-desc','discount-val'];
+    const discountRow = document.getElementById('discount-row-label');
     const msg = document.getElementById('discount-msg');
     if (data.discountAmount > 0) {
       document.getElementById('discount-desc').textContent = data.discountCode + ' — 10% off';
       document.getElementById('discount-val').textContent  = '-' + formatCost(data.discountAmount);
-      discountRows.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = ''; });
+      if (discountRow) discountRow.style.display = '';
       if (msg) { msg.textContent = 'Discount applied!'; msg.className = 'help has-text-success'; }
     } else {
-      discountRows.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      if (discountRow) discountRow.style.display = 'none';
       const inp = document.getElementById('discount-code-input');
       if (msg && inp && inp.value.trim()) { msg.textContent = 'Invalid code.'; msg.className = 'help has-text-danger'; }
       else if (msg) { msg.textContent = ''; }
     }
-    // Update descriptions
-    document.getElementById('deck-desc').textContent       = data.deckDescription;
-    document.getElementById('demo-desc').textContent       = data.demoDescription;
-    document.getElementById('rail-desc').textContent       = data.railDescription;
-    document.getElementById('fascia-desc').textContent     = data.fasciaDescription;
-    document.getElementById('stair-desc').textContent      = data.stairDescription;
-    document.getElementById('stairrail-desc').textContent  = data.stairRailDescription;
-    document.getElementById('stairfascia-desc').textContent= data.stairFasciaDescription;
-    document.getElementById('stairtk-desc').textContent    = data.stairTKDescription;
+    document.getElementById('deck-desc').textContent        = data.deckDescription;
+    document.getElementById('demo-desc').textContent        = data.demoDescription;
+    document.getElementById('rail-desc').textContent        = data.railDescription;
+    document.getElementById('fascia-desc').textContent      = data.fasciaDescription;
+    document.getElementById('stair-desc').textContent       = data.stairDescription;
+    document.getElementById('stairrail-desc').textContent   = data.stairRailDescription;
+    document.getElementById('stairfascia-desc').textContent = data.stairFasciaDescription;
+    document.getElementById('stairtk-desc').textContent     = data.stairTKDescription;
   })
   .catch(err => console.error('API error:', err));
 }
@@ -1125,12 +1560,16 @@ function applyDesc() {
   estimateData.description = newDesc;
   const saveField = document.getElementById('save-desc');
   if (saveField) saveField.value = newDesc;
-  document.getElementById('desc-display').textContent = newDesc;
+  const display = document.getElementById('desc-display');
+  if (display) {
+    display.textContent = newDesc || 'No description added';
+    display.style.color = newDesc ? '' : 'var(--est-text3)';
+  }
   document.getElementById('desc-modal').classList.remove('is-active');
   calcAndUpdate();
 }
 </script>
 
-    {{end}}
+  {{end}}
   {{template "footer.gohtml" .}}
 {{end}}
