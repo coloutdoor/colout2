@@ -34,6 +34,7 @@ var funcMap = template.FuncMap{
 	"formatStairTKDescription":     formatStairTKDescription,
 	"formatPermitDescription":      formatPermitDescription,
 	"currentYear":                  func() int { return time.Now().Year() },
+	"neg":                          func(f float64) float64 { return -f },
 	// jsStr encodes a string as a JavaScript string literal, safe inside <script> tags.
 	"jsStr": func(s string) template.JS {
 		b, _ := json.Marshal(s)
@@ -1172,168 +1173,44 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// buildEstimateEmailHTML builds a clean HTML email for the estimate.
-func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
-	taxDesc := e.Customer.State + " sales tax"
-	if e.Customer.State == "" {
-		taxDesc = "Sales tax"
-	}
+type estimateEmailData struct {
+	Estimate           DeckEstimate
+	EstimateURL        string
+	ContractorName     string
+	ContractorPhone    string
+	ContractorWebsite  string
+	ContractorLicense  string
+}
 
-	// Contractor info — fall back to Columbia Outdoor defaults
-	contractorName := "Columbia Outdoor"
-	contractorPhone := "(360) 787-8062"
-	contractorWebsite := "columbiaoutdoor.com"
-	contractorLicense := ""
+// buildEstimateEmailHTML renders the estimate email template to a string.
+func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
+	data := estimateEmailData{
+		Estimate:          e,
+		EstimateURL:       estimateURL,
+		ContractorName:    "Columbia Outdoor",
+		ContractorPhone:   "(360) 787-8062",
+		ContractorWebsite: "columbiaoutdoor.com",
+	}
 	if e.Contractor.CompanyName != "" {
-		contractorName = e.Contractor.CompanyName
+		data.ContractorName = e.Contractor.CompanyName
 	}
 	if e.Contractor.Phone != "" {
-		contractorPhone = e.Contractor.Phone
+		data.ContractorPhone = e.Contractor.Phone
 	}
 	if e.Contractor.Website != "" {
-		contractorWebsite = e.Contractor.Website
+		data.ContractorWebsite = e.Contractor.Website
 	}
 	if e.Contractor.LicenseNum != "" {
-		contractorLicense = fmt.Sprintf("<br>License: %s (%s)", e.Contractor.LicenseNum, e.Contractor.LicenseState)
+		data.ContractorLicense = fmt.Sprintf("%s (%s)", e.Contractor.LicenseNum, e.Contractor.LicenseState)
 	}
 
-	lineItems := []LineItem{
-		newLineItem("Deck", formatDeckDescription(e), e.DeckCost),
-		newLineItem("Demolition", formatDemoDescription(e), e.DemoCost),
-		newLineItem("Rails", formatRailDescription(e), e.RailCost),
-		newLineItem("Fascia", formatFasciaDescription(e), e.FasciaCost),
-		newLineItem("Stairs", formatStairDescription(e), e.StairCost),
-		newLineItem("Stair Rails", formatStairRailDescription(e), e.StairRailCost),
-		newLineItem("Stair Fascia", formatStairFasciaDescription(e), e.StairFasciaCost),
-		newLineItem("Toe Kicks", formatStairTKDescription(e), e.StairToeKickCost),
-		newLineItem("Design & Permits", formatPermitDescription(e), e.PermitCost),
+	tmpl := template.Must(template.New("email-estimate.gohtml").Funcs(funcMap).ParseFiles("templates/email-estimate.gohtml"))
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "email-estimate.gohtml", data); err != nil {
+		log.Printf("buildEstimateEmailHTML: template error: %v", err)
+		return "<p>Error rendering estimate email.</p>"
 	}
-
-	customItemRows := ""
-	for _, ci := range e.CustomItems {
-		if ci.Description == "" && ci.Cost == 0 {
-			continue
-		}
-		costStr := formatCost(ci.Cost)
-		costStyle := "padding:8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap"
-		if ci.Cost < 0 {
-			costStyle += ";color:#257942"
-			costStr = "-" + formatCost(-ci.Cost)
-		}
-		customItemRows += fmt.Sprintf(`<tr>
-			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top">%s</td>
-			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top;color:#555;font-size:13px">%s</td>
-			<td style="%s">%s</td>
-		</tr>`, template.HTMLEscapeString(ci.Description), template.HTMLEscapeString(ci.Notes), costStyle, costStr)
-	}
-
-	discountRow := ""
-	if e.DiscountAmount > 0 {
-		discountRow = fmt.Sprintf(`<tr><td colspan="2" style="padding:8px;text-align:right;color:#257942"><strong>Discount (%s)</strong></td>
-          <td style="padding:8px;text-align:right;color:#257942">-%s</td></tr>`, e.DiscountCode, formatCost(e.DiscountAmount))
-	}
-
-	rows := ""
-	for _, item := range lineItems {
-		rows += fmt.Sprintf(`<tr>
-			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top">%s</td>
-			<td style="padding:8px;border-bottom:1px solid #eee;vertical-align:top;color:#555;font-size:13px">%s</td>
-			<td style="padding:8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap">%s</td>
-		</tr>`, item.Name, strings.ReplaceAll(item.Description, "\n", "<br>"), formatCost(item.Cost))
-	}
-
-	return fmt.Sprintf(`<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Arial,sans-serif;color:#333;max-width:640px;margin:0 auto;padding:20px">
-
-  <!-- Header -->
-  <div style="background:#2c6e9e;color:white;padding:24px;border-radius:6px 6px 0 0">
-    <h1 style="margin:0;font-size:22px">Columbia Outdoor</h1>
-    <p style="margin:4px 0 0;opacity:.8">SW Washington's Trusted Outdoor Living Platform</p>
-  </div>
-
-  <!-- Estimate meta -->
-  <div style="background:#f8f8f8;padding:16px;border-left:4px solid #2c6e9e">
-    <strong>Estimate #%d-%d</strong> &mdash; %s<br>
-    <span style="color:#888;font-size:13px">Prepared: %s &nbsp;·&nbsp; Expires: %s</span>
-  </div>
-
-  <!-- Intro -->
-  <div style="padding:20px 0">
-    <p>Hi %s,</p>
-    <p><strong>%s</strong> has prepared a detailed outdoor living estimate for your project.</p>
-    <p>You can review and accept this estimate directly through Columbia Outdoor's platform.
-    Once accepted, Columbia Outdoor will coordinate scheduling, ensure the project stays on track,
-    and support you through to completion.</p>
-    <p style="text-align:center;margin:24px 0">
-      <a href="%s" style="background:#2c6e9e;color:white;padding:12px 28px;border-radius:4px;text-decoration:none;font-weight:bold">
-        Review &amp; Accept Estimate Online
-      </a>
-    </p>
-  </div>
-
-  <!-- Contractor / Customer -->
-  <table style="width:100%%;margin-bottom:20px">
-    <tr>
-      <td style="vertical-align:top;width:50%%;padding-right:12px">
-        <strong>Contractor</strong><br>
-        %s<br>%s<br>%s%s
-      </td>
-      <td style="vertical-align:top;width:50%%">
-        <strong>Customer</strong><br>
-        %s %s<br>%s<br>%s, %s %s<br>%s<br>%s
-      </td>
-    </tr>
-  </table>
-
-  <!-- Scope of Work -->
-  <h2 style="font-size:16px;border-bottom:2px solid #2c6e9e;padding-bottom:6px">Scope of Work</h2>
-  <table style="width:100%%;border-collapse:collapse">
-    <thead><tr style="background:#f0f0f0">
-      <th style="padding:8px;text-align:left">Item</th>
-      <th style="padding:8px;text-align:left">Description</th>
-      <th style="padding:8px;text-align:right">Cost</th>
-    </tr></thead>
-    <tbody>%s%s</tbody>
-    <tfoot>
-      <tr><td colspan="2" style="padding:8px;text-align:right"><strong>Subtotal</strong></td>
-          <td style="padding:8px;text-align:right">%s</td></tr>
-      %s
-      <tr><td colspan="2" style="padding:8px;text-align:right">%s</td>
-          <td style="padding:8px;text-align:right">%s</td></tr>
-      <tr style="background:#333;color:white">
-        <td colspan="2" style="padding:12px;text-align:right"><strong>Total</strong></td>
-        <td style="padding:12px;text-align:right"><strong>%s</strong></td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <!-- Footer -->
-  <div style="margin-top:24px;padding:16px;background:#f9f9f9;border:1px solid #ddd;font-size:12px;color:#666">
-    This estimate is valid until %s. To accept or for any questions, contact us at
-    <a href="mailto:support@columbiaoutdoor.com">support@columbiaoutdoor.com</a> or (360) 787-8062.
-  </div>
-
-</body></html>`,
-		e.EstimateID, e.Version, e.Desc,
-		e.SaveDate.Format("Jan 2, 2006"),
-		e.ExpirationDate.Format("Jan 2, 2006"),
-		e.Customer.FirstName,
-		contractorName,
-		estimateURL,
-		contractorName, contractorPhone, contractorWebsite, contractorLicense,
-		e.Customer.FirstName, e.Customer.LastName,
-		e.Customer.Address,
-		e.Customer.City, e.Customer.State, e.Customer.Zip,
-		e.Customer.PhoneNumber, e.Customer.Email,
-		rows,
-		customItemRows,
-		formatCost(e.Subtotal),
-		discountRow,
-		taxDesc, formatCost(e.SalesTax),
-		formatCost(e.TotalCost),
-		e.ExpirationDate.Format("Jan 2, 2006"),
-	)
+	return buf.String()
 }
 
 // estimateTokenHandler serves the public customer view of an estimate via access token.
@@ -1362,6 +1239,38 @@ func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	de.IsPublicView = true
 	de.AcceptURL = "/estimate/accept/" + token
 	renderEstimate(w, r, de)
+}
+
+// estimatePrintHandler serves a print-optimized view of an estimate via access token.
+func estimatePrintHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	de := getEstimateByToken(token)
+	if de.Error != "" {
+		http.Error(w, "Estimate not found", http.StatusNotFound)
+		return
+	}
+
+	if de.Subtotal == 0 {
+		de.CalcAllCosts()
+	}
+
+	if mdBytes, err := os.ReadFile("static/t_and_c.md"); err == nil {
+		var buf bytes.Buffer
+		if err := goldmark.Convert(mdBytes, &buf); err == nil {
+			de.TermsHTML = template.HTML(buf.String())
+		}
+	}
+
+	tmpl := template.Must(template.New("estimate-print.gohtml").Funcs(funcMap).ParseFiles("templates/estimate-print.gohtml"))
+	if err := tmpl.ExecuteTemplate(w, "estimate-print.gohtml", &de); err != nil {
+		log.Printf("estimatePrintHandler execute error: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 // estimateForkHandler copies a public estimate into the session as a new unsaved estimate.

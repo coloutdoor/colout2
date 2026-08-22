@@ -1,0 +1,507 @@
+{{define "estimate-print.gohtml"}}<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estimate {{if gt .EstimateID 0}}#{{.EstimateID}}{{end}}{{if .Desc}} — {{.Desc}}{{end}} | Columbia Outdoor</title>
+  <style>
+    @page {
+      size: letter;
+      margin: .65in .75in .75in .75in;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 10pt;
+      color: #1a2535;
+      background: #fff;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Screen-only toolbar ── */
+    .print-toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #0d2035;
+      color: #d8eaf8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem 1.25rem;
+      font-size: .85rem;
+      z-index: 100;
+      gap: 1rem;
+    }
+    .print-toolbar-title { font-weight: 600; }
+    .print-toolbar-actions { display: flex; gap: .6rem; align-items: center; }
+    .print-btn {
+      background: #3d8c65; border: none; color: #fff; font-size: .82rem;
+      font-weight: 600; padding: .4rem .9rem; border-radius: 5px; cursor: pointer;
+      font-family: inherit;
+    }
+    .print-btn:hover { background: #4aaa7a; }
+    .print-close {
+      color: #7aaac8; font-size: .82rem; text-decoration: none;
+    }
+    .print-close:hover { color: #d8eaf8; }
+    @media print {
+      .print-toolbar { display: none; }
+    }
+
+    /* ── Page body offset for toolbar on screen ── */
+    @media screen {
+      body { padding-top: 3rem; }
+      .page { max-width: 8.5in; margin: 1rem auto; padding: .75in; background: #fff;
+              box-shadow: 0 2px 20px rgba(0,0,0,.12); }
+    }
+
+    /* ── Header ── */
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: .9rem;
+      border-bottom: 2px solid #1a2535;
+      margin-bottom: .9rem;
+    }
+    .doc-brand-name {
+      font-size: 15pt;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      color: #1a2535;
+      line-height: 1.1;
+    }
+    .doc-brand-sub {
+      font-size: 8.5pt;
+      color: #4a6075;
+      margin-top: .15rem;
+    }
+    .doc-brand-contact {
+      font-size: 8pt;
+      color: #4a6075;
+      margin-top: .25rem;
+      line-height: 1.6;
+    }
+    .doc-meta { text-align: right; }
+    .doc-meta-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1a2535;
+      line-height: 1.1;
+    }
+    .doc-meta-id {
+      font-size: 9pt;
+      color: #4a6075;
+      margin-top: .15rem;
+    }
+    .doc-meta-status {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .15rem .5rem;
+      border-radius: 3px;
+      margin-top: .35rem;
+    }
+    .status-accepted { background: #d4edda; color: #1a5c32; }
+    .status-pending  { background: #fff3cd; color: #856404; }
+    .status-expired  { background: #f8d7da; color: #721c24; }
+
+    /* ── Parties ── */
+    .doc-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .doc-party { }
+    .doc-party-label {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: .2rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: .15rem;
+    }
+    .doc-party-name {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #1a2535;
+      margin-bottom: .1rem;
+    }
+    .doc-party-detail {
+      font-size: 8.5pt;
+      color: #4a6075;
+      line-height: 1.65;
+    }
+
+    /* ── Scope table ── */
+    .doc-scope-title {
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .doc-tier-badge {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .1rem .4rem;
+      border-radius: 3px;
+    }
+    .badge-full  { background: #d4edda; color: #1a5c32; }
+    .badge-plans { background: #fff3cd; color: #856404; }
+    .badge-diy   { background: #e2e8f0; color: #475569; }
+
+    table.line-items {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: .75rem;
+      font-size: 9pt;
+    }
+    table.line-items thead th {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #64748b;
+      border-bottom: 1px solid #cbd5e1;
+      padding: .3rem .4rem;
+      text-align: left;
+    }
+    table.line-items thead th.th-cost { text-align: right; }
+    table.line-items tbody td {
+      padding: .35rem .4rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
+    }
+    table.line-items .td-item {
+      font-weight: 600;
+      color: #1a2535;
+      white-space: nowrap;
+      width: 110px;
+    }
+    table.line-items .td-desc { color: #4a6075; }
+    table.line-items .td-cost {
+      text-align: right;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      font-family: 'Courier New', monospace;
+      font-size: 9pt;
+      color: #1a2535;
+      width: 90px;
+    }
+    /* Dimmed zero-cost rows */
+    table.line-items tr.zero-row td { color: #cbd5e1; }
+    table.line-items tr.zero-row .td-item { font-weight: 400; }
+
+    /* Subtotal / tax / total rows */
+    tr.row-subtotal td { border-top: 1px solid #cbd5e1; border-bottom: none; padding-top: .45rem; }
+    tr.row-tax td { border-bottom: none; }
+    tr.row-discount td { color: #1a5c32; border-bottom: none; }
+    tr.row-total td {
+      font-weight: 700;
+      font-size: 11pt;
+      border-top: 2px solid #1a2535;
+      border-bottom: none;
+      padding-top: .5rem;
+      color: #1a2535;
+    }
+    tr.row-total .td-cost {
+      font-size: 12pt;
+      color: #1a5c32;
+    }
+
+    /* ── Terms ── */
+    .doc-terms {
+      margin-top: 1.25rem;
+      padding-top: .75rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: 7.5pt;
+      color: #64748b;
+      line-height: 1.55;
+    }
+    .doc-terms h2, .doc-terms h3 {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #1a2535;
+      margin-top: .6rem;
+      margin-bottom: .15rem;
+    }
+    .doc-terms p { margin-bottom: .35rem; }
+    .doc-terms ul, .doc-terms ol {
+      padding-left: 1rem;
+      margin-bottom: .35rem;
+    }
+    .doc-terms-label {
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: .4rem;
+    }
+
+    /* ── Signature block ── */
+    .doc-sig {
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      page-break-inside: avoid;
+    }
+    .doc-sig-line {
+      border-top: 1px solid #1a2535;
+      padding-top: .3rem;
+      font-size: 8pt;
+      color: #64748b;
+    }
+
+    /* ── Footer ── */
+    .doc-footer {
+      margin-top: 1.5rem;
+      padding-top: .5rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: 7.5pt;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen-only toolbar -->
+  <div class="print-toolbar">
+    <span class="print-toolbar-title">
+      Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{end}}{{if .Desc}} — {{.Desc}}{{end}}
+    </span>
+    <div class="print-toolbar-actions">
+      <button class="print-btn" onclick="window.print()">&#x1F5A8; Print / Save PDF</button>
+      <a class="print-close" href="javascript:window.close()">✕ Close</a>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- Header -->
+    <div class="doc-header">
+      <div>
+        <div class="doc-brand-name">Columbia Outdoor{{if .Contractor.CompanyName}} · {{.Contractor.CompanyName}}{{end}}</div>
+        <div class="doc-brand-sub">Deck &amp; Outdoor Structure Specialists — SW Washington</div>
+        <div class="doc-brand-contact">
+          {{if .Contractor.Phone}}{{.Contractor.Phone}}{{else}}(360) 787-8062{{end}}<br>
+          {{if .Contractor.Website}}{{.Contractor.Website}}{{else}}columbiaoutdoor.com{{end}}
+          {{if .Contractor.LicenseNum}}<br>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}}){{end}}
+        </div>
+      </div>
+      <div class="doc-meta">
+        <div class="doc-meta-title">Deck Estimate</div>
+        {{if gt .EstimateID 0}}<div class="doc-meta-id">#{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}</div>{{end}}
+        {{if not .SaveDate.IsZero}}<div class="doc-meta-id">Prepared {{.SaveDate.Format "January 2, 2006"}}</div>{{end}}
+        {{if not .ExpirationDate.IsZero}}<div class="doc-meta-id">Valid through {{.ExpirationDate.Format "January 2, 2006"}}</div>{{end}}
+        {{if .Status}}
+        <div>
+          <span class="doc-meta-status {{if eq .Status "Accepted"}}status-accepted{{else if eq .Status "Expired"}}status-expired{{else}}status-pending{{end}}">
+            {{.Status}}{{if and (eq .Status "Accepted") (not .AcceptDate.IsZero)}} {{.AcceptDate.Format "Jan 2, 2006"}}{{end}}
+          </span>
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- Parties -->
+    <div class="doc-parties">
+      <div class="doc-party">
+        <div class="doc-party-label">From</div>
+        <div class="doc-party-name">{{if .Contractor.CompanyName}}{{.Contractor.CompanyName}}{{else}}Columbia Outdoor{{end}}</div>
+        <div class="doc-party-detail">
+          {{if .Contractor.Phone}}{{.Contractor.Phone}}<br>{{else}}(360) 787-8062<br>{{end}}
+          {{if .Contractor.Website}}{{.Contractor.Website}}{{else}}columbiaoutdoor.com{{end}}
+        </div>
+      </div>
+      <div class="doc-party">
+        <div class="doc-party-label">Prepared For</div>
+        {{if or .Customer.FirstName .Customer.LastName}}
+        <div class="doc-party-name">{{.Customer.FirstName}} {{.Customer.LastName}}</div>
+        {{end}}
+        <div class="doc-party-detail">
+          {{if .Customer.Address}}{{.Customer.Address}}<br>{{end}}
+          {{if or .Customer.City .Customer.State}}{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}<br>{{end}}
+          {{if .Customer.PhoneNumber}}{{.Customer.PhoneNumber}}<br>{{end}}
+          {{if .Customer.Email}}{{.Customer.Email}}{{end}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Project description -->
+    {{if .Desc}}
+    <p style="font-size:9pt; color:#4a6075; margin-bottom:.75rem; font-style:italic;">Project: {{.Desc}}</p>
+    {{end}}
+
+    <!-- Scope of work -->
+    <div class="doc-scope-title">
+      Scope of Work
+      <span class="doc-tier-badge {{if eq .DIYMode 1}}badge-plans{{else if eq .DIYMode 2}}badge-diy{{else}}badge-full{{end}}">
+        {{if eq .DIYMode 1}}Plans + Materials{{else if eq .DIYMode 2}}Plans Only{{else}}Full Service{{end}}
+      </span>
+    </div>
+
+    <table class="line-items">
+      <thead>
+        <tr>
+          <th style="width:110px;">Item</th>
+          <th>Description</th>
+          <th class="th-cost" style="width:90px;">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{if .HasDemo}}
+        <tr>
+          <td class="td-item">Demo</td>
+          <td class="td-desc">{{formatDemoDescription .}}</td>
+          <td class="td-cost">{{formatCost .DemoCost}}</td>
+        </tr>
+        {{end}}
+
+        <tr>
+          <td class="td-item">Deck</td>
+          <td class="td-desc">{{formatDeckDescription .}}</td>
+          <td class="td-cost">{{formatCost .DeckCost}}</td>
+        </tr>
+
+        {{if .RailMaterial}}
+        <tr>
+          <td class="td-item">Rail</td>
+          <td class="td-desc">{{formatRailDescription .}}</td>
+          <td class="td-cost">{{formatCost .RailCost}}</td>
+        </tr>
+        {{end}}
+
+        {{if .HasFascia}}
+        <tr>
+          <td class="td-item">Fascia</td>
+          <td class="td-desc">{{formatFasciaDescription .}}</td>
+          <td class="td-cost">{{formatCost .FasciaCost}}</td>
+        </tr>
+        {{end}}
+
+        {{if gt .StairWidth 0.0}}
+        <tr>
+          <td class="td-item">Stairs</td>
+          <td class="td-desc">{{formatStairDescription .}}</td>
+          <td class="td-cost">{{formatCost .StairCost}}</td>
+        </tr>
+        {{if gt .StairRailCount 0.0}}
+        <tr>
+          <td class="td-item">Stair Rails</td>
+          <td class="td-desc">{{formatStairRailDescription .}}</td>
+          <td class="td-cost">{{formatCost .StairRailCost}}</td>
+        </tr>
+        {{end}}
+        {{if .HasStairFascia}}
+        <tr>
+          <td class="td-item">Stair Fascia</td>
+          <td class="td-desc">{{formatStairFasciaDescription .}}</td>
+          <td class="td-cost">{{formatCost .StairFasciaCost}}</td>
+        </tr>
+        {{end}}
+        {{if .HasStairTK}}
+        <tr>
+          <td class="td-item">Stair Toe Kicks</td>
+          <td class="td-desc">{{formatStairTKDescription .}}</td>
+          <td class="td-cost">{{formatCost .StairToeKickCost}}</td>
+        </tr>
+        {{end}}
+        {{end}}
+
+        {{if .PermitCost}}
+        <tr>
+          <td class="td-item">Design &amp; Permits</td>
+          <td class="td-desc">{{formatPermitDescription .}}</td>
+          <td class="td-cost">{{formatCost .PermitCost}}</td>
+        </tr>
+        {{end}}
+
+        {{range .CustomItems}}
+        <tr>
+          <td class="td-item">{{.Description}}</td>
+          <td class="td-desc">{{.Notes}}</td>
+          <td class="td-cost" style="{{if lt .Cost 0.0}}color:#1a5c32;{{end}}">
+            {{if lt .Cost 0.0}}-{{formatCost (neg .Cost)}}{{else}}{{formatCost .Cost}}{{end}}
+          </td>
+        </tr>
+        {{end}}
+
+      </tbody>
+      <tbody>
+        <tr class="row-subtotal">
+          <td class="td-item" style="font-weight:600;">Subtotal</td>
+          <td class="td-desc"></td>
+          <td class="td-cost">{{formatCost .Subtotal}}</td>
+        </tr>
+        {{if gt .DiscountAmount 0.0}}
+        <tr class="row-discount">
+          <td class="td-item">Discount</td>
+          <td class="td-desc">{{if .DiscountCode}}{{.DiscountCode}} — 10% off{{end}}</td>
+          <td class="td-cost">-{{formatCost .DiscountAmount}}</td>
+        </tr>
+        {{end}}
+        <tr class="row-tax">
+          <td class="td-item">Sales Tax</td>
+          <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
+          <td class="td-cost">{{formatCost .SalesTax}}</td>
+        </tr>
+        <tr class="row-total">
+          <td class="td-item">Total</td>
+          <td class="td-desc" style="font-size:8pt; color:#64748b; font-weight:400;">
+            {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
+          </td>
+          <td class="td-cost">{{formatCost .TotalCost}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Signature block (only on unsaved/pending) -->
+    {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
+    <div class="doc-sig">
+      <div>
+        <div class="doc-sig-line">Authorized — Columbia Outdoor</div>
+      </div>
+      <div>
+        <div class="doc-sig-line">Customer Acceptance &amp; Date</div>
+      </div>
+    </div>
+    {{end}}
+
+    <!-- Terms -->
+    {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
+    <div class="doc-terms">
+      <div class="doc-terms-label">Terms &amp; Conditions</div>
+      {{if .TermsHTML}}{{.TermsHTML}}{{else}}<pre style="white-space:pre-wrap;">{{.Terms}}</pre>{{end}}
+    </div>
+    {{end}}
+
+    <!-- Footer -->
+    <div class="doc-footer">
+      <span>Columbia Outdoor · columbiaoutdoor.com · (360) 787-8062</span>
+      {{if gt .EstimateID 0}}<span>Estimate #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}</span>{{end}}
+    </div>
+
+  </div><!-- end .page -->
+
+</body>
+</html>{{end}}

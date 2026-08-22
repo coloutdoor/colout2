@@ -493,9 +493,15 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
         <i class="fas fa-hammer"></i> Generate Materials
       </button>
       {{end}}
+      {{if .AccessToken}}
+      <a id="btn-print" class="est-btn" href="/estimate/print/{{.AccessToken}}" target="_blank">
+        <i class="fas fa-print"></i> Print
+      </a>
+      {{else}}
       <button id="btn-print" class="est-btn" type="button" onclick="window.print()">
         <i class="fas fa-print"></i> Print
       </button>
+      {{end}}
       {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
         {{if or (eq $.Header.Role "homeowner") .IsPublicView}}
         <button id="btn-accept" class="est-btn est-btn-success" type="button"
