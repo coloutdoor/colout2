@@ -405,22 +405,25 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 		return
 	}
 	if !sessionData.UserAuth.IsAuthenticated {
-		sessionData.UserAuth.Message = "Please Login to save estimate"
-		if err = sessionData.Save(r, w); err != nil {
-			log.Printf("Unable to save sessionData")
+		// Preserve the form-updated estimate so it survives the login redirect.
+		sd.Estimate = *estimate
+		sd.PendingSave = true
+		if err = sd.Save(r, w); err != nil {
+			log.Printf("Unable to save session before login redirect")
 		}
-		loginUrl := "/login?rurl=/estimate"
 		_ = db.Close()
-		http.Redirect(w, r, loginUrl, http.StatusSeeOther)
+		http.Redirect(w, r, "/login?rurl=/estimate", http.StatusSeeOther)
+		return
 	}
 
 	estimate.UserId = sessionData.UserAuth.ID
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour)
 
-	// Set contractor_id: use the contractor's profile if they're a contractor, else default to 1
-	if estimate.ContractorID == 0 {
-		estimate.ContractorID = 1
+	// Set contractor_id: for new estimates always re-derive from session to prevent
+	// session pollution from previously viewed estimates; for updates preserve existing.
+	if estimate.EstimateID == 0 || estimate.ContractorID == 0 {
+		estimate.ContractorID = 1 // default: Columbia Outdoor
 		if sessionData.UserAuth.Role == "contractor" {
 			db2, err2 := sql.Open("pgx", dbURL)
 			if err2 == nil {
@@ -713,6 +716,19 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ************* GET  ********************************
 	if r.Method != http.MethodPost {
+		// Auto-complete a save that was interrupted by a login redirect.
+		if sd.UserAuth.IsAuthenticated && sd.PendingSave {
+			sd.PendingSave = false
+			_ = sd.Save(r, w)
+			estimate.CalcAllCosts()
+			if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
+				saveEstimate(w, r, &estimate, sd)
+				http.Redirect(w, r, fmt.Sprintf("/estimate/%d", estimate.EstimateID), http.StatusSeeOther)
+				return
+			}
+			// Customer info still missing — fall through and render so user can complete it
+		}
+
 		// For saved estimates always reload from DB to ensure fresh sections/costs
 		if estimate.EstimateID > 0 {
 			fresh := getEstimate(estimate.EstimateID)

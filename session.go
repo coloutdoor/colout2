@@ -13,9 +13,10 @@ import (
 
 // SessionData holds session contents for display.
 type SessionData struct {
-	Estimate DeckEstimate
-	Customer Customer
-	UserAuth UserAuth
+	Estimate    DeckEstimate
+	Customer    Customer
+	UserAuth    UserAuth
+	PendingSave bool // set when a save was interrupted by a login redirect
 }
 
 // Session store - in-memory for now, single secret key
@@ -143,6 +144,9 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 	} else {
 		data.UserAuth = UserAuth{}
 	}
+	if ps, ok := session.Values["pending_save"].(bool); ok {
+		data.PendingSave = ps
+	}
 
 	return &data, nil
 }
@@ -163,6 +167,7 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	session.Values["estimate"] = estimateForSession
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
+	session.Values["pending_save"] = s.PendingSave
 
 	userName := s.UserAuth.Email
 	if userName == "" {
