@@ -247,6 +247,12 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
   background: var(--est-accent-l); color: var(--est-accent);
   border: 1px solid var(--est-accent-m); border-radius: 4px;
 }
+.est-btn-fork {
+  background: var(--est-amber-l);
+  border-color: var(--est-amber);
+  color: var(--est-amber);
+}
+.est-btn-fork:hover { background: #332508; }
 
 /* ── Modal dark theme overrides ── */
 .modal-card {
@@ -497,6 +503,12 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
           <i class="fas fa-check"></i> Accept Estimate
         </button>
         {{end}}
+      {{end}}
+      {{if .IsPublicView}}
+      <button class="est-btn est-btn-fork" type="button"
+        onclick="document.getElementById('fork-confirm').classList.add('is-active')">
+        <i class="fas fa-sliders-h"></i> Create My Own Estimate
+      </button>
       {{end}}
       <div id="unsaved-msg" class="est-unsaved-note">
         <i class="fas fa-exclamation-triangle"></i> Unsaved changes — save to enable other actions.
@@ -803,6 +815,29 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
   </div>
   {{else}}
   <div id="emailModal"><p></p></div>
+  {{end}}
+
+  {{if .IsPublicView}}
+  <div id="fork-confirm" class="modal">
+    <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:440px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Create Your Own Estimate</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('fork-confirm').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <p style="margin-bottom:.75rem;">This will copy the current estimate — deck size, materials, rail and stair selections, and your contact info — into a new estimate you can edit and adjust.</p>
+        <p class="help" style="color:var(--est-amber);">
+          <i class="fas fa-exclamation-triangle"></i>
+          Any custom line items (credits, additions, or adjustments) on this estimate will <strong>not</strong> carry over to your copy.
+        </p>
+      </section>
+      <footer class="modal-card-foot">
+        <a class="button is-primary" href="/estimate/fork/{{.AccessToken}}">Continue</a>
+        <button class="button" onclick="document.getElementById('fork-confirm').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
   {{end}}
 
   <div id="accept-confirm" class="modal">

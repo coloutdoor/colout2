@@ -63,13 +63,10 @@
             <tbody>
               {{range .Page.Estimates}}
               <tr>
-                <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
+                <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}-{{.Version}}</a></td>
                 <td>
-                  {{if .ContractorName}}
-                    <span class="tag is-warning">{{.ContractorName}}</span>
-                  {{else}}
-                    {{.UserEmail}}
-                  {{end}}
+                  <div style="font-size:.85rem;">{{if .UserEmail}}{{.UserEmail}}{{else}}<span style="color:#aaa;">anonymous</span>{{end}}</div>
+                  {{if .ContractorName}}<span class="tag is-warning is-light" style="font-size:.7rem;margin-top:.2rem;">{{.ContractorName}}</span>{{end}}
                 </td>
                 <td>{{.FirstName}} {{.LastName}}</td>
                 <td>{{.Description}}</td>

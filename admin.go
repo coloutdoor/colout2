@@ -32,6 +32,7 @@ func isAdminUser(email string) bool {
 
 type AdminEstimateRow struct {
 	EstimateID     int64
+	Version        int
 	UserEmail      string
 	ContractorName string // set if the estimate owner is a contractor
 	FirstName      string
@@ -124,7 +125,7 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 
 	// --- Estimates (most recent 20) ---
 	rows, err := db.Query(`
-		SELECT e.estimate_id, COALESCE(u.email,''), COALESCE(cp.company_name,''),
+		SELECT e.estimate_id, COALESCE(e.version,1), COALESCE(u.email,''), COALESCE(cp.company_name,''),
 		       COALESCE(e.first_name,''), COALESCE(e.last_name,''),
 		       COALESCE(e.description,''), COALESCE(e.total_cost,0), e.save_date,
 		       CASE
@@ -142,7 +143,7 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	}
 	for rows.Next() {
 		var e AdminEstimateRow
-		if err := rows.Scan(&e.EstimateID, &e.UserEmail, &e.ContractorName,
+		if err := rows.Scan(&e.EstimateID, &e.Version, &e.UserEmail, &e.ContractorName,
 			&e.FirstName, &e.LastName,
 			&e.Description, &e.TotalCost, &e.SaveDate, &e.Status); err != nil {
 			log.Printf("admin: scan estimate row: %v", err)

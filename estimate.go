@@ -313,7 +313,8 @@ func getEstimateByToken(token string) DeckEstimate {
         COALESCE(e.subtotal, 0), COALESCE(e.sales_tax, 0),
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
-        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0)
+        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
+        COALESCE(e.diy_mode, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.access_token = $1`, token).Scan(
@@ -1361,6 +1362,63 @@ func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	de.IsPublicView = true
 	de.AcceptURL = "/estimate/accept/" + token
 	renderEstimate(w, r, de)
+}
+
+// estimateForkHandler copies a public estimate into the session as a new unsaved estimate.
+// Custom items and save/accept metadata are stripped; all pricing inputs are preserved.
+func estimateForkHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	src := getEstimateByToken(token)
+	if src.Error != "" {
+		http.Error(w, "Estimate not found", http.StatusNotFound)
+		return
+	}
+
+	sd, err := GetSession(r, w)
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+
+	forked := DeckEstimate{
+		Desc:          src.Desc,
+		Material:      src.Material,
+		Height:        src.Height,
+		RailMaterial:  src.RailMaterial,
+		RailInfill:    src.RailInfill,
+		RailFeetOverride: src.RailFeetOverride,
+		StairWidth:    src.StairWidth,
+		StairRailCount: src.StairRailCount,
+		HasDemo:       src.HasDemo,
+		HasFascia:     src.HasFascia,
+		HasStairFascia: src.HasStairFascia,
+		HasStairTK:    src.HasStairTK,
+		DIYMode:       src.DIYMode,
+		PermitLevel:   src.PermitLevel,
+		Sections:      src.Sections,
+		Customer:      src.Customer,
+	}
+	// Clear section IDs so they get new ones on save
+	for i := range forked.Sections {
+		forked.Sections[i].ID = 0
+		forked.Sections[i].EstimateID = 0
+	}
+
+	forked.CalcAllCosts()
+
+	sd.Estimate = forked
+	sd.Customer = forked.Customer
+	if err := sd.Save(r, w); err != nil {
+		http.Error(w, "Session save error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/estimate", http.StatusSeeOther)
 }
 
 // estimateAcceptHandler handles POST /estimate/accept/{token}.
