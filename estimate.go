@@ -524,6 +524,13 @@ RETURNING estimate_id, version`
 
 		_ = db.Close()
 		log.Printf("Estimate updated: ID=%d, SaveDate=%v, ExpirationDate=%v", estimate.EstimateID, estimate.SaveDate, estimate.ExpirationDate)
+		recordNREvent("EstimateUpdated", map[string]interface{}{
+			"estimate_id":   estimate.EstimateID,
+			"total_cost":    estimate.TotalCost,
+			"material":      estimate.Material,
+			"user_id":       estimate.UserId,
+			"contractor_id": estimate.ContractorID,
+		})
 	} else {
 
 		// Create NEW Estimate — always generate a fresh token to avoid session bleed-through
@@ -583,6 +590,13 @@ RETURNING estimate_id, version`
 		}
 		estimate.EstimateID = int(newID)
 		_ = db.Close()
+		recordNREvent("EstimateCreated", map[string]interface{}{
+			"estimate_id":   estimate.EstimateID,
+			"total_cost":    estimate.TotalCost,
+			"material":      estimate.Material,
+			"user_id":       estimate.UserId,
+			"contractor_id": estimate.ContractorID,
+		})
 	}
 
 	// Save sections — open fresh connection
@@ -1183,6 +1197,12 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("emailSendHandler: sent estimate %d to %s (id: %s)", estimate.EstimateID, toEmail, sent.Id)
+	recordNREvent("EstimateEmailed", map[string]interface{}{
+		"estimate_id":   estimate.EstimateID,
+		"total_cost":    estimate.TotalCost,
+		"contractor_id": estimate.ContractorID,
+		"to_email":      toEmail,
+	})
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "sent",
 		"message": "Estimate emailed to " + toEmail,
@@ -1395,6 +1415,11 @@ func estimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	de.AcceptDate = time.Now()
+	recordNREvent("EstimateAccepted", map[string]interface{}{
+		"estimate_id":   de.EstimateID,
+		"total_cost":    de.TotalCost,
+		"contractor_id": de.ContractorID,
+	})
 	de.IsPublicView = true
 	de.AcceptURL = "/estimate/accept/" + token
 	renderEstimate(w, r, de)

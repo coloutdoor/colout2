@@ -10,7 +10,19 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
+
+// nrApp is the New Relic application instance, nil when NR is not configured.
+var nrApp *newrelic.Application
+
+// recordNREvent fires a custom New Relic event; no-op when NR is not configured.
+func recordNREvent(eventType string, params map[string]interface{}) {
+	if nrApp == nil {
+		return
+	}
+	nrApp.RecordCustomEvent(eventType, params)
+}
 
 func cssHandler(w http.ResponseWriter, r *http.Request) {
 	// log.Printf("CSS Handler for : %s", r.URL.Path)
@@ -100,7 +112,33 @@ func main() {
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 
+	// New Relic APM — disabled gracefully if license key is not set
+	nrAppName := "colout2"
+	if strings.Contains(os.Getenv("SERVER_ADDR"), "localhost") {
+		nrAppName = "colout2-test"
+	}
+	app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName(nrAppName),
+		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+		newrelic.ConfigAIMonitoringEnabled(true),
+	)
+	if err != nil {
+		log.Printf("New Relic not enabled: %v", err)
+		app = nil
+	}
+	nrApp = app
+
 	mux := http.NewServeMux()
+
+	nrHandle := func(pattern string, handler http.HandlerFunc) {
+		if app != nil {
+			p, h := newrelic.WrapHandleFunc(app, pattern, handler)
+			mux.HandleFunc(p, h)
+		} else {
+			mux.HandleFunc(pattern, handler)
+		}
+	}
 
 	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
 	mux.HandleFunc("/f7897e50677c40c4864e7f10255812bd.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -110,18 +148,18 @@ func main() {
 		http.ServeFile(w, r, "images/colout2.png") // Adjust path to your file
 	})
 
-	mux.HandleFunc("/estimate", estimateHandler)
-	mux.HandleFunc("/estimate/delete/", estimateDeleteHandler)
-	mux.HandleFunc("/estimate/send/{estimateID}", emailSendHandler)        //POST only - Send Estimate via Email
-	mux.HandleFunc("/estimate/materials/{estimateID}", materialsHandler) //POST only - Generate and email materials list
-	mux.HandleFunc("/estimate/view/{token}", estimateTokenHandler)    //GET public customer view via token
-	mux.HandleFunc("/estimate/print/{token}", estimatePrintHandler)  //GET print-friendly view via token
-	mux.HandleFunc("/estimate/fork/{token}", estimateForkHandler)    //GET fork a public estimate into session
-	mux.HandleFunc("/estimate/accept/{token}", estimateAcceptHandler) //POST customer accept via token
-	mux.HandleFunc("/estimate/{estimateID}", estimateDBHandler)       //GET a saved estimate from DB
-	mux.HandleFunc("/customer", customerHandler)
-	mux.HandleFunc("/session", sessionHandler)
-	mux.HandleFunc("/deck-calculator", calcHandler)
+	nrHandle("/estimate", estimateHandler)
+	nrHandle("/estimate/delete/", estimateDeleteHandler)
+	nrHandle("/estimate/send/{estimateID}", emailSendHandler)
+	nrHandle("/estimate/materials/{estimateID}", materialsHandler)
+	nrHandle("/estimate/view/{token}", estimateTokenHandler)
+	nrHandle("/estimate/print/{token}", estimatePrintHandler)
+	nrHandle("/estimate/fork/{token}", estimateForkHandler)
+	nrHandle("/estimate/accept/{token}", estimateAcceptHandler)
+	nrHandle("/estimate/{estimateID}", estimateDBHandler)
+	nrHandle("/customer", customerHandler)
+	nrHandle("/session", sessionHandler)
+	nrHandle("/deck-calculator", calcHandler)
 	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
 		// Preserve query string on redirect
 		target := "/deck-calculator"
@@ -130,28 +168,28 @@ func main() {
 		}
 		http.Redirect(w, r, target, http.StatusMovedPermanently)
 	})
-	mux.HandleFunc("/css/", cssHandler)
-	mux.HandleFunc("/contact", contactHandler)
-	mux.HandleFunc("/contact/", contactHandler)
-	mux.HandleFunc("/login", loginHandler)
-	mux.HandleFunc("/signup", signupHandler)
-	mux.HandleFunc("/auth/google", googleLoginHandler)
-	mux.HandleFunc("/auth/google/callback", googleCallbackHandler)
-	mux.HandleFunc("/sitemap.xml", sitemapHandler)
-	mux.HandleFunc("/robots.txt", robotsTxtHandler)
-	mux.HandleFunc("/error404", notFoundHandler) // Testing purposes
+	nrHandle("/css/", cssHandler)
+	nrHandle("/contact", contactHandler)
+	nrHandle("/contact/", contactHandler)
+	nrHandle("/login", loginHandler)
+	nrHandle("/signup", signupHandler)
+	nrHandle("/auth/google", googleLoginHandler)
+	nrHandle("/auth/google/callback", googleCallbackHandler)
+	nrHandle("/sitemap.xml", sitemapHandler)
+	nrHandle("/robots.txt", robotsTxtHandler)
+	nrHandle("/error404", notFoundHandler)
 	mux.HandleFunc("/.well-known/appspecific/com.chrome.devtools.json", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("{}"))
 	})
-	mux.HandleFunc("/api/calc/deck", apiCalcDeckHandler)
-	mux.HandleFunc("/admin", adminHandler)
-	mux.HandleFunc("/admin/contractor/action", adminContractorActionHandler)
-	mux.HandleFunc("/contractor", contractorLandingHandler)
-	mux.HandleFunc("/contractor/register", contractorRegisterHandler)
-	mux.HandleFunc("/my-estimates", myEstimatesHandler)
-	mux.HandleFunc("/privacy", privacyHandler)
-	mux.HandleFunc("/", ownerHandler) // Default - also City specific pages.  This should return a 404.
+	nrHandle("/api/calc/deck", apiCalcDeckHandler)
+	nrHandle("/admin", adminHandler)
+	nrHandle("/admin/contractor/action", adminContractorActionHandler)
+	nrHandle("/contractor", contractorLandingHandler)
+	nrHandle("/contractor/register", contractorRegisterHandler)
+	nrHandle("/my-estimates", myEstimatesHandler)
+	nrHandle("/privacy", privacyHandler)
+	nrHandle("/", ownerHandler)
 
 	//fmt.Println("Server starting on :8080...")
 	// err := http.ListenAndServe(":8080", nil)
@@ -165,7 +203,7 @@ func main() {
 	} else {
 		fmt.Println("Default Server starting on :8080...")
 	}
-	err := http.ListenAndServe(addr, mux)
+	err = http.ListenAndServe(addr, mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}

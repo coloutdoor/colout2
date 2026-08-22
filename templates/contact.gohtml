@@ -2,71 +2,209 @@
   {{template "header.gohtml" .Header}}
 
   {{with .Page}}
-   <div class="columns">
-    <div class="column is-half is-offset-one-quarter">
+<style>
+:root {
+  --cust-surface: #0d2035;
+  --cust-border:  #1a3450;
+  --cust-border2: #254868;
+  --cust-text:    #d8eaf8;
+  --cust-text2:   #7aaac8;
+  --cust-text3:   #3f6080;
+  --cust-accent:  #3d8c65;
+  --cust-accent-l:#1a3328;
+  --cust-accent-m:#2a5c44;
+  --cust-input:   #071018;
+}
 
-      <h2 class="title is-3 has-text-centered">Contact Columbia Outdoor</h2>
-      {{if .PageTitle}}
-      <p class="has-text-centered mb-5"> {{.PageTitle}} </p>
-      {{else}}
-      <p class="has-text-centered mb-5"> Ready to transform your outdoor space? Get in touch with our SW Washington experts.  </p>
-      {{end}}
+.cust-wrap {
+  max-width: 520px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
 
-      <form action="/contact" method="POST">
-        <div class="field">
-          <label class="label">Name</label>
-          <div class="control">
-            <input class="input" type="text" name="name" placeholder="John Doe" required>
-          </div>
+.cust-card {
+  background: var(--cust-surface);
+  border: 1px solid var(--cust-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.6);
+  padding: 2rem 2rem 1.75rem;
+}
+
+.cust-eyebrow {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cust-text3);
+  margin-bottom: .4rem;
+}
+
+.cust-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cust-text);
+  margin-bottom: .3rem;
+}
+
+.cust-subtitle {
+  font-size: .85rem;
+  color: var(--cust-text2);
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--cust-border);
+}
+
+.cust-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.cust-field {
+  margin-bottom: 1.1rem;
+}
+
+.cust-label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--cust-text2);
+  margin-bottom: .35rem;
+}
+
+.cust-input,
+.cust-select,
+.cust-textarea {
+  width: 100%;
+  background: var(--cust-input);
+  border: 1px solid var(--cust-border2);
+  border-radius: 5px;
+  color: var(--cust-text);
+  font-size: .95rem;
+  padding: .55rem .75rem;
+  transition: border-color .15s;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cust-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.cust-input:focus,
+.cust-select:focus,
+.cust-textarea:focus {
+  outline: none;
+  border-color: var(--cust-accent);
+}
+
+.cust-input::placeholder,
+.cust-textarea::placeholder { color: var(--cust-text3); }
+
+.cust-select-wrap {
+  position: relative;
+}
+.cust-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cust-text3);
+  pointer-events: none;
+  font-size: .8rem;
+}
+
+.cust-submit {
+  width: 100%;
+  background: var(--cust-accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: .75rem 1rem;
+  cursor: pointer;
+  margin-top: .75rem;
+  transition: background .15s;
+}
+.cust-submit:hover { background: #4aaa7a; }
+
+.cust-msg {
+  font-size: .9rem;
+  padding: .75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+}
+.cust-msg.success { background: var(--cust-accent-l); color: #6ed4a0; border: 1px solid var(--cust-accent-m); }
+.cust-msg.error   { background: #2a1018; color: #f08080; border: 1px solid #6b2020; }
+</style>
+
+<div class="cust-wrap">
+  <div class="cust-card">
+    <p class="cust-eyebrow">Columbia Outdoor</p>
+    <h1 class="cust-title">{{if .Sent}}Thank You!{{else}}Contact Us{{end}}</h1>
+    <p class="cust-subtitle">
+      {{if .Sent}}One of our experts will get in touch with you soon.{{else}}Ready to transform your outdoor space? Get in touch with our SW Washington experts.{{end}}
+    </p>
+
+    {{if .Sent}}
+    <p class="cust-msg success">Your message was sent! We'll be in touch shortly.</p>
+    {{end}}
+
+    {{if not .Sent}}
+    <form action="/contact" method="POST">
+
+      <div class="cust-field">
+        <label class="cust-label" for="name">Name</label>
+        <input class="cust-input" type="text" id="name" name="name" placeholder="Jane Smith" required>
+      </div>
+
+      <div class="cust-row">
+        <div class="cust-field">
+          <label class="cust-label" for="email">Email</label>
+          <input class="cust-input" type="email" id="email" name="email" placeholder="jane@example.com" required>
         </div>
-
-        <div class="field">
-          <label class="label">Email</label>
-          <div class="control">
-            <input class="input" type="email" name="email" placeholder="john@example.com" required>
-          </div>
+        <div class="cust-field">
+          <label class="cust-label" for="phone">Phone</label>
+          <input class="cust-input" type="tel" id="phone" name="phone" placeholder="(360) 555-1234">
         </div>
+      </div>
 
-        <div class="field">
-          <label class="label">Phone</label>
-          <div class="control">
-            <input class="input" type="tel" name="phone" placeholder="(360) 555-1234">
-          </div>
+      <div class="cust-field">
+        <label class="cust-label" for="project">Project Type</label>
+        <div class="cust-select-wrap">
+          <select class="cust-select" id="project" name="project" required>
+            <option value="">Select a project...</option>
+            <option>Deck</option>
+            <option>Patio Cover</option>
+            <option>Landscape Design</option>
+            <option>Outdoor Kitchen</option>
+            <option>Other</option>
+          </select>
         </div>
+      </div>
 
-        <div class="field">
-          <label class="label">Project Type</label>
-          <div class="control">
-            <div class="select is-fullwidth">
-              <select name="project" required>
-                <option value="">Select a project...</option>
-                <option>Deck</option>
-                <option>Patio Cover</option>
-                <option>Landscape Design</option>
-                <option>Outdoor Kitchen</option>
-                <option>Other</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <div class="cust-field">
+        <label class="cust-label" for="message">Message</label>
+        <textarea class="cust-textarea" id="message" name="message" rows="4" placeholder="Tell us about your vision..." required></textarea>
+      </div>
 
-        <div class="field">
-          <label class="label">Message</label>
-          <div class="control">
-            <textarea class="textarea" name="message" rows="4" placeholder="Tell us about your vision..." required></textarea>
-          </div>
-        </div>
+      <div class="cust-field">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACG2AsOQto_6MYFA" data-theme="dark" data-size="normal" data-callback="onSuccess"></div>
+      </div>
 
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAACG2AsOQto_6MYFA" data-theme="light" data-size="normal" data-callback="onSuccess" ></div>
-        <div class="field">
-          <div class="control">
-              <input class="button is-primary" type="submit" value="Send Message"> 
-          </div>
-        </div>
-      </form>
-    </div>
+      <button type="submit" class="cust-submit">Send Message</button>
+
+    </form>
+    {{end}}
   </div>
-   {{end}}
-  
+</div>
+
+  {{end}}
   {{template "footer.gohtml" .}}
 {{end}}

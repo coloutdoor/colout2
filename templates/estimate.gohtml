@@ -200,8 +200,8 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
 .est-line-items tr.zero-row td.td-item { color: var(--est-border2); font-weight: 400; }
 .est-line-items tr.zero-row td.td-desc { color: var(--est-border2); }
 .est-line-items tr.zero-row td.td-cost { color: var(--est-border2); }
-.est-line-items tr.zero-row .est-check { opacity: .4; }
-.est-line-items tr.zero-row .est-edit-btn { opacity: .4; pointer-events: none; }
+.est-line-items tr.zero-row .est-check { opacity: .6; }
+.est-line-items tr.zero-row .est-edit-btn { opacity: .55; }
 /* Edit / checkbox controls */
 .est-edit-btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -659,8 +659,8 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
         <tr id="stairrail-row"{{if or (eq .StairWidth 0.0) (eq .StairRailCount 0.0)}} class="zero-row"{{end}}>
           <td class="td-item">Stair Rails</td>
           <td class="td-ctl">
-            {{if and (gt .StairWidth 0.0) (not .IsPublicView)}}
-            <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+            {{if not .IsPublicView}}
+            <a id="stairrail-edit" href="#" onclick="openStairRailModal(); return false;" class="est-edit-btn"{{if eq .StairWidth 0.0}} style="visibility:hidden"{{end}}><i class="fas fa-pencil-alt"></i></a>
             {{end}}
           </td>
           <td class="td-desc" id="stairrail-desc">{{formatStairRailDescription .}}</td>
@@ -671,10 +671,8 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
         <tr id="stairfascia-row"{{if or (eq .StairWidth 0.0) (not .HasStairFascia)}} class="zero-row"{{end}}>
           <td class="td-item">Stair Fascia</td>
           <td class="td-ctl">
-            {{if gt .StairWidth 0.0}}
             {{if not .IsPublicView}}<input id="stairfascia-check" type="checkbox" class="est-check" {{if .HasStairFascia}}checked{{end}}
-              onchange="toggleStairFascia(this.checked)">{{end}}
-            {{end}}
+              onchange="toggleStairFascia(this.checked)"{{if eq .StairWidth 0.0}} style="visibility:hidden"{{end}}>{{end}}
           </td>
           <td class="td-desc" id="stairfascia-desc">{{formatStairFasciaDescription .}}</td>
           <td class="td-cost" id="stairfascia-cost">{{formatCost .StairFasciaCost}}</td>
@@ -684,10 +682,8 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
         <tr id="stairtk-row"{{if or (eq .StairWidth 0.0) (not .HasStairTK)}} class="zero-row"{{end}}>
           <td class="td-item">Stair Toe Kicks</td>
           <td class="td-ctl">
-            {{if gt .StairWidth 0.0}}
             {{if not .IsPublicView}}<input id="stairtk-check" type="checkbox" class="est-check" {{if .HasStairTK}}checked{{end}}
-              onchange="toggleStairTK(this.checked)">{{end}}
-            {{end}}
+              onchange="toggleStairTK(this.checked)"{{if eq .StairWidth 0.0}} style="visibility:hidden"{{end}}>{{end}}
           </td>
           <td class="td-desc" id="stairtk-desc">{{formatStairTKDescription .}}</td>
           <td class="td-cost" id="stairtk-cost">{{formatCost .StairToeKickCost}}</td>
@@ -1133,7 +1129,11 @@ function generateMaterials() {
         .then(data => {
             btn.classList.remove('is-loading');
             btn.disabled = false;
-            alert(data.message || (data.status === 'sent' ? 'Materials list sent!' : 'Error generating materials.'));
+            if (data.status === 'error') {
+                alert('Error: ' + (data.message || 'Could not start materials generation.'));
+            } else {
+                alert(data.message || 'Generating — check your email in a minute.');
+            }
         })
         .catch(() => {
             btn.classList.remove('is-loading');

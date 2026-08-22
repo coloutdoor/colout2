@@ -17,6 +17,7 @@ import (
 
 type PageData struct {
 	PageTitle string
+	Sent      bool
 }
 
 type ContactForm struct {
@@ -148,6 +149,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{PageTitle: "Contact Us"}
 	if r.URL.Query().Get("sent") == "1" {
 		data.PageTitle = "Thank You – Message Sent!"
+		data.Sent = true
 	}
 
 	userAuth := getUserAuth(r, w)

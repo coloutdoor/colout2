@@ -56,23 +56,23 @@ func materialsHandler(w http.ResponseWriter, r *http.Request) {
 		de.CalcAllCosts()
 	}
 
-	estimateText := formatEstimateText(de)
-	markdown, err := generateMaterialsList(estimateText)
-	if err != nil {
-		log.Printf("materialsHandler: Claude error: %v", err)
-		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Failed to generate materials list."})
-		return
-	}
+	// Run the slow Claude + email work in the background so the button returns immediately.
+	go func(de DeckEstimate) {
+		estimateText := formatEstimateText(de)
+		markdown, err := generateMaterialsList(estimateText)
+		if err != nil {
+			log.Printf("materialsHandler: Claude error for estimate %d: %v", de.EstimateID, err)
+			return
+		}
+		if err := emailMaterialsList(de, estimateText, markdown); err != nil {
+			log.Printf("materialsHandler: email error for estimate %d: %v", de.EstimateID, err)
+			return
+		}
+		log.Printf("materialsHandler: sent materials for estimate %d", de.EstimateID)
+	}(de)
 
-	if err := emailMaterialsList(de, estimateText, markdown); err != nil {
-		log.Printf("materialsHandler: email error: %v", err)
-		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Generated but failed to send email."})
-		return
-	}
-
-	log.Printf("materialsHandler: sent materials for estimate %d", idInt)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "sent", "message": "Materials list emailed to support@columbiaoutdoor.com"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "generating", "message": "Generating materials list — check your email in a minute."})
 }
 
 func formatEstimateText(e DeckEstimate) string {
