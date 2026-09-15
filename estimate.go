@@ -34,12 +34,20 @@ var funcMap = template.FuncMap{
 	"formatStairTKDescription":     formatStairTKDescription,
 	"formatPermitDescription":      formatPermitDescription,
 	"currentYear":                  func() int { return time.Now().Year() },
-	"neg":                          func(f float64) float64 { return -f },
+	"neg": func(f float64) float64 { return -f },
+	"mul": func(a, b int) int { return a * b },
+	"div": func(a, b int) int {
+		if b == 0 {
+			return 0
+		}
+		return a / b
+	},
 	// jsStr encodes a string as a JavaScript string literal, safe inside <script> tags.
 	"jsStr": func(s string) template.JS {
 		b, _ := json.Marshal(s)
 		return template.JS(b)
 	},
+	"projectPhotosJSON": projectPhotosJSON,
 }
 
 // DeckEstimate holds all data for a deck cost estimate.

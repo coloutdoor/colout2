@@ -15,24 +15,39 @@ type Photo struct {
 	Category    string `yaml:"category"`
 	City        string `yaml:"city"`
 	Description string `yaml:"description"`
+	Featured    bool   `yaml:"featured"`
+	Reviewed    bool   `yaml:"reviewed"`
 }
 
 type PhotoLibrary struct {
 	Photos []Photo `yaml:"photos"`
 }
 
+// loadPhotos returns only photos that have been reviewed and marked featured,
+// since these are the ones shown in the homepage carousel.
 func loadPhotos() []Photo {
 	data, err := os.ReadFile("static/photos.yaml")
 	if err != nil {
 		log.Printf("loadPhotos: %v", err)
 		return nil
 	}
+	// Try wrapped format first (photos: [...]), then flat list
+	var all []Photo
 	var lib PhotoLibrary
-	if err := yaml.Unmarshal(data, &lib); err != nil {
+	if err := yaml.Unmarshal(data, &lib); err == nil && len(lib.Photos) > 0 {
+		all = lib.Photos
+	} else if err := yaml.Unmarshal(data, &all); err != nil {
 		log.Printf("loadPhotos unmarshal: %v", err)
 		return nil
 	}
-	return lib.Photos
+
+	var filtered []Photo
+	for _, p := range all {
+		if p.Reviewed && p.Featured {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
 }
 
 // Homeowner represents the structure of the homeowner marketing strategy

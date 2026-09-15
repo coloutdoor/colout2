@@ -164,6 +164,21 @@
     <div id="mainNavbar" class="navbar-menu">
       <div class="navbar-end">
         <a class="navbar-item" href="/">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-item" href="/projects">Our Projects</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="/projects">All Projects</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="/projects?category=deck">Deck</a>
+            <a class="navbar-item" href="/projects?category=cover">Cover</a>
+            <a class="navbar-item" href="/projects?category=stairs">Stairs</a>
+            <a class="navbar-item" href="/projects?category=rails">Rails</a>
+            <a class="navbar-item" href="/projects?category=patio">Patio</a>
+            <a class="navbar-item" href="/projects?category=fence">Fence</a>
+            <a class="navbar-item" href="/projects?category=farm">Farm / Shed / Coop</a>
+            <a class="navbar-item" href="/projects?category=other">Other</a>
+          </div>
+        </div>
       {{if .IsAuthenticated}}
         <a class="navbar-item" href="/login?option=signout">Sign Out</a>
       {{else}}

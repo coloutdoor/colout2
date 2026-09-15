@@ -1,0 +1,577 @@
+{{define "admin_photos.gohtml"}}
+{{template "header.gohtml" .Header}}
+
+{{with .Page}}
+<style>
+:root {
+  --ap-bg:      #07111c;
+  --ap-surface: #0d2035;
+  --ap-border:  #1a3450;
+  --ap-border2: #254868;
+  --ap-text:    #d8eaf8;
+  --ap-text2:   #7aaac8;
+  --ap-text3:   #3f6080;
+  --ap-accent:  #3d8c65;
+  --ap-input:   #071018;
+  --ap-danger:  #8b2020;
+}
+
+body { background: var(--ap-bg); color: var(--ap-text); }
+
+.ap-wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+.ap-progress {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.ap-progress-bar-wrap {
+  flex: 1;
+  background: var(--ap-border);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.ap-progress-bar {
+  background: var(--ap-accent);
+  height: 100%;
+  border-radius: 4px;
+  transition: width .3s;
+}
+.ap-progress-label { font-size: .85rem; color: var(--ap-text2); white-space: nowrap; }
+
+.ap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: .75rem;
+}
+
+.ap-card {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s, transform .1s;
+}
+.ap-card:hover { border-color: var(--ap-accent); transform: translateY(-2px); }
+.ap-card img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+.ap-card-meta {
+  padding: .4rem .6rem;
+  font-size: .72rem;
+  color: var(--ap-text2);
+}
+.ap-card-project { font-weight: 600; color: var(--ap-text); }
+.ap-card-cat  { color: var(--ap-text3); }
+
+/* Modal */
+.ap-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.ap-modal-overlay.open { display: flex; }
+
+.ap-modal {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border2);
+  border-radius: 10px;
+  width: 90vw;
+  max-width: 900px;
+  max-height: 90vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.ap-modal-img {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+.ap-modal-img img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.ap-modal-form {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+
+.ap-modal-source {
+  font-size: .7rem;
+  color: var(--ap-text3);
+  word-break: break-all;
+  margin-bottom: .25rem;
+}
+
+.ap-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ap-text2);
+  margin-bottom: .3rem;
+}
+
+.ap-input, .ap-select {
+  width: 100%;
+  background: var(--ap-input);
+  border: 1px solid var(--ap-border2);
+  border-radius: 5px;
+  color: var(--ap-text);
+  font-size: .9rem;
+  padding: .45rem .65rem;
+  font-family: inherit;
+  appearance: none;
+}
+.ap-input:focus, .ap-select:focus {
+  outline: none;
+  border-color: var(--ap-accent);
+}
+
+.ap-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .9rem;
+}
+
+.ap-btn-row {
+  display: flex;
+  gap: .75rem;
+  margin-top: auto;
+  padding-top: .5rem;
+}
+.ap-btn {
+  flex: 1;
+  padding: .6rem;
+  border: none;
+  border-radius: 6px;
+  font-size: .95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ap-btn-approve { background: var(--ap-accent); color: #fff; }
+.ap-btn-approve:hover { background: #4aaa7a; }
+.ap-btn-delete  { background: var(--ap-danger); color: #fff; }
+.ap-btn-delete:hover  { background: #b03030; }
+.ap-btn-skip   { background: var(--ap-border2); color: var(--ap-text2); }
+.ap-btn-skip:hover { background: var(--ap-border); }
+
+.ap-empty { text-align: center; padding: 4rem; color: var(--ap-text2); font-size: 1.1rem; }
+
+.ap-tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.ap-tab {
+  padding: .45rem 1rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--ap-text2);
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ap-tab:hover { border-color: var(--ap-border2); color: var(--ap-text); }
+.ap-tab.active { background: var(--ap-accent); border-color: var(--ap-accent); color: #fff; }
+
+.ap-card { position: relative; }
+.ap-badge-featured {
+  position: absolute;
+  top: .3rem;
+  right: .3rem;
+  background: rgba(0,0,0,.65);
+  color: #f5c542;
+  font-size: .9rem;
+  line-height: 1;
+  padding: .25rem .35rem;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .ap-modal { grid-template-columns: 1fr; }
+  .ap-modal-img { max-height: 40vh; }
+}
+
+.ap-help-modal {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border2);
+  border-radius: 10px;
+  width: 90vw;
+  max-width: 640px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+.ap-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.ap-help-header h3 { margin: 0; color: var(--ap-text); font-size: 1.15rem; }
+.ap-help-close {
+  background: none;
+  border: none;
+  color: var(--ap-text2);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ap-help-close:hover { color: var(--ap-text); }
+.ap-help-body p { color: var(--ap-text2); font-size: .9rem; line-height: 1.5; margin: 0 0 .9rem; }
+.ap-help-body code {
+  background: var(--ap-input);
+  border: 1px solid var(--ap-border2);
+  border-radius: 4px;
+  padding: .1rem .35rem;
+  font-size: .85rem;
+  color: var(--ap-text);
+}
+.ap-help-code {
+  background: var(--ap-input);
+  border: 1px solid var(--ap-border2);
+  border-radius: 6px;
+  padding: .9rem 1rem;
+  font-size: .8rem;
+  color: var(--ap-text);
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0 0 .9rem;
+}
+</style>
+
+<div class="ap-wrap">
+
+  <div class="ap-progress">
+    <div class="ap-progress-bar-wrap">
+      {{$pct := 0}}
+      {{if gt .Total 0}}{{$pct = div (mul .Reviewed 100) .Total}}{{end}}
+      <div class="ap-progress-bar" style="width:{{$pct}}%"></div>
+    </div>
+    <span class="ap-progress-label">{{.Reviewed}} of {{.Total}} reviewed &mdash; {{.Remaining}} remaining</span>
+    {{if eq .Remaining 0}}
+      <a href="/admin" class="ap-btn ap-btn-approve" style="flex:none;padding:.4rem 1rem;text-decoration:none">Done &rarr; Admin</a>
+    {{end}}
+  </div>
+
+  <div class="ap-tabs" style="justify-content:space-between;">
+    <div style="display:flex; gap:.5rem;">
+      <a href="/admin/photos?view=unreviewed" class="ap-tab {{if eq .View "unreviewed"}}active{{end}}">To Review</a>
+      <a href="/admin/photos?view=all" class="ap-tab {{if eq .View "all"}}active{{end}}">All Photos</a>
+      <a href="/admin/photos?view=featured" class="ap-tab {{if eq .View "featured"}}active{{end}}">Featured</a>
+    </div>
+    <button type="button" class="ap-tab" onclick="openHelpModal()">Help</button>
+  </div>
+
+  {{if eq (len .Photos) 0}}
+  <div class="ap-empty">{{if eq .View "featured"}}No featured photos.{{else}}All photos reviewed!{{end}}</div>
+  {{else}}
+  <div class="ap-grid" id="photoGrid">
+    {{range .Photos}}
+    <div class="ap-card" onclick="openModal(this)"
+      data-uri="{{.URI}}"
+      data-city="{{.City}}"
+      data-category="{{.Category}}"
+      data-description="{{.Description}}"
+      data-tags="{{range $i,$t := .Tags}}{{if $i}},{{end}}{{$t}}{{end}}"
+      data-featured="{{.Featured}}"
+      data-reviewed="{{.Reviewed}}"
+      data-project="{{.Project}}"
+      data-source="{{.SourcePath}}">
+      {{if .Featured}}<div class="ap-badge-featured">&#9733;</div>{{end}}
+      <img src="{{.URI}}" loading="lazy" alt="{{.Description}}">
+      <div class="ap-card-meta">
+        <div class="ap-card-project">{{if .Project}}{{.Project}}{{else}}unknown{{end}}</div>
+        <div class="ap-card-cat">{{.Category}}</div>
+      </div>
+    </div>
+    {{end}}
+  </div>
+  {{end}}
+
+</div>
+
+<!-- Edit Modal -->
+<div class="ap-modal-overlay" id="modalOverlay" onclick="closeOnOverlay(event)">
+  <div class="ap-modal">
+    <div class="ap-modal-img">
+      <img id="modalImg" src="" alt="">
+    </div>
+    <div class="ap-modal-form">
+      <div>
+        <div class="ap-modal-source" id="modalSource"></div>
+      </div>
+
+      <div>
+        <label class="ap-label">City</label>
+        <input class="ap-input" id="modalCity" type="text" placeholder="e.g. Woodland">
+      </div>
+
+      <div>
+        <label class="ap-label">Category</label>
+        <select class="ap-select" id="modalCategory">
+          <option value="deck">Deck</option>
+          <option value="cover">Cover</option>
+          <option value="stairs">Stairs</option>
+          <option value="rails">Rails</option>
+          <option value="patio">Patio</option>
+          <option value="fence">Fence</option>
+          <option value="farm">Farm / Shed / Coop</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="ap-label">Description</label>
+        <input class="ap-input" id="modalDesc" type="text" placeholder="Short description">
+      </div>
+
+      <div>
+        <label class="ap-label">Tags <span style="font-weight:400;text-transform:none">(comma separated)</span></label>
+        <input class="ap-input" id="modalTags" type="text" placeholder="timbertech, cedar, framing">
+      </div>
+
+      <div>
+        <label class="ap-label">Project</label>
+        <input class="ap-input" id="modalProject" type="text" placeholder="e.g. Hunt" list="projectList">
+        <datalist id="projectList">
+          {{range .Projects}}<option value="{{.}}">{{end}}
+        </datalist>
+      </div>
+
+      <div class="ap-checkbox-row">
+        <input type="checkbox" id="modalFeatured">
+        <label for="modalFeatured" style="color:var(--ap-text2)">Featured (best shots)</label>
+      </div>
+
+      <input type="hidden" id="modalURI">
+
+      <div class="ap-btn-row">
+        <button class="ap-btn ap-btn-approve" id="saveBtn" onclick="approve()">Approve</button>
+        <button class="ap-btn ap-btn-skip"   onclick="skip()">Skip</button>
+        <button class="ap-btn ap-btn-delete" onclick="deletePhoto()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="ap-modal-overlay" id="helpModalOverlay" onclick="closeOnHelpOverlay(event)">
+  <div class="ap-help-modal">
+    <div class="ap-help-header">
+      <h3>Uploading New Photos</h3>
+      <button class="ap-help-close" onclick="closeHelpModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="ap-help-body">
+      <p>Run this from the repo root to upload new photos and queue them here for review:</p>
+      <pre class="ap-help-code">scripts/venv/bin/python scripts/sync_photo_to_gcs.py ~/path/to/photos</pre>
+      <p>This uploads each new image to the <code>columbiaoutdoor-images</code> GCS bucket and appends an entry straight to <code>static/photos.yaml</code> with <code>reviewed: false</code> — no separate file, no merge step. It'll show up right here under "To Review."</p>
+      <p>Re-running on the same folder is safe — files already in <code>static/photos.yaml</code> are skipped by MD5, never re-uploaded.</p>
+      <p>If your GCP credentials have expired, run <code>gcloud auth application-default login</code> first.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentCard = null;
+const currentView = "{{.View}}";
+if (currentView !== 'unreviewed') {
+  document.getElementById('saveBtn').textContent = 'Save';
+}
+
+function openModal(card) {
+  currentCard = card;
+  document.getElementById('modalImg').src      = card.dataset.uri;
+  document.getElementById('modalURI').value    = card.dataset.uri;
+  document.getElementById('modalCity').value   = card.dataset.city;
+  document.getElementById('modalDesc').value   = card.dataset.description;
+  document.getElementById('modalTags').value   = card.dataset.tags;
+  document.getElementById('modalProject').value= card.dataset.project;
+  document.getElementById('modalFeatured').checked = card.dataset.featured === 'true';
+  document.getElementById('modalSource').textContent = card.dataset.source;
+  document.getElementById('modalCategory').value = card.dataset.category;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  currentCard = null;
+}
+
+function closeOnOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function openHelpModal() {
+  document.getElementById('helpModalOverlay').classList.add('open');
+}
+
+function closeHelpModal() {
+  document.getElementById('helpModalOverlay').classList.remove('open');
+}
+
+function closeOnHelpOverlay(e) {
+  if (e.target === document.getElementById('helpModalOverlay')) closeHelpModal();
+}
+
+function parseTags(str) {
+  return str.split(',').map(t => t.trim()).filter(t => t.length > 0);
+}
+
+async function approve() {
+  const payload = {
+    uri:         document.getElementById('modalURI').value,
+    city:        document.getElementById('modalCity').value,
+    category:    document.getElementById('modalCategory').value,
+    description: document.getElementById('modalDesc').value,
+    tags:        parseTags(document.getElementById('modalTags').value),
+    featured:    document.getElementById('modalFeatured').checked,
+    project:     document.getElementById('modalProject').value,
+  };
+  const res = await fetch('/admin/photos/save', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (data.status !== 'ok') {
+    alert('Error saving: ' + (data.error || 'unknown'));
+    return;
+  }
+
+  if (currentView === 'unreviewed') {
+    removeCard();
+    updateProgress(-1);
+  } else {
+    if (currentCard && currentCard.dataset.reviewed === 'false') bumpReviewedLabel();
+    if (currentView === 'featured' && !payload.featured) {
+      removeCard();
+    } else {
+      updateCardData(payload);
+    }
+  }
+  closeModal();
+}
+
+function updateCardData(payload) {
+  if (!currentCard) return;
+  currentCard.dataset.city        = payload.city;
+  currentCard.dataset.category    = payload.category;
+  currentCard.dataset.description = payload.description;
+  currentCard.dataset.tags        = payload.tags.join(',');
+  currentCard.dataset.featured    = payload.featured;
+  currentCard.dataset.project     = payload.project;
+  currentCard.dataset.reviewed    = 'true';
+  currentCard.querySelector('.ap-card-project').textContent = payload.project || 'unknown';
+  currentCard.querySelector('.ap-card-cat').textContent     = payload.category;
+  const badge = currentCard.querySelector('.ap-badge-featured');
+  if (payload.featured && !badge) {
+    const b = document.createElement('div');
+    b.className = 'ap-badge-featured';
+    b.innerHTML = '&#9733;';
+    currentCard.prepend(b);
+  } else if (!payload.featured && badge) {
+    badge.remove();
+  }
+}
+
+function bumpReviewedLabel() {
+  const label = document.querySelector('.ap-progress-label');
+  if (!label) return;
+  const match = label.textContent.match(/(\d+) of (\d+)/);
+  if (!match) return;
+  const reviewed = parseInt(match[1]) + 1;
+  const total    = parseInt(match[2]);
+  const remaining = total - reviewed;
+  label.textContent = `${reviewed} of ${total} reviewed — ${remaining} remaining`;
+  const pct = total > 0 ? (reviewed / total) * 100 : 100;
+  document.querySelector('.ap-progress-bar').style.width = pct + '%';
+}
+
+async function deletePhoto() {
+  if (!confirm('Remove this photo from the library?')) return;
+  const res = await fetch('/admin/photos/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({uri: document.getElementById('modalURI').value}),
+  });
+  const data = await res.json();
+  if (data.status === 'ok') {
+    removeCard();
+    updateProgress(-1, true);
+    closeModal();
+  } else {
+    alert('Error deleting: ' + (data.error || 'unknown'));
+  }
+}
+
+function skip() {
+  closeModal();
+}
+
+function removeCard() {
+  if (currentCard) {
+    currentCard.remove();
+    currentCard = null;
+  }
+  if (document.querySelectorAll('.ap-card').length === 0) {
+    const msg = currentView === 'featured' ? 'No featured photos.' : 'All photos reviewed!';
+    document.getElementById('photoGrid').innerHTML = '<div class="ap-empty">' + msg + '</div>';
+  }
+}
+
+function updateProgress(delta, isDelete) {
+  // Simple page-level counter update without a full reload
+  const label = document.querySelector('.ap-progress-label');
+  if (!label) return;
+  const match = label.textContent.match(/(\d+) of (\d+)/);
+  if (!match) return;
+  let reviewed = parseInt(match[1]);
+  let total    = parseInt(match[2]);
+  if (!isDelete) reviewed++;
+  else total--;
+  const remaining = total - reviewed;
+  label.textContent = `${reviewed} of ${total} reviewed — ${remaining} remaining`;
+  const pct = total > 0 ? (reviewed / total) * 100 : 100;
+  document.querySelector('.ap-progress-bar').style.width = pct + '%';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeHelpModal(); }
+});
+</script>
+
+{{end}}
+{{template "footer.gohtml" .}}
+{{end}}

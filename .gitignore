@@ -12,3 +12,5 @@ colout2.sublime*
 materials/Build_Material
 materials/test/
 /docs
+/scripts/venv
+__pycache__/
