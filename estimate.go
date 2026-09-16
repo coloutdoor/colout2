@@ -48,6 +48,7 @@ var funcMap = template.FuncMap{
 		return template.JS(b)
 	},
 	"projectPhotosJSON": projectPhotosJSON,
+	"categoryOptions":   func() []CategoryOption { return categoryOrder },
 }
 
 // DeckEstimate holds all data for a deck cost estimate.

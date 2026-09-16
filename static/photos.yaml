@@ -151,7 +151,7 @@
     - ceiling
     - cedar
     - timberframe
-  featured: true
+  featured: false
   reviewed: true
   project: Jones
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0014.jpg
@@ -216,7 +216,7 @@
     - timbertech
     - deck
     - lights
-  featured: true
+  featured: false
   reviewed: true
   project: Jones
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0019.jpg
@@ -230,7 +230,7 @@
     - deck
     - picture frame
     - cladding
-  featured: true
+  featured: false
   reviewed: true
   project: Jones
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0020.jpg
@@ -303,7 +303,7 @@
     - azek
     - steps
     - catwalk
-  featured: true
+  featured: false
   reviewed: true
   project: Rice
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0049.jpg
@@ -316,7 +316,7 @@
     - timberframe
     - framing
     - cedar
-  featured: true
+  featured: false
   reviewed: true
   project: La Punta Grande
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0050.jpg
@@ -354,7 +354,7 @@
     - cedar
     - rails
     - steps
-  featured: true
+  featured: false
   reviewed: true
   project: Rice
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0053.jpg
@@ -476,7 +476,7 @@
     - lean-to
     - cover
     - white
-  featured: true
+  featured: false
   reviewed: true
   project: Allen
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0066.jpg
@@ -908,7 +908,7 @@
   description: Timbertech Dryspace under deck
   tags:
     - dryspace
-  featured: false
+  featured: true
   reviewed: true
   project: Daane
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0108.jpg
@@ -943,7 +943,7 @@
   description: Custom deck stairs and ramp
   tags:
     - deck
-  featured: true
+  featured: false
   reviewed: true
   project: Epperson
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0112.jpg
@@ -995,7 +995,7 @@
     - deck
     - picture frame
     - step
-  featured: true
+  featured: false
   reviewed: true
   project: Flint
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0116.jpg
@@ -1021,7 +1021,7 @@
     - rail
     - glass
     - infill
-  featured: true
+  featured: false
   reviewed: true
   project: Grinstead
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0118.jpeg
@@ -1381,15 +1381,15 @@
   md5: 51482403635cb35e1b7efa3cf4762e64
   source_path: projects/Martinson5.jpeg
   city: Camas
-  category: cover
-  description: Cedar finish under deck with future fan
+  category: other
+  description: Cedar finish under soffit with light
   tags:
     - dryspace
     - cedar
-    - fan
+    - light
   featured: false
   reviewed: true
-  project: Martinson
+  project: Patio
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0155.jpg
   md5: 8a132c2f0cf8914dc17852cdf671166f
   source_path: projects/Martinson6.jpg
@@ -1436,7 +1436,7 @@
     - lights
     - rail
     - stairs
-  featured: true
+  featured: false
   reviewed: true
   project: Martinson
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0159.jpg
@@ -1523,7 +1523,7 @@
   tags:
     - timberframe
     - steel posts
-  featured: true
+  featured: false
   reviewed: true
   project: Olson
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0167.jpg
@@ -1584,7 +1584,7 @@
   tags:
     - fence
     - cedar
-  featured: true
+  featured: false
   reviewed: true
   project: Reed
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0173.jpg
@@ -1762,7 +1762,7 @@
   tags:
     - Timberframe
     - framing
-  featured: true
+  featured: false
   reviewed: true
   project: Springmeyer
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0192.jpg
@@ -1841,7 +1841,7 @@
     - gutter
   featured: false
   reviewed: true
-  project: Jan
+  project: Janigian
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0199.jpg
   md5: b28e3caaa471b11bc1c95ec594889240
   source_path: projects/Tingley1.jpg
@@ -1906,9 +1906,10 @@
   md5: 9c5bb2ee57eba601685df5ebbaa6a165
   source_path: projects/Tripp1.jpg
   city: Vancouver
-  category: patio
-  description: Concrete landing
+  category: deck
+  description: Concrete Footing
   tags:
+    - footing
     - concrete
   featured: false
   reviewed: true
@@ -2141,7 +2142,7 @@
   tags:
     - fascia
     - aluminum rails
-  featured: true
+  featured: false
   reviewed: true
   project: Wright
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0233.jpg
@@ -2166,7 +2167,7 @@
     - aluminum
     - rail
     - tr200
-  featured: true
+  featured: false
   reviewed: true
   project: Wright
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0235.jpg
@@ -2296,7 +2297,7 @@
     - cedar
     - rails
     - aluminumbaliusters
-  featured: true
+  featured: false
   reviewed: true
   project: Dykes
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0246.jpg
@@ -2390,7 +2391,7 @@
     - dry
     - lights
     - cedar
-  featured: true
+  featured: false
   reviewed: true
   project: CamasCedar
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0254.jpg
@@ -2415,7 +2416,7 @@
   tags:
     - cedar
     - rails
-  featured: true
+  featured: false
   reviewed: true
   project: CamasCedar
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0256.jpg
@@ -2428,7 +2429,7 @@
     - stair
     - rail
     - cedar
-  featured: false
+  featured: true
   reviewed: true
   project: Devoe
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0257.jpg
@@ -2852,7 +2853,7 @@
     - finish
     - cedar
     - timberframe
-  featured: true
+  featured: false
   reviewed: true
   project: Bala
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0293.jpg
@@ -2866,7 +2867,7 @@
     - finish
     - cedar
     - skylight
-  featured: true
+  featured: false
   reviewed: true
   project: Bala
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0294.jpg
@@ -3499,18 +3500,6 @@
   featured: false
   reviewed: true
   project: Case
-- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0356.jpg
-  md5: e96f3caf87a443f68288dc9f53fb5e8d
-  source_path: unknown/20240531_144049(1).jpg
-  city: Camas
-  category: deck
-  description: 'Lower deck refinish with Timbertech silver maple. '
-  tags:
-    - Outdoor living
-    - timbertech
-  featured: true
-  reviewed: true
-  project: Case
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0357.jpg
   md5: bfa5594eae04603099cf7367bfd01c93
   source_path: unknown/20240531_144049.jpg
@@ -3993,7 +3982,7 @@
   tags:
     - timbertech
     - steps
-  featured: false
+  featured: true
   reviewed: true
   project: Little
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0398.jpg
@@ -4013,14 +4002,14 @@
   md5: 523d9850298a127dbed90b01f851a779
   source_path: unknown/20250417_102422.jpg
   city: Woodland
-  category: cover
+  category: farm
   description: RV Parking Cover
   tags:
     - RV
     - Parking
     - Cover
     - Lean-to
-  featured: false
+  featured: true
   reviewed: true
   project: ReyesCover
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0401.jpg
@@ -4237,7 +4226,7 @@
     - cedar
   featured: false
   reviewed: true
-  project: Magnus
+  project: CedarRail
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0421.jpg
   md5: 5e361f0c85e49b71fcbeb8143b09cc63
   source_path: unknown/Cover engineered trusses.jpg
@@ -4249,7 +4238,7 @@
     - framing
   featured: false
   reviewed: true
-  project: Magnus
+  project: Rehfeldt
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0422.jpg
   md5: 6a796d0b88f0088be1b9a15807ca5a53
   source_path: unknown/Custom cedar rails with composite deck.jpg
@@ -4285,7 +4274,7 @@
     - cedar
   featured: false
   reviewed: true
-  project: Magnus
+  project: CedarRail
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0425.jpg
   md5: ebf2553f32e98b81263961c70f81d10a
   source_path: unknown/Custom stairs with lights and custom rails.jpg
@@ -4370,7 +4359,7 @@
     - cedar
   featured: false
   reviewed: true
-  project: Magnus
+  project: NoToeKicks
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0432.jpg
   md5: d97daf4ed3a05310b78810d70c803eed
   source_path: unknown/Deck and cedar rails.jpg
@@ -4418,7 +4407,7 @@
     - repair
   featured: false
   reviewed: true
-  project: Magnus
+  project: Burgoyne
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0436.jpg
   md5: 0d4faffd987789c1c7027f56b845113a
   source_path: unknown/Deck stairs.jpg
@@ -4433,7 +4422,7 @@
     - cedar
   featured: false
   reviewed: true
-  project: Magnus
+  project: NoToeKicks
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0437.jpg
   md5: 8bb6c29145739eb85ef8a64bb662336e
   source_path: unknown/Deck with aluminum rail and TR200 cap.jpg
@@ -4491,7 +4480,7 @@
     - framing
   featured: false
   reviewed: true
-  project: Magnus
+  project: WhiteTrim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0442.jpg
   md5: f6606f28eae189f4c60ed6393e0824e8
   source_path: unknown/Deck with picture frame steps.jpg
@@ -4541,7 +4530,7 @@
     - picture frame
   featured: false
   reviewed: true
-  project: Magnus
+  project: Lowdeck
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0446.jpg
   md5: aad34def3a61eb92e390191f36e58c14
   source_path: unknown/Dry under deck finish.jpg
@@ -4605,7 +4594,7 @@
     - truss
   featured: false
   reviewed: true
-  project: Magnus
+  project: Rehfeldt
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0451.jpg
   md5: 46a4fbb02e90641ec61c73e01cbb7adb
   source_path: unknown/Flagstone landing.jpg
@@ -4629,7 +4618,7 @@
     - step
   featured: false
   reviewed: true
-  project: Magnus
+  project: WhiteTrim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0453.jpg
   md5: 11b474fe7946a7bc8bf9f04ef2030515
   source_path: unknown/Grey Deck - Washougal.jpg
@@ -4678,7 +4667,7 @@
     - dog ear
   featured: false
   reviewed: true
-  project: Magnus
+  project: Lowdeck
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0459.jpg
   md5: 579bfcdf67b3bb9e675e3da455316a91
   source_path: unknown/IMG_20210907_171826_769.jpg
@@ -4811,19 +4800,6 @@
   featured: false
   reviewed: true
   project: Magnus
-- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0472.jpg
-  md5: 007cd1dbf461062b52d928eabc78744a
-  source_path: unknown/Large RV covered parking.jpg
-  city: Woodland
-  category: cover
-  description: Large RV covered parking
-  tags:
-    - RV
-    - cover
-    - parking
-  featured: false
-  reviewed: true
-  project: ReyesCover
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0473.jpg
   md5: c121008ead9fb54c3c41fbd04494dd5c
   source_path: unknown/Large cover overframe.jpg
@@ -4871,7 +4847,7 @@
     - deck
   featured: false
   reviewed: true
-  project: Magnus
+  project: Lowdeck
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0478.jpg
   md5: 9c5ac912d0e5f2faeb759969b2da1a63
   source_path: unknown/New stair stringers.jpg
@@ -4945,7 +4921,7 @@
     - Deck
   featured: false
   reviewed: true
-  project: Magnus
+  project: WhiteTrim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0488.jpeg
   md5: c67fe552d203fc30abe5a0875f8646a3
   source_path: unknown/Resized_20200626_135039.jpeg
@@ -5021,7 +4997,7 @@
   tags:
     - deck
     - bench
-  featured: false
+  featured: true
   reviewed: true
   project: Childs
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0494.jpeg
@@ -5073,7 +5049,7 @@
     - truss
   featured: false
   reviewed: true
-  project: Magnus
+  project: Rehfeldt
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0500.jpg
   md5: 28d606826d0b9dae9839264195c35932
   source_path: unknown/Screenshot_20260807_194101_Messages.jpg
@@ -5135,7 +5111,7 @@
     - truss
   featured: false
   reviewed: true
-  project: Magnus
+  project: Rehfeldt
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0509.jpg
   md5: 7bbabcb4f575fc0fafac65183c36378d
   source_path: unknown/Timberframe beam connection.jpg
@@ -5148,7 +5124,7 @@
     - hardware
   featured: false
   reviewed: true
-  project: Magnus
+  project: TimberJim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0512.jpg
   md5: 4cc848b35e158288583622df36828431
   source_path: unknown/Timbertech deck - aluminum rails.jpg
@@ -5400,7 +5376,7 @@
     - deck
     - cover
     - 3-D
-  featured: true
+  featured: false
   reviewed: true
   project: La Punta Grande
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0535.jpg
@@ -5425,9 +5401,9 @@
     - timberframe
     - hardware
     - beams
-  featured: true
+  featured: false
   reviewed: true
-  project: Magnus
+  project: TimberJim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0537.jpg
   md5: ffa6d7558bb52537948d89b2d3eb1837
   source_path: unknown/Untitled(3).jpg
@@ -5605,9 +5581,9 @@
   tags:
     - Timberframe
     - cover
-  featured: false
+  featured: true
   reviewed: true
-  project: Magn
+  project: TimberJim
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0554.jpg
   md5: ac9a5d6b9d392742f9981916bd461d1e
   source_path: unknown/post wrap cover.jpg
@@ -5677,3 +5653,48 @@
   featured: false
   reviewed: true
   project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0561.jpg
+  md5: b1d8eb37e5d48f377ac7c6144421ef5f
+  source_path: IMG_20260915_193652.heic
+  city: unknown
+  category: other
+  description: IMG 20260915 193652
+  featured: false
+  reviewed: false
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0562.jpg
+  md5: 9dcd5e82944774ce31d78b1a0b9d5d92
+  source_path: IMG_20260915_193658.heic
+  city: unknown
+  category: other
+  description: IMG 20260915 193658
+  featured: false
+  reviewed: false
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0563.jpg
+  md5: c25e4f56a6a97d455c8113c089b50923
+  source_path: IMG_20260915_193705.heic
+  city: unknown
+  category: other
+  description: IMG 20260915 193705
+  featured: false
+  reviewed: false
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0564.jpg
+  md5: e3ff8bd046f6612cbc07a1e5c80c9a1a
+  source_path: IMG_20260915_193710.heic
+  city: unknown
+  category: other
+  description: IMG 20260915 193710
+  featured: false
+  reviewed: false
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0565.jpg
+  md5: d087ea8feb74fc928571199db9de8635
+  source_path: IMG_20260915_193717.heic
+  city: unknown
+  category: other
+  description: IMG 20260915 193717
+  featured: false
+  reviewed: false
+  project: Blycker

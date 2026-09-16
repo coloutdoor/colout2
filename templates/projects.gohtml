@@ -11,14 +11,20 @@
     <p class="has-text-centered has-text-grey">No projects to show yet.</p>
     {{else}}
     <div class="proj-filter-row">
-      <label class="ap-label" for="categoryFilter" style="text-transform:none;letter-spacing:normal;font-weight:600;color:#4a5568;">Filter by category</label>
-      {{$sel := .SelectedCategory}}
-      <select id="categoryFilter" class="proj-filter-select" onchange="filterByCategory(this.value)">
-        <option value="" {{if eq $sel ""}}selected{{end}}>All Categories</option>
-        {{range .Categories}}
-        <option value="{{.Value}}" {{if eq .Value $sel}}selected{{end}}>{{.Label}}</option>
-        {{end}}
-      </select>
+      <div>
+        <label class="ap-label" for="categoryFilter" style="text-transform:none;letter-spacing:normal;font-weight:600;color:#4a5568;">Filter by category</label>
+        {{$sel := .SelectedCategory}}
+        <select id="categoryFilter" class="proj-filter-select" onchange="applyFilters()">
+          <option value="" {{if eq $sel ""}}selected{{end}}>All Categories</option>
+          {{range .Categories}}
+          <option value="{{.Value}}" {{if eq .Value $sel}}selected{{end}}>{{.Label}}</option>
+          {{end}}
+        </select>
+      </div>
+      <div>
+        <label class="ap-label" for="keywordFilter" style="text-transform:none;letter-spacing:normal;font-weight:600;color:#4a5568;">Keyword</label>
+        <input type="text" id="keywordFilter" class="proj-filter-input" placeholder="e.g. cedar, timbertech..." value="{{.SelectedKeyword}}" oninput="applyFilters()">
+      </div>
     </div>
 
     <div class="proj-grid" id="projGrid">
@@ -30,10 +36,11 @@
         data-default-desc="{{.Cover.Description}}">
         <img src="{{.Cover.URI}}" loading="lazy" alt="{{.Cover.Description}}">
         <div class="proj-card-label">{{.Name}}</div>
+        {{if .Description}}<p class="proj-card-desc">{{.Description}}</p>{{end}}
       </div>
       {{end}}
     </div>
-    <p class="has-text-centered has-text-grey" id="projEmpty" style="display:none;">No projects match this category.</p>
+    <p class="has-text-centered has-text-grey" id="projEmpty" style="display:none;">No projects match your filters.</p>
     {{end}}
   </div>
 </section>
@@ -48,18 +55,20 @@
     <button class="proj-modal-nav proj-modal-next" onclick="projSlide(1)" aria-label="Next">&#8250;</button>
     <div class="proj-modal-caption" id="projCaption"></div>
     <div class="proj-modal-counter" id="projCounter"></div>
+    <button class="proj-modal-request" onclick="requestInfo()">Request Information</button>
   </div>
 </div>
 
 <style>
 .proj-filter-row {
   display: flex;
-  align-items: center;
-  gap: .6rem;
+  align-items: flex-end;
+  gap: 1.25rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
-.proj-filter-select {
+.proj-filter-select,
+.proj-filter-input {
   background: #fff;
   border: 1px solid #d0d7de;
   border-radius: 6px;
@@ -68,7 +77,12 @@
   padding: .45rem .7rem;
   font-family: inherit;
 }
-.proj-filter-select:focus { outline: none; border-color: #3273dc; }
+.proj-filter-input {
+  width: 220px;
+  max-width: 60vw;
+}
+.proj-filter-select:focus,
+.proj-filter-input:focus { outline: none; border-color: #3273dc; }
 .proj-card.is-hidden { display: none; }
 
 .proj-grid {
@@ -99,6 +113,13 @@
   color: #fff;
   font-weight: 600;
   font-size: .95rem;
+}
+.proj-card-desc {
+  padding: .6rem .75rem .75rem;
+  margin: 0;
+  color: #4a5568;
+  font-size: .82rem;
+  line-height: 1.4;
 }
 
 .proj-modal-overlay {
@@ -172,6 +193,18 @@
   font-size: .8rem;
   margin-top: .25rem;
 }
+.proj-modal-request {
+  margin-top: 1rem;
+  padding: .65rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: #3273dc;
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.proj-modal-request:hover { background: #2860c5; }
 
 @media (max-width: 640px) {
   .proj-modal-prev { left: .25rem; }
@@ -182,8 +215,44 @@
 <script>
 let projPhotos = [];
 let projIndex = 0;
+let currentProjectName = '';
 
-function filterByCategory(category) {
+const CATEGORY_LABELS = {
+  deck: 'Deck', cover: 'Cover', stairs: 'Stairs', rails: 'Rails',
+  patio: 'Patio', fence: 'Fence', farm: 'Farm / Shed / Coop', other: 'Other'
+};
+
+function requestInfo() {
+  if (projPhotos.length === 0) return;
+  const p = projPhotos[projIndex];
+  const categoryLabel = CATEGORY_LABELS[p.category] || p.category || '';
+  const lines = [
+    "I'm interested in more information about this project:",
+    '',
+    'Project: ' + (currentProjectName || 'Unknown'),
+  ];
+  if (categoryLabel) lines.push('Category: ' + categoryLabel);
+  if (p.description) lines.push('Description: ' + p.description);
+  lines.push('Photo: ' + p.uri);
+
+  const params = new URLSearchParams();
+  if (p.category) params.set('project', p.category);
+  params.set('message', lines.join('\n'));
+  window.location.href = '/contact?' + params.toString();
+}
+
+function photoMatches(p, category, keyword) {
+  if (category && p.category !== category) return false;
+  if (keyword) {
+    const haystack = ((p.description || '') + ' ' + (p.tags || []).join(' ')).toLowerCase();
+    if (haystack.indexOf(keyword) === -1) return false;
+  }
+  return true;
+}
+
+function applyFilters() {
+  const category = document.getElementById('categoryFilter').value;
+  const keyword = document.getElementById('keywordFilter').value.trim().toLowerCase();
   const cards = document.querySelectorAll('.proj-card');
   let visibleCount = 0;
 
@@ -191,7 +260,7 @@ function filterByCategory(category) {
     const photos = JSON.parse(card.dataset.photos);
     const img = card.querySelector('img');
 
-    if (!category) {
+    if (!category && !keyword) {
       card.classList.remove('is-hidden');
       img.src = card.dataset.defaultUri;
       img.alt = card.dataset.defaultDesc;
@@ -199,7 +268,7 @@ function filterByCategory(category) {
       return;
     }
 
-    const matches = photos.filter(function(p) { return p.category === category; });
+    const matches = photos.filter(function(p) { return photoMatches(p, category, keyword); });
     if (matches.length === 0) {
       card.classList.add('is-hidden');
       return;
@@ -221,6 +290,7 @@ function openProjectModal(card) {
   } catch (e) {
     projPhotos = [];
   }
+  currentProjectName = card.dataset.project || '';
   projIndex = 0;
   renderProjSlide();
   document.getElementById('projModalOverlay').classList.add('open');
@@ -269,7 +339,8 @@ document.addEventListener('keydown', function(e) {
 
 (function() {
   var initialCategory = {{jsStr .Page.SelectedCategory}};
-  if (initialCategory) filterByCategory(initialCategory);
+  var initialKeyword  = {{jsStr .Page.SelectedKeyword}};
+  if (initialCategory || initialKeyword) applyFilters();
 })();
 </script>
 

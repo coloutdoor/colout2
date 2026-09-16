@@ -16,8 +16,10 @@ import (
 )
 
 type PageData struct {
-	PageTitle string
-	Sent      bool
+	PageTitle      string
+	Sent           bool
+	PrefillProject string
+	PrefillMessage string
 }
 
 type ContactForm struct {
@@ -151,6 +153,10 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		data.PageTitle = "Thank You – Message Sent!"
 		data.Sent = true
 	}
+	if project := r.URL.Query().Get("project"); validCategoryValues[project] {
+		data.PrefillProject = project
+	}
+	data.PrefillMessage = r.URL.Query().Get("message")
 
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contact Us"

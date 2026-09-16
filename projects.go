@@ -5,16 +5,38 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // ProjectGroup is a set of reviewed photos that share a Project name, along
 // with the single cover photo shown on the /projects grid.
 type ProjectGroup struct {
-	Name   string
-	Cover  PhotoFull
-	Photos []PhotoFull
+	Name        string
+	Cover       PhotoFull
+	Photos      []PhotoFull
+	Description string
+}
+
+const projectDescriptionsYAMLPath = "static/project_descriptions.yaml"
+
+// loadProjectDescriptions reads the hand-written, one-time-authored blurb for
+// each project group, keyed by the same "project" value used in photos.yaml.
+// These are written once (not regenerated per request) so /projects has real
+// body text alongside its photo grid instead of images alone.
+func loadProjectDescriptions() (map[string]string, error) {
+	data, err := os.ReadFile(projectDescriptionsYAMLPath)
+	if err != nil {
+		return nil, err
+	}
+	var descriptions map[string]string
+	if err := yaml.Unmarshal(data, &descriptions); err != nil {
+		return nil, err
+	}
+	return descriptions, nil
 }
 
 // CategoryOption is one entry in the /projects category filter dropdown.
@@ -40,16 +62,18 @@ var categoryOrder = []CategoryOption{
 // projectPhoto is the subset of PhotoFull exposed to the public /projects
 // page's carousel data — internal admin fields (source_path, md5) are left out.
 type projectPhoto struct {
-	URI         string `json:"uri"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
-	Featured    bool   `json:"featured"`
+	URI         string   `json:"uri"`
+	Description string   `json:"description"`
+	Category    string   `json:"category"`
+	Featured    bool     `json:"featured"`
+	Tags        []string `json:"tags,omitempty"`
 }
 
 type projectsPageData struct {
 	Projects         []ProjectGroup
 	Categories       []CategoryOption
 	SelectedCategory string
+	SelectedKeyword  string
 }
 
 var validCategoryValues = func() map[string]bool {
@@ -63,7 +87,7 @@ var validCategoryValues = func() map[string]bool {
 func projectPhotosJSON(photos []PhotoFull) (string, error) {
 	out := make([]projectPhoto, len(photos))
 	for i, p := range photos {
-		out[i] = projectPhoto{URI: p.URI, Description: p.Description, Category: p.Category, Featured: p.Featured}
+		out[i] = projectPhoto{URI: p.URI, Description: p.Description, Category: p.Category, Featured: p.Featured, Tags: p.Tags}
 	}
 	b, err := json.Marshal(out)
 	return string(b), err
@@ -96,10 +120,16 @@ func projectsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	descriptions, err := loadProjectDescriptions()
+	if err != nil {
+		log.Printf("projectsHandler: loadProjectDescriptions: %v", err)
+	}
+
 	result := make([]ProjectGroup, 0, len(order))
 	for _, name := range order {
 		g := groups[name]
 		g.Cover = g.Photos[0]
+		g.Description = descriptions[name]
 		for _, p := range g.Photos {
 			if p.Featured {
 				g.Cover = p
@@ -144,12 +174,14 @@ func projectsHandler(w http.ResponseWriter, r *http.Request) {
 	if !validCategoryValues[category] {
 		category = ""
 	}
+	keyword := strings.TrimSpace(r.URL.Query().Get("keyword"))
 
 	rd := renderData{
 		Page: &projectsPageData{
 			Projects:         result,
 			Categories:       categories,
 			SelectedCategory: category,
+			SelectedKeyword:  keyword,
 		},
 		Header: &userAuth,
 	}

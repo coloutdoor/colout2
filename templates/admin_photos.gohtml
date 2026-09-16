@@ -52,11 +52,14 @@ body { background: var(--ap-bg); color: var(--ap-text); }
 }
 
 .ap-card {
+  display: block;
   background: var(--ap-surface);
   border: 1px solid var(--ap-border);
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
   transition: border-color .15s, transform .1s;
 }
 .ap-card:hover { border-color: var(--ap-accent); transform: translateY(-2px); }
@@ -294,30 +297,60 @@ body { background: var(--ap-bg); color: var(--ap-text); }
     <button type="button" class="ap-tab" onclick="openHelpModal()">Help</button>
   </div>
 
-  {{if eq (len .Photos) 0}}
-  <div class="ap-empty">{{if eq .View "featured"}}No featured photos.{{else}}All photos reviewed!{{end}}</div>
-  {{else}}
-  <div class="ap-grid" id="photoGrid">
-    {{range .Photos}}
-    <div class="ap-card" onclick="openModal(this)"
-      data-uri="{{.URI}}"
-      data-city="{{.City}}"
-      data-category="{{.Category}}"
-      data-description="{{.Description}}"
-      data-tags="{{range $i,$t := .Tags}}{{if $i}},{{end}}{{$t}}{{end}}"
-      data-featured="{{.Featured}}"
-      data-reviewed="{{.Reviewed}}"
-      data-project="{{.Project}}"
-      data-source="{{.SourcePath}}">
-      {{if .Featured}}<div class="ap-badge-featured">&#9733;</div>{{end}}
-      <img src="{{.URI}}" loading="lazy" alt="{{.Description}}">
-      <div class="ap-card-meta">
-        <div class="ap-card-project">{{if .Project}}{{.Project}}{{else}}unknown{{end}}</div>
-        <div class="ap-card-cat">{{.Category}}</div>
-      </div>
+  {{if and (eq .View "all") (eq .SelectedProject "")}}
+
+    {{if eq (len .ProjectGroups) 0}}
+    <div class="ap-empty">No projects yet.</div>
+    {{else}}
+    <div class="ap-grid" id="photoGrid">
+      {{range .ProjectGroups}}
+      <a class="ap-card" href="/admin/photos?view=all&project={{.Name}}">
+        {{if .Cover.Featured}}<div class="ap-badge-featured">&#9733;</div>{{end}}
+        <img src="{{.Cover.URI}}" loading="lazy" alt="{{.Cover.Description}}">
+        <div class="ap-card-meta">
+          <div class="ap-card-project">{{.Name}}</div>
+          <div class="ap-card-cat">{{len .Photos}} photo{{if ne (len .Photos) 1}}s{{end}}</div>
+        </div>
+      </a>
+      {{end}}
     </div>
     {{end}}
-  </div>
+
+  {{else}}
+
+    {{if eq .View "all"}}
+    <div style="margin-bottom:1rem; display:flex; align-items:center; gap:.75rem;">
+      <a href="/admin/photos?view=all" class="ap-tab">&larr; All Projects</a>
+      <span style="color:var(--ap-text); font-weight:600;">{{.SelectedProject}}</span>
+    </div>
+    {{end}}
+
+    {{if eq (len .Photos) 0}}
+    <div class="ap-empty">{{if eq .View "featured"}}No featured photos.{{else}}All photos reviewed!{{end}}</div>
+    {{else}}
+    <div class="ap-grid" id="photoGrid">
+      {{range .Photos}}
+      <div class="ap-card" onclick="openModal(this)"
+        data-uri="{{.URI}}"
+        data-city="{{.City}}"
+        data-category="{{.Category}}"
+        data-description="{{.Description}}"
+        data-tags="{{range $i,$t := .Tags}}{{if $i}},{{end}}{{$t}}{{end}}"
+        data-featured="{{.Featured}}"
+        data-reviewed="{{.Reviewed}}"
+        data-project="{{.Project}}"
+        data-source="{{.SourcePath}}">
+        {{if .Featured}}<div class="ap-badge-featured">&#9733;</div>{{end}}
+        <img src="{{.URI}}" loading="lazy" alt="{{.Description}}">
+        <div class="ap-card-meta">
+          <div class="ap-card-project">{{if .Project}}{{.Project}}{{else}}unknown{{end}}</div>
+          <div class="ap-card-cat">{{.Category}}</div>
+        </div>
+      </div>
+      {{end}}
+    </div>
+    {{end}}
+
   {{end}}
 
 </div>
@@ -398,6 +431,7 @@ body { background: var(--ap-bg); color: var(--ap-text); }
       <pre class="ap-help-code">scripts/venv/bin/python scripts/sync_photo_to_gcs.py ~/path/to/photos</pre>
       <p>This uploads each new image to the <code>columbiaoutdoor-images</code> GCS bucket and appends an entry straight to <code>static/photos.yaml</code> with <code>reviewed: false</code> — no separate file, no merge step. It'll show up right here under "To Review."</p>
       <p>Re-running on the same folder is safe — files already in <code>static/photos.yaml</code> are skipped by MD5, never re-uploaded.</p>
+      <p>iPhone <code>.heic</code> photos work too — they're converted to JPEG automatically before upload.</p>
       <p>If your GCP credentials have expired, run <code>gcloud auth application-default login</code> first.</p>
     </div>
   </div>

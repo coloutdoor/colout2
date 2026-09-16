@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -24,15 +26,60 @@ type PhotoFull struct {
 }
 
 type adminPhotosPageData struct {
-	Photos    []PhotoFull
-	Projects  []string
-	Total     int
-	Reviewed  int
-	Remaining int
-	View      string
+	Photos          []PhotoFull
+	ProjectGroups   []ProjectGroup
+	Projects        []string
+	Total           int
+	Reviewed        int
+	Remaining       int
+	View            string
+	SelectedProject string
 }
 
 const photosYAMLPath = "static/photos.yaml"
+
+// unassignedProjectLabel groups photos with no project set, on the All Photos
+// overview grid, so they're still reachable instead of silently dropped.
+const unassignedProjectLabel = "(No Project)"
+
+// groupPhotosByProject builds one ProjectGroup per distinct project (ignoring
+// reviewed status), for the All Photos overview grid at /admin/photos — this
+// keeps that page to one thumbnail per project instead of rendering every
+// full-resolution photo at once.
+func groupPhotosByProject(photos []PhotoFull) []ProjectGroup {
+	groups := map[string]*ProjectGroup{}
+	var order []string
+	for _, p := range photos {
+		name := p.Project
+		if name == "" {
+			name = unassignedProjectLabel
+		}
+		g, ok := groups[name]
+		if !ok {
+			g = &ProjectGroup{Name: name}
+			groups[name] = g
+			order = append(order, name)
+		}
+		g.Photos = append(g.Photos, p)
+	}
+
+	result := make([]ProjectGroup, 0, len(order))
+	for _, name := range order {
+		g := groups[name]
+		g.Cover = g.Photos[0]
+		for _, p := range g.Photos {
+			if p.Featured {
+				g.Cover = p
+				break
+			}
+		}
+		result = append(result, *g)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return strings.ToLower(result[i].Name) < strings.ToLower(result[j].Name)
+	})
+	return result
+}
 
 func loadPhotosFull() ([]PhotoFull, error) {
 	data, err := os.ReadFile(photosYAMLPath)
@@ -89,10 +136,28 @@ func adminPhotosHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := r.URL.Query().Get("view")
+	selectedProject := ""
 	var displayed []PhotoFull
+	var groups []ProjectGroup
 	switch view {
 	case "all":
-		displayed = photos
+		if project := r.URL.Query().Get("project"); project != "" {
+			selectedProject = project
+			for _, p := range photos {
+				name := p.Project
+				if name == "" {
+					name = unassignedProjectLabel
+				}
+				if name == project {
+					displayed = append(displayed, p)
+				}
+			}
+			sort.SliceStable(displayed, func(i, j int) bool {
+				return displayed[i].Featured && !displayed[j].Featured
+			})
+		} else {
+			groups = groupPhotosByProject(photos)
+		}
 	case "featured":
 		for _, p := range photos {
 			if p.Featured {
@@ -115,12 +180,14 @@ func adminPhotosHandler(w http.ResponseWriter, r *http.Request) {
 
 	rd := renderData{
 		Page: &adminPhotosPageData{
-			Photos:    displayed,
-			Projects:  projects,
-			Total:     len(photos),
-			Reviewed:  reviewedCount,
-			Remaining: len(unreviewed),
-			View:      view,
+			Photos:          displayed,
+			ProjectGroups:   groups,
+			Projects:        projects,
+			Total:           len(photos),
+			Reviewed:        reviewedCount,
+			Remaining:       len(unreviewed),
+			View:            view,
+			SelectedProject: selectedProject,
 		},
 		Header: &userAuth,
 	}

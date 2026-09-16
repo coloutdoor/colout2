@@ -10,7 +10,7 @@ reviewed: false, ready for review at /admin/photos.
 SETUP
 -----
 1. Download photos from Google Drive (any folder structure is fine).
-2. pip install google-cloud-storage pyyaml
+2. pip install google-cloud-storage pyyaml pillow pillow-heif
 3. Authenticate: gcloud auth application-default login
 4. Run (from the repo root):
        scripts/venv/bin/python scripts/sync_photo_to_gcs.py ~/columbia-photos
@@ -18,6 +18,9 @@ SETUP
 NOTES
 -----
 - Walks ALL subdirectories recursively — folder structure does not matter.
+- iPhone .heic/.heif photos are supported — they're converted to JPEG before
+  upload (most browsers can't display raw HEIC), so they always land in the
+  bucket and static/photos.yaml as a photos-NNNN.jpg.
 - If photos sit directly in the given folder (no subfolder), the folder's
   own name is used as the project guess (e.g. ~/Desktop/Rehfeldt -> "Rehfeldt").
   Otherwise city is guessed from the top-level subfolder name.
@@ -34,6 +37,7 @@ NOTES
 
 import argparse
 import hashlib
+import io
 import re
 import sys
 from pathlib import Path
@@ -48,8 +52,15 @@ try:
 except ImportError:
     sys.exit("Missing dependency: pip install google-cloud-storage")
 
+try:
+    import pillow_heif
+    from PIL import Image
+except ImportError:
+    sys.exit("Missing dependency: pip install pillow pillow-heif")
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}
+HEIC_EXTENSIONS = {".heic", ".heif"}
 GCS_NAME_RE = re.compile(r"photos-(\d+)\.")
 
 CATEGORY_KEYWORDS = [
@@ -112,6 +123,14 @@ class IndentDumper(yaml.SafeDumper):
 
     def increase_indent(self, flow=False, indentless=False):
         return super().increase_indent(flow, False)
+
+
+def heic_to_jpeg_bytes(path: Path) -> bytes:
+    heif_file = pillow_heif.open_heif(path, convert_hdr_to_8bit=True)
+    img = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw")
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
 
 
 def file_md5(path: Path) -> str:
@@ -220,12 +239,17 @@ def main():
         tags = guess_tags(full_text)
         description = humanize(photo_path.stem)
 
-        gcs_name = f"photos-{counter:04d}{photo_path.suffix.lower()}"
+        is_heic = photo_path.suffix.lower() in HEIC_EXTENSIONS
+        ext = ".jpg" if is_heic else photo_path.suffix.lower()
+        gcs_name = f"photos-{counter:04d}{ext}"
         uri = f"https://storage.googleapis.com/{args.bucket}/{gcs_name}"
 
         blob = bucket_obj.blob(gcs_name)
-        blob.upload_from_filename(str(photo_path))
-        print(f"Uploaded  {rel}  ->  gs://{args.bucket}/{gcs_name}")
+        if is_heic:
+            blob.upload_from_string(heic_to_jpeg_bytes(photo_path), content_type="image/jpeg")
+        else:
+            blob.upload_from_filename(str(photo_path))
+        print(f"Uploaded  {rel}  ->  gs://{args.bucket}/{gcs_name}" + ("  (converted from HEIC)" if is_heic else ""))
 
         entry = {
             "uri":         uri,

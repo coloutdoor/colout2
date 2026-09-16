@@ -4,12 +4,14 @@
 
 Walks a local folder tree recursively, uploads each new image to the `columbiaoutdoor-images` GCS bucket, and appends an entry directly to `static/photos.yaml` for each one — with `reviewed: false`, ready to review at `/admin/photos`. Duplicate detection is by MD5 against everything already in `static/photos.yaml` — re-running on the same folder is safe, duplicates are skipped entirely (never re-uploaded).
 
+iPhone `.heic`/`.heif` photos are supported — they're converted to JPEG before upload (most browsers can't display raw HEIC), so they always end up in the bucket and `static/photos.yaml` as a normal `photos-NNNN.jpg`.
+
 ### Setup
 
 ```bash
 # Create virtual environment (one-time)
 python3 -m venv scripts/venv
-scripts/venv/bin/pip install google-cloud-storage pyyaml
+scripts/venv/bin/pip install google-cloud-storage pyyaml pillow pillow-heif
 
 # Authenticate with GCP (one-time per machine)
 gcloud auth application-default login
@@ -44,3 +46,11 @@ That's it — new photos are uploaded to GCS and appended to `static/photos.yaml
 ### After running
 
 Go to `/admin/photos` — the new photos show up under "To Review." Correct city/category/description, add tags, mark featured shots, and approve.
+
+## download_images.py
+
+Downloads every photo tagged with a given Project name in `static/photos.yaml` to `~/Pictures/<Project>/` (created if needed). Files are named after their original filename. Re-running skips anything already downloaded.
+
+```bash
+scripts/venv/bin/python scripts/download_images.py Rush
+```
