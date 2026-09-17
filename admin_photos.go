@@ -170,6 +170,7 @@ func adminPhotosHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth.Title = "Photo Review"
+	userAuth.CanonicalPath = "/admin/photos"
 	userAuth.Subtitle = "Review and approve photos for the gallery"
 
 	tmpl := template.Must(template.New("admin_photos.gohtml").Funcs(funcMap).ParseFiles(

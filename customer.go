@@ -76,6 +76,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth.Title = "Customer Information"
+	userAuth.CanonicalPath = "/customer"
 	if isHomeowner {
 		userAuth.Subtitle = "Your contact information"
 	} else {

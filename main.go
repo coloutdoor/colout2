@@ -89,6 +89,7 @@ func privacyHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Privacy"
 	userAuth.Subtitle = "Please review our privacy policy"
+	userAuth.CanonicalPath = "/privacy"
 	rd := renderData{
 		Page:   &data,
 		Header: &userAuth,

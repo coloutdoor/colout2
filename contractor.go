@@ -68,6 +68,7 @@ func contractorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	userAuth.Title = "Contractor Registration"
+	userAuth.CanonicalPath = "/contractor/register"
 	userAuth.Subtitle = "Join the Columbia Outdoor contractor network"
 
 	tmpl := template.Must(template.New("contractor-register.gohtml").Funcs(funcMap).ParseFiles(

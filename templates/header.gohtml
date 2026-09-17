@@ -22,17 +22,17 @@
     <meta name="description" content=" {{if .MetaDesc}} {{.MetaDesc}} {{else}} Deck Builders SW Washington {{end}}">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Columbia Outdoor — Outdoor Living Estimates">
-    <meta property="og:description" content="Get an instant deck, patio cover, or pergola estimate. No surprises, transparent pricing, vetted contractors. Serving SW Washington.">
+    <meta property="og:title" content="{{if .Title}}{{.Title}} | Columbia Outdoor{{else}}Columbia Outdoor — Outdoor Living Estimates{{end}}">
+    <meta property="og:description" content="{{if .MetaDesc}}{{.MetaDesc}}{{else}}Get an instant deck, patio cover, or pergola estimate. No surprises, transparent pricing, vetted contractors. Serving SW Washington.{{end}}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://columbiaoutdoor.com/">
+    <meta property="og:url" content="https://columbiaoutdoor.com{{if .CanonicalPath}}{{.CanonicalPath}}{{end}}">
     <meta property="og:image" content="https://storage.googleapis.com/columbiaoutdoor-images/photos-0015.jpg">
     <meta property="og:site_name" content="Columbia Outdoor">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Columbia Outdoor — Outdoor Living Estimates">
-    <meta name="twitter:description" content="Get an instant deck, patio cover, or pergola estimate. Transparent pricing, vetted contractors. Serving SW Washington.">
+    <meta name="twitter:title" content="{{if .Title}}{{.Title}} | Columbia Outdoor{{else}}Columbia Outdoor — Outdoor Living Estimates{{end}}">
+    <meta name="twitter:description" content="{{if .MetaDesc}}{{.MetaDesc}}{{else}}Get an instant deck, patio cover, or pergola estimate. Transparent pricing, vetted contractors. Serving SW Washington.{{end}}">
     <meta name="twitter:image" content="https://storage.googleapis.com/columbiaoutdoor-images/photos-0015.jpg">
 
     <!-- Additional SEO Meta Tags -->

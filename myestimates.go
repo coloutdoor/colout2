@@ -101,6 +101,7 @@ func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth.Title = "My Estimates"
+	userAuth.CanonicalPath = "/my-estimates"
 	userAuth.Subtitle = subtitle
 
 	tmpl := template.Must(template.New("my-estimates.gohtml").Funcs(funcMap).ParseFiles(

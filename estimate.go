@@ -174,6 +174,7 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 	userAuth := getUserAuth(r, w)
 	userAuth.IsAdmin = isAdminUser(userAuth.Email)
 	userAuth.Title = "Deck Estimate"
+	userAuth.CanonicalPath = "/estimate"
 	rd := renderData{
 		Page:   &estimate,
 		Header: &userAuth,

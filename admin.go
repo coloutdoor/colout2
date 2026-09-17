@@ -287,6 +287,7 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth.Title = "Admin"
+	userAuth.CanonicalPath = "/admin"
 	userAuth.Subtitle = "Administration"
 
 	tmpl := template.Must(template.New("admin.gohtml").Funcs(funcMap).ParseFiles(
