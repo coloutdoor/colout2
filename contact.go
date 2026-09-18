@@ -140,6 +140,11 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
+		recordNREvent("ContactFormSubmitted", map[string]interface{}{
+			"project":   data.Project,
+			"has_phone": data.Phone != "",
+		})
+
 		http.Redirect(w, r, "/contact?sent=1", http.StatusSeeOther)
 		return
 	}

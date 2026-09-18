@@ -85,7 +85,8 @@ case "$1" in
             --set-env-vars GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET} \
             --set-env-vars DATABASE_URL=${DATABASE_URL_PROD} \
             --set-env-vars SESSION_SECRET=${SESSION_SECRET} \
-            --set-env-vars ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+            --set-env-vars ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} \
+            --set-env-vars NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
         echo "Deployed to Cloud Run!"
         ;;
     *)

@@ -154,6 +154,12 @@
 
     {{if .Sent}}
     <p class="cust-msg success">Your message was sent! We'll be in touch shortly.</p>
+    <script>
+      gtag('event', 'generate_lead', {
+        'event_category': 'contact_form',
+        'event_label': 'contact_page'
+      });
+    </script>
     {{end}}
 
     {{if not .Sent}}
