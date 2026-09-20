@@ -159,6 +159,9 @@
         'event_category': 'contact_form',
         'event_label': 'contact_page'
       });
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead');
+      }
     </script>
     {{end}}
 
