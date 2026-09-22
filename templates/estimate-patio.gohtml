@@ -1,6 +1,8 @@
 {{define "estimate-patio.gohtml"}}
   {{template "header.gohtml" .Header}}
 
+  <link rel="stylesheet" type="text/css" href="/css/estimate.css">
+
   {{with .Page}}
   <div style="max-width:480px;">
     {{if .Error}}
@@ -10,18 +12,22 @@
     <h2 class="title is-4">Patio Cover Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{end}}</h2>
     {{if .Desc}}<p class="has-text-grey mb-4">{{.Desc}}</p>{{end}}
 
-    <div class="box">
-      <table class="patio-line-items">
+    <div class="est-scope-card">
+      <div class="est-scope-head">
+        <span class="est-scope-title">Scope of Work</span>
+      </div>
+      <div class="est-scope-table-wrap">
+      <table class="est-line-items">
         <colgroup>
-          <col style="width:90px;">
+          <col class="col-item">
           <col>
-          <col style="width:90px;">
+          <col class="col-cost">
         </colgroup>
         <thead>
           <tr>
             <th>Item</th>
             <th>Description</th>
-            <th class="td-cost">Cost</th>
+            <th class="th-cost">Cost</th>
           </tr>
         </thead>
         <tbody>
@@ -32,48 +38,30 @@
           </tr>
         </tbody>
         <tbody>
-          <tr class="row-subtotal">
+          <tr class="est-subtotal-row">
             <td class="td-item">Subtotal</td>
             <td class="td-desc"></td>
             <td class="td-cost">{{formatCost .Subtotal}}</td>
           </tr>
-          <tr class="row-tax">
+          <tr class="est-tax-row">
             <td class="td-item">Sales Tax</td>
             <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
             <td class="td-cost">{{formatCost .SalesTax}}</td>
           </tr>
-          <tr class="row-total">
+          <tr class="est-total-row">
             <td class="td-item">Total</td>
-            <td class="td-desc"></td>
+            <td class="td-desc">
+              {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
+            </td>
             <td class="td-cost">{{formatCost .TotalCost}}</td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
-    <style>
-      .patio-line-items { width: 100%; border-collapse: collapse; }
-      .patio-line-items thead th {
-        font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-        color: #7a7a7a; border-bottom: 1px solid #dbdbdb; padding: .35rem .4rem; text-align: left;
-      }
-      .patio-line-items thead th.td-cost { text-align: right; }
-      .patio-line-items tbody td { padding: .5rem .4rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
-      .patio-line-items .td-item { font-weight: 600; color: #222; }
-      .patio-line-items .td-desc { color: #555; font-size: .9rem; }
-      .patio-line-items .td-cost {
-        text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; color: #222;
-      }
-      .patio-line-items tr.row-subtotal td { border-top: 1px solid #dbdbdb; padding-top: .6rem; }
-      .patio-line-items tr.row-tax td { border-bottom: none; }
-      .patio-line-items tr.row-total td {
-        font-weight: 700; font-size: 1.1rem; border-top: 2px solid #222; border-bottom: none; padding-top: .6rem;
-      }
-      .patio-line-items tr.row-total .td-cost { color: #1a5c32; }
-    </style>
-
     {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
-    <p class="has-text-grey is-size-7 mb-4">Estimate #{{.EstimateID}} &mdash; Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
+    <p class="has-text-grey is-size-7 mb-4">Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
     {{end}}
 
     <div class="box">
