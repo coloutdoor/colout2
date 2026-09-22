@@ -111,3 +111,9 @@ CREATE INDEX idx_estimate_sections_estimate_id ON estimate_sections(estimate_id)
 INSERT INTO estimate_sections (estimate_id, label, length, width, sort_order)
 SELECT estimate_id, 'Main Deck', length, width, 0
 FROM estimates WHERE length > 0 AND width > 0;
+
+-- Discriminator for product type (deck | patio_cover) — prep for patio cover calculator.
+-- Existing and default-path rows are 'deck'; patio-cover specific fields will live
+-- elsewhere (not yet added) rather than as new columns on this table.
+ALTER TABLE estimates
+ADD COLUMN product_type TEXT NOT NULL DEFAULT 'deck';

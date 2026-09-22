@@ -58,6 +58,7 @@ type DeckEstimate struct {
 	Width            float64
 	Height           float64
 	DeckArea         float64
+	ProductType      string // "deck" or "patio_cover" — discriminator for future product types
 	Material         string
 	RailMaterial     string
 	RailInfill       string
@@ -224,7 +225,7 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
-        COALESCE(e.diy_mode, 0)
+        COALESCE(e.diy_mode, 0), e.product_type
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -240,7 +241,7 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.DIYMode)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -325,7 +326,7 @@ func getEstimateByToken(token string) DeckEstimate {
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
-        COALESCE(e.diy_mode, 0)
+        COALESCE(e.diy_mode, 0), e.product_type
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.access_token = $1`, token).Scan(
@@ -341,7 +342,7 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.DIYMode)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -429,6 +430,9 @@ func saveEstimate(w http.ResponseWriter, r *http.Request, estimate *DeckEstimate
 	estimate.UserId = sessionData.UserAuth.ID
 	estimate.SaveDate = time.Now()
 	estimate.ExpirationDate = estimate.SaveDate.Add(30 * 24 * time.Hour)
+	if estimate.ProductType == "" {
+		estimate.ProductType = "deck"
+	}
 
 	// Set contractor_id: for new estimates always re-derive from session to prevent
 	// session pollution from previously viewed estimates; for updates preserve existing.
@@ -493,8 +497,9 @@ SET
     permit_level = $43,
     permit_cost = $44,
     diy_mode = $45,
+    product_type = $46,
     version = version + 1
-WHERE estimate_id = $46
+WHERE estimate_id = $47
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.Height, //2
@@ -523,6 +528,7 @@ RETURNING estimate_id, version`
 			estimate.DiscountCode, estimate.DiscountAmount,   //42
 			estimate.PermitLevel, estimate.PermitCost,         //44
 			estimate.DIYMode,                                  //45
+			estimate.ProductType,                              //46
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 
 		if err != nil {
@@ -560,7 +566,7 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, discount_code, discount_amount, permit_level, permit_cost, diy_mode, version)
+			access_token, discount_code, discount_amount, permit_level, permit_cost, diy_mode, product_type, version)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -571,7 +577,7 @@ RETURNING estimate_id, version`
 		$27, $28, $29, $30,
 		$31, $32, $33, $34,
 		$35, $36, $37, $38, $39,
-		$40, $41, $42, $43, $44, $45, 1
+		$40, $41, $42, $43, $44, $45, $46, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -590,7 +596,7 @@ RETURNING estimate_id, version`
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
 			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount, //42
 			estimate.PermitLevel, estimate.PermitCost,                           //44
-			estimate.DIYMode).                                                   //45
+			estimate.DIYMode, estimate.ProductType).                             //46
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -915,6 +921,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	estimate.Desc = r.FormValue("desc")
+	estimate.ProductType = "deck"
 	estimate.Length = length
 	estimate.Width = width
 	estimate.Height = height
@@ -1342,6 +1349,7 @@ func estimateForkHandler(w http.ResponseWriter, r *http.Request) {
 
 	forked := DeckEstimate{
 		Desc:          src.Desc,
+		ProductType:   src.ProductType,
 		Material:      src.Material,
 		Height:        src.Height,
 		RailMaterial:  src.RailMaterial,
