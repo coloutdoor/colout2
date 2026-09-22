@@ -4,66 +4,104 @@
   <link rel="stylesheet" type="text/css" href="/css/estimate.css">
 
   {{with .Page}}
-  <div style="max-width:480px;">
-    {{if .Error}}
-    <div class="notification is-danger">{{.Error}}</div>
-    {{end}}
 
-    <h2 class="title is-4">Patio Cover Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{end}}</h2>
-    {{if .Desc}}<p class="has-text-grey mb-4">{{.Desc}}</p>{{end}}
+  {{if .Error}}
+  <div class="notification is-danger mb-4"><p>{{.Error}}</p></div>
+  {{end}}
 
-    <div class="est-scope-card">
-      <div class="est-scope-head">
-        <span class="est-scope-title">Scope of Work</span>
+  {{/* ── HEADER CARD ── */}}
+  <div class="est-header-card">
+    <div>
+      <p class="est-eyebrow">Columbia Outdoor{{if .Contractor.CompanyName}} &middot; {{.Contractor.CompanyName}}{{end}}</p>
+      <h1 class="est-title">
+        Patio Cover Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{if .Version}}-{{.Version}}{{end}}{{end}}
+      </h1>
+      <div class="est-project-line">
+        {{if .Desc}}
+        <span class="est-project">{{.Desc}}</span>
+        {{else}}
+        <span class="est-project" style="color:var(--est-text3);">No description added</span>
+        {{end}}
       </div>
-      <div class="est-scope-table-wrap">
-      <table class="est-line-items">
-        <colgroup>
-          <col class="col-item">
-          <col>
-          <col class="col-cost">
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Description</th>
-            <th class="th-cost">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="td-item">{{.PatioTypeLabel}}</td>
-            <td class="td-desc">{{formatPatioDescription .}}</td>
-            <td class="td-cost">{{formatCost .BaseCost}}</td>
-          </tr>
-        </tbody>
-        <tbody>
-          <tr class="est-subtotal-row">
-            <td class="td-item">Subtotal</td>
-            <td class="td-desc"></td>
-            <td class="td-cost">{{formatCost .Subtotal}}</td>
-          </tr>
-          <tr class="est-tax-row">
-            <td class="td-item">Sales Tax</td>
-            <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
-            <td class="td-cost">{{formatCost .SalesTax}}</td>
-          </tr>
-          <tr class="est-total-row">
-            <td class="td-item">Total</td>
-            <td class="td-desc">
-              {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
-            </td>
-            <td class="td-cost">{{formatCost .TotalCost}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="est-status-wrap">
+        {{if .Status}}
+        <span class="est-status-pill {{if eq .Status "Accepted"}}pill-accepted{{else if eq .Status "Expired"}}pill-expired{{else}}pill-pending{{end}}">
+          {{if eq .Status "Accepted"}}&#10003; {{end}}{{.Status}}
+        </span>
+        {{end}}
+        {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+          {{if not .AcceptDate.IsZero}}
+          <span class="est-date-note">Accepted {{.AcceptDate.Format "Jan 2, 2006"}}</span>
+          {{else}}
+            {{if not .ExpirationDate.IsZero}}
+            <span class="est-date-note">Expires {{.ExpirationDate.Format "Jan 2, 2006"}}</span>
+            {{end}}
+          {{end}}
+        {{end}}
       </div>
+      {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+      <p class="est-date-note">Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
+      {{end}}
     </div>
-
-    {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
-    <p class="has-text-grey is-size-7 mb-4">Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
+    {{if .TotalCost}}
+    <div class="est-total-callout">
+      <p class="est-total-label">Estimated Total</p>
+      <p class="est-total-amount">{{formatCost .TotalCost}}</p>
+      <p class="est-total-note">Incl. {{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} sales tax</p>
+    </div>
     {{end}}
+  </div>
 
+  {{/* ── SCOPE TABLE ── */}}
+  <div class="est-scope-card">
+    <div class="est-scope-head">
+      <span class="est-scope-title">Scope of Work</span>
+    </div>
+    <div class="est-scope-table-wrap">
+    <table class="est-line-items">
+      <colgroup>
+        <col class="col-item">
+        <col>
+        <col class="col-cost">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th class="th-cost">Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-item">{{.PatioTypeLabel}}</td>
+          <td class="td-desc">{{formatPatioDescription .}}</td>
+          <td class="td-cost">{{formatCost .BaseCost}}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="est-subtotal-row">
+          <td class="td-item">Subtotal</td>
+          <td class="td-desc"></td>
+          <td class="td-cost">{{formatCost .Subtotal}}</td>
+        </tr>
+        <tr class="est-tax-row">
+          <td class="td-item">Sales Tax</td>
+          <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
+          <td class="td-cost">{{formatCost .SalesTax}}</td>
+        </tr>
+        <tr class="est-total-row">
+          <td class="td-item">Total</td>
+          <td class="td-desc">
+            {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
+          </td>
+          <td class="td-cost">{{formatCost .TotalCost}}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div style="max-width:480px;">
     <div class="box">
       <h3 class="title is-5">Contact Info</h3>
       {{if .Customer.FirstName}}

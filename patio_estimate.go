@@ -49,6 +49,7 @@ type PatioCoverEstimate struct {
 	Terms          string
 	TermsHTML      template.HTML
 	PatioTypeLabel string // human-readable PatioType, computed in renderPatioEstimate
+	Status         string // Accepted, Expired, or Pending — computed in renderPatioEstimate
 	Error          string
 }
 
@@ -308,6 +309,14 @@ func renderPatioEstimate(w http.ResponseWriter, r *http.Request, estimate PatioC
 		estimate.PatioTypeLabel = label
 	} else {
 		estimate.PatioTypeLabel = estimate.PatioType
+	}
+
+	if !estimate.AcceptDate.IsZero() {
+		estimate.Status = "Accepted"
+	} else if estimate.EstimateID > 0 && !estimate.ExpirationDate.IsZero() && estimate.ExpirationDate.Before(time.Now()) {
+		estimate.Status = "Expired"
+	} else if estimate.EstimateID > 0 {
+		estimate.Status = "Pending"
 	}
 
 	if mdBytes, err := os.ReadFile("static/t_and_c.md"); err == nil {
