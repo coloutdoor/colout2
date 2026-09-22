@@ -7,7 +7,7 @@
     <div class="notification is-danger">{{.Error}}</div>
     {{end}}
 
-    <h2 class="title is-4">Patio Cover Estimate</h2>
+    <h2 class="title is-4">Patio Cover Estimate{{if gt .EstimateID 0}} #{{.EstimateID}}{{end}}</h2>
     {{if .Desc}}<p class="has-text-grey mb-4">{{.Desc}}</p>{{end}}
 
     <div class="box">

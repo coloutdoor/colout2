@@ -321,7 +321,11 @@ func renderPatioEstimate(w http.ResponseWriter, r *http.Request, estimate PatioC
 	}
 
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Patio Cover Estimate"
+	if estimate.EstimateID > 0 {
+		userAuth.Title = fmt.Sprintf("Patio Cover Estimate #%d", estimate.EstimateID)
+	} else {
+		userAuth.Title = "Patio Cover Estimate"
+	}
 	userAuth.CanonicalPath = "/patio-estimate"
 	rd := renderData{
 		Page:   &estimate,
