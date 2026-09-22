@@ -8,10 +8,7 @@
   </div>
 
   {{with .Page}}
-    <div class="notification is-warning is-light mb-4" style="max-width:480px;">
-      <strong>Preview:</strong> Patio cover pricing is still in the works — this form shows what's coming. For a real quote today, <a href="/contact">talk to a professional</a>.
-    </div>
-    <form id="patio-form" class="box" style="max-width: 480px;">
+    <form id="patio-form" method="post" action="/patio-estimate" class="box" style="max-width: 480px;">
 
         <div class="field">
             <label class="label">Project Type</label>
@@ -87,13 +84,6 @@
             </div>
         </div>
 
-        <div class="field">
-            <label class="checkbox">
-                <input type="checkbox" name="hasDemo">
-                Demo and dispose of existing structure
-            </label>
-        </div>
-
         <!-- Modal Help Dialog-->
         <div id="patio-type-modal" class="modal">
             <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
@@ -152,12 +142,6 @@
 
     </form>
 
-    <div id="patio-thanks" class="notification is-success" style="max-width:480px; display:none;">
-        <button class="delete" type="button" onclick="document.getElementById('patio-thanks').style.display='none'; document.getElementById('patio-form').style.display='block';"></button>
-        <strong>Patio cover estimates are coming soon!</strong>
-        <p class="mt-2">We're putting the finishing touches on instant patio cover pricing. In the meantime, <a href="/contact">talk to a professional</a> and we'll put together a quote by hand.</p>
-    </div>
-
     <div style="max-width:480px; margin-top:2rem;">
       <h2 class="title is-4">How It Works</h2>
       <div class="columns is-mobile mt-2">
@@ -197,12 +181,6 @@
         btn.className = 'button' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
       });
     }
-
-    document.getElementById('patio-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      document.getElementById('patio-form').style.display = 'none';
-      document.getElementById('patio-thanks').style.display = 'block';
-    });
     </script>
     {{end}}
    {{template "footer.gohtml" .}}

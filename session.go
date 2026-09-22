@@ -13,10 +13,12 @@ import (
 
 // SessionData holds session contents for display.
 type SessionData struct {
-	Estimate    DeckEstimate
-	Customer    Customer
-	UserAuth    UserAuth
-	PendingSave bool // set when a save was interrupted by a login redirect
+	Estimate      DeckEstimate
+	PatioEstimate PatioCoverEstimate
+	ActiveProduct string // "deck" or "patio_cover" — which estimate /customer should return to; defaults to "deck"
+	Customer      Customer
+	UserAuth      UserAuth
+	PendingSave   bool // set when a save was interrupted by a login redirect
 }
 
 // Session store - in-memory for now, single secret key
@@ -134,6 +136,16 @@ func GetSession(r *http.Request, w http.ResponseWriter) (*SessionData, error) {
 		log.Printf("GetSession - No DeckEstimate found")
 		data.Estimate = DeckEstimate{}
 	}
+	if pe, ok := session.Values["patio_estimate"].(PatioCoverEstimate); ok {
+		data.PatioEstimate = pe
+	} else {
+		data.PatioEstimate = PatioCoverEstimate{}
+	}
+	if ap, ok := session.Values["active_product"].(string); ok {
+		data.ActiveProduct = ap
+	} else {
+		data.ActiveProduct = "deck"
+	}
 	if customer, ok := session.Values["customer"].(Customer); ok {
 		data.Customer = customer
 	} else {
@@ -165,6 +177,13 @@ func (s *SessionData) Save(r *http.Request, w http.ResponseWriter) error {
 	estimateForSession.Terms = ""
 	estimateForSession.TermsHTML = ""
 	session.Values["estimate"] = estimateForSession
+
+	patioForSession := s.PatioEstimate
+	patioForSession.Terms = ""
+	patioForSession.TermsHTML = ""
+	session.Values["patio_estimate"] = patioForSession
+	session.Values["active_product"] = s.ActiveProduct
+
 	session.Values["customer"] = s.Customer
 	session.Values["userauth"] = s.UserAuth
 	session.Values["pending_save"] = s.PendingSave
@@ -195,6 +214,8 @@ func (s *SessionData) Delete(r *http.Request, w http.ResponseWriter) error {
 
 	// Reset session by clearing values
 	delete(session.Values, "estimate")
+	delete(session.Values, "patio_estimate")
+	delete(session.Values, "active_product")
 	delete(session.Values, "customer")
 	delete(session.Values, "userauth")
 

@@ -117,3 +117,9 @@ FROM estimates WHERE length > 0 AND width > 0;
 -- elsewhere (not yet added) rather than as new columns on this table.
 ALTER TABLE estimates
 ADD COLUMN product_type TEXT NOT NULL DEFAULT 'deck';
+
+-- Product-specific fields for non-deck estimate types that don't warrant their own
+-- columns on this table (width, depth, patioType, area, baseCost for patio_cover).
+-- Deck rows leave this NULL; deck fields stay as dedicated columns above.
+ALTER TABLE estimates
+ADD COLUMN product_details JSONB;

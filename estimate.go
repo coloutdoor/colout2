@@ -533,6 +533,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// Save estimate to session
 	sd.Estimate.EmailModalShown = false // Reset email modal flag
 	sd.Estimate = estimate
+	sd.ActiveProduct = "deck"
 	err = sd.Save(r, w)
 	if err != nil {
 		log.Printf("Estimate Handler - Save Session failed.")

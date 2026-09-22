@@ -13,6 +13,7 @@ type Costs struct {
 	DeckMaterials map[string]float64 `yaml:"deck_materials"`
 	RailMaterials map[string]float64 `yaml:"rail_materials"`
 	RailInfills   map[string]float64 `yaml:"rail_infills"`
+	PatioMaterials      map[string]float64 `yaml:"patio_materials"`
 	DemoCost            float64            `yaml:"demo_cost"`
 	FasciaCost          float64            `yaml:"fascia_cost"`
 	PermitCostPerLevel  float64            `yaml:"permit_cost_per_level"`

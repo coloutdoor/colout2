@@ -158,6 +158,8 @@ func main() {
 	nrHandle("/estimate/fork/{token}", estimateForkHandler)
 	nrHandle("/estimate/accept/{token}", estimateAcceptHandler)
 	nrHandle("/estimate/{estimateID}", estimateDBHandler)
+	nrHandle("/patio-estimate", patioEstimateHandler)
+	nrHandle("/patio-estimate/{estimateID}", patioEstimateDBHandler)
 	nrHandle("/customer", customerHandler)
 	nrHandle("/session", sessionHandler)
 	nrHandle("/deck-calculator", calcHandler)

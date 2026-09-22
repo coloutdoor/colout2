@@ -1,0 +1,66 @@
+{{define "estimate-patio.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  {{with .Page}}
+  <div style="max-width:480px;">
+    {{if .Error}}
+    <div class="notification is-danger">{{.Error}}</div>
+    {{end}}
+
+    <h2 class="title is-4">Patio Cover Estimate</h2>
+    {{if .Desc}}<p class="has-text-grey mb-4">{{.Desc}}</p>{{end}}
+
+    <div class="box">
+      <table class="table is-fullwidth">
+        <tbody>
+          <tr><td>Patio Type</td><td class="has-text-right">{{.PatioTypeLabel}}</td></tr>
+          <tr><td>Dimensions</td><td class="has-text-right">{{printf "%.1f" .Width}} ft &times; {{printf "%.1f" .Depth}} ft</td></tr>
+          <tr><td>Finished Area <span class="has-text-grey is-size-7">(incl. 1 ft overhang)</span></td><td class="has-text-right">{{printf "%.0f" .Area}} sq ft</td></tr>
+          <tr><td>Base Cost</td><td class="has-text-right">{{formatCost .BaseCost}}</td></tr>
+          <tr><td>Subtotal</td><td class="has-text-right">{{formatCost .Subtotal}}</td></tr>
+          <tr><td>Sales Tax</td><td class="has-text-right">{{formatCost .SalesTax}}</td></tr>
+          <tr class="has-text-weight-bold"><td>Total</td><td class="has-text-right">{{formatCost .TotalCost}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
+    <p class="has-text-grey is-size-7 mb-4">Estimate #{{.EstimateID}} &mdash; Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
+    {{end}}
+
+    <div class="box">
+      <h3 class="title is-5">Contact Info</h3>
+      {{if .Customer.FirstName}}
+      <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
+      <p>{{.Customer.Address}}, {{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
+      <p>{{.Customer.PhoneNumber}} &middot; {{.Customer.Email}}</p>
+      {{else}}
+      <p class="has-text-grey">No contact info yet.</p>
+      {{end}}
+      <a href="/customer" class="button is-small mt-2">{{if .Customer.FirstName}}Edit{{else}}Add{{end}} Contact Info</a>
+    </div>
+
+    {{if .SaveDate.IsZero}}
+      {{if .Customer.FirstName}}
+      <form method="post" action="/patio-estimate">
+        <input type="hidden" name="save" value="true">
+        <button class="button is-primary is-fullwidth is-medium" type="submit"><i class="fas fa-save"></i> Save Estimate</button>
+      </form>
+      {{else}}
+      <div class="notification is-warning is-light">Add your contact info above before saving.</div>
+      {{end}}
+    {{else}}
+    <div class="notification is-success is-light">Estimate saved.</div>
+    {{end}}
+
+    {{if or .TermsHTML .Terms}}
+    <div class="box mt-5">
+      <h3 class="title is-5">Terms and Conditions</h3>
+      {{if .TermsHTML}}<div class="content is-small">{{.TermsHTML}}</div>{{else}}<pre class="is-size-7">{{.Terms}}</pre>{{end}}
+    </div>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{template "footer.gohtml" .}}
+{{end}}
