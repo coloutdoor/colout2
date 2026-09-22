@@ -68,6 +68,64 @@
     </div>
   </div>
 
+  {{/* ── ACTION BAR ── */}}
+  <div class="est-action-bar">
+    <button id="btn-email" class="est-btn" type="button">
+      <i class="fas fa-envelope"></i> Email
+    </button>
+    <button id="btn-materials" class="est-btn" type="button">
+      <i class="fas fa-hammer"></i> Generate Materials
+    </button>
+    <button id="btn-print" class="est-btn" type="button">
+      <i class="fas fa-print"></i> Print
+    </button>
+  </div>
+
+  {{/* ── PARTY CARDS ── */}}
+  <div class="est-parties">
+    <div class="est-party-card">
+      <p class="est-party-role">From</p>
+      {{if .Contractor.CompanyName}}
+      <p class="est-party-name">{{.Contractor.CompanyName}}</p>
+      <div class="est-party-detail">
+        {{if .Contractor.Phone}}<div>{{.Contractor.Phone}}</div>{{end}}
+        {{if .Contractor.Website}}<div><a href="{{.Contractor.Website}}" target="_blank">{{.Contractor.Website}}</a></div>{{end}}
+        {{if .Contractor.LicenseNum}}<div>License: {{.Contractor.LicenseNum}} ({{.Contractor.LicenseState}})</div>{{end}}
+      </div>
+      {{else}}
+      <p class="est-party-name">Columbia Outdoor</p>
+      <div class="est-party-detail">
+        <div>(360) 787-8062</div>
+        <div>columbiaoutdoor.com</div>
+      </div>
+      {{end}}
+    </div>
+
+    <div class="est-party-card">
+      <p class="est-party-role">
+        <span>{{if eq $.Header.Role "contractor"}}Customer{{else}}Prepared For{{end}}</span>
+        {{if eq .Customer.FirstName ""}}
+        <a href="/customer" class="est-party-edit" style="color:var(--est-red); border-color:#f5c6c2;">
+          {{if eq $.Header.Role "contractor"}}+ Add Customer{{else}}+ Add Your Info{{end}}
+        </a>
+        {{else}}
+        <a href="/customer" class="est-party-edit">Edit</a>
+        {{end}}
+      </p>
+      {{if or .Customer.FirstName .Customer.LastName}}
+      <p class="est-party-name">{{.Customer.FirstName}} {{.Customer.LastName}}</p>
+      {{else}}
+      <p class="est-party-missing">No customer info added yet</p>
+      {{end}}
+      <div class="est-party-detail">
+        {{if .Customer.Address}}<div>{{.Customer.Address}}</div>{{end}}
+        {{if or .Customer.City .Customer.State}}<div>{{.Customer.City}}{{if and .Customer.City .Customer.State}}, {{end}}{{.Customer.State}} {{.Customer.Zip}}</div>{{end}}
+        {{if .Customer.PhoneNumber}}<div>{{.Customer.PhoneNumber}}</div>{{end}}
+        {{if .Customer.Email}}<div>{{.Customer.Email}}</div>{{end}}
+      </div>
+    </div>
+  </div>
+
   {{/* ── SCOPE TABLE ── */}}
   <div class="est-scope-card">
     <div class="est-scope-head">
@@ -118,18 +176,6 @@
   </div>
 
   <div style="max-width:480px;">
-    <div class="box">
-      <h3 class="title is-5">Contact Info</h3>
-      {{if .Customer.FirstName}}
-      <p>{{.Customer.FirstName}} {{.Customer.LastName}}</p>
-      <p>{{.Customer.Address}}, {{.Customer.City}}, {{.Customer.State}} {{.Customer.Zip}}</p>
-      <p>{{.Customer.PhoneNumber}} &middot; {{.Customer.Email}}</p>
-      {{else}}
-      <p class="has-text-grey">No contact info yet.</p>
-      {{end}}
-      <a href="/customer" class="button is-small mt-2">{{if .Customer.FirstName}}Edit{{else}}Add{{end}} Contact Info</a>
-    </div>
-
     {{if .SaveDate.IsZero}}
       {{if .Customer.FirstName}}
       <form method="post" action="/patio-estimate">
