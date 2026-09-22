@@ -23,6 +23,7 @@ import (
 var funcMap = template.FuncMap{
 	"formatCost":                   formatCost,
 	"formatDeckDescription":        formatDeckDescription,
+	"formatPatioDescription":       formatPatioDescription,
 	"formatDemoDescription":        formatDemoDescription,
 	"formatRailDescription":        formatRailDescription,
 	"formatStairDescription":       formatStairDescription,

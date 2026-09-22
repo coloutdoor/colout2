@@ -40,6 +40,21 @@ func formatCost(cost float64) string {
 }
 
 // formatDeckDescription formats the deck description from DeckEstimate fields.
+// formatPatioDescription describes a patio cover's raw and finished dimensions,
+// noting the overhang and that roofing/gutters are included in the price.
+func formatPatioDescription(pe PatioCoverEstimate) string {
+	label := pe.PatioTypeLabel
+	if label == "" {
+		label = pe.PatioType
+	}
+	finishedWidth := pe.Width + 2
+	finishedDepth := pe.Depth + 1
+	return fmt.Sprintf(
+		"%.1f ft x %.1f ft %s cover with a 1 ft overhang on 3 sides, for a finished size of %.1f ft x %.1f ft (%.0f sq ft). Roofing and gutters included.",
+		pe.Width, pe.Depth, label, finishedWidth, finishedDepth, pe.Area,
+	)
+}
+
 func formatDeckDescription(de DeckEstimate) string {
 	material := ""
 	switch de.Material {

@@ -11,18 +11,66 @@
     {{if .Desc}}<p class="has-text-grey mb-4">{{.Desc}}</p>{{end}}
 
     <div class="box">
-      <table class="table is-fullwidth">
+      <table class="patio-line-items">
+        <colgroup>
+          <col style="width:90px;">
+          <col>
+          <col style="width:90px;">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Description</th>
+            <th class="td-cost">Cost</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Patio Type</td><td class="has-text-right">{{.PatioTypeLabel}}</td></tr>
-          <tr><td>Dimensions</td><td class="has-text-right">{{printf "%.1f" .Width}} ft &times; {{printf "%.1f" .Depth}} ft</td></tr>
-          <tr><td>Finished Area <span class="has-text-grey is-size-7">(incl. 1 ft overhang)</span></td><td class="has-text-right">{{printf "%.0f" .Area}} sq ft</td></tr>
-          <tr><td>Base Cost</td><td class="has-text-right">{{formatCost .BaseCost}}</td></tr>
-          <tr><td>Subtotal</td><td class="has-text-right">{{formatCost .Subtotal}}</td></tr>
-          <tr><td>Sales Tax</td><td class="has-text-right">{{formatCost .SalesTax}}</td></tr>
-          <tr class="has-text-weight-bold"><td>Total</td><td class="has-text-right">{{formatCost .TotalCost}}</td></tr>
+          <tr>
+            <td class="td-item">{{.PatioTypeLabel}}</td>
+            <td class="td-desc">{{formatPatioDescription .}}</td>
+            <td class="td-cost">{{formatCost .BaseCost}}</td>
+          </tr>
+        </tbody>
+        <tbody>
+          <tr class="row-subtotal">
+            <td class="td-item">Subtotal</td>
+            <td class="td-desc"></td>
+            <td class="td-cost">{{formatCost .Subtotal}}</td>
+          </tr>
+          <tr class="row-tax">
+            <td class="td-item">Sales Tax</td>
+            <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
+            <td class="td-cost">{{formatCost .SalesTax}}</td>
+          </tr>
+          <tr class="row-total">
+            <td class="td-item">Total</td>
+            <td class="td-desc"></td>
+            <td class="td-cost">{{formatCost .TotalCost}}</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
+    <style>
+      .patio-line-items { width: 100%; border-collapse: collapse; }
+      .patio-line-items thead th {
+        font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+        color: #7a7a7a; border-bottom: 1px solid #dbdbdb; padding: .35rem .4rem; text-align: left;
+      }
+      .patio-line-items thead th.td-cost { text-align: right; }
+      .patio-line-items tbody td { padding: .5rem .4rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+      .patio-line-items .td-item { font-weight: 600; color: #222; }
+      .patio-line-items .td-desc { color: #555; font-size: .9rem; }
+      .patio-line-items .td-cost {
+        text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; color: #222;
+      }
+      .patio-line-items tr.row-subtotal td { border-top: 1px solid #dbdbdb; padding-top: .6rem; }
+      .patio-line-items tr.row-tax td { border-bottom: none; }
+      .patio-line-items tr.row-total td {
+        font-weight: 700; font-size: 1.1rem; border-top: 2px solid #222; border-bottom: none; padding-top: .6rem;
+      }
+      .patio-line-items tr.row-total .td-cost { color: #1a5c32; }
+    </style>
 
     {{if and (gt .EstimateID 0) (not .SaveDate.IsZero)}}
     <p class="has-text-grey is-size-7 mb-4">Estimate #{{.EstimateID}} &mdash; Version {{.Version}} &mdash; Saved {{.SaveDate.Format "Jan 2, 2006"}}</p>
