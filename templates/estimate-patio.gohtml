@@ -52,6 +52,22 @@
     {{end}}
   </div>
 
+  {{/* ── TIER TOGGLE ── */}}
+  <div class="est-tier-bar">
+    <span class="est-tier-label">Service Tier</span>
+    <div class="est-tier-group">
+      <button type="button" class="est-tier-btn{{if eq .DIYMode 0}} tier-active-full{{end}}">
+        <i class="fas fa-hard-hat"></i> Full Service
+      </button>
+      <button type="button" class="est-tier-btn{{if eq .DIYMode 1}} tier-active-plans{{end}}">
+        <i class="fas fa-tools"></i> Plans + Materials
+      </button>
+      <button type="button" class="est-tier-btn{{if eq .DIYMode 2}} tier-active-diy{{end}}">
+        <i class="fas fa-drafting-compass"></i> Plans Only
+      </button>
+    </div>
+  </div>
+
   {{/* ── SCOPE TABLE ── */}}
   <div class="est-scope-card">
     <div class="est-scope-head">
