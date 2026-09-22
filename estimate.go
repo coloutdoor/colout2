@@ -18,7 +18,8 @@ import (
 	"github.com/yuin/goldmark"
 )
 
-// Define template functions
+// funcMap holds the helper functions available to every template parsed with it,
+// including cost/description formatters used by estimate.gohtml and its partials.
 var funcMap = template.FuncMap{
 	"formatCost":                   formatCost,
 	"formatDeckDescription":        formatDeckDescription,
@@ -48,6 +49,8 @@ var funcMap = template.FuncMap{
 	"categoryOptions":   func() []CategoryOption { return categoryOrder },
 }
 
+// EstimateSection is one labeled length/width section of a multi-section deck
+// (e.g. a main deck plus a bump-out or wraparound).
 type EstimateSection struct {
 	ID         int64
 	EstimateID int
@@ -57,6 +60,8 @@ type EstimateSection struct {
 	SortOrder  int
 }
 
+// EstimateCustomItem is a manually added line item (description, notes, cost)
+// attached to an estimate alongside its calculated costs.
 type EstimateCustomItem struct {
 	ID          int64
 	EstimateID  int
@@ -66,6 +71,8 @@ type EstimateCustomItem struct {
 	SortOrder   int
 }
 
+// ContractorInfo holds the contractor details rendered on an estimate: company
+// name, contact info, and license, sourced from contractor_profile.
 type ContractorInfo struct {
 	ID           int64
 	CompanyName  string
@@ -75,9 +82,14 @@ type ContractorInfo struct {
 	LicenseState string
 }
 
-var tmpl *template.Template // tmpl is the global template for estimate.gohtml, initialized at startup.
-var db *sql.DB              // db is the SQLite database connection
+// tmpl is the parsed estimate.gohtml template, built once at startup.
+var tmpl *template.Template
 
+// db is unused; every DB-backed function in this package opens its own
+// short-lived *sql.DB via sql.Open rather than sharing a package-level handle.
+var db *sql.DB
+
+// init registers the session-persisted types for gob encoding and parses tmpl.
 func init() {
 	gob.Register(EstimateSection{})
 	gob.Register(EstimateCustomItem{})
@@ -88,7 +100,9 @@ func init() {
 		"templates/header.gohtml", "templates/footer.gohtml"))
 }
 
-// renderEstimate executes the "estimate.gohtml" template with the given estimate, handling errors.
+// renderEstimate computes the estimate's display status (Accepted/Expired/Pending),
+// loads the terms and conditions, and executes estimate.gohtml. Template execution
+// errors are logged and reported to the client as a 500.
 func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimate) {
 	// Compute status
 	if !estimate.AcceptDate.IsZero() {
@@ -124,13 +138,11 @@ func renderEstimate(w http.ResponseWriter, r *http.Request, estimate DeckEstimat
 	}
 }
 
-// **********************************************************************************
-// estimateDBHandler
-//
-//	Get the estimate from the specific URI
-//	     /estimate/{EstimateID}
-//
-// **********************************************************************************
+// estimateDBHandler handles GET /estimate/{estimateID}, loading a saved estimate
+// from the database. It requires an authenticated session, redirecting to /login
+// if the caller isn't logged in, and reports "Unauthorized" unless the caller owns
+// the estimate or is an admin. On success it syncs the session with the loaded
+// estimate so /customer pre-fills correctly.
 func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session
 
@@ -188,15 +200,15 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 	renderEstimate(w, r, de)
 }
 
-// **********************************************************************************
-// estimateHandler
+// estimateHandler handles GET and POST /estimate.
 //
-//  Data can be posted to this page from either
+// GET renders the current session (or freshly reloaded database) estimate, and
+// auto-completes a save that was interrupted by a login redirect.
 //
-//   Calculator  - Full details
-//   /calc/deck  - /calc?option=deck - Basic Deck with Finish Level
-// **********************************************************************************
-
+// POST branches on form values: save=true persists the estimate via saveEstimate,
+// accept=true marks a previously saved estimate accepted, and otherwise the form
+// is treated as calculator input — either the full calculator or the basic
+// /deck-calculator finish-level form — and the cost breakdown is recalculated.
 func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session
 
@@ -213,7 +225,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate := sd.Estimate
 	estimate.Customer = customer // Embed customer in estimate
 
-	// ************* GET  ********************************
+	// GET
 	if r.Method != http.MethodPost {
 		// Auto-complete a save that was interrupted by a login redirect.
 		if sd.UserAuth.IsAuthenticated && sd.PendingSave {
@@ -240,7 +252,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ************* POST - SAVE  ********************************
+	// POST save=true
 	if r.FormValue("save") == "true" {
 		if desc := r.FormValue("desc"); desc != "" {
 			estimate.Desc = desc
@@ -340,7 +352,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ************* POST - Accept  - After Save ********************************
+	// POST accept=true (after save)
 	if r.FormValue("accept") == "true" {
 		estimateIDStr := r.FormValue("estimate_id")
 		if estimateIDStr != "" {
@@ -359,7 +371,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ************* POST - Data - calculate estimate ********************************
+	// POST calculator input — parse and validate the deck dimensions
 	length, err := strconv.ParseFloat(r.FormValue("length"), 64)
 	if err != nil || length <= 0 {
 		renderEstimate(w, r, DeckEstimate{Error: "Deck Length must be a positive number"})
@@ -405,10 +417,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	estimate.HasStairFascia = r.FormValue("hasStairFascia") == "on"
 	estimate.HasStairTK = r.FormValue("hasStairTK") == "on"
 
-	// ************** POST - Finish Level from /calc/deck **************************
-	//
-	// Set the materials and selections based on the Deck options:
-	// *****************************************************************************
+	// "finish" is set by the basic /deck-calculator form; map its finish-level
+	// selection to a concrete material/rail/stair combination.
 	if r.FormValue("finish") != "" {
 		log.Printf("Setting Finish Level to: %s", r.FormValue("finish"))
 		log.Printf("Setting Stairs to: %s", r.FormValue("hasStairs"))
@@ -535,13 +545,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// ***********************************************************************************************
-// emailSendHandler
-//
-//	handles the /estimate/send/{estimateID}
-//	 POST - endpoint to send and render the email confirmation template.
-//
-// ***********************************************************************************************
+// emailSendHandler handles POST /estimate/send/{estimateID}, emailing the estimate
+// via Resend to the requester's address (defaulting to the saved customer email)
+// and optionally CC'ing the logged-in user. It responds with a JSON
+// {status, message} payload rather than HTML.
 func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -632,8 +639,9 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// estimateTokenHandler serves the public customer view of an estimate via access token.
-// No authentication required — the token acts as the credential.
+// estimateTokenHandler handles GET /estimate/view/{token}, serving the public
+// customer view of an estimate. No authentication required — the token acts as
+// the credential.
 func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
 	if token == "" {
@@ -660,7 +668,8 @@ func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	renderEstimate(w, r, de)
 }
 
-// estimatePrintHandler serves a print-optimized view of an estimate via access token.
+// estimatePrintHandler handles GET /estimate/print/{token}, serving a
+// print-optimized view of an estimate via access token.
 func estimatePrintHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
 	if token == "" {
