@@ -87,6 +87,104 @@ func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	}
 }
 
+// *****************************************************************************************
+//
+//	patioCalcData
+//
+//	  Minimal view model for the patio cover calculator mock-up. Deliberately kept separate
+//	  from DeckEstimate since patio cover pricing/persistence doesn't exist yet.
+//
+// *****************************************************************************************
+type patioCalcData struct {
+	DIYMode int
+}
+
+// *****************************************************************************************
+//
+//	handlePatioCalc
+//
+//	  UI-only mock-up for the patio cover calculator. Does not post to /estimate or touch
+//	  the DB — the form is a front-end preview until patio cover pricing exists.
+//
+// *****************************************************************************************
+func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
+	userAuth := getUserAuth(r, w)
+	userAuth.Title = "Free Patio Cover Calculator — SW Washington"
+	userAuth.Subtitle = "Instant patio cover cost estimates for SW Washington homeowners"
+	userAuth.MetaDesc = "Free patio cover cost calculator for SW Washington. Get an instant estimate for pergola, lean-to, truss, and timberframe covers."
+	userAuth.CanonicalPath = "/patio-cover-calculator"
+
+	data := patioCalcData{}
+	if dm := r.URL.Query().Get("diyMode"); dm != "" {
+		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+			data.DIYMode = v
+		}
+	}
+
+	rd := renderData{
+		Page:   &data,
+		Header: &userAuth,
+	}
+	tmpl := template.Must(template.New("patio.gohtml").Funcs(funcMap).ParseFiles("templates/calc/patio.gohtml",
+		"templates/header.gohtml", "templates/calc/deckheader.gohtml", "templates/footer.gohtml"))
+
+	if err := tmpl.ExecuteTemplate(w, "patio.gohtml", rd); err != nil {
+		log.Printf("handlePatioCalc execute error: %v", err)
+		panic(err)
+	}
+}
+
+// *****************************************************************************************
+//
+//	calcPickerHandler
+//
+//	  /calc — lets the homeowner choose a project type (deck or patio cover) before
+//	  landing on the type-specific calculator.
+//
+// *****************************************************************************************
+func calcPickerHandler(w http.ResponseWriter, r *http.Request) {
+	userAuth := getUserAuth(r, w)
+	userAuth.Title = "Get a Free Estimate — Deck or Patio Cover"
+	userAuth.Subtitle = "Choose a project type to get an instant, no-obligation estimate"
+	userAuth.MetaDesc = "Get an instant deck or patio cover cost estimate for SW Washington. No account required."
+	userAuth.CanonicalPath = "/calc"
+
+	rd := renderData{
+		Header: &userAuth,
+	}
+	tmpl := template.Must(template.New("picker.gohtml").Funcs(funcMap).ParseFiles("templates/calc/picker.gohtml",
+		"templates/header.gohtml", "templates/footer.gohtml"))
+
+	if err := tmpl.ExecuteTemplate(w, "picker.gohtml", rd); err != nil {
+		log.Printf("calcPickerHandler execute error: %v", err)
+		panic(err)
+	}
+}
+
+// *****************************************************************************************
+//
+//	calcSlugRedirectHandler
+//
+//	  /calc/deck, /calc/cover — short aliases that 301 to the canonical calculator URLs.
+//
+// *****************************************************************************************
+func calcSlugRedirectHandler(w http.ResponseWriter, r *http.Request) {
+	var target string
+	switch r.PathValue("slug") {
+	case "deck":
+		target = "/deck-calculator"
+	case "cover":
+		target = "/patio-cover-calculator"
+	default:
+		notFoundHandler(w, r)
+		return
+	}
+	if r.URL.RawQuery != "" {
+		target += "?" + r.URL.RawQuery
+	}
+	http.Redirect(w, r, target, http.StatusMovedPermanently)
+}
+
 func handleRailsCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r, w)
 	rd := renderData{

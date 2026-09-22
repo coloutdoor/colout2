@@ -1,0 +1,209 @@
+{{define "patio.gohtml"}}
+  {{template "header.gohtml" .Header}}
+  {{template "deckheader.gohtml" .}}
+
+  <div style="max-width:480px;">
+    <h2 class="title is-4 mt-4">How Much Does a Patio Cover Cost in SW Washington?</h2>
+    <p class="has-text-grey mb-4">Patio cover costs in SW Washington vary widely by style and materials — a simple pergola runs far less than a timberframe cover. Use this calculator to get a rough sense of your project before talking to a professional.</p>
+  </div>
+
+  {{with .Page}}
+    <div class="notification is-warning is-light mb-4" style="max-width:480px;">
+      <strong>Preview:</strong> Patio cover pricing is still in the works — this form shows what's coming. For a real quote today, <a href="/contact">talk to a professional</a>.
+    </div>
+    <form id="patio-form" class="box" style="max-width: 480px;">
+
+        <div class="field">
+            <label class="label">Project Type</label>
+            <div class="buttons has-addons mb-1">
+              <button type="button" id="mode-btn-0" onclick="setMode(0)"
+                class="button{{if eq .DIYMode 0}} is-link is-selected{{end}}">
+                <span class="icon is-small"><i class="fas fa-hard-hat"></i></span>
+                <span>Full Service</span>
+              </button>
+              <button type="button" id="mode-btn-1" onclick="setMode(1)"
+                class="button{{if eq .DIYMode 1}} is-success is-selected{{end}}">
+                <span class="icon is-small"><i class="fas fa-tools"></i></span>
+                <span>Plans + Materials</span>
+              </button>
+              <button type="button" id="mode-btn-2" onclick="setMode(2)"
+                class="button{{if eq .DIYMode 2}} is-warning is-selected{{end}}">
+                <span class="icon is-small"><i class="fas fa-drafting-compass"></i></span>
+                <span>Plans Only</span>
+              </button>
+            </div>
+            <p id="mode-help" class="help">
+              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
+              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
+              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
+            </p>
+            <input type="hidden" name="diyMode" id="diy-mode-hidden" value="{{.DIYMode}}">
+        </div>
+
+        <div class="field">
+            <label class="label">Project Description</label>
+            <div class="control">
+                <input class="input" type="text" name="desc" maxlength="50" placeholder="e.g. Back patio, over the deck...">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Depth (ft)</label>
+            <div class="control">
+                <input class="input" type="number" name="length" step="0.1" min="1" required placeholder="e.g. 14">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Width (ft)</label>
+            <div class="control">
+                <input class="input" type="number" name="width" step="0.1" min="1" required placeholder="e.g. 20">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Height at Wall (ft)</label>
+            <div class="control">
+                <input class="input" type="number" name="height" step="0.1" min="0" required placeholder="e.g. 9">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">
+                Patio Type
+                <a href="#" class="ml-2" onclick="document.getElementById('patio-type-modal').classList.add('is-active'); return false;">
+                    <span class="icon"><i class="fas fa-question-circle has-text-info"></i></span>
+                </a>
+            </label>
+            <div class="control">
+                <div class="select is-fullwidth">
+                    <select name="patioType" required>
+                        <option value="pergola">Pergola — open slat roof, partial shade</option>
+                        <option value="leanto">Lean-to — single-slope, attached to house</option>
+                        <option value="truss">Truss — peaked roof, matches home roofline</option>
+                        <option value="timberframe">Timberframe — heavy post-and-beam construction</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="checkbox">
+                <input type="checkbox" name="hasDemo">
+                Demo and dispose of existing structure
+            </label>
+        </div>
+
+        <!-- Modal Help Dialog-->
+        <div id="patio-type-modal" class="modal">
+            <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
+            <div class="modal-card">
+                <header class="modal-card-head"><p class="modal-card-title">Patio Type Guide - You can customize this later</p></header>
+                <section class="modal-card-body">
+                    <table class="table is-fullwidth is-striped is-hoverable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Roof Style</th>
+                                <th>Attachment</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="has-text-weight-bold">Pergola</td>
+                                <td>Open lattice/slat roof</td>
+                                <td>Attached or freestanding</td>
+                                <td>Partial shade, decorative</td>
+                            </tr>
+                            <tr>
+                                <td class="has-text-weight-bold">Lean-to</td>
+                                <td>Single-slope, solid roof</td>
+                                <td>Attached only</td>
+                                <td>Budget-friendly full coverage</td>
+                            </tr>
+                            <tr>
+                                <td class="has-text-weight-bold">Truss</td>
+                                <td>Peaked/gable, solid roof</td>
+                                <td>Attached or freestanding</td>
+                                <td>Full coverage matching the house</td>
+                            </tr>
+                            <tr>
+                                <td class="has-text-weight-bold">Timberframe</td>
+                                <td>Exposed post-and-beam, solid roof</td>
+                                <td>Attached or freestanding</td>
+                                <td>Premium, architectural look</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button" type="button" onclick="document.getElementById('patio-type-modal').classList.remove('is-active')">Close</button>
+                </footer>
+            </div>
+        </div>
+
+        <div class="field mt-5">
+            <div class="control">
+                <input id="submit-btn" class="button is-primary is-fullwidth is-medium" type="submit"
+                  value="{{if eq .DIYMode 1}}Get Plans + Materials Estimate{{else if eq .DIYMode 2}}Get Plans Only Estimate{{else}}Get Estimate{{end}}">
+            </div>
+        </div>
+
+    </form>
+
+    <div id="patio-thanks" class="notification is-success" style="max-width:480px; display:none;">
+        <button class="delete" type="button" onclick="document.getElementById('patio-thanks').style.display='none'; document.getElementById('patio-form').style.display='block';"></button>
+        <strong>Patio cover estimates are coming soon!</strong>
+        <p class="mt-2">We're putting the finishing touches on instant patio cover pricing. In the meantime, <a href="/contact">talk to a professional</a> and we'll put together a quote by hand.</p>
+    </div>
+
+    <div style="max-width:480px; margin-top:2rem;">
+      <h2 class="title is-4">How It Works</h2>
+      <div class="columns is-mobile mt-2">
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-ruler-combined fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">1. Enter Dimensions</p>
+          <p class="has-text-grey is-size-7">Depth, width, height, and cover type. Takes about 60 seconds.</p>
+        </div>
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-dollar-sign fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">2. Get Instant Estimate</p>
+          <p class="has-text-grey is-size-7">See a full itemized cost breakdown — structure, roof, and demo.</p>
+        </div>
+        <div class="column has-text-centered">
+          <span class="icon is-large has-text-link"><i class="fas fa-share-alt fa-2x"></i></span>
+          <p class="has-text-weight-bold mt-2">3. Save or Share</p>
+          <p class="has-text-grey is-size-7">Save your estimate, email it to yourself, or share it with a contractor.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    const modeHelp = [
+      'Columbia Outdoor builds your project from estimate to final walkthrough.',
+      'Design, engineering, permits, and materials list — you install.',
+      'Professional design, engineering, and permit package only — no materials.'
+    ];
+    const modeColors = ['is-link', 'is-success', 'is-warning'];
+    const modeSubmit = ['Get Estimate', 'Get Plans + Materials Estimate', 'Get Plans Only Estimate'];
+
+    function setMode(mode) {
+      document.getElementById('diy-mode-hidden').value = mode;
+      document.getElementById('mode-help').textContent = modeHelp[mode];
+      document.getElementById('submit-btn').value = modeSubmit[mode];
+      [0, 1, 2].forEach(m => {
+        const btn = document.getElementById('mode-btn-' + m);
+        btn.className = 'button' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
+      });
+    }
+
+    document.getElementById('patio-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('patio-form').style.display = 'none';
+      document.getElementById('patio-thanks').style.display = 'block';
+    });
+    </script>
+    {{end}}
+   {{template "footer.gohtml" .}}
+{{end}}

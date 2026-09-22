@@ -161,14 +161,9 @@ func main() {
 	nrHandle("/customer", customerHandler)
 	nrHandle("/session", sessionHandler)
 	nrHandle("/deck-calculator", calcHandler)
-	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
-		// Preserve query string on redirect
-		target := "/deck-calculator"
-		if r.URL.RawQuery != "" {
-			target += "?" + r.URL.RawQuery
-		}
-		http.Redirect(w, r, target, http.StatusMovedPermanently)
-	})
+	nrHandle("/patio-cover-calculator", handlePatioCalc)
+	nrHandle("/calc", calcPickerHandler)
+	nrHandle("/calc/{slug}", calcSlugRedirectHandler)
 	nrHandle("/css/", cssHandler)
 	nrHandle("/contact", contactHandler)
 	nrHandle("/contact/", contactHandler)
