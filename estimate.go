@@ -29,6 +29,7 @@ var funcMap = template.FuncMap{
 	"formatPatioFinishCeilingDescription":  formatPatioFinishCeilingDescription,
 	"formatPatioPaintStainDescription":     formatPatioPaintStainDescription,
 	"formatPatioFinishHardwareDescription": formatPatioFinishHardwareDescription,
+	"formatPatioPermitDescription":         formatPatioPermitDescription,
 	"formatDemoDescription":                formatDemoDescription,
 	"formatRailDescription":                formatRailDescription,
 	"formatStairDescription":               formatStairDescription,

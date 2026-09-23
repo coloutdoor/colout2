@@ -105,6 +105,24 @@ func formatPatioFinishHardwareDescription(pe PatioCoverEstimate) string {
 	return "Standard galvanized hardware."
 }
 
+// formatPatioPermitDescription describes the Design & Permits line item,
+// same wording as the deck estimate's formatPermitDescription.
+func formatPatioPermitDescription(pe PatioCoverEstimate) string {
+	switch pe.PermitLevel {
+	case 1:
+		return "Professional architectural design and material takeoff list included. Engineering not included but may be required for your project."
+	case 2:
+		return "Professional architectural design, structural engineering, and material takeoff list included. Permits not included but may be required for your project."
+	case 3:
+		return "Professional architectural design, structural engineering, permit application, and material takeoff list included."
+	default:
+		if pe.DIYMode == 1 || pe.DIYMode == 2 {
+			return "Complete material takeoff list included. Design, engineering, and permits not included."
+		}
+		return "Design, engineering, and permits not included. May be required for your project."
+	}
+}
+
 func formatDeckDescription(de DeckEstimate) string {
 	material := ""
 	switch de.Material {

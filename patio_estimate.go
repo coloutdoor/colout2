@@ -39,6 +39,8 @@ type PatioCoverEstimate struct {
 	HasPaintStain      bool    // default off; pricing not yet defined
 	PaintStainCost     float64 // $0 for now
 	FinishHardwareCost float64 // $0 for now; defaults to standard galvanized hardware
+	PermitLevel        int     // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
+	PermitCost         float64
 	Subtotal           float64
 	SalesTax           float64
 	TotalCost          float64
@@ -91,8 +93,9 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 	if estimate.Error != "" {
 		return
 	}
+	estimate.CalcPermitCost(costs)
 
-	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost
+	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.PermitCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 }
@@ -117,6 +120,7 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
         e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(e.access_token, ''), COALESCE(e.diy_mode, 0), e.product_type,
+        COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
         COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
         COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1),
         COALESCE(e.product_details::text, '{}')
@@ -128,6 +132,7 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		&pe.Customer.Zip, &pe.Customer.PhoneNumber, &pe.Customer.Email,
 		&pe.SaveDate, &acceptDate, &pe.ExpirationDate, &pe.UserId, &pe.ContractorID, &pe.Version,
 		&pe.AccessToken, &pe.DIYMode, &pe.ProductType,
+		&pe.PermitLevel, &pe.PermitCost,
 		&pe.Contractor.CompanyName, &pe.Contractor.Phone, &pe.Contractor.Website,
 		&pe.Contractor.LicenseNum, &pe.Contractor.LicenseState, &pe.Contractor.ID,
 		&detailsJSON)
@@ -251,8 +256,10 @@ SET
     diy_mode = $18,
     product_type = $19,
     product_details = $20,
+    permit_level = $21,
+    permit_cost = $22,
     version = version + 1
-WHERE estimate_id = $21
+WHERE estimate_id = $23
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.TotalCost, estimate.Subtotal, estimate.SalesTax,
@@ -263,6 +270,7 @@ RETURNING estimate_id, version`
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
 			estimate.UserId, estimate.ContractorID, estimate.AccessToken,
 			estimate.DIYMode, estimate.ProductType, string(detailsJSON),
+			estimate.PermitLevel, estimate.PermitCost,
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 		if err != nil {
 			log.Printf("Failed to update patio estimate: %v", err)
@@ -286,13 +294,15 @@ RETURNING estimate_id, version`
 			first_name, last_name, address, city, state, zip, phone_number, email,
 			save_date, accept_date, expiration_date,
 			user_id, contractor_id,
-			access_token, diy_mode, product_type, product_details, version)
+			access_token, diy_mode, product_type, product_details,
+			permit_level, permit_cost, version)
 		VALUES (
 			$1, $2, $3, $4,
 			$5, $6, $7, $8, $9, $10, $11, $12,
 			$13, $14, $15,
 			$16, $17,
-			$18, $19, $20, $21, 1
+			$18, $19, $20, $21,
+			$22, $23, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -304,7 +314,8 @@ RETURNING estimate_id, version`
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
 			estimate.UserId, estimate.ContractorID,
-			estimate.AccessToken, estimate.DIYMode, estimate.ProductType, string(detailsJSON)).
+			estimate.AccessToken, estimate.DIYMode, estimate.ProductType, string(detailsJSON),
+			estimate.PermitLevel, estimate.PermitCost).
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save patio estimate to DB: %v", err)
@@ -455,6 +466,9 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 			estimate.DIYMode = v
 		}
 	}
+
+	// Default permit level: Design, same as a typical (non-tall) deck.
+	estimate.PermitLevel = 1
 
 	estimate.CalcAllCosts()
 	if estimate.Error != "" {

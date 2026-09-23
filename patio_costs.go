@@ -14,3 +14,12 @@ func (estimate *PatioCoverEstimate) CalculatePatioCost(costs Costs) {
 	estimate.Area = (estimate.Width + 2) * (estimate.Depth + 1)
 	estimate.BaseCost = estimate.Area * rate
 }
+
+// CalcPermitCost computes design/engineering/permit cost based on the selected
+// tier, same formula and per-level rate as the deck estimate.
+func (estimate *PatioCoverEstimate) CalcPermitCost(costs Costs) {
+	estimate.PermitCost = float64(estimate.PermitLevel) * costs.PermitCostPerLevel
+	if estimate.DIYMode == 1 || estimate.DIYMode == 2 {
+		estimate.PermitCost += 500
+	}
+}
