@@ -432,6 +432,27 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST save=true
 	if r.FormValue("save") == "true" {
+		if desc := r.FormValue("desc"); desc != "" {
+			estimate.Desc = desc
+		}
+		if w := r.FormValue("width"); w != "" {
+			if val, err := strconv.ParseFloat(w, 64); err == nil && val > 0 {
+				estimate.Width = val
+			}
+		}
+		if d := r.FormValue("length"); d != "" {
+			if val, err := strconv.ParseFloat(d, 64); err == nil && val > 0 {
+				estimate.Depth = val
+			}
+		}
+		if pt := r.FormValue("patioType"); pt != "" {
+			estimate.PatioType = pt
+		}
+		if dm := r.FormValue("diyMode"); dm != "" {
+			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+				estimate.DIYMode = v
+			}
+		}
 		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			savePatioEstimate(w, r, &estimate, sd)

@@ -46,7 +46,7 @@
     {{if .TotalCost}}
     <div class="est-total-callout">
       <p class="est-total-label">Estimated Total</p>
-      <p class="est-total-amount">{{formatCost .TotalCost}}</p>
+      <p class="est-total-amount" id="header-total">{{formatCost .TotalCost}}</p>
       <p class="est-total-note">Incl. {{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} sales tax</p>
     </div>
     {{end}}
@@ -150,57 +150,59 @@
       <tbody>
         <tr>
           <td class="td-item">Patio Cover</td>
-          <td class="td-ctl"></td>
-          <td class="td-desc">{{formatPatioDescription .}}</td>
-          <td class="td-cost">{{formatCost .BaseCost}}</td>
+          <td class="td-ctl">
+            <a href="#" onclick="openPatioModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+          </td>
+          <td class="td-desc" id="patio-desc">{{formatPatioDescription .}}</td>
+          <td class="td-cost" id="patio-cost">{{formatCost .BaseCost}}</td>
         </tr>
 
         {{/* Roof Slope */}}
         <tr>
           <td class="td-item">Roof Slope</td>
           <td class="td-ctl"></td>
-          <td class="td-desc">{{formatPatioRoofSlopeDescription .}}</td>
+          <td class="td-desc" id="roofslope-desc">{{formatPatioRoofSlopeDescription .}}</td>
           <td class="td-cost">{{formatCost 0.0}}</td>
         </tr>
 
         {{/* Post Wrap */}}
-        <tr{{if not .HasPostWrap}} class="zero-row"{{end}}>
+        <tr id="postwrap-row"{{if not .HasPostWrap}} class="zero-row"{{end}}>
           <td class="td-item">Post Wrap</td>
           <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasPostWrap}}checked{{end}}></td>
-          <td class="td-desc">{{formatPatioPostWrapDescription .}}</td>
-          <td class="td-cost">{{formatCost .PostWrapCost}}</td>
+          <td class="td-desc" id="postwrap-desc">{{formatPatioPostWrapDescription .}}</td>
+          <td class="td-cost" id="postwrap-cost">{{formatCost .PostWrapCost}}</td>
         </tr>
 
         {{/* Finish Ceiling */}}
-        <tr{{if not .HasFinishCeiling}} class="zero-row"{{end}}>
+        <tr id="finishceiling-row"{{if not .HasFinishCeiling}} class="zero-row"{{end}}>
           <td class="td-item">Finish Ceiling</td>
           <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasFinishCeiling}}checked{{end}}></td>
-          <td class="td-desc">{{formatPatioFinishCeilingDescription .}}</td>
-          <td class="td-cost">{{formatCost .FinishCeilingCost}}</td>
+          <td class="td-desc" id="finishceiling-desc">{{formatPatioFinishCeilingDescription .}}</td>
+          <td class="td-cost" id="finishceiling-cost">{{formatCost .FinishCeilingCost}}</td>
         </tr>
 
         {{/* Paint or Stain */}}
-        <tr{{if not .HasPaintStain}} class="zero-row"{{end}}>
+        <tr id="paintstain-row"{{if not .HasPaintStain}} class="zero-row"{{end}}>
           <td class="td-item">Paint or Stain</td>
           <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasPaintStain}}checked{{end}}></td>
-          <td class="td-desc">{{formatPatioPaintStainDescription .}}</td>
-          <td class="td-cost">{{formatCost .PaintStainCost}}</td>
+          <td class="td-desc" id="paintstain-desc">{{formatPatioPaintStainDescription .}}</td>
+          <td class="td-cost" id="paintstain-cost">{{formatCost .PaintStainCost}}</td>
         </tr>
 
         {{/* Finish Hardware */}}
         <tr>
           <td class="td-item">Finish Hardware</td>
           <td class="td-ctl"></td>
-          <td class="td-desc">{{formatPatioFinishHardwareDescription .}}</td>
-          <td class="td-cost">{{formatCost .FinishHardwareCost}}</td>
+          <td class="td-desc" id="finishhardware-desc">{{formatPatioFinishHardwareDescription .}}</td>
+          <td class="td-cost" id="finishhardware-cost">{{formatCost .FinishHardwareCost}}</td>
         </tr>
 
         {{/* Design & Permits */}}
         <tr>
           <td class="td-item">Design &amp; Permits</td>
           <td class="td-ctl"></td>
-          <td class="td-desc">{{formatPatioPermitDescription .}}</td>
-          <td class="td-cost">{{formatCost .PermitCost}}</td>
+          <td class="td-desc" id="permit-desc">{{formatPatioPermitDescription .}}</td>
+          <td class="td-cost" id="permit-cost">{{formatCost .PermitCost}}</td>
         </tr>
       </tbody>
       <tbody>
@@ -208,13 +210,13 @@
           <td class="td-item">Subtotal</td>
           <td class="td-ctl"></td>
           <td class="td-desc"></td>
-          <td class="td-cost">{{formatCost .Subtotal}}</td>
+          <td class="td-cost" id="subtotal-val">{{formatCost .Subtotal}}</td>
         </tr>
         <tr class="est-tax-row">
           <td class="td-item">Sales Tax</td>
           <td class="td-ctl"></td>
           <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
-          <td class="td-cost">{{formatCost .SalesTax}}</td>
+          <td class="td-cost" id="salestax-val">{{formatCost .SalesTax}}</td>
         </tr>
         <tr class="est-total-row">
           <td class="td-item">Total</td>
@@ -222,7 +224,7 @@
           <td class="td-desc">
             {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
           </td>
-          <td class="td-cost">{{formatCost .TotalCost}}</td>
+          <td class="td-cost" id="total-val">{{formatCost .TotalCost}}</td>
         </tr>
       </tbody>
     </table>
@@ -230,17 +232,20 @@
   </div>
 
   <div style="max-width:480px;">
-    {{if .SaveDate.IsZero}}
-      {{if .Customer.FirstName}}
-      <form method="post" action="/patio-estimate">
-        <input type="hidden" name="save" value="true">
-        <button class="button is-primary is-fullwidth is-medium" type="submit"><i class="fas fa-save"></i> Save Estimate</button>
-      </form>
-      {{else}}
-      <div class="notification is-warning is-light">Add your contact info above before saving.</div>
-      {{end}}
+    {{if .Customer.FirstName}}
+    <form method="post" action="/patio-estimate">
+      <input type="hidden" name="save" value="true">
+      <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
+      <input type="hidden" name="width" id="save-width" value="{{printf "%.1f" .Width}}">
+      <input type="hidden" name="length" id="save-depth" value="{{printf "%.1f" .Depth}}">
+      <input type="hidden" name="patioType" id="save-patio-type" value="{{.PatioType}}">
+      <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
+      <button id="btn-save" class="button is-primary is-fullwidth is-medium" type="submit">
+        <i class="fas fa-save"></i> {{if .SaveDate.IsZero}}Save Estimate{{else}}Save Changes{{end}}
+      </button>
+    </form>
     {{else}}
-    <div class="notification is-success is-light">Estimate saved.</div>
+    <div class="notification is-warning is-light">Add your contact info above before saving.</div>
     {{end}}
 
     {{if or .TermsHTML .Terms}}
@@ -250,6 +255,119 @@
     </div>
     {{end}}
   </div>
+
+  {{/* ── EDIT MODAL ── */}}
+  <div id="patio-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('patio-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:420px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Patio Cover Size &amp; Type</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('patio-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Width (ft)</label>
+          <div class="control">
+            <input id="patio-width" class="input" type="number" step="0.1" min="1" placeholder="e.g. 20">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Depth (ft)</label>
+          <div class="control">
+            <input id="patio-depth" class="input" type="number" step="0.1" min="1" placeholder="e.g. 14">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Patio Type</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="patio-type-select">
+                <option value="pergola">Pergola</option>
+                <option value="leanto">Lean-to</option>
+                <option value="truss">Truss</option>
+                <option value="timberframe">Timberframe</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyPatio()">Apply</button>
+        <button class="button" onclick="document.getElementById('patio-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const estimateData = {
+      width:            {{.Width}},
+      depth:            {{.Depth}},
+      patioType:        {{.PatioType | jsStr}},
+      diyMode:          {{.DIYMode}},
+      customerState:    {{if .Customer.State}}{{.Customer.State | jsStr}}{{else}}"WA"{{end}},
+      hasPostWrap:      {{.HasPostWrap}},
+      hasFinishCeiling: {{.HasFinishCeiling}},
+      hasPaintStain:    {{.HasPaintStain}},
+      permitLevel:      {{.PermitLevel}},
+    };
+
+    function formatCost(n) {
+      return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function openPatioModal() {
+      document.getElementById('patio-width').value = estimateData.width;
+      document.getElementById('patio-depth').value = estimateData.depth;
+      document.getElementById('patio-type-select').value = estimateData.patioType;
+      document.getElementById('patio-modal').classList.add('is-active');
+    }
+
+    function applyPatio() {
+      const width = parseFloat(document.getElementById('patio-width').value);
+      const depth = parseFloat(document.getElementById('patio-depth').value);
+      if (isNaN(width) || width < 1) { alert('Please enter a valid width (1 ft or more)'); return; }
+      if (isNaN(depth) || depth < 1) { alert('Please enter a valid depth (1 ft or more)'); return; }
+      estimateData.width = width;
+      estimateData.depth = depth;
+      estimateData.patioType = document.getElementById('patio-type-select').value;
+      document.getElementById('patio-modal').classList.remove('is-active');
+      calcAndUpdate();
+    }
+
+    function calcAndUpdate() {
+      document.getElementById('save-width').value = estimateData.width;
+      document.getElementById('save-depth').value = estimateData.depth;
+      document.getElementById('save-patio-type').value = estimateData.patioType;
+
+      const unsaved = document.getElementById('unsaved-msg');
+      if (unsaved) unsaved.style.display = '';
+
+      fetch('/api/calc/patio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(estimateData),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { console.error('Calc error:', data.error); return; }
+        document.getElementById('patio-desc').textContent = data.patioDescription;
+        document.getElementById('patio-cost').textContent = formatCost(data.baseCost);
+        document.getElementById('roofslope-desc').textContent = data.roofSlopeDescription;
+        document.getElementById('postwrap-desc').textContent = data.postWrapDescription;
+        document.getElementById('finishceiling-desc').textContent = data.finishCeilingDescription;
+        document.getElementById('paintstain-desc').textContent = data.paintStainDescription;
+        document.getElementById('finishhardware-desc').textContent = data.finishHardwareDescription;
+        document.getElementById('permit-desc').textContent = data.permitDescription;
+        document.getElementById('permit-cost').textContent = formatCost(data.permitCost);
+        document.getElementById('subtotal-val').textContent = formatCost(data.subtotal);
+        document.getElementById('salestax-val').textContent = formatCost(data.salesTax);
+        document.getElementById('total-val').textContent = formatCost(data.totalCost);
+        const headerTotal = document.getElementById('header-total');
+        if (headerTotal) headerTotal.textContent = formatCost(data.totalCost);
+      })
+      .catch(err => console.error('API error:', err));
+    }
+  </script>
   {{end}}
 
   {{template "footer.gohtml" .}}

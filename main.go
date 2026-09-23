@@ -181,6 +181,7 @@ func main() {
 		w.Write([]byte("{}"))
 	})
 	nrHandle("/api/calc/deck", apiCalcDeckHandler)
+	nrHandle("/api/calc/patio", apiCalcPatioHandler)
 	nrHandle("/admin", adminHandler)
 	nrHandle("/admin/contractor/action", adminContractorActionHandler)
 	nrHandle("/admin/photos", adminPhotosHandler)

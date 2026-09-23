@@ -39,34 +39,117 @@ type CalcDeckRequest struct {
 }
 
 type CalcDeckResponse struct {
+	Description            string  `json:"description"`
+	DeckCost               float64 `json:"deckCost"`
+	DeckDescription        string  `json:"deckDescription"`
+	DemoCost               float64 `json:"demoCost"`
+	DemoDescription        string  `json:"demoDescription"`
+	RailCost               float64 `json:"railCost"`
+	RailDescription        string  `json:"railDescription"`
+	RailFeet               float64 `json:"railFeet"`
+	FasciaCost             float64 `json:"fasciaCost"`
+	FasciaDescription      string  `json:"fasciaDescription"`
+	FasciaFeet             float64 `json:"fasciaFeet"`
+	StairCost              float64 `json:"stairCost"`
+	StairDescription       string  `json:"stairDescription"`
+	StairRailCost          float64 `json:"stairRailCost"`
+	StairRailDescription   string  `json:"stairRailDescription"`
+	StairFasciaCost        float64 `json:"stairFasciaCost"`
+	StairFasciaDescription string  `json:"stairFasciaDescription"`
+	StairToeKickCost       float64 `json:"stairToeKickCost"`
+	StairTKDescription     string  `json:"stairTKDescription"`
+	DiscountCode           string  `json:"discountCode"`
+	DiscountAmount         float64 `json:"discountAmount"`
+	PermitCost             float64 `json:"permitCost"`
+	PermitDescription      string  `json:"permitDescription"`
+	CustomItemsTotal       float64 `json:"customItemsTotal"`
+	Subtotal               float64 `json:"subtotal"`
+	SalesTax               float64 `json:"salesTax"`
+	TotalCost              float64 `json:"totalCost"`
+	Error                  string  `json:"error"`
+}
+
+type CalcPatioRequest struct {
 	Description      string  `json:"description"`
-	DeckCost         float64 `json:"deckCost"`
-	DeckDescription  string  `json:"deckDescription"`
-	DemoCost         float64 `json:"demoCost"`
-	DemoDescription  string  `json:"demoDescription"`
-	RailCost         float64 `json:"railCost"`
-	RailDescription  string  `json:"railDescription"`
-	RailFeet         float64 `json:"railFeet"`
-	FasciaCost       float64 `json:"fasciaCost"`
-	FasciaDescription string `json:"fasciaDescription"`
-	FasciaFeet       float64 `json:"fasciaFeet"`
-	StairCost        float64 `json:"stairCost"`
-	StairDescription string  `json:"stairDescription"`
-	StairRailCost    float64 `json:"stairRailCost"`
-	StairRailDescription string `json:"stairRailDescription"`
-	StairFasciaCost  float64 `json:"stairFasciaCost"`
-	StairFasciaDescription string `json:"stairFasciaDescription"`
-	StairToeKickCost float64 `json:"stairToeKickCost"`
-	StairTKDescription string `json:"stairTKDescription"`
-	DiscountCode        string  `json:"discountCode"`
-	DiscountAmount      float64 `json:"discountAmount"`
-	PermitCost          float64 `json:"permitCost"`
-	PermitDescription   string  `json:"permitDescription"`
-	CustomItemsTotal    float64 `json:"customItemsTotal"`
-	Subtotal         float64 `json:"subtotal"`
-	SalesTax         float64 `json:"salesTax"`
-	TotalCost        float64 `json:"totalCost"`
-	Error            string  `json:"error"`
+	Width            float64 `json:"width"`
+	Depth            float64 `json:"depth"`
+	PatioType        string  `json:"patioType"`
+	DIYMode          int     `json:"diyMode"`
+	CustomerState    string  `json:"customerState"`
+	HasPostWrap      bool    `json:"hasPostWrap"`
+	HasFinishCeiling bool    `json:"hasFinishCeiling"`
+	HasPaintStain    bool    `json:"hasPaintStain"`
+	PermitLevel      int     `json:"permitLevel"`
+}
+
+type CalcPatioResponse struct {
+	Area                      float64 `json:"area"`
+	BaseCost                  float64 `json:"baseCost"`
+	PatioDescription          string  `json:"patioDescription"`
+	RoofSlopeDescription      string  `json:"roofSlopeDescription"`
+	PostWrapDescription       string  `json:"postWrapDescription"`
+	FinishCeilingDescription  string  `json:"finishCeilingDescription"`
+	PaintStainDescription     string  `json:"paintStainDescription"`
+	FinishHardwareDescription string  `json:"finishHardwareDescription"`
+	PermitCost                float64 `json:"permitCost"`
+	PermitDescription         string  `json:"permitDescription"`
+	Subtotal                  float64 `json:"subtotal"`
+	SalesTax                  float64 `json:"salesTax"`
+	TotalCost                 float64 `json:"totalCost"`
+	Error                     string  `json:"error"`
+}
+
+func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		json.NewEncoder(w).Encode(CalcPatioResponse{Error: "POST required"})
+		return
+	}
+
+	var req CalcPatioRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		json.NewEncoder(w).Encode(CalcPatioResponse{Error: "Invalid request"})
+		return
+	}
+
+	pe := PatioCoverEstimate{
+		Desc:             req.Description,
+		Width:            req.Width,
+		Depth:            req.Depth,
+		PatioType:        req.PatioType,
+		DIYMode:          req.DIYMode,
+		Customer:         Customer{State: req.CustomerState},
+		HasPostWrap:      req.HasPostWrap,
+		HasFinishCeiling: req.HasFinishCeiling,
+		HasPaintStain:    req.HasPaintStain,
+		PermitLevel:      req.PermitLevel,
+	}
+	if label, ok := patioTypeLabels[pe.PatioType]; ok {
+		pe.PatioTypeLabel = label
+	} else {
+		pe.PatioTypeLabel = pe.PatioType
+	}
+	pe.CalcAllCosts()
+
+	resp := CalcPatioResponse{
+		Area:                      pe.Area,
+		BaseCost:                  pe.BaseCost,
+		PatioDescription:          formatPatioDescription(pe),
+		RoofSlopeDescription:      formatPatioRoofSlopeDescription(pe),
+		PostWrapDescription:       formatPatioPostWrapDescription(pe),
+		FinishCeilingDescription:  formatPatioFinishCeilingDescription(pe),
+		PaintStainDescription:     formatPatioPaintStainDescription(pe),
+		FinishHardwareDescription: formatPatioFinishHardwareDescription(pe),
+		PermitCost:                pe.PermitCost,
+		PermitDescription:         formatPatioPermitDescription(pe),
+		Subtotal:                  pe.Subtotal,
+		SalesTax:                  pe.SalesTax,
+		TotalCost:                 pe.TotalCost,
+		Error:                     pe.Error,
+	}
+
+	json.NewEncoder(w).Encode(resp)
 }
 
 func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
