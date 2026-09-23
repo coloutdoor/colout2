@@ -32,6 +32,8 @@ type PatioCoverEstimate struct {
 	PatioType          string // pergola | leanto | truss | timberframe
 	Area               float64
 	BaseCost           float64
+	RoofSlope          int     // rise per 12" run (the "X" in "X:12"); fixed at 2 for pergola/lean-to
+	RoofSlopeCost      float64 // extra cost for slope steeper than the 4:12 baseline (truss/timberframe only)
 	HasPostWrap        bool    // default off; pricing not yet defined
 	PostWrapCost       float64 // $0 for now
 	HasFinishCeiling   bool    // default off; pricing not yet defined
@@ -78,6 +80,8 @@ type patioDetails struct {
 	PatioType          string  `json:"patioType"`
 	Area               float64 `json:"area"`
 	BaseCost           float64 `json:"baseCost"`
+	RoofSlope          int     `json:"roofSlope"`
+	RoofSlopeCost      float64 `json:"roofSlopeCost"`
 	HasPostWrap        bool    `json:"hasPostWrap"`
 	PostWrapCost       float64 `json:"postWrapCost"`
 	HasFinishCeiling   bool    `json:"hasFinishCeiling"`
@@ -93,9 +97,10 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 	if estimate.Error != "" {
 		return
 	}
+	estimate.CalculateRoofSlopeCost()
 	estimate.CalcPermitCost(costs)
 
-	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.PermitCost
+	estimate.Subtotal = estimate.BaseCost + estimate.RoofSlopeCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.PermitCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 }
@@ -153,6 +158,8 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.PatioType = d.PatioType
 		pe.Area = d.Area
 		pe.BaseCost = d.BaseCost
+		pe.RoofSlope = d.RoofSlope
+		pe.RoofSlopeCost = d.RoofSlopeCost
 		pe.HasPostWrap = d.HasPostWrap
 		pe.PostWrapCost = d.PostWrapCost
 		pe.HasFinishCeiling = d.HasFinishCeiling
@@ -218,6 +225,8 @@ func savePatioEstimate(w http.ResponseWriter, r *http.Request, estimate *PatioCo
 		PatioType:          estimate.PatioType,
 		Area:               estimate.Area,
 		BaseCost:           estimate.BaseCost,
+		RoofSlope:          estimate.RoofSlope,
+		RoofSlopeCost:      estimate.RoofSlopeCost,
 		HasPostWrap:        estimate.HasPostWrap,
 		PostWrapCost:       estimate.PostWrapCost,
 		HasFinishCeiling:   estimate.HasFinishCeiling,
@@ -447,6 +456,11 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if pt := r.FormValue("patioType"); pt != "" {
 			estimate.PatioType = pt
+		}
+		if rs := r.FormValue("roofSlope"); rs != "" {
+			if v, err := strconv.Atoi(rs); err == nil && v >= 4 {
+				estimate.RoofSlope = v
+			}
 		}
 		if dm := r.FormValue("diyMode"); dm != "" {
 			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {

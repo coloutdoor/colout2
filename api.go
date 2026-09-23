@@ -74,6 +74,7 @@ type CalcPatioRequest struct {
 	Width            float64 `json:"width"`
 	Depth            float64 `json:"depth"`
 	PatioType        string  `json:"patioType"`
+	RoofSlope        int     `json:"roofSlope"`
 	DIYMode          int     `json:"diyMode"`
 	CustomerState    string  `json:"customerState"`
 	HasPostWrap      bool    `json:"hasPostWrap"`
@@ -86,6 +87,8 @@ type CalcPatioResponse struct {
 	Area                      float64 `json:"area"`
 	BaseCost                  float64 `json:"baseCost"`
 	PatioDescription          string  `json:"patioDescription"`
+	RoofSlope                 int     `json:"roofSlope"`
+	RoofSlopeCost             float64 `json:"roofSlopeCost"`
 	RoofSlopeDescription      string  `json:"roofSlopeDescription"`
 	PostWrapDescription       string  `json:"postWrapDescription"`
 	FinishCeilingDescription  string  `json:"finishCeilingDescription"`
@@ -118,6 +121,7 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 		Width:            req.Width,
 		Depth:            req.Depth,
 		PatioType:        req.PatioType,
+		RoofSlope:        req.RoofSlope,
 		DIYMode:          req.DIYMode,
 		Customer:         Customer{State: req.CustomerState},
 		HasPostWrap:      req.HasPostWrap,
@@ -136,6 +140,8 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 		Area:                      pe.Area,
 		BaseCost:                  pe.BaseCost,
 		PatioDescription:          formatPatioDescription(pe),
+		RoofSlope:                 pe.RoofSlope,
+		RoofSlopeCost:             pe.RoofSlopeCost,
 		RoofSlopeDescription:      formatPatioRoofSlopeDescription(pe),
 		PostWrapDescription:       formatPatioPostWrapDescription(pe),
 		FinishCeilingDescription:  formatPatioFinishCeilingDescription(pe),

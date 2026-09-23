@@ -160,9 +160,14 @@
         {{/* Roof Slope */}}
         <tr>
           <td class="td-item">Roof Slope</td>
-          <td class="td-ctl"></td>
+          <td class="td-ctl">
+            <a id="roofslope-editbtn" href="#" onclick="openRoofSlopeModal(); return false;" class="est-edit-btn"
+              style="{{if not (or (eq .PatioType "truss") (eq .PatioType "timberframe"))}}display:none;{{end}}">
+              <i class="fas fa-pencil-alt"></i>
+            </a>
+          </td>
           <td class="td-desc" id="roofslope-desc">{{formatPatioRoofSlopeDescription .}}</td>
-          <td class="td-cost">{{formatCost 0.0}}</td>
+          <td class="td-cost" id="roofslope-cost">{{formatCost .RoofSlopeCost}}</td>
         </tr>
 
         {{/* Post Wrap */}}
@@ -239,6 +244,7 @@
       <input type="hidden" name="width" id="save-width" value="{{printf "%.1f" .Width}}">
       <input type="hidden" name="length" id="save-depth" value="{{printf "%.1f" .Depth}}">
       <input type="hidden" name="patioType" id="save-patio-type" value="{{.PatioType}}">
+      <input type="hidden" name="roofSlope" id="save-roof-slope" value="{{.RoofSlope}}">
       <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
       <button id="btn-save" class="button is-primary is-fullwidth is-medium" type="submit">
         <i class="fas fa-save"></i> {{if .SaveDate.IsZero}}Save Estimate{{else}}Save Changes{{end}}
@@ -298,11 +304,35 @@
     </div>
   </div>
 
+  <div id="roofslope-modal" class="modal">
+    <div class="modal-background" onclick="document.getElementById('roofslope-modal').classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:360px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Roof Slope</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('roofslope-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Slope (rise per 12" run)</label>
+          <div class="control">
+            <input id="roofslope-input" class="input" type="number" step="1" min="4" placeholder="e.g. 4">
+          </div>
+          <p class="help">4:12 is the baseline, included in the base price. Each additional 1:12 adds cost based on total roof area.</p>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyRoofSlope()">Apply</button>
+        <button class="button" onclick="document.getElementById('roofslope-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
   <script>
     const estimateData = {
       width:            {{.Width}},
       depth:            {{.Depth}},
       patioType:        {{.PatioType | jsStr}},
+      roofSlope:        {{.RoofSlope}},
       diyMode:          {{.DIYMode}},
       customerState:    {{if .Customer.State}}{{.Customer.State | jsStr}}{{else}}"WA"{{end}},
       hasPostWrap:      {{.HasPostWrap}},
@@ -330,7 +360,22 @@
       estimateData.width = width;
       estimateData.depth = depth;
       estimateData.patioType = document.getElementById('patio-type-select').value;
+      const editable = estimateData.patioType === 'truss' || estimateData.patioType === 'timberframe';
+      document.getElementById('roofslope-editbtn').style.display = editable ? '' : 'none';
       document.getElementById('patio-modal').classList.remove('is-active');
+      calcAndUpdate();
+    }
+
+    function openRoofSlopeModal() {
+      document.getElementById('roofslope-input').value = estimateData.roofSlope;
+      document.getElementById('roofslope-modal').classList.add('is-active');
+    }
+
+    function applyRoofSlope() {
+      const slope = parseInt(document.getElementById('roofslope-input').value, 10);
+      if (isNaN(slope) || slope < 4) { alert('Roof slope must be 4:12 or steeper'); return; }
+      estimateData.roofSlope = slope;
+      document.getElementById('roofslope-modal').classList.remove('is-active');
       calcAndUpdate();
     }
 
@@ -338,6 +383,7 @@
       document.getElementById('save-width').value = estimateData.width;
       document.getElementById('save-depth').value = estimateData.depth;
       document.getElementById('save-patio-type').value = estimateData.patioType;
+      document.getElementById('save-roof-slope').value = estimateData.roofSlope;
 
       const unsaved = document.getElementById('unsaved-msg');
       if (unsaved) unsaved.style.display = '';
@@ -352,7 +398,10 @@
         if (data.error) { console.error('Calc error:', data.error); return; }
         document.getElementById('patio-desc').textContent = data.patioDescription;
         document.getElementById('patio-cost').textContent = formatCost(data.baseCost);
+        estimateData.roofSlope = data.roofSlope;
+        document.getElementById('save-roof-slope').value = data.roofSlope;
         document.getElementById('roofslope-desc').textContent = data.roofSlopeDescription;
+        document.getElementById('roofslope-cost').textContent = formatCost(data.roofSlopeCost);
         document.getElementById('postwrap-desc').textContent = data.postWrapDescription;
         document.getElementById('finishceiling-desc').textContent = data.finishCeilingDescription;
         document.getElementById('paintstain-desc').textContent = data.paintStainDescription;

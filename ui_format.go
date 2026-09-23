@@ -55,18 +55,21 @@ func formatPatioDescription(pe PatioCoverEstimate) string {
 	)
 }
 
-// formatPatioRoofSlope returns the default roof slope for a patio cover:
-// 2:12 for pergola/lean-to, 4:12 for truss/timberframe.
-func formatPatioRoofSlope(pe PatioCoverEstimate) string {
-	if pe.PatioType == "truss" || pe.PatioType == "timberframe" {
-		return "4:12"
-	}
-	return "2:12"
-}
-
-// formatPatioRoofSlopeDescription describes the roof slope line item.
+// formatPatioRoofSlopeDescription describes the roof slope line item. Pergola
+// and lean-to are fixed at 2:12; truss and timberframe note how far above the
+// 4:12 baseline the slope is set, if at all.
 func formatPatioRoofSlopeDescription(pe PatioCoverEstimate) string {
-	return fmt.Sprintf("%s roof slope.", formatPatioRoofSlope(pe))
+	if pe.PatioType == "pergola" || pe.PatioType == "leanto" {
+		return "2:12 roof slope."
+	}
+	slope := pe.RoofSlope
+	if slope < 4 {
+		slope = 4
+	}
+	if slope == 4 {
+		return "4:12 roof slope."
+	}
+	return fmt.Sprintf("%d:12 roof slope (%d:12 above the 4:12 baseline).", slope, slope-4)
 }
 
 // formatPatioPostWrapDescription describes the post wrap line item: "No post
