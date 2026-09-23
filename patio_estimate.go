@@ -34,6 +34,7 @@ type PatioCoverEstimate struct {
 	BaseCost          float64
 	HasPostWrap       bool    // default off; pricing not yet defined
 	PostWrapCost      float64 // $0 for now
+	HasFinishCeiling  bool    // default off; pricing not yet defined
 	FinishCeilingCost float64 // $0 for now
 	Subtotal          float64
 	SalesTax          float64
@@ -74,6 +75,7 @@ type patioDetails struct {
 	BaseCost          float64 `json:"baseCost"`
 	HasPostWrap       bool    `json:"hasPostWrap"`
 	PostWrapCost      float64 `json:"postWrapCost"`
+	HasFinishCeiling  bool    `json:"hasFinishCeiling"`
 	FinishCeilingCost float64 `json:"finishCeilingCost"`
 }
 
@@ -142,6 +144,7 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.BaseCost = d.BaseCost
 		pe.HasPostWrap = d.HasPostWrap
 		pe.PostWrapCost = d.PostWrapCost
+		pe.HasFinishCeiling = d.HasFinishCeiling
 		pe.FinishCeilingCost = d.FinishCeilingCost
 	}
 
@@ -203,6 +206,7 @@ func savePatioEstimate(w http.ResponseWriter, r *http.Request, estimate *PatioCo
 		BaseCost:          estimate.BaseCost,
 		HasPostWrap:       estimate.HasPostWrap,
 		PostWrapCost:      estimate.PostWrapCost,
+		HasFinishCeiling:  estimate.HasFinishCeiling,
 		FinishCeilingCost: estimate.FinishCeilingCost,
 	})
 	if err != nil {

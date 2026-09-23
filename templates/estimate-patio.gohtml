@@ -172,9 +172,9 @@
         </tr>
 
         {{/* Finish Ceiling */}}
-        <tr>
+        <tr{{if not .HasFinishCeiling}} class="zero-row"{{end}}>
           <td class="td-item">Finish Ceiling</td>
-          <td class="td-ctl"></td>
+          <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasFinishCeiling}}checked{{end}}></td>
           <td class="td-desc">{{formatPatioFinishCeilingDescription .}}</td>
           <td class="td-cost">{{formatCost .FinishCeilingCost}}</td>
         </tr>
