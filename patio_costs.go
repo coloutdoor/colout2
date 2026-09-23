@@ -18,8 +18,8 @@ func (estimate *PatioCoverEstimate) CalculatePatioCost(costs Costs) {
 // roofSlopeRatePerSqFt is the extra cost per sq ft (total finished area, incl.
 // overhangs) for each 1:12 of roof slope beyond the 4:12 baseline.
 var roofSlopeRatePerSqFt = map[string]float64{
-	"truss":       4.0,
-	"timberframe": 6.0,
+	"truss":       1.0,
+	"timberframe": 2.0,
 }
 
 // CalculateRoofSlopeCost computes the extra cost for a roof slope steeper than
