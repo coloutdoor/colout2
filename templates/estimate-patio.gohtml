@@ -135,12 +135,14 @@
     <table class="est-line-items">
       <colgroup>
         <col class="col-item">
+        <col class="col-ctl">
         <col>
         <col class="col-cost">
       </colgroup>
       <thead>
         <tr>
           <th>Item</th>
+          <th></th>
           <th>Description</th>
           <th class="th-cost">Cost</th>
         </tr>
@@ -148,23 +150,51 @@
       <tbody>
         <tr>
           <td class="td-item">{{.PatioTypeLabel}}</td>
+          <td class="td-ctl"></td>
           <td class="td-desc">{{formatPatioDescription .}}</td>
           <td class="td-cost">{{formatCost .BaseCost}}</td>
+        </tr>
+
+        {{/* Roof Slope */}}
+        <tr>
+          <td class="td-item">Roof Slope</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">{{formatPatioRoofSlopeDescription .}}</td>
+          <td class="td-cost">{{formatCost 0.0}}</td>
+        </tr>
+
+        {{/* Post Wrap */}}
+        <tr{{if not .HasPostWrap}} class="zero-row"{{end}}>
+          <td class="td-item">Post Wrap</td>
+          <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasPostWrap}}checked{{end}}></td>
+          <td class="td-desc">{{formatPatioPostWrapDescription .}}</td>
+          <td class="td-cost">{{formatCost .PostWrapCost}}</td>
+        </tr>
+
+        {{/* Finish Ceiling */}}
+        <tr>
+          <td class="td-item">Finish Ceiling</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">{{formatPatioFinishCeilingDescription .}}</td>
+          <td class="td-cost">{{formatCost .FinishCeilingCost}}</td>
         </tr>
       </tbody>
       <tbody>
         <tr class="est-subtotal-row">
           <td class="td-item">Subtotal</td>
+          <td class="td-ctl"></td>
           <td class="td-desc"></td>
           <td class="td-cost">{{formatCost .Subtotal}}</td>
         </tr>
         <tr class="est-tax-row">
           <td class="td-item">Sales Tax</td>
+          <td class="td-ctl"></td>
           <td class="td-desc">{{if .Customer.State}}{{.Customer.State}}{{else}}WA{{end}} (estimated)</td>
           <td class="td-cost">{{formatCost .SalesTax}}</td>
         </tr>
         <tr class="est-total-row">
           <td class="td-item">Total</td>
+          <td class="td-ctl"></td>
           <td class="td-desc">
             {{if not .ExpirationDate.IsZero}}Valid through {{.ExpirationDate.Format "Jan 2, 2006"}}{{end}}
           </td>

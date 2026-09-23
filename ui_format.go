@@ -55,6 +55,34 @@ func formatPatioDescription(pe PatioCoverEstimate) string {
 	)
 }
 
+// formatPatioRoofSlope returns the default roof slope for a patio cover:
+// 2:12 for pergola/lean-to, 4:12 for truss/timberframe.
+func formatPatioRoofSlope(pe PatioCoverEstimate) string {
+	if pe.PatioType == "truss" || pe.PatioType == "timberframe" {
+		return "4:12"
+	}
+	return "2:12"
+}
+
+// formatPatioRoofSlopeDescription describes the roof slope line item.
+func formatPatioRoofSlopeDescription(pe PatioCoverEstimate) string {
+	return fmt.Sprintf("%s roof slope.", formatPatioRoofSlope(pe))
+}
+
+// formatPatioPostWrapDescription describes the post wrap material: cedar for
+// timberframe, 1" outdoor wood for every other patio type.
+func formatPatioPostWrapDescription(pe PatioCoverEstimate) string {
+	if pe.PatioType == "timberframe" {
+		return "Wrap posts with cedar."
+	}
+	return `Wrap posts with 1" outdoor wood.`
+}
+
+// formatPatioFinishCeilingDescription describes the ceiling finish line item.
+func formatPatioFinishCeilingDescription(pe PatioCoverEstimate) string {
+	return "Finish ceiling with soffit board."
+}
+
 func formatDeckDescription(de DeckEstimate) string {
 	material := ""
 	switch de.Material {

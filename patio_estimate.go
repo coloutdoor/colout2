@@ -25,32 +25,35 @@ func init() {
 
 // PatioCoverEstimate holds all data for a patio cover cost estimate.
 type PatioCoverEstimate struct {
-	Desc           string
-	ProductType    string // always "patio_cover"
-	Width          float64
-	Depth          float64
-	PatioType      string // pergola | leanto | truss | timberframe
-	Area           float64
-	BaseCost       float64
-	Subtotal       float64
-	SalesTax       float64
-	TotalCost      float64
-	DIYMode        int // 0=Full Service, 1=Plans+Materials, 2=Plans Only
-	Customer       Customer
-	Contractor     ContractorInfo
-	ContractorID   int64
-	EstimateID     int
-	UserId         int64 // FK to UserAuth
-	SaveDate       time.Time
-	ExpirationDate time.Time
-	AcceptDate     time.Time
-	AccessToken    string
-	Version        int
-	Terms          string
-	TermsHTML      template.HTML
-	PatioTypeLabel string // human-readable PatioType, computed in renderPatioEstimate
-	Status         string // Accepted, Expired, or Pending — computed in renderPatioEstimate
-	Error          string
+	Desc              string
+	ProductType       string // always "patio_cover"
+	Width             float64
+	Depth             float64
+	PatioType         string // pergola | leanto | truss | timberframe
+	Area              float64
+	BaseCost          float64
+	HasPostWrap       bool    // default off; pricing not yet defined
+	PostWrapCost      float64 // $0 for now
+	FinishCeilingCost float64 // $0 for now
+	Subtotal          float64
+	SalesTax          float64
+	TotalCost         float64
+	DIYMode           int // 0=Full Service, 1=Plans+Materials, 2=Plans Only
+	Customer          Customer
+	Contractor        ContractorInfo
+	ContractorID      int64
+	EstimateID        int
+	UserId            int64 // FK to UserAuth
+	SaveDate          time.Time
+	ExpirationDate    time.Time
+	AcceptDate        time.Time
+	AccessToken       string
+	Version           int
+	Terms             string
+	TermsHTML         template.HTML
+	PatioTypeLabel    string // human-readable PatioType, computed in renderPatioEstimate
+	Status            string // Accepted, Expired, or Pending — computed in renderPatioEstimate
+	Error             string
 }
 
 // patioTypeLabels maps the stored PatioType slug to its display label.
@@ -64,11 +67,14 @@ var patioTypeLabels = map[string]string{
 // patioDetails is the JSON shape stored in estimates.product_details for a
 // patio_cover row — the fields that have no dedicated (deck-shaped) column.
 type patioDetails struct {
-	Width     float64 `json:"width"`
-	Depth     float64 `json:"depth"`
-	PatioType string  `json:"patioType"`
-	Area      float64 `json:"area"`
-	BaseCost  float64 `json:"baseCost"`
+	Width             float64 `json:"width"`
+	Depth             float64 `json:"depth"`
+	PatioType         string  `json:"patioType"`
+	Area              float64 `json:"area"`
+	BaseCost          float64 `json:"baseCost"`
+	HasPostWrap       bool    `json:"hasPostWrap"`
+	PostWrapCost      float64 `json:"postWrapCost"`
+	FinishCeilingCost float64 `json:"finishCeilingCost"`
 }
 
 // CalcAllCosts computes the base cost, sales tax, and total for a patio cover estimate.
@@ -78,7 +84,7 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 		return
 	}
 
-	estimate.Subtotal = estimate.BaseCost
+	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 }
@@ -134,6 +140,9 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.PatioType = d.PatioType
 		pe.Area = d.Area
 		pe.BaseCost = d.BaseCost
+		pe.HasPostWrap = d.HasPostWrap
+		pe.PostWrapCost = d.PostWrapCost
+		pe.FinishCeilingCost = d.FinishCeilingCost
 	}
 
 	pe.Error = ""
@@ -187,11 +196,14 @@ func savePatioEstimate(w http.ResponseWriter, r *http.Request, estimate *PatioCo
 	}
 
 	detailsJSON, err := json.Marshal(patioDetails{
-		Width:     estimate.Width,
-		Depth:     estimate.Depth,
-		PatioType: estimate.PatioType,
-		Area:      estimate.Area,
-		BaseCost:  estimate.BaseCost,
+		Width:             estimate.Width,
+		Depth:             estimate.Depth,
+		PatioType:         estimate.PatioType,
+		Area:              estimate.Area,
+		BaseCost:          estimate.BaseCost,
+		HasPostWrap:       estimate.HasPostWrap,
+		PostWrapCost:      estimate.PostWrapCost,
+		FinishCeilingCost: estimate.FinishCeilingCost,
 	})
 	if err != nil {
 		log.Printf("savePatioEstimate: failed to marshal product_details: %v", err)

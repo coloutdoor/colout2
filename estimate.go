@@ -21,20 +21,23 @@ import (
 // funcMap holds the helper functions available to every template parsed with it,
 // including cost/description formatters used by estimate.gohtml and its partials.
 var funcMap = template.FuncMap{
-	"formatCost":                   formatCost,
-	"formatDeckDescription":        formatDeckDescription,
-	"formatPatioDescription":       formatPatioDescription,
-	"formatDemoDescription":        formatDemoDescription,
-	"formatRailDescription":        formatRailDescription,
-	"formatStairDescription":       formatStairDescription,
-	"formatFasciaDescription":      formatFasciaDescription,
-	"formatStairRailDescription":   formatStairRailDescription,
-	"formatStairFasciaDescription": formatStairFasciaDescription,
-	"formatStairTKDescription":     formatStairTKDescription,
-	"formatPermitDescription":      formatPermitDescription,
-	"currentYear":                  func() int { return time.Now().Year() },
-	"neg": func(f float64) float64 { return -f },
-	"mul": func(a, b int) int { return a * b },
+	"formatCost":                          formatCost,
+	"formatDeckDescription":               formatDeckDescription,
+	"formatPatioDescription":              formatPatioDescription,
+	"formatPatioRoofSlopeDescription":     formatPatioRoofSlopeDescription,
+	"formatPatioPostWrapDescription":      formatPatioPostWrapDescription,
+	"formatPatioFinishCeilingDescription": formatPatioFinishCeilingDescription,
+	"formatDemoDescription":               formatDemoDescription,
+	"formatRailDescription":               formatRailDescription,
+	"formatStairDescription":              formatStairDescription,
+	"formatFasciaDescription":             formatFasciaDescription,
+	"formatStairRailDescription":          formatStairRailDescription,
+	"formatStairFasciaDescription":        formatStairFasciaDescription,
+	"formatStairTKDescription":            formatStairTKDescription,
+	"formatPermitDescription":             formatPermitDescription,
+	"currentYear":                         func() int { return time.Now().Year() },
+	"neg":                                 func(f float64) float64 { return -f },
+	"mul":                                 func(a, b int) int { return a * b },
 	"div": func(a, b int) int {
 		if b == 0 {
 			return 0
@@ -193,8 +196,8 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sync session with the loaded estimate so /customer pre-fills correctly
-	sd.Estimate  = de
-	sd.Customer  = de.Customer
+	sd.Estimate = de
+	sd.Customer = de.Customer
 	_ = sd.Save(r, w)
 
 	// Render the estimate
@@ -288,11 +291,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 				estimate.RailFeetOverride = val
 			}
 		}
-		estimate.HasDemo        = r.FormValue("hasDemo") == "true"
-		estimate.HasFascia      = r.FormValue("hasFascia") == "true"
+		estimate.HasDemo = r.FormValue("hasDemo") == "true"
+		estimate.HasFascia = r.FormValue("hasFascia") == "true"
 		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
-		estimate.HasStairTK     = r.FormValue("hasStairTK") == "true"
-		estimate.DiscountCode   = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+		estimate.HasStairTK = r.FormValue("hasStairTK") == "true"
+		estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
 		if dm := r.FormValue("diyMode"); dm != "" {
 			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
 				estimate.DIYMode = v
@@ -320,7 +323,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 					})
 				}
 				estimate.Length = estimate.Sections[0].Length
-				estimate.Width  = estimate.Sections[0].Width
+				estimate.Width = estimate.Sections[0].Width
 			}
 		}
 		if ciJSON := r.FormValue("customItems"); ciJSON != "" {
@@ -546,7 +549,6 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	renderEstimate(w, r, estimate)
 }
 
-
 // emailSendHandler handles POST /estimate/send/{estimateID}, emailing the estimate
 // via Resend to the requester's address (defaulting to the saved customer email)
 // and optionally CC'ing the logged-in user. It responds with a JSON
@@ -640,7 +642,6 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 // estimateTokenHandler handles GET /estimate/view/{token}, serving the public
 // customer view of an estimate. No authentication required — the token acts as
 // the credential.
@@ -725,23 +726,23 @@ func estimateForkHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	forked := DeckEstimate{
-		Desc:          src.Desc,
-		ProductType:   src.ProductType,
-		Material:      src.Material,
-		Height:        src.Height,
-		RailMaterial:  src.RailMaterial,
-		RailInfill:    src.RailInfill,
+		Desc:             src.Desc,
+		ProductType:      src.ProductType,
+		Material:         src.Material,
+		Height:           src.Height,
+		RailMaterial:     src.RailMaterial,
+		RailInfill:       src.RailInfill,
 		RailFeetOverride: src.RailFeetOverride,
-		StairWidth:    src.StairWidth,
-		StairRailCount: src.StairRailCount,
-		HasDemo:       src.HasDemo,
-		HasFascia:     src.HasFascia,
-		HasStairFascia: src.HasStairFascia,
-		HasStairTK:    src.HasStairTK,
-		DIYMode:       src.DIYMode,
-		PermitLevel:   src.PermitLevel,
-		Sections:      src.Sections,
-		Customer:      src.Customer,
+		StairWidth:       src.StairWidth,
+		StairRailCount:   src.StairRailCount,
+		HasDemo:          src.HasDemo,
+		HasFascia:        src.HasFascia,
+		HasStairFascia:   src.HasStairFascia,
+		HasStairTK:       src.HasStairTK,
+		DIYMode:          src.DIYMode,
+		PermitLevel:      src.PermitLevel,
+		Sections:         src.Sections,
+		Customer:         src.Customer,
 	}
 	// Clear section IDs so they get new ones on save
 	for i := range forked.Sections {
