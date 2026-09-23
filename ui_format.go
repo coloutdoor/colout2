@@ -100,6 +100,11 @@ func formatPatioPaintStainDescription(pe PatioCoverEstimate) string {
 	return "Paint or stain applied."
 }
 
+// formatPatioFinishHardwareDescription describes the finish hardware line item.
+func formatPatioFinishHardwareDescription(pe PatioCoverEstimate) string {
+	return "Standard galvanized hardware."
+}
+
 func formatDeckDescription(de DeckEstimate) string {
 	material := ""
 	switch de.Material {
