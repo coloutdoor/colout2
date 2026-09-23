@@ -69,18 +69,35 @@ func formatPatioRoofSlopeDescription(pe PatioCoverEstimate) string {
 	return fmt.Sprintf("%s roof slope.", formatPatioRoofSlope(pe))
 }
 
-// formatPatioPostWrapDescription describes the post wrap material: cedar for
-// timberframe, 1" outdoor wood for every other patio type.
+// formatPatioPostWrapDescription describes the post wrap line item: "No post
+// wrap" when off, otherwise the wrap material (cedar for timberframe, 1"
+// outdoor wood for every other patio type).
 func formatPatioPostWrapDescription(pe PatioCoverEstimate) string {
+	if !pe.HasPostWrap {
+		return "No post wrap."
+	}
 	if pe.PatioType == "timberframe" {
 		return "Wrap posts with cedar."
 	}
 	return `Wrap posts with 1" outdoor wood.`
 }
 
-// formatPatioFinishCeilingDescription describes the ceiling finish line item.
+// formatPatioFinishCeilingDescription describes the ceiling finish line item:
+// left open and unfinished when off, otherwise finished with soffit board.
 func formatPatioFinishCeilingDescription(pe PatioCoverEstimate) string {
+	if !pe.HasFinishCeiling {
+		return "Ceiling open and unfinished."
+	}
 	return "Finish ceiling with soffit board."
+}
+
+// formatPatioPaintStainDescription describes the paint/stain line item: no
+// paint or stain when off, otherwise notes it's applied.
+func formatPatioPaintStainDescription(pe PatioCoverEstimate) string {
+	if !pe.HasPaintStain {
+		return "No paint or stain."
+	}
+	return "Paint or stain applied."
 }
 
 func formatDeckDescription(de DeckEstimate) string {

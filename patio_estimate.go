@@ -36,6 +36,8 @@ type PatioCoverEstimate struct {
 	PostWrapCost      float64 // $0 for now
 	HasFinishCeiling  bool    // default off; pricing not yet defined
 	FinishCeilingCost float64 // $0 for now
+	HasPaintStain     bool    // default off; pricing not yet defined
+	PaintStainCost    float64 // $0 for now
 	Subtotal          float64
 	SalesTax          float64
 	TotalCost         float64
@@ -77,6 +79,8 @@ type patioDetails struct {
 	PostWrapCost      float64 `json:"postWrapCost"`
 	HasFinishCeiling  bool    `json:"hasFinishCeiling"`
 	FinishCeilingCost float64 `json:"finishCeilingCost"`
+	HasPaintStain     bool    `json:"hasPaintStain"`
+	PaintStainCost    float64 `json:"paintStainCost"`
 }
 
 // CalcAllCosts computes the base cost, sales tax, and total for a patio cover estimate.
@@ -86,7 +90,7 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 		return
 	}
 
-	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost
+	estimate.Subtotal = estimate.BaseCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 }
@@ -146,6 +150,8 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.PostWrapCost = d.PostWrapCost
 		pe.HasFinishCeiling = d.HasFinishCeiling
 		pe.FinishCeilingCost = d.FinishCeilingCost
+		pe.HasPaintStain = d.HasPaintStain
+		pe.PaintStainCost = d.PaintStainCost
 	}
 
 	pe.Error = ""
@@ -208,6 +214,8 @@ func savePatioEstimate(w http.ResponseWriter, r *http.Request, estimate *PatioCo
 		PostWrapCost:      estimate.PostWrapCost,
 		HasFinishCeiling:  estimate.HasFinishCeiling,
 		FinishCeilingCost: estimate.FinishCeilingCost,
+		HasPaintStain:     estimate.HasPaintStain,
+		PaintStainCost:    estimate.PaintStainCost,
 	})
 	if err != nil {
 		log.Printf("savePatioEstimate: failed to marshal product_details: %v", err)

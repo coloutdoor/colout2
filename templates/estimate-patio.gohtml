@@ -178,6 +178,14 @@
           <td class="td-desc">{{formatPatioFinishCeilingDescription .}}</td>
           <td class="td-cost">{{formatCost .FinishCeilingCost}}</td>
         </tr>
+
+        {{/* Paint or Stain */}}
+        <tr{{if not .HasPaintStain}} class="zero-row"{{end}}>
+          <td class="td-item">Paint or Stain</td>
+          <td class="td-ctl"><input type="checkbox" class="est-check" {{if .HasPaintStain}}checked{{end}}></td>
+          <td class="td-desc">{{formatPatioPaintStainDescription .}}</td>
+          <td class="td-cost">{{formatCost .PaintStainCost}}</td>
+        </tr>
       </tbody>
       <tbody>
         <tr class="est-subtotal-row">
