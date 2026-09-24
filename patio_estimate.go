@@ -34,14 +34,22 @@ type PatioCoverEstimate struct {
 	BaseCost           float64
 	RoofSlope          int     // rise per 12" run (the "X" in "X:12"); fixed at 2 for pergola/lean-to
 	RoofSlopeCost      float64 // extra cost for slope steeper than the 4:12 baseline (truss/timberframe only)
-	HasPostWrap        bool    // default off; pricing not yet defined
-	PostWrapCost       float64 // $0 for now
-	HasFinishCeiling   bool    // default off; pricing not yet defined
-	FinishCeilingCost  float64 // $0 for now
-	HasPaintStain      bool    // default off; pricing not yet defined
-	PaintStainCost     float64 // $0 for now
-	FinishHardwareCost float64 // $0 for now; defaults to standard galvanized hardware
-	PermitLevel        int     // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
+	PostCount          int     // number of posts, computed from Width (12 ft max spacing, 2 min)
+	HasPostWrap        bool    // default off
+	PostWrapCost       float64
+	HasFinishCeiling   bool // default off; not available on pergola, always on (no extra cost) for timberframe
+	FinishCeilingCost  float64
+	HasPaintStain      bool // default off
+	PaintStainCost     float64
+	HasFinishHardware  bool // default off; off = standard galvanized hardware (included), on = upgraded hardware
+	FinishHardwareCost float64
+	ElectricalLights   int  // canned lights, 0-10
+	ElectricalFans     int  // ceiling fans, 0-3
+	ElectricalSwitches int  // 0-3
+	ElectricalOutlets  int  // 0-4
+	HasElectrical      bool // computed: true if any electrical item count > 0
+	ElectricalCost     float64
+	PermitLevel        int // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
 	PermitCost         float64
 	Subtotal           float64
 	SalesTax           float64
@@ -82,13 +90,20 @@ type patioDetails struct {
 	BaseCost           float64 `json:"baseCost"`
 	RoofSlope          int     `json:"roofSlope"`
 	RoofSlopeCost      float64 `json:"roofSlopeCost"`
+	PostCount          int     `json:"postCount"`
 	HasPostWrap        bool    `json:"hasPostWrap"`
 	PostWrapCost       float64 `json:"postWrapCost"`
 	HasFinishCeiling   bool    `json:"hasFinishCeiling"`
 	FinishCeilingCost  float64 `json:"finishCeilingCost"`
 	HasPaintStain      bool    `json:"hasPaintStain"`
 	PaintStainCost     float64 `json:"paintStainCost"`
+	HasFinishHardware  bool    `json:"hasFinishHardware"`
 	FinishHardwareCost float64 `json:"finishHardwareCost"`
+	ElectricalLights   int     `json:"electricalLights"`
+	ElectricalFans     int     `json:"electricalFans"`
+	ElectricalSwitches int     `json:"electricalSwitches"`
+	ElectricalOutlets  int     `json:"electricalOutlets"`
+	ElectricalCost     float64 `json:"electricalCost"`
 }
 
 // CalcAllCosts computes the base cost, sales tax, and total for a patio cover estimate.
@@ -97,10 +112,16 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 	if estimate.Error != "" {
 		return
 	}
-	estimate.CalculateRoofSlopeCost()
+	estimate.CalculateRoofSlopeCost(costs)
+	estimate.CalculatePostCount()
+	estimate.CalculatePostWrapCost(costs)
+	estimate.CalculateFinishCeilingCost(costs)
+	estimate.CalculatePaintStainCost(costs)
+	estimate.CalculateFinishHardwareCost(costs)
+	estimate.CalculateElectricalCost(costs)
 	estimate.CalcPermitCost(costs)
 
-	estimate.Subtotal = estimate.BaseCost + estimate.RoofSlopeCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.PermitCost
+	estimate.Subtotal = estimate.BaseCost + estimate.RoofSlopeCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.ElectricalCost + estimate.PermitCost
 	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
 	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
 }
@@ -160,13 +181,20 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.BaseCost = d.BaseCost
 		pe.RoofSlope = d.RoofSlope
 		pe.RoofSlopeCost = d.RoofSlopeCost
+		pe.PostCount = d.PostCount
 		pe.HasPostWrap = d.HasPostWrap
 		pe.PostWrapCost = d.PostWrapCost
 		pe.HasFinishCeiling = d.HasFinishCeiling
 		pe.FinishCeilingCost = d.FinishCeilingCost
 		pe.HasPaintStain = d.HasPaintStain
 		pe.PaintStainCost = d.PaintStainCost
+		pe.HasFinishHardware = d.HasFinishHardware
 		pe.FinishHardwareCost = d.FinishHardwareCost
+		pe.ElectricalLights = d.ElectricalLights
+		pe.ElectricalFans = d.ElectricalFans
+		pe.ElectricalSwitches = d.ElectricalSwitches
+		pe.ElectricalOutlets = d.ElectricalOutlets
+		pe.ElectricalCost = d.ElectricalCost
 	}
 
 	pe.Error = ""
@@ -227,13 +255,20 @@ func savePatioEstimate(w http.ResponseWriter, r *http.Request, estimate *PatioCo
 		BaseCost:           estimate.BaseCost,
 		RoofSlope:          estimate.RoofSlope,
 		RoofSlopeCost:      estimate.RoofSlopeCost,
+		PostCount:          estimate.PostCount,
 		HasPostWrap:        estimate.HasPostWrap,
 		PostWrapCost:       estimate.PostWrapCost,
 		HasFinishCeiling:   estimate.HasFinishCeiling,
 		FinishCeilingCost:  estimate.FinishCeilingCost,
 		HasPaintStain:      estimate.HasPaintStain,
 		PaintStainCost:     estimate.PaintStainCost,
+		HasFinishHardware:  estimate.HasFinishHardware,
 		FinishHardwareCost: estimate.FinishHardwareCost,
+		ElectricalLights:   estimate.ElectricalLights,
+		ElectricalFans:     estimate.ElectricalFans,
+		ElectricalSwitches: estimate.ElectricalSwitches,
+		ElectricalOutlets:  estimate.ElectricalOutlets,
+		ElectricalCost:     estimate.ElectricalCost,
 	})
 	if err != nil {
 		log.Printf("savePatioEstimate: failed to marshal product_details: %v", err)
@@ -460,6 +495,43 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 		if rs := r.FormValue("roofSlope"); rs != "" {
 			if v, err := strconv.Atoi(rs); err == nil && v >= 4 {
 				estimate.RoofSlope = v
+			}
+		}
+		if hpw := r.FormValue("hasPostWrap"); hpw != "" {
+			estimate.HasPostWrap = hpw == "true"
+		}
+		if hfc := r.FormValue("hasFinishCeiling"); hfc != "" {
+			estimate.HasFinishCeiling = hfc == "true"
+		}
+		if hps := r.FormValue("hasPaintStain"); hps != "" {
+			estimate.HasPaintStain = hps == "true"
+		}
+		if hfh := r.FormValue("hasFinishHardware"); hfh != "" {
+			estimate.HasFinishHardware = hfh == "true"
+		}
+		if el := r.FormValue("electricalLights"); el != "" {
+			if v, err := strconv.Atoi(el); err == nil && v >= 0 && v <= 10 {
+				estimate.ElectricalLights = v
+			}
+		}
+		if ef := r.FormValue("electricalFans"); ef != "" {
+			if v, err := strconv.Atoi(ef); err == nil && v >= 0 && v <= 3 {
+				estimate.ElectricalFans = v
+			}
+		}
+		if es := r.FormValue("electricalSwitches"); es != "" {
+			if v, err := strconv.Atoi(es); err == nil && v >= 0 && v <= 3 {
+				estimate.ElectricalSwitches = v
+			}
+		}
+		if eo := r.FormValue("electricalOutlets"); eo != "" {
+			if v, err := strconv.Atoi(eo); err == nil && v >= 0 && v <= 4 {
+				estimate.ElectricalOutlets = v
+			}
+		}
+		if pl := r.FormValue("permitLevel"); pl != "" {
+			if v, err := strconv.Atoi(pl); err == nil && v >= 0 && v <= 3 {
+				estimate.PermitLevel = v
 			}
 		}
 		if dm := r.FormValue("diyMode"); dm != "" {

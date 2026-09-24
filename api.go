@@ -70,17 +70,22 @@ type CalcDeckResponse struct {
 }
 
 type CalcPatioRequest struct {
-	Description      string  `json:"description"`
-	Width            float64 `json:"width"`
-	Depth            float64 `json:"depth"`
-	PatioType        string  `json:"patioType"`
-	RoofSlope        int     `json:"roofSlope"`
-	DIYMode          int     `json:"diyMode"`
-	CustomerState    string  `json:"customerState"`
-	HasPostWrap      bool    `json:"hasPostWrap"`
-	HasFinishCeiling bool    `json:"hasFinishCeiling"`
-	HasPaintStain    bool    `json:"hasPaintStain"`
-	PermitLevel      int     `json:"permitLevel"`
+	Description        string  `json:"description"`
+	Width              float64 `json:"width"`
+	Depth              float64 `json:"depth"`
+	PatioType          string  `json:"patioType"`
+	RoofSlope          int     `json:"roofSlope"`
+	DIYMode            int     `json:"diyMode"`
+	CustomerState      string  `json:"customerState"`
+	HasPostWrap        bool    `json:"hasPostWrap"`
+	HasFinishCeiling   bool    `json:"hasFinishCeiling"`
+	HasPaintStain      bool    `json:"hasPaintStain"`
+	HasFinishHardware  bool    `json:"hasFinishHardware"`
+	ElectricalLights   int     `json:"electricalLights"`
+	ElectricalFans     int     `json:"electricalFans"`
+	ElectricalSwitches int     `json:"electricalSwitches"`
+	ElectricalOutlets  int     `json:"electricalOutlets"`
+	PermitLevel        int     `json:"permitLevel"`
 }
 
 type CalcPatioResponse struct {
@@ -90,10 +95,19 @@ type CalcPatioResponse struct {
 	RoofSlope                 int     `json:"roofSlope"`
 	RoofSlopeCost             float64 `json:"roofSlopeCost"`
 	RoofSlopeDescription      string  `json:"roofSlopeDescription"`
+	PostCount                 int     `json:"postCount"`
+	PostWrapCost              float64 `json:"postWrapCost"`
 	PostWrapDescription       string  `json:"postWrapDescription"`
+	HasFinishCeiling          bool    `json:"hasFinishCeiling"`
+	FinishCeilingCost         float64 `json:"finishCeilingCost"`
 	FinishCeilingDescription  string  `json:"finishCeilingDescription"`
+	PaintStainCost            float64 `json:"paintStainCost"`
 	PaintStainDescription     string  `json:"paintStainDescription"`
+	FinishHardwareCost        float64 `json:"finishHardwareCost"`
 	FinishHardwareDescription string  `json:"finishHardwareDescription"`
+	HasElectrical             bool    `json:"hasElectrical"`
+	ElectricalCost            float64 `json:"electricalCost"`
+	ElectricalDescription     string  `json:"electricalDescription"`
 	PermitCost                float64 `json:"permitCost"`
 	PermitDescription         string  `json:"permitDescription"`
 	Subtotal                  float64 `json:"subtotal"`
@@ -117,17 +131,22 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pe := PatioCoverEstimate{
-		Desc:             req.Description,
-		Width:            req.Width,
-		Depth:            req.Depth,
-		PatioType:        req.PatioType,
-		RoofSlope:        req.RoofSlope,
-		DIYMode:          req.DIYMode,
-		Customer:         Customer{State: req.CustomerState},
-		HasPostWrap:      req.HasPostWrap,
-		HasFinishCeiling: req.HasFinishCeiling,
-		HasPaintStain:    req.HasPaintStain,
-		PermitLevel:      req.PermitLevel,
+		Desc:               req.Description,
+		Width:              req.Width,
+		Depth:              req.Depth,
+		PatioType:          req.PatioType,
+		RoofSlope:          req.RoofSlope,
+		DIYMode:            req.DIYMode,
+		Customer:           Customer{State: req.CustomerState},
+		HasPostWrap:        req.HasPostWrap,
+		HasFinishCeiling:   req.HasFinishCeiling,
+		HasPaintStain:      req.HasPaintStain,
+		HasFinishHardware:  req.HasFinishHardware,
+		ElectricalLights:   req.ElectricalLights,
+		ElectricalFans:     req.ElectricalFans,
+		ElectricalSwitches: req.ElectricalSwitches,
+		ElectricalOutlets:  req.ElectricalOutlets,
+		PermitLevel:        req.PermitLevel,
 	}
 	if label, ok := patioTypeLabels[pe.PatioType]; ok {
 		pe.PatioTypeLabel = label
@@ -143,10 +162,19 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 		RoofSlope:                 pe.RoofSlope,
 		RoofSlopeCost:             pe.RoofSlopeCost,
 		RoofSlopeDescription:      formatPatioRoofSlopeDescription(pe),
+		PostCount:                 pe.PostCount,
+		PostWrapCost:              pe.PostWrapCost,
 		PostWrapDescription:       formatPatioPostWrapDescription(pe),
+		HasFinishCeiling:          pe.HasFinishCeiling,
+		FinishCeilingCost:         pe.FinishCeilingCost,
 		FinishCeilingDescription:  formatPatioFinishCeilingDescription(pe),
+		PaintStainCost:            pe.PaintStainCost,
 		PaintStainDescription:     formatPatioPaintStainDescription(pe),
+		FinishHardwareCost:        pe.FinishHardwareCost,
 		FinishHardwareDescription: formatPatioFinishHardwareDescription(pe),
+		HasElectrical:             pe.HasElectrical,
+		ElectricalCost:            pe.ElectricalCost,
+		ElectricalDescription:     formatPatioElectricalDescription(pe),
 		PermitCost:                pe.PermitCost,
 		PermitDescription:         formatPatioPermitDescription(pe),
 		Subtotal:                  pe.Subtotal,

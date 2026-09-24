@@ -80,18 +80,27 @@ func formatPatioPostWrapDescription(pe PatioCoverEstimate) string {
 		return "No post wrap."
 	}
 	if pe.PatioType == "timberframe" {
-		return "Wrap posts with cedar."
+		return fmt.Sprintf(`Wrap %d posts with 1" #1 clear cedar, leave rough sawn headers exposed.`, pe.PostCount)
 	}
-	return `Wrap posts with 1" outdoor wood.`
+	return fmt.Sprintf(`Wrap %d posts and headers with 1" primed forrest trim, caulked and ready for paint.`, pe.PostCount)
 }
 
-// formatPatioFinishCeilingDescription describes the ceiling finish line item:
-// left open and unfinished when off, otherwise finished with soffit board.
+// formatPatioFinishCeilingDescription describes the ceiling finish line item.
+// Not available on a pergola (no ceiling to finish); included at no extra
+// cost on timberframe (beams stay exposed by design); optional on lean-to
+// and truss.
 func formatPatioFinishCeilingDescription(pe PatioCoverEstimate) string {
-	if !pe.HasFinishCeiling {
-		return "Ceiling open and unfinished."
+	switch pe.PatioType {
+	case "pergola":
+		return "Not available."
+	case "timberframe":
+		return "Included in cost with exposed beams."
+	default:
+		if !pe.HasFinishCeiling {
+			return "Ceiling open and unfinished."
+		}
+		return "Finish under ceiling with primed soffit board, trim, and caulking - ready for paint."
 	}
-	return "Finish ceiling with soffit board."
 }
 
 // formatPatioPaintStainDescription describes the paint/stain line item: no
@@ -100,12 +109,67 @@ func formatPatioPaintStainDescription(pe PatioCoverEstimate) string {
 	if !pe.HasPaintStain {
 		return "No paint or stain."
 	}
-	return "Paint or stain applied."
+	if pe.PatioType == "timberframe" {
+		return "Stain with 1 coat of Sherwin Williams Superdeck extior stain. Transparent or Semi Tranparent stain all exposed finished wood."
+	}
+	return "Paint all finished areas with 1 coat Sherwin Williams SuperPaint exterior acrylic latex."
 }
 
 // formatPatioFinishHardwareDescription describes the finish hardware line item.
 func formatPatioFinishHardwareDescription(pe PatioCoverEstimate) string {
-	return "Standard galvanized hardware."
+	if !pe.HasFinishHardware {
+		return "Standard galvanized hardware."
+	}
+	return "Black powder coated ornamental hardware. Avant style including post base, T-straps, angle brackets with hex head washers and fasteners."
+}
+
+// formatPatioElectricalDescription describes the electrical line item: "not
+// included" when off, otherwise lists the selected items followed by the
+// standard electrical disclaimer.
+func formatPatioElectricalDescription(pe PatioCoverEstimate) string {
+	if !pe.HasElectrical {
+		return "Electrical not included."
+	}
+	var items []string
+	if pe.ElectricalLights > 0 {
+		items = append(items, pluralize(pe.ElectricalLights, "canned light", "canned lights"))
+	}
+	if pe.ElectricalFans > 0 {
+		items = append(items, pluralize(pe.ElectricalFans, "ceiling fan", "ceiling fans"))
+	}
+	if pe.ElectricalSwitches > 0 {
+		items = append(items, pluralize(pe.ElectricalSwitches, "switch", "switches"))
+	}
+	if pe.ElectricalOutlets > 0 {
+		items = append(items, pluralize(pe.ElectricalOutlets, "outlet", "outlets"))
+	}
+	return fmt.Sprintf(
+		"%s. Electrical installation includes electrical permits and installation by a licensed electrician. Additional costs may be needed for any changes to main circuit including lines, breakers, or upgrades.",
+		joinWithAnd(items),
+	)
+}
+
+// pluralize returns "N singular" or "N plural" based on count.
+func pluralize(count int, singular, plural string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, singular)
+	}
+	return fmt.Sprintf("%d %s", count, plural)
+}
+
+// joinWithAnd joins items with commas and a trailing "and", e.g.
+// "a, b, and c" or "a and b".
+func joinWithAnd(items []string) string {
+	switch len(items) {
+	case 0:
+		return ""
+	case 1:
+		return items[0]
+	case 2:
+		return items[0] + " and " + items[1]
+	default:
+		return strings.Join(items[:len(items)-1], ", ") + ", and " + items[len(items)-1]
+	}
 }
 
 // formatPatioPermitDescription describes the Design & Permits line item,
