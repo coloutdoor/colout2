@@ -5656,45 +5656,65 @@
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0561.jpg
   md5: b1d8eb37e5d48f377ac7c6144421ef5f
   source_path: IMG_20260915_193652.heic
-  city: unknown
-  category: other
-  description: IMG 20260915 193652
+  city: Woodland
+  category: deck
+  description: Trex Enhance Saddle deck with cedar rails.
+  tags:
+    - Trex
+    - composite
+    - dog
   featured: false
-  reviewed: false
+  reviewed: true
   project: Blycker
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0562.jpg
   md5: 9dcd5e82944774ce31d78b1a0b9d5d92
   source_path: IMG_20260915_193658.heic
-  city: unknown
-  category: other
-  description: IMG 20260915 193658
+  city: Woodland
+  category: rails
+  description: Cedar rails with rock facade
+  tags:
+    - cedar
+    - rail
+    - rock
   featured: false
-  reviewed: false
+  reviewed: true
   project: Blycker
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0563.jpg
   md5: c25e4f56a6a97d455c8113c089b50923
   source_path: IMG_20260915_193705.heic
-  city: unknown
-  category: other
-  description: IMG 20260915 193705
+  city: Woodland
+  category: stairs
+  description: Trex Enhance Saddle stairs with rock facade
+  tags:
+    - trex
+    - stairs
+    - rock
   featured: false
-  reviewed: false
+  reviewed: true
   project: Blycker
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0564.jpg
   md5: e3ff8bd046f6612cbc07a1e5c80c9a1a
   source_path: IMG_20260915_193710.heic
-  city: unknown
-  category: other
-  description: IMG 20260915 193710
-  featured: false
-  reviewed: false
+  city: Woodland
+  category: deck
+  description: Trex Enhnace saddle with cedar rails
+  tags:
+    - Trex
+    - Cedar
+    - composite
+  featured: true
+  reviewed: true
   project: Blycker
 - uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0565.jpg
   md5: d087ea8feb74fc928571199db9de8635
   source_path: IMG_20260915_193717.heic
-  city: unknown
-  category: other
-  description: IMG 20260915 193717
+  city: Woodland
+  category: deck
+  description: Trex Enhance with divider
+  tags:
+    - Trex
+    - divider
+    - ribbon
   featured: false
-  reviewed: false
+  reviewed: true
   project: Blycker

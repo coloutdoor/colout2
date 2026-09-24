@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -50,6 +51,25 @@ func loadPhotos() []Photo {
 	return filtered
 }
 
+// loadHeroPics reads static/header_pics.txt (one image URL per line) — a
+// hand-curated set for the homepage hero carousel, kept separate from the
+// general featured-photo pool used elsewhere on the site.
+func loadHeroPics() []string {
+	data, err := os.ReadFile("static/header_pics.txt")
+	if err != nil {
+		log.Printf("loadHeroPics: %v", err)
+		return nil
+	}
+	var urls []string
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			urls = append(urls, line)
+		}
+	}
+	return urls
+}
+
 // Homeowner represents the structure of the homeowner marketing strategy
 type Homeowner struct {
 	Objective           string     `yaml:"objective"`
@@ -90,9 +110,9 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth.Subtitle = "Quality decks and outdoor structures built right. Transparent pricing, expert craftsmanship."
 	userAuth.MetaDesc = "Columbia Outdoor builds quality decks, patios, and outdoor structures across SW Washington. Transparent pricing, experienced builders, and expert project management."
 	userAuth.CanonicalPath = "/"
-	photos := loadPhotos()
+	heroPics := loadHeroPics()
 	rd := renderData{
-		Page:   photos,
+		Page:   heroPics,
 		Header: &userAuth,
 	}
 	tmpl := template.Must(template.New("homeowner.gohtml").Funcs(funcMap).
