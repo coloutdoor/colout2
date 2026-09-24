@@ -574,8 +574,8 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Default permit level: Design, same as a typical (non-tall) deck.
-	estimate.PermitLevel = 1
+	// Default permit level: Material Takeoff, same as a typical (non-tall) deck.
+	estimate.PermitLevel = 0
 
 	estimate.CalcAllCosts()
 	if estimate.Error != "" {

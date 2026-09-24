@@ -515,11 +515,11 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		Width:  estimate.Width,
 	}}
 
-	// Default permit level: Design for most decks, Design+Engineering for tall decks
+	// Default permit level: Material Takeoff for most decks, Design+Engineering for tall decks
 	if estimate.Height >= 12 {
 		estimate.PermitLevel = 2
 	} else {
-		estimate.PermitLevel = 1
+		estimate.PermitLevel = 0
 	}
 
 	// Calculate the costs
