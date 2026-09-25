@@ -2,21 +2,29 @@
 <html lang="en-us">
   <head>
 
+    <!-- Only fire ad/analytics pixels on the live production domain, so local
+         dev and test traffic never gets counted as real visits/conversions. -->
+    <script>
+      window.__isProdSite = (location.hostname === 'columbiaoutdoor.com' || location.hostname === 'www.columbiaoutdoor.com');
+    </script>
+
     <!-- Microsoft Advertising UET tag -->
-    <script>(function(w, d, t, u, o) {w[u] = w[u] || [], o.ts = (new Date).getTime();var n = d.createElement(t);n.src = "https://bat.bing.net/bat.js?ti=" + o.ti + ("uetq" != u ? "&q=" + u : ""),n.async = 1, n.onload = n.onreadystatechange = function() {var s = this.readyState;s && "loaded" !== s && "complete" !== s ||(o.q = w[u], w[u] = new UET(o), w[u].push("pageLoad"),n.onload = n.onreadystatechange = null)};var i = d.getElementsByTagName(t)[0];i.parentNode.insertBefore(n, i);})(window, document, "script", "uetq", {ti:"97262921",enableAutoSpaTracking: true});</script>
+    <script>if (window.__isProdSite) {(function(w, d, t, u, o) {w[u] = w[u] || [], o.ts = (new Date).getTime();var n = d.createElement(t);n.src = "https://bat.bing.net/bat.js?ti=" + o.ti + ("uetq" != u ? "&q=" + u : ""),n.async = 1, n.onload = n.onreadystatechange = function() {var s = this.readyState;s && "loaded" !== s && "complete" !== s ||(o.q = w[u], w[u] = new UET(o), w[u].push("pageLoad"),n.onload = n.onreadystatechange = null)};var i = d.getElementsByTagName(t)[0];i.parentNode.insertBefore(n, i);})(window, document, "script", "uetq", {ti:"97262921",enableAutoSpaTracking: true});}</script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L9L1S3G0W"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-9L9L1S3G0W');
+      if (window.__isProdSite) {
+        gtag('js', new Date());
+        gtag('config', 'G-9L9L1S3G0W');
+      }
     </script>
 
     <!-- Meta Pixel Code -->
     <script>
+    if (window.__isProdSite) {
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -27,6 +35,7 @@
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1570843400907237');
     fbq('track', 'PageView');
+    }
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=1570843400907237&ev=PageView&noscript=1"
@@ -213,6 +222,11 @@
         <div class="navbar-item">
           <a href="/deck-calculator?option=deck" class="button" style="background-color:#6b7280; border-color:#6b7280; color:white;">
             <strong>Deck Calculator</strong>
+          </a>
+        </div>
+        <div class="navbar-item">
+          <a href="/patio-cover-calculator" class="button is-link">
+            <strong>Patio Cover Calculator</strong>
           </a>
         </div>
       </div>
