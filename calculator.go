@@ -144,16 +144,16 @@ func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
 // *****************************************************************************************
 func calcPickerHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Get a Free Estimate — Deck or Patio Cover"
-	userAuth.Subtitle = "Choose a project type to get an instant, no-obligation estimate"
-	userAuth.MetaDesc = "Get an instant deck or patio cover cost estimate for SW Washington. No account required."
+	userAuth.Title = "Free Deck & Patio Cover Cost Calculator — SW Washington"
+	userAuth.Subtitle = "Choose a project type below to get an instant, itemized, no-obligation estimate."
+	userAuth.MetaDesc = "Free instant deck and patio cover cost calculator for Clark and Cowlitz County, SW Washington. Price your project by size and materials — no account or sales call required."
 	userAuth.CanonicalPath = "/calc"
 
 	rd := renderData{
 		Header: &userAuth,
 	}
 	tmpl := template.Must(template.New("picker.gohtml").Funcs(funcMap).ParseFiles("templates/calc/picker.gohtml",
-		"templates/header.gohtml", "templates/footer.gohtml"))
+		"templates/calc/deckheader.gohtml", "templates/header.gohtml", "templates/footer.gohtml"))
 
 	if err := tmpl.ExecuteTemplate(w, "picker.gohtml", rd); err != nil {
 		log.Printf("calcPickerHandler execute error: %v", err)

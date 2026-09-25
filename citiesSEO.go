@@ -58,7 +58,9 @@ func sitemapHandler(w http.ResponseWriter, r *http.Request) {
 		images   []sitemapImage
 	}{
 		{"/", "1.0", "2026-09-15", nil},
-		{"/deck-calculator", "1.0", "2026-08-19", nil},
+		{"/calc", "1.0", "2026-09-25", nil},
+		{"/deck-calculator", "0.9", "2026-08-19", nil},
+		{"/patio-cover-calculator", "0.9", "2026-09-16", nil},
 		{"/contact", "0.8", "2026-08-22", nil},
 		{"/patio-cover-contractors-woodland-wa", "0.9", "2026-09-16", patioCoverWoodlandImages},
 		{"/deck-builders-woodland-wa", "0.9", "2026-09-16", deckBuildersWoodlandImages},
