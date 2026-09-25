@@ -86,6 +86,12 @@ type CalcPatioRequest struct {
 	ElectricalSwitches int     `json:"electricalSwitches"`
 	ElectricalOutlets  int     `json:"electricalOutlets"`
 	PermitLevel        int     `json:"permitLevel"`
+	DiscountCode       string  `json:"discountCode"`
+	CustomItems        []struct {
+		Description string  `json:"description"`
+		Notes       string  `json:"notes"`
+		Cost        float64 `json:"cost"`
+	} `json:"customItems"`
 }
 
 type CalcPatioResponse struct {
@@ -110,6 +116,9 @@ type CalcPatioResponse struct {
 	ElectricalDescription     string  `json:"electricalDescription"`
 	PermitCost                float64 `json:"permitCost"`
 	PermitDescription         string  `json:"permitDescription"`
+	DiscountCode              string  `json:"discountCode"`
+	DiscountAmount            float64 `json:"discountAmount"`
+	CustomItemsTotal          float64 `json:"customItemsTotal"`
 	Subtotal                  float64 `json:"subtotal"`
 	SalesTax                  float64 `json:"salesTax"`
 	TotalCost                 float64 `json:"totalCost"`
@@ -147,6 +156,17 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 		ElectricalSwitches: req.ElectricalSwitches,
 		ElectricalOutlets:  req.ElectricalOutlets,
 		PermitLevel:        req.PermitLevel,
+		DiscountCode:       req.DiscountCode,
+	}
+	for i, ci := range req.CustomItems {
+		if ci.Description != "" || ci.Cost != 0 {
+			pe.CustomItems = append(pe.CustomItems, EstimateCustomItem{
+				Description: ci.Description,
+				Notes:       ci.Notes,
+				Cost:        ci.Cost,
+				SortOrder:   i,
+			})
+		}
 	}
 	if label, ok := patioTypeLabels[pe.PatioType]; ok {
 		pe.PatioTypeLabel = label
@@ -177,6 +197,9 @@ func apiCalcPatioHandler(w http.ResponseWriter, r *http.Request) {
 		ElectricalDescription:     formatPatioElectricalDescription(pe),
 		PermitCost:                pe.PermitCost,
 		PermitDescription:         formatPatioPermitDescription(pe),
+		DiscountCode:              pe.DiscountCode,
+		DiscountAmount:            pe.DiscountAmount,
+		CustomItemsTotal:          pe.CustomItemsTotal,
 		Subtotal:                  pe.Subtotal,
 		SalesTax:                  pe.SalesTax,
 		TotalCost:                 pe.TotalCost,

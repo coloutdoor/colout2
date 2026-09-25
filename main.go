@@ -110,6 +110,10 @@ func main() {
 		fmt.Println("Error loading costs:", err)
 		os.Exit(1)
 	}
+	if err := loadCoverDescriptions(); err != nil {
+		fmt.Println("Error loading cover descriptions:", err)
+		os.Exit(1)
+	}
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
 	flag.Parse()
 
@@ -159,6 +163,9 @@ func main() {
 	nrHandle("/estimate/accept/{token}", estimateAcceptHandler)
 	nrHandle("/estimate/{estimateID}", estimateDBHandler)
 	nrHandle("/patio-estimate", patioEstimateHandler)
+	nrHandle("/patio-estimate/send/{estimateID}", patioEmailSendHandler)
+	nrHandle("/patio-estimate/view/{token}", patioEstimateTokenHandler)
+	nrHandle("/patio-estimate/accept/{token}", patioEstimateAcceptHandler)
 	nrHandle("/patio-estimate/{estimateID}", patioEstimateDBHandler)
 	nrHandle("/customer", customerHandler)
 	nrHandle("/session", sessionHandler)

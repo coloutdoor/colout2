@@ -13,9 +13,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	resend "github.com/resend/resend-go/v2"
 	"github.com/yuin/goldmark"
 )
 
@@ -51,6 +53,10 @@ type PatioCoverEstimate struct {
 	ElectricalCost     float64
 	PermitLevel        int // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
 	PermitCost         float64
+	CustomItems        []EstimateCustomItem
+	CustomItemsTotal   float64
+	DiscountCode       string
+	DiscountAmount     float64
 	Subtotal           float64
 	SalesTax           float64
 	TotalCost          float64
@@ -69,6 +75,8 @@ type PatioCoverEstimate struct {
 	TermsHTML          template.HTML
 	PatioTypeLabel     string // human-readable PatioType, computed in renderPatioEstimate
 	Status             string // Accepted, Expired, or Pending — computed in renderPatioEstimate
+	IsPublicView       bool   // true when served via the public access-token view (read-only, no login)
+	AcceptURL          string // POST target for the Accept button, set on public/accept views
 	Error              string
 }
 
@@ -121,13 +129,39 @@ func (estimate *PatioCoverEstimate) CalcAllCosts() {
 	estimate.CalculateElectricalCost(costs)
 	estimate.CalcPermitCost(costs)
 
-	estimate.Subtotal = estimate.BaseCost + estimate.RoofSlopeCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.ElectricalCost + estimate.PermitCost
-	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal, estimate.Customer.State)
-	estimate.TotalCost = estimate.Subtotal + estimate.SalesTax
+	estimate.CustomItemsTotal = 0
+	for _, ci := range estimate.CustomItems {
+		estimate.CustomItemsTotal += ci.Cost
+	}
+	estimate.Subtotal = estimate.BaseCost + estimate.RoofSlopeCost + estimate.PostWrapCost + estimate.FinishCeilingCost + estimate.PaintStainCost + estimate.FinishHardwareCost + estimate.ElectricalCost + estimate.PermitCost + estimate.CustomItemsTotal
+
+	estimate.DiscountAmount = 0
+	if estimate.DiscountCode != "" {
+		code := strings.ToUpper(strings.TrimSpace(estimate.DiscountCode))
+		if rate, ok := costs.DiscountCodes[code]; ok {
+			estimate.DiscountAmount = estimate.Subtotal * rate
+			estimate.DiscountCode = code
+		}
+	}
+
+	estimate.SalesTax = CalculateSalesTax(estimate.Subtotal-estimate.DiscountAmount, estimate.Customer.State)
+	estimate.TotalCost = estimate.Subtotal - estimate.DiscountAmount + estimate.SalesTax
 }
 
 // getPatioEstimate loads a patio cover estimate from the DB by estimate_id.
 func getPatioEstimate(estimateID int) PatioCoverEstimate {
+	return getPatioEstimateBy("e.estimate_id = $1", estimateID)
+}
+
+// getPatioEstimateByToken loads a patio cover estimate from the DB by its
+// public access token, for the token-based public view/accept pages.
+func getPatioEstimateByToken(token string) PatioCoverEstimate {
+	return getPatioEstimateBy("e.access_token = $1", token)
+}
+
+// getPatioEstimateBy loads a patio cover estimate matching the given WHERE
+// clause (parameterized as $1 with arg).
+func getPatioEstimateBy(whereClause string, arg interface{}) PatioCoverEstimate {
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		return PatioCoverEstimate{Error: "Database Env - not set up."}
@@ -147,18 +181,20 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(e.access_token, ''), COALESCE(e.diy_mode, 0), e.product_type,
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
+        COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(cp.company_name,''), COALESCE(cp.phone,''), COALESCE(cp.website,''),
         COALESCE(cp.license_number,''), COALESCE(cp.license_state,''), COALESCE(cp.id,1),
         COALESCE(e.product_details::text, '{}')
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
-        WHERE e.estimate_id = $1`, estimateID).Scan(
+        WHERE `+whereClause, arg).Scan(
 		&pe.EstimateID, &pe.Desc, &pe.TotalCost, &pe.Subtotal, &pe.SalesTax,
 		&pe.Customer.FirstName, &pe.Customer.LastName, &pe.Customer.Address, &pe.Customer.City, &pe.Customer.State,
 		&pe.Customer.Zip, &pe.Customer.PhoneNumber, &pe.Customer.Email,
 		&pe.SaveDate, &acceptDate, &pe.ExpirationDate, &pe.UserId, &pe.ContractorID, &pe.Version,
 		&pe.AccessToken, &pe.DIYMode, &pe.ProductType,
 		&pe.PermitLevel, &pe.PermitCost,
+		&pe.DiscountCode, &pe.DiscountAmount,
 		&pe.Contractor.CompanyName, &pe.Contractor.Phone, &pe.Contractor.Website,
 		&pe.Contractor.LicenseNum, &pe.Contractor.LicenseState, &pe.Contractor.ID,
 		&detailsJSON)
@@ -195,6 +231,21 @@ func getPatioEstimate(estimateID int) PatioCoverEstimate {
 		pe.ElectricalSwitches = d.ElectricalSwitches
 		pe.ElectricalOutlets = d.ElectricalOutlets
 		pe.ElectricalCost = d.ElectricalCost
+		pe.HasElectrical = pe.ElectricalLights+pe.ElectricalFans+pe.ElectricalSwitches+pe.ElectricalOutlets > 0
+	}
+
+	cirows, cierr := db.Query(`
+		SELECT id, estimate_id, description, COALESCE(notes,''), cost, sort_order
+		FROM estimate_custom_items WHERE estimate_id = $1
+		ORDER BY sort_order, id`, pe.EstimateID)
+	if cierr == nil {
+		for cirows.Next() {
+			var ci EstimateCustomItem
+			if err := cirows.Scan(&ci.ID, &ci.EstimateID, &ci.Description, &ci.Notes, &ci.Cost, &ci.SortOrder); err == nil {
+				pe.CustomItems = append(pe.CustomItems, ci)
+			}
+		}
+		cirows.Close()
 	}
 
 	pe.Error = ""
@@ -302,8 +353,10 @@ SET
     product_details = $20,
     permit_level = $21,
     permit_cost = $22,
+    discount_code = $23,
+    discount_amount = $24,
     version = version + 1
-WHERE estimate_id = $23
+WHERE estimate_id = $25
 RETURNING estimate_id, version`
 		var updatedID int64
 		err = db.QueryRow(stmt, estimate.Desc, estimate.TotalCost, estimate.Subtotal, estimate.SalesTax,
@@ -315,6 +368,7 @@ RETURNING estimate_id, version`
 			estimate.UserId, estimate.ContractorID, estimate.AccessToken,
 			estimate.DIYMode, estimate.ProductType, string(detailsJSON),
 			estimate.PermitLevel, estimate.PermitCost,
+			estimate.DiscountCode, estimate.DiscountAmount,
 			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
 		if err != nil {
 			log.Printf("Failed to update patio estimate: %v", err)
@@ -339,14 +393,14 @@ RETURNING estimate_id, version`
 			save_date, accept_date, expiration_date,
 			user_id, contractor_id,
 			access_token, diy_mode, product_type, product_details,
-			permit_level, permit_cost, version)
+			permit_level, permit_cost, discount_code, discount_amount, version)
 		VALUES (
 			$1, $2, $3, $4,
 			$5, $6, $7, $8, $9, $10, $11, $12,
 			$13, $14, $15,
 			$16, $17,
 			$18, $19, $20, $21,
-			$22, $23, 1
+			$22, $23, $24, $25, 1
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -359,7 +413,7 @@ RETURNING estimate_id, version`
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
 			estimate.UserId, estimate.ContractorID,
 			estimate.AccessToken, estimate.DIYMode, estimate.ProductType, string(detailsJSON),
-			estimate.PermitLevel, estimate.PermitCost).
+			estimate.PermitLevel, estimate.PermitCost, estimate.DiscountCode, estimate.DiscountAmount).
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save patio estimate to DB: %v", err)
@@ -374,6 +428,20 @@ RETURNING estimate_id, version`
 			"user_id":       estimate.UserId,
 			"contractor_id": estimate.ContractorID,
 		})
+	}
+
+	// Save custom items (always run to clear deleted items)
+	db3, err3 := sql.Open("pgx", dbURL)
+	if err3 == nil {
+		db3.Exec(`DELETE FROM estimate_custom_items WHERE estimate_id = $1`, estimate.EstimateID)
+		for i, ci := range estimate.CustomItems {
+			if ci.Description != "" || ci.Cost != 0 {
+				db3.Exec(`INSERT INTO estimate_custom_items (estimate_id, description, notes, cost, sort_order)
+					VALUES ($1, $2, $3, $4, $5)`,
+					estimate.EstimateID, ci.Description, ci.Notes, ci.Cost, i)
+			}
+		}
+		db3.Close()
 	}
 
 	sd.PatioEstimate = *estimate
@@ -539,6 +607,27 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 				estimate.DIYMode = v
 			}
 		}
+		estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+		if ciJSON := r.FormValue("customItems"); ciJSON != "" {
+			var parsed []struct {
+				Description string  `json:"description"`
+				Notes       string  `json:"notes"`
+				Cost        float64 `json:"cost"`
+			}
+			if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
+				estimate.CustomItems = nil
+				for i, ci := range parsed {
+					if ci.Description != "" || ci.Cost != 0 {
+						estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
+							Description: ci.Description,
+							Notes:       ci.Notes,
+							Cost:        ci.Cost,
+							SortOrder:   i,
+						})
+					}
+				}
+			}
+		}
 		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			savePatioEstimate(w, r, &estimate, sd)
@@ -640,4 +729,221 @@ func patioEstimateDBHandler(w http.ResponseWriter, r *http.Request) {
 	_ = sd.Save(r, w)
 
 	renderPatioEstimate(w, r, pe)
+}
+
+// patioEstimateTokenHandler handles GET /patio-estimate/view/{token}, serving
+// the public customer view of a patio cover estimate. No authentication
+// required — the token acts as the credential.
+func patioEstimateTokenHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	pe := getPatioEstimateByToken(token)
+	if pe.Error != "" {
+		renderPatioEstimate(w, r, pe)
+		return
+	}
+
+	pe.IsPublicView = true
+	pe.AcceptURL = "/patio-estimate/accept/" + token
+	renderPatioEstimate(w, r, pe)
+}
+
+// patioEstimateAcceptHandler handles POST /patio-estimate/accept/{token}.
+// Sets accept_date and re-renders the estimate as accepted.
+func patioEstimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
+	token := r.PathValue("token")
+	if token == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	pe := getPatioEstimateByToken(token)
+	if pe.Error != "" {
+		renderPatioEstimate(w, r, pe)
+		return
+	}
+
+	if !pe.AcceptDate.IsZero() {
+		pe.IsPublicView = true
+		pe.AcceptURL = "/patio-estimate/accept/" + token
+		renderPatioEstimate(w, r, pe)
+		return
+	}
+
+	if !pe.ExpirationDate.IsZero() && time.Now().After(pe.ExpirationDate) {
+		pe.Error = "This estimate has expired and can no longer be accepted."
+		renderPatioEstimate(w, r, pe)
+		return
+	}
+
+	dbURL := os.Getenv("DATABASE_URL")
+	db, err := sql.Open("pgx", dbURL)
+	if err != nil {
+		renderPatioEstimate(w, r, PatioCoverEstimate{Error: "Database Connect failed."})
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`UPDATE estimates SET accept_date = NOW() WHERE access_token = $1`, token)
+	if err != nil {
+		log.Printf("patioEstimateAcceptHandler: failed to set accept_date: %v", err)
+		renderPatioEstimate(w, r, PatioCoverEstimate{Error: "Failed to accept estimate."})
+		return
+	}
+
+	pe.AcceptDate = time.Now()
+	recordNREvent("PatioEstimateAccepted", map[string]interface{}{
+		"estimate_id":   pe.EstimateID,
+		"total_cost":    pe.TotalCost,
+		"contractor_id": pe.ContractorID,
+	})
+	pe.IsPublicView = true
+	pe.AcceptURL = "/patio-estimate/accept/" + token
+	renderPatioEstimate(w, r, pe)
+}
+
+// patioEmailSendHandler handles POST /patio-estimate/send/{estimateID}, emailing
+// the patio cover estimate via Resend to the requester's address (defaulting to
+// the saved customer email) and optionally CC'ing the logged-in user. It
+// responds with a JSON {status, message} payload rather than HTML.
+func patioEmailSendHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	estimateIDStr := r.PathValue("estimateID")
+	estimateID, _ := strconv.Atoi(estimateIDStr)
+
+	sd, err := GetSession(r, w)
+	if err != nil || !sd.UserAuth.IsAuthenticated {
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Please log in first."})
+		return
+	}
+
+	// Load fresh from DB so options and costs are current
+	estimate := getPatioEstimate(estimateID)
+	if estimate.Error != "" || estimate.EstimateID == 0 {
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "Estimate not found."})
+		return
+	}
+	if label, ok := patioTypeLabels[estimate.PatioType]; ok {
+		estimate.PatioTypeLabel = label
+	} else {
+		estimate.PatioTypeLabel = estimate.PatioType
+	}
+	estimate.CalcAllCosts()
+
+	var req struct {
+		Email  string `json:"email"`
+		CCSelf bool   `json:"ccSelf"`
+	}
+	json.NewDecoder(r.Body).Decode(&req)
+	toEmail := req.Email
+	if toEmail == "" {
+		toEmail = estimate.Customer.Email
+	}
+
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		log.Printf("patioEmailSendHandler: RESEND_API_KEY not set")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "error",
+			"message": "Email service is not configured. Please call us at (360) 787-8062.",
+		})
+		return
+	}
+
+	subject := fmt.Sprintf("Patio Cover Estimate #%d-%d — %s", estimate.EstimateID, estimate.Version, estimate.Desc)
+	scheme := "https"
+	if r.Host == "" || strings.HasPrefix(r.Host, "localhost") {
+		scheme = "http"
+	}
+	estimateURL := fmt.Sprintf("%s://%s/patio-estimate/view/%s", scheme, r.Host, estimate.AccessToken)
+	html := buildPatioEstimateEmailHTML(estimate, estimateURL)
+
+	client := resend.NewClient(apiKey)
+	params := &resend.SendEmailRequest{
+		From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+		To:      []string{toEmail},
+		Bcc:     []string{"support@columbiaoutdoor.com"},
+		Subject: subject,
+		Html:    html,
+	}
+	if req.CCSelf && sd.UserAuth.Email != "" && sd.UserAuth.Email != toEmail {
+		params.Cc = []string{sd.UserAuth.Email}
+	}
+
+	sent, err := client.Emails.Send(params)
+	if err != nil {
+		log.Printf("patioEmailSendHandler: resend error: %v", err)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "error",
+			"message": "Email could not be sent. Please call us at (360) 787-8062.",
+		})
+		return
+	}
+
+	log.Printf("patioEmailSendHandler: sent estimate %d to %s (id: %s)", estimate.EstimateID, toEmail, sent.Id)
+	recordNREvent("PatioEstimateEmailed", map[string]interface{}{
+		"estimate_id":   estimate.EstimateID,
+		"total_cost":    estimate.TotalCost,
+		"contractor_id": estimate.ContractorID,
+		"to_email":      toEmail,
+	})
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "sent",
+		"message": "Estimate emailed to " + toEmail,
+	})
+}
+
+type patioEstimateEmailData struct {
+	Estimate          PatioCoverEstimate
+	EstimateURL       string
+	ContractorName    string
+	ContractorPhone   string
+	ContractorWebsite string
+	ContractorLicense string
+}
+
+// buildPatioEstimateEmailHTML renders the patio cover estimate email template to a string.
+func buildPatioEstimateEmailHTML(e PatioCoverEstimate, estimateURL string) string {
+	data := patioEstimateEmailData{
+		Estimate:          e,
+		EstimateURL:       estimateURL,
+		ContractorName:    "Columbia Outdoor",
+		ContractorPhone:   "(360) 787-8062",
+		ContractorWebsite: "columbiaoutdoor.com",
+	}
+	if e.Contractor.CompanyName != "" {
+		data.ContractorName = e.Contractor.CompanyName
+	}
+	if e.Contractor.Phone != "" {
+		data.ContractorPhone = e.Contractor.Phone
+	}
+	if e.Contractor.Website != "" {
+		data.ContractorWebsite = e.Contractor.Website
+	}
+	if e.Contractor.LicenseNum != "" {
+		data.ContractorLicense = fmt.Sprintf("%s (%s)", e.Contractor.LicenseNum, e.Contractor.LicenseState)
+	}
+
+	tmpl := template.Must(template.New("email-estimate-patio.gohtml").Funcs(funcMap).ParseFiles("templates/email-estimate-patio.gohtml"))
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "email-estimate-patio.gohtml", data); err != nil {
+		log.Printf("buildPatioEstimateEmailHTML: template error: %v", err)
+		return "<p>Error rendering estimate email.</p>"
+	}
+	return buf.String()
 }

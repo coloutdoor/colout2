@@ -70,15 +70,30 @@
 
   {{/* ── ACTION BAR ── */}}
   <div class="est-action-bar">
-    <button id="btn-email" class="est-btn" type="button">
+    {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
+    <button id="btn-email" class="est-btn" type="button"
+      onclick="document.getElementById('email-modal').classList.add('is-active')">
       <i class="fas fa-envelope"></i> Email
     </button>
+    {{end}}
+    {{if and (not .SaveDate.IsZero) (not .IsPublicView) (or $.Header.IsAdmin (eq $.Header.Role "contractor"))}}
     <button id="btn-materials" class="est-btn" type="button">
       <i class="fas fa-hammer"></i> Generate Materials
     </button>
+    {{end}}
+    {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
     <button id="btn-print" class="est-btn" type="button">
       <i class="fas fa-print"></i> Print
     </button>
+    {{end}}
+    {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
+      {{if or (eq $.Header.Role "homeowner") .IsPublicView}}
+      <button id="btn-accept" class="est-btn est-btn-success" type="button"
+        onclick="document.getElementById('accept-confirm').classList.add('is-active')">
+        <i class="fas fa-check"></i> Accept Estimate
+      </button>
+      {{end}}
+    {{end}}
   </div>
 
   {{/* ── PARTY CARDS ── */}}
@@ -151,7 +166,7 @@
         <tr>
           <td class="td-item">Patio Cover</td>
           <td class="td-ctl">
-            <a href="#" onclick="openPatioModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+            {{if not .IsPublicView}}<a href="#" onclick="openPatioModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
           </td>
           <td class="td-desc" id="patio-desc">{{formatPatioDescription .}}</td>
           <td class="td-cost" id="patio-cost">{{formatCost .BaseCost}}</td>
@@ -161,10 +176,12 @@
         <tr>
           <td class="td-item">Roof Slope</td>
           <td class="td-ctl">
+            {{if not .IsPublicView}}
             <a id="roofslope-editbtn" href="#" onclick="openRoofSlopeModal(); return false;" class="est-edit-btn"
               style="{{if not (or (eq .PatioType "truss") (eq .PatioType "timberframe"))}}display:none;{{end}}">
               <i class="fas fa-pencil-alt"></i>
             </a>
+            {{end}}
           </td>
           <td class="td-desc" id="roofslope-desc">{{formatPatioRoofSlopeDescription .}}</td>
           <td class="td-cost" id="roofslope-cost">{{formatCost .RoofSlopeCost}}</td>
@@ -173,7 +190,7 @@
         {{/* Post Wrap */}}
         <tr id="postwrap-row"{{if not .HasPostWrap}} class="zero-row"{{end}}>
           <td class="td-item">Post Wrap</td>
-          <td class="td-ctl"><input id="postwrap-check" type="checkbox" class="est-check" {{if .HasPostWrap}}checked{{end}} onchange="toggleHasPostWrap(this.checked)"></td>
+          <td class="td-ctl">{{if not .IsPublicView}}<input id="postwrap-check" type="checkbox" class="est-check" {{if .HasPostWrap}}checked{{end}} onchange="toggleHasPostWrap(this.checked)">{{end}}</td>
           <td class="td-desc" id="postwrap-desc">{{formatPatioPostWrapDescription .}}</td>
           <td class="td-cost" id="postwrap-cost">{{formatCost .PostWrapCost}}</td>
         </tr>
@@ -182,9 +199,11 @@
         <tr id="finishceiling-row"{{if or (eq .PatioType "pergola") (and (ne .PatioType "timberframe") (not .HasFinishCeiling))}} class="zero-row"{{end}}>
           <td class="td-item">Finish Ceiling</td>
           <td class="td-ctl">
+            {{if not .IsPublicView}}
             <input id="finishceiling-check" type="checkbox" class="est-check" {{if .HasFinishCeiling}}checked{{end}}
               style="{{if or (eq .PatioType "pergola") (eq .PatioType "timberframe")}}display:none;{{end}}"
               onchange="toggleHasFinishCeiling(this.checked)">
+            {{end}}
           </td>
           <td class="td-desc" id="finishceiling-desc">{{formatPatioFinishCeilingDescription .}}</td>
           <td class="td-cost" id="finishceiling-cost">{{formatCost .FinishCeilingCost}}</td>
@@ -193,7 +212,7 @@
         {{/* Paint or Stain */}}
         <tr id="paintstain-row"{{if not .HasPaintStain}} class="zero-row"{{end}}>
           <td class="td-item">Paint or Stain</td>
-          <td class="td-ctl"><input id="paintstain-check" type="checkbox" class="est-check" {{if .HasPaintStain}}checked{{end}} onchange="toggleHasPaintStain(this.checked)"></td>
+          <td class="td-ctl">{{if not .IsPublicView}}<input id="paintstain-check" type="checkbox" class="est-check" {{if .HasPaintStain}}checked{{end}} onchange="toggleHasPaintStain(this.checked)">{{end}}</td>
           <td class="td-desc" id="paintstain-desc">{{formatPatioPaintStainDescription .}}</td>
           <td class="td-cost" id="paintstain-cost">{{formatCost .PaintStainCost}}</td>
         </tr>
@@ -201,7 +220,7 @@
         {{/* Finish Hardware */}}
         <tr id="finishhardware-row"{{if not .HasFinishHardware}} class="zero-row"{{end}}>
           <td class="td-item">Finish Hardware</td>
-          <td class="td-ctl"><input id="finishhardware-check" type="checkbox" class="est-check" {{if .HasFinishHardware}}checked{{end}} onchange="toggleHasFinishHardware(this.checked)"></td>
+          <td class="td-ctl">{{if not .IsPublicView}}<input id="finishhardware-check" type="checkbox" class="est-check" {{if .HasFinishHardware}}checked{{end}} onchange="toggleHasFinishHardware(this.checked)">{{end}}</td>
           <td class="td-desc" id="finishhardware-desc">{{formatPatioFinishHardwareDescription .}}</td>
           <td class="td-cost" id="finishhardware-cost">{{formatCost .FinishHardwareCost}}</td>
         </tr>
@@ -210,7 +229,7 @@
         <tr id="electrical-row"{{if not .HasElectrical}} class="zero-row"{{end}}>
           <td class="td-item">Electrical</td>
           <td class="td-ctl">
-            <a href="#" onclick="openElectricalModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+            {{if not .IsPublicView}}<a href="#" onclick="openElectricalModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
           </td>
           <td class="td-desc" id="electrical-desc">{{formatPatioElectricalDescription .}}</td>
           <td class="td-cost" id="electrical-cost">{{formatCost .ElectricalCost}}</td>
@@ -220,19 +239,60 @@
         <tr>
           <td class="td-item">Design &amp; Permits</td>
           <td class="td-ctl">
-            <a href="#" onclick="openPermitModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>
+            {{if not .IsPublicView}}<a href="#" onclick="openPermitModal(); return false;" class="est-edit-btn"><i class="fas fa-pencil-alt"></i></a>{{end}}
           </td>
           <td class="td-desc" id="permit-desc">{{formatPatioPermitDescription .}}</td>
           <td class="td-cost" id="permit-cost">{{formatCost .PermitCost}}</td>
         </tr>
+
+        {{/* Custom line items */}}
       </tbody>
+      <tbody id="custom-items-rows"></tbody>
       <tbody>
+        {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}
+        <tr class="est-add-custom-row">
+          <td colspan="4">
+            <button type="button" class="est-add-custom-btn" onclick="openCustomItemModal()">
+              <i class="fas fa-plus"></i> Add Custom Line
+            </button>
+          </td>
+        </tr>
+        {{end}}
+
+        {{/* Subtotal */}}
         <tr class="est-subtotal-row">
           <td class="td-item">Subtotal</td>
           <td class="td-ctl"></td>
           <td class="td-desc"></td>
           <td class="td-cost" id="subtotal-val">{{formatCost .Subtotal}}</td>
         </tr>
+
+        {{/* Promo code */}}
+        {{if not .IsPublicView}}
+        <tr class="est-promo-row">
+          <td class="td-item" style="color:var(--est-text2); font-weight:400; font-size:.8rem;">Promo Code</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc">
+            <div class="est-promo-wrap">
+              <input class="est-promo-input" type="text" id="discount-code-input" placeholder="Enter promo code"
+                value="{{.DiscountCode}}"
+                onkeydown="if(event.key==='Enter'){applyDiscountCode();event.preventDefault();}">
+              <button class="est-promo-btn" type="button" onclick="applyDiscountCode()">Apply</button>
+            </div>
+            <p id="discount-msg" class="help"></p>
+          </td>
+          <td class="td-cost"></td>
+        </tr>
+        {{end}}
+
+        {{/* Discount row */}}
+        <tr id="discount-row-label" class="est-discount-row" {{if eq .DiscountAmount 0.0}}style="display:none;"{{end}}>
+          <td class="td-item">Discount</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc" id="discount-desc">{{if .DiscountCode}}{{.DiscountCode}} — 10% off{{end}}</td>
+          <td class="td-cost" id="discount-val">{{if gt .DiscountAmount 0.0}}-{{formatCost .DiscountAmount}}{{end}}</td>
+        </tr>
+
         <tr class="est-tax-row">
           <td class="td-item">Sales Tax</td>
           <td class="td-ctl"></td>
@@ -253,6 +313,7 @@
   </div>
 
   <div style="max-width:480px;">
+    {{if not .IsPublicView}}
     {{if .Customer.FirstName}}
     <form method="post" action="/patio-estimate">
       <input type="hidden" name="save" value="true">
@@ -271,6 +332,8 @@
       <input type="hidden" name="electricalOutlets" id="save-electrical-outlets" value="{{.ElectricalOutlets}}">
       <input type="hidden" name="permitLevel" id="save-permit-level" value="{{.PermitLevel}}">
       <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
+      <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
+      <input type="hidden" name="customItems" id="save-custom-items" value="">
       <button id="btn-save" class="button is-primary is-fullwidth is-medium" type="submit">
         <i class="fas fa-save"></i> {{if .SaveDate.IsZero}}Save Estimate{{else}}Save Changes{{end}}
       </button>
@@ -278,14 +341,19 @@
     {{else}}
     <div class="notification is-warning is-light">Add your contact info above before saving.</div>
     {{end}}
-
-    {{if or .TermsHTML .Terms}}
-    <div class="box mt-5">
-      <h3 class="title is-5">Terms and Conditions</h3>
-      {{if .TermsHTML}}<div class="content is-small">{{.TermsHTML}}</div>{{else}}<pre class="is-size-7">{{.Terms}}</pre>{{end}}
-    </div>
     {{end}}
   </div>
+
+  {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
+  <div class="content mt-4">
+    <h2 class="subtitle">Terms and Conditions</h2>
+    {{if .TermsHTML}}
+    <div class="content is-small">{{.TermsHTML}}</div>
+    {{else}}
+    <pre class="is-size-7">{{.Terms}}</pre>
+    {{end}}
+  </div>
+  {{end}}
 
   {{/* ── EDIT MODAL ── */}}
   <div id="patio-modal" class="modal">
@@ -445,6 +513,101 @@
     </div>
   </div>
 
+  <div id="custom-item-modal" class="modal">
+    <div class="modal-background" onclick="closeCustomItemModal()"></div>
+    <div class="modal-card" style="max-width:420px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Custom Line Item</p>
+        <button class="delete" aria-label="close" onclick="closeCustomItemModal()"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Item</label>
+          <div class="control">
+            <input id="ci-item" class="input" type="text" placeholder="e.g. Concrete landing"
+              onkeydown="if(event.key==='Enter'){document.getElementById('ci-notes').focus();}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Description <span class="has-text-grey is-size-7 has-text-weight-normal">(optional)</span></label>
+          <div class="control">
+            <input id="ci-notes" class="input" type="text" placeholder="Additional details"
+              onkeydown="if(event.key==='Enter'){document.getElementById('ci-cost').focus();}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Cost</label>
+          <div class="field has-addons mb-1">
+            <p class="control"><span class="button is-static">$</span></p>
+            <p class="control is-expanded">
+              <input id="ci-cost" class="input" type="number" step="0.01" placeholder="0.00"
+                onkeydown="if(event.key==='Enter'){applyCustomItem();}">
+            </p>
+          </div>
+          <p class="help has-text-grey">Enter a negative amount to apply a credit or discount.</p>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" onclick="applyCustomItem()">Apply</button>
+        <button class="button" onclick="closeCustomItemModal()">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  {{if gt .EstimateID 0}}
+  <div id="email-modal" class="modal">
+    <input type="hidden" id="estimate-id" value="{{ .EstimateID }}">
+    <div class="modal-background" onclick="document.getElementById('email-modal').classList.remove('is-active')"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Send Estimate via Email</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('email-modal').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Send estimate to:</label>
+          <div class="control">
+            <input class="input" type="email" id="email-input" value="{{ .Customer.Email }}" placeholder="customer@example.com">
+          </div>
+        </div>
+        {{if $.Header.IsAuthenticated}}
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" id="cc-self-check">
+            Also send a copy to me ({{$.Header.Email}})
+          </label>
+        </div>
+        {{end}}
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" onclick="confirmEmailSend()">Confirm &amp; Send</button>
+        <button class="button" onclick="document.getElementById('email-modal').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+  {{end}}
+
+  <div id="accept-confirm" class="modal">
+    <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
+    <div class="modal-card" style="max-width:400px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Accept Estimate</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('accept-confirm').classList.remove('is-active')"></button>
+      </header>
+      <section class="modal-card-body">
+        <p>By accepting this estimate you agree to the terms and conditions and authorize Columbia Outdoor to proceed with the project as described.</p>
+      </section>
+      <footer class="modal-card-foot">
+        <form method="post" action="{{if .AcceptURL}}{{.AcceptURL}}{{else}}/patio-estimate{{end}}">
+          <input type="hidden" name="accept" value="true">
+          <input type="hidden" name="estimate_id" value="{{.EstimateID}}">
+          <button class="button is-success" type="submit">Yes, Accept Estimate</button>
+        </form>
+        <button class="button" onclick="document.getElementById('accept-confirm').classList.remove('is-active')">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
   <script>
     const estimateData = {
       width:            {{.Width}},
@@ -462,7 +625,15 @@
       electricalSwitches: {{.ElectricalSwitches}},
       electricalOutlets:  {{.ElectricalOutlets}},
       permitLevel:      {{.PermitLevel}},
+      discountCode:     {{.DiscountCode | jsStr}},
+      customItems: [
+        {{range .CustomItems}}
+        { description: {{.Description | jsStr}}, notes: {{.Notes | jsStr}}, cost: {{.Cost}} },
+        {{end}}
+      ],
     };
+
+    const canEditCustomItems = {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}true{{else}}false{{end}};
 
     function formatCost(n) {
       return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -557,6 +728,122 @@
       calcAndUpdate();
     }
 
+    function applyDiscountCode() {
+      const code = document.getElementById('discount-code-input').value.trim().toUpperCase();
+      estimateData.discountCode = code;
+      const saveField = document.getElementById('save-discount-code');
+      if (saveField) saveField.value = code;
+      calcAndUpdate();
+    }
+
+    function confirmEmailSend() {
+        const emailInput = document.getElementById('email-input');
+        const estimateID = document.getElementById('estimate-id').value;
+        const email = emailInput.value.trim();
+        if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
+        const ccSelf = document.getElementById('cc-self-check');
+        fetch(`/patio-estimate/send/${estimateID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, ccSelf: ccSelf ? ccSelf.checked : false })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('email-modal').classList.remove('is-active');
+            if (data.status === 'sent') {
+                alert('Estimate successfully emailed to: ' + email);
+            } else {
+                alert(data.message || 'Email could not be sent. Please call us at (360) 787-8062.');
+            }
+        })
+        .catch(err => {
+            console.error('Send error:', err);
+            alert('Email could not be sent. Please call us at (360) 787-8062.');
+        });
+    }
+
+    // --- Custom line items ---
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function syncCustomItems() {
+      const field = document.getElementById('save-custom-items');
+      if (field) field.value = JSON.stringify(estimateData.customItems.filter(ci => ci.description !== '' || ci.cost !== 0));
+    }
+
+    function renderCustomItems() {
+      const container = document.getElementById('custom-items-rows');
+      if (!container) return;
+      let html = '';
+      estimateData.customItems.forEach((item, idx) => {
+        const cost = item.cost || 0;
+        const costStyle = cost < 0 ? ' style="color:var(--est-accent);"' : '';
+        const costDisplay = cost === 0 ? '—' : (cost < 0 ? '-' + formatCost(Math.abs(cost)) : formatCost(cost));
+        if (canEditCustomItems) {
+          html += `<tr>
+            <td class="td-item">${escHtml(item.description)}</td>
+            <td class="td-ctl" style="white-space:nowrap;">
+              <a href="#" onclick="openCustomItemModal(${idx}); return false;" class="est-edit-btn" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="#" onclick="removeCustomItem(${idx}); return false;" class="est-edit-btn" title="Remove" style="color:var(--est-red);"><i class="fas fa-times"></i></a>
+            </td>
+            <td class="td-desc">${escHtml(item.notes)}</td>
+            <td class="td-cost"${costStyle}>${costDisplay}</td>
+          </tr>`;
+        } else if (item.description || cost !== 0) {
+          html += `<tr>
+            <td class="td-item">${escHtml(item.description)}</td>
+            <td class="td-ctl"></td>
+            <td class="td-desc">${escHtml(item.notes)}</td>
+            <td class="td-cost"${costStyle}>${costDisplay}</td>
+          </tr>`;
+        }
+      });
+      container.innerHTML = html;
+      syncCustomItems();
+    }
+
+    let customItemEditIdx = -1;
+
+    function openCustomItemModal(idx) {
+      customItemEditIdx = (idx !== undefined) ? idx : -1;
+      const item = (idx !== undefined) ? estimateData.customItems[idx] : { description: '', notes: '', cost: 0 };
+      document.getElementById('ci-item').value = item.description || '';
+      document.getElementById('ci-notes').value = item.notes || '';
+      document.getElementById('ci-cost').value = item.cost || '';
+      document.getElementById('custom-item-modal').classList.add('is-active');
+      setTimeout(() => document.getElementById('ci-item').focus(), 50);
+    }
+
+    function closeCustomItemModal() {
+      document.getElementById('custom-item-modal').classList.remove('is-active');
+    }
+
+    function applyCustomItem() {
+      const label = document.getElementById('ci-item').value.trim();
+      const notes = document.getElementById('ci-notes').value.trim();
+      const cost = parseFloat(document.getElementById('ci-cost').value) || 0;
+      if (!label && cost === 0) { closeCustomItemModal(); return; }
+      if (customItemEditIdx >= 0) {
+        estimateData.customItems[customItemEditIdx] = { description: label, notes: notes, cost: cost };
+      } else {
+        estimateData.customItems.push({ description: label, notes: notes, cost: cost });
+      }
+      closeCustomItemModal();
+      renderCustomItems();
+      syncCustomItems();
+      calcAndUpdate();
+    }
+
+    function removeCustomItem(idx) {
+      estimateData.customItems.splice(idx, 1);
+      renderCustomItems();
+      syncCustomItems();
+      calcAndUpdate();
+    }
+
+    renderCustomItems();
+
     function calcAndUpdate() {
       document.getElementById('save-width').value = estimateData.width;
       document.getElementById('save-depth').value = estimateData.depth;
@@ -571,6 +858,7 @@
       document.getElementById('save-electrical-switches').value = estimateData.electricalSwitches;
       document.getElementById('save-electrical-outlets').value = estimateData.electricalOutlets;
       document.getElementById('save-permit-level').value = estimateData.permitLevel;
+      syncCustomItems();
 
       const unsaved = document.getElementById('unsaved-msg');
       if (unsaved) unsaved.style.display = '';
@@ -606,6 +894,20 @@
         document.getElementById('electrical-cost').textContent = formatCost(data.electricalCost);
         document.getElementById('permit-desc').textContent = data.permitDescription;
         document.getElementById('permit-cost').textContent = formatCost(data.permitCost);
+        // Discount
+        const discountRow = document.getElementById('discount-row-label');
+        const msg = document.getElementById('discount-msg');
+        if (data.discountAmount > 0) {
+          document.getElementById('discount-desc').textContent = data.discountCode + ' — 10% off';
+          document.getElementById('discount-val').textContent  = '-' + formatCost(data.discountAmount);
+          if (discountRow) discountRow.style.display = '';
+          if (msg) { msg.textContent = 'Discount applied!'; msg.className = 'help has-text-success'; }
+        } else {
+          if (discountRow) discountRow.style.display = 'none';
+          const inp = document.getElementById('discount-code-input');
+          if (msg && inp && inp.value.trim()) { msg.textContent = 'Invalid code.'; msg.className = 'help has-text-danger'; }
+          else if (msg) { msg.textContent = ''; }
+        }
         document.getElementById('subtotal-val').textContent = formatCost(data.subtotal);
         document.getElementById('salestax-val').textContent = formatCost(data.salesTax);
         document.getElementById('total-val').textContent = formatCost(data.totalCost);

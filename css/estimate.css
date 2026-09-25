@@ -188,7 +188,7 @@ table.est-line-items colgroup col.col-cost { width: 120px; }
 .est-line-items tr:last-child td { border-bottom: none; }
 .est-line-items td.td-item { font-weight: 500; white-space: nowrap; }
 .est-line-items td.td-ctl { padding-left: .5rem; padding-right: .25rem; }
-.est-line-items td.td-desc { color: var(--est-text2); font-size: .8rem; }
+.est-line-items td.td-desc { color: var(--est-text2); font-size: .8rem; white-space: pre-line; }
 .est-line-items td.td-cost {
   text-align: right; padding-right: 1.25rem;
   font-family: 'SF Mono', 'Consolas', 'Lucida Console', monospace;
