@@ -154,6 +154,15 @@
 
     {{if .Sent}}
     <p class="cust-msg success">Your message was sent! We'll be in touch shortly.</p>
+    <script>
+      gtag('event', 'generate_lead', {
+        'event_category': 'contact_form',
+        'event_label': 'contact_page'
+      });
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead');
+      }
+    </script>
     {{end}}
 
     {{if not .Sent}}
@@ -179,19 +188,17 @@
         <label class="cust-label" for="project">Project Type</label>
         <div class="cust-select-wrap">
           <select class="cust-select" id="project" name="project" required>
-            <option value="">Select a project...</option>
-            <option>Deck</option>
-            <option>Patio Cover</option>
-            <option>Landscape Design</option>
-            <option>Outdoor Kitchen</option>
-            <option>Other</option>
+            <option value="" {{if eq .PrefillProject ""}}selected{{end}}>Select a project...</option>
+            {{range categoryOptions}}
+            <option value="{{.Value}}" {{if eq .Value $.Page.PrefillProject}}selected{{end}}>{{.Label}}</option>
+            {{end}}
           </select>
         </div>
       </div>
 
       <div class="cust-field">
         <label class="cust-label" for="message">Message</label>
-        <textarea class="cust-textarea" id="message" name="message" rows="4" placeholder="Tell us about your vision..." required></textarea>
+        <textarea class="cust-textarea" id="message" name="message" rows="4" placeholder="Tell us about your vision..." required>{{.PrefillMessage}}</textarea>
       </div>
 
       <div class="cust-field">

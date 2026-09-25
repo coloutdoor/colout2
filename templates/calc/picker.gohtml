@@ -1,0 +1,45 @@
+{{define "picker.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  <div class="container" style="max-width:760px;">
+    {{template "deckheader.gohtml" .}}
+    <p class="has-text-grey mb-6">
+      Columbia Outdoor's free calculators price out decks, patio covers, pergolas, and lean-tos for homeowners across Clark and Cowlitz County, SW Washington. Enter your project's size and materials and get an itemized cost breakdown instantly &mdash; no phone call, no sales visit, and no account required to see your number. When you're ready, save your estimate, talk to a local pro, or use the numbers to plan your budget.
+    </p>
+  </div>
+
+  <div class="container">
+    <h2 class="title is-3 has-text-centered mb-2">What Are You Building?</h2>
+    <p class="subtitle is-6 has-text-grey has-text-centered mb-6">Pick a project to get an instant, no-obligation cost estimate.</p>
+
+    <div class="columns is-variable is-6 is-centered">
+      <div class="column is-5">
+        <div class="box has-text-centered" style="height:100%; border-top: 4px solid #6b7280; display:flex; flex-direction:column;">
+          <span class="icon is-large has-text-grey-dark mb-3"><i class="fas fa-ruler-combined fa-2x"></i></span>
+          <h4 class="title is-4">Deck</h4>
+          <p class="has-text-grey mb-4" style="flex-grow:1;">
+            Price out a new deck — size, height above grade, materials, rails, and stairs.
+          </p>
+          <a href="/deck-calculator" class="button is-rounded is-fullwidth" style="background-color:#6b7280; border-color:#6b7280; color:white;">
+            <strong>Start Deck Calculator</strong>
+          </a>
+        </div>
+      </div>
+
+      <div class="column is-5">
+        <div class="box has-text-centered" style="height:100%; border-top: 4px solid #3273dc; display:flex; flex-direction:column;">
+          <span class="icon is-large has-text-link mb-3"><i class="fas fa-house fa-2x"></i></span>
+          <h4 class="title is-4">Patio Cover</h4>
+          <p class="has-text-grey mb-4" style="flex-grow:1;">
+            Price out a pergola, lean-to, truss, or timberframe patio cover.
+          </p>
+          <a href="/patio-cover-calculator" class="button is-link is-rounded is-fullwidth">
+            <strong>Start Patio Cover Calculator</strong>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{template "footer.gohtml" .}}
+{{end}}

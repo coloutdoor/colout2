@@ -10,13 +10,22 @@ import (
 
 // Costs holds pricing data loaded from costs.yaml.
 type Costs struct {
-	DeckMaterials map[string]float64 `yaml:"deck_materials"`
-	RailMaterials map[string]float64 `yaml:"rail_materials"`
-	RailInfills   map[string]float64 `yaml:"rail_infills"`
-	DemoCost            float64            `yaml:"demo_cost"`
-	FasciaCost          float64            `yaml:"fascia_cost"`
-	PermitCostPerLevel  float64            `yaml:"permit_cost_per_level"`
-	DiscountCodes       map[string]float64 `yaml:"discount_codes"`
+	DeckMaterials              map[string]float64 `yaml:"deck_materials"`
+	RailMaterials              map[string]float64 `yaml:"rail_materials"`
+	RailInfills                map[string]float64 `yaml:"rail_infills"`
+	PatioMaterials             map[string]float64 `yaml:"patio_materials"`
+	PatioRoofSlopePerSqFt      map[string]float64 `yaml:"patio_roof_slope_per_sqft"`
+	PatioPostWrapPerSqFt       float64            `yaml:"patio_post_wrap_per_sqft"`
+	PatioPostWrapPerPost       float64            `yaml:"patio_post_wrap_per_post"`
+	PatioFinishCeilingPerSqFt  float64            `yaml:"patio_finish_ceiling_per_sqft"`
+	PatioPaintStainPerSqFt     float64            `yaml:"patio_paint_stain_per_sqft"`
+	PatioFinishHardwarePerSqFt float64            `yaml:"patio_finish_hardware_per_sqft"`
+	PatioElectricalBase        float64            `yaml:"patio_electrical_base"`
+	PatioElectricalPerItem     float64            `yaml:"patio_electrical_per_item"`
+	DemoCost                   float64            `yaml:"demo_cost"`
+	FasciaCost                 float64            `yaml:"fascia_cost"`
+	PermitCostPerLevel         float64            `yaml:"permit_cost_per_level"`
+	DiscountCodes              map[string]float64 `yaml:"discount_codes"`
 }
 
 // costs is the global pricing data, loaded at startup.

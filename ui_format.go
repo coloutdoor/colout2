@@ -40,6 +40,162 @@ func formatCost(cost float64) string {
 }
 
 // formatDeckDescription formats the deck description from DeckEstimate fields.
+// formatPatioDescription describes a patio cover's raw and finished dimensions,
+// noting the overhang and that roofing/gutters are included in the price.
+func formatPatioDescription(pe PatioCoverEstimate) string {
+	label := pe.PatioTypeLabel
+	if label == "" {
+		label = pe.PatioType
+	}
+	finishedWidth := pe.Width + 2
+	finishedDepth := pe.Depth + 1
+	desc := fmt.Sprintf(
+		"%.1f ft x %.1f ft %s cover with a 1 ft overhang on 3 sides, for a finished size of %.1f ft x %.1f ft (%.0f sq ft).",
+		pe.Width, pe.Depth, label, finishedWidth, finishedDepth, pe.Area,
+	)
+	if cd, ok := coverDescriptions[pe.PatioType]; ok {
+		desc += " " + cd.Summary()
+	} else {
+		desc += " Roofing and gutters included."
+	}
+	return desc
+}
+
+// formatPatioRoofSlopeDescription describes the roof slope line item. Pergola
+// and lean-to are fixed at 2:12; truss and timberframe note how far above the
+// 4:12 baseline the slope is set, if at all.
+func formatPatioRoofSlopeDescription(pe PatioCoverEstimate) string {
+	if pe.PatioType == "pergola" || pe.PatioType == "leanto" {
+		return "2:12 roof slope."
+	}
+	slope := pe.RoofSlope
+	if slope < 4 {
+		slope = 4
+	}
+	if slope == 4 {
+		return "4:12 roof slope."
+	}
+	return fmt.Sprintf("%d:12 roof slope (%d:12 above the 4:12 baseline).", slope, slope-4)
+}
+
+// formatPatioPostWrapDescription describes the post wrap line item: "No post
+// wrap" when off, otherwise the wrap material (cedar for timberframe, 1"
+// outdoor wood for every other patio type).
+func formatPatioPostWrapDescription(pe PatioCoverEstimate) string {
+	if !pe.HasPostWrap {
+		return "No post wrap."
+	}
+	if pe.PatioType == "timberframe" {
+		return fmt.Sprintf(`Wrap %d posts with 1" #1 clear cedar, leave rough sawn headers exposed.`, pe.PostCount)
+	}
+	return fmt.Sprintf(`Wrap %d posts and headers with 1" primed forrest trim, caulked and ready for paint.`, pe.PostCount)
+}
+
+// formatPatioFinishCeilingDescription describes the ceiling finish line item.
+// Not available on a pergola (no ceiling to finish); included at no extra
+// cost on timberframe (beams stay exposed by design); optional on lean-to
+// and truss.
+func formatPatioFinishCeilingDescription(pe PatioCoverEstimate) string {
+	switch pe.PatioType {
+	case "pergola":
+		return "Not available."
+	case "timberframe":
+		return "Included in cost with exposed beams."
+	default:
+		if !pe.HasFinishCeiling {
+			return "Ceiling open and unfinished."
+		}
+		return "Finish under ceiling with primed soffit board, trim, and caulking - ready for paint."
+	}
+}
+
+// formatPatioPaintStainDescription describes the paint/stain line item: no
+// paint or stain when off, otherwise notes it's applied.
+func formatPatioPaintStainDescription(pe PatioCoverEstimate) string {
+	if !pe.HasPaintStain {
+		return "No paint or stain."
+	}
+	if pe.PatioType == "timberframe" {
+		return "Stain with 1 coat of Sherwin Williams Superdeck exterior stain. Transparent or Semi Transparent stain all exposed finished wood."
+	}
+	return "Paint all finished areas with 1 coat Sherwin Williams SuperPaint exterior acrylic latex."
+}
+
+// formatPatioFinishHardwareDescription describes the finish hardware line item.
+func formatPatioFinishHardwareDescription(pe PatioCoverEstimate) string {
+	if !pe.HasFinishHardware {
+		return "Standard galvanized hardware."
+	}
+	return "Black powder coated ornamental hardware. Avant style including post base, T-straps, angle brackets with hex head washers and fasteners."
+}
+
+// formatPatioElectricalDescription describes the electrical line item: "not
+// included" when off, otherwise lists the selected items followed by the
+// standard electrical disclaimer.
+func formatPatioElectricalDescription(pe PatioCoverEstimate) string {
+	if !pe.HasElectrical {
+		return "Electrical not included."
+	}
+	var items []string
+	if pe.ElectricalLights > 0 {
+		items = append(items, pluralize(pe.ElectricalLights, "canned light", "canned lights"))
+	}
+	if pe.ElectricalFans > 0 {
+		items = append(items, pluralize(pe.ElectricalFans, "ceiling fan", "ceiling fans"))
+	}
+	if pe.ElectricalSwitches > 0 {
+		items = append(items, pluralize(pe.ElectricalSwitches, "switch", "switches"))
+	}
+	if pe.ElectricalOutlets > 0 {
+		items = append(items, pluralize(pe.ElectricalOutlets, "outlet", "outlets"))
+	}
+	return fmt.Sprintf(
+		"%s. Electrical installation includes electrical permits and installation by a licensed electrician. Additional costs may be needed for any changes to main circuit including lines, breakers, or upgrades.",
+		joinWithAnd(items),
+	)
+}
+
+// pluralize returns "N singular" or "N plural" based on count.
+func pluralize(count int, singular, plural string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, singular)
+	}
+	return fmt.Sprintf("%d %s", count, plural)
+}
+
+// joinWithAnd joins items with commas and a trailing "and", e.g.
+// "a, b, and c" or "a and b".
+func joinWithAnd(items []string) string {
+	switch len(items) {
+	case 0:
+		return ""
+	case 1:
+		return items[0]
+	case 2:
+		return items[0] + " and " + items[1]
+	default:
+		return strings.Join(items[:len(items)-1], ", ") + ", and " + items[len(items)-1]
+	}
+}
+
+// formatPatioPermitDescription describes the Design & Permits line item,
+// same wording as the deck estimate's formatPermitDescription.
+func formatPatioPermitDescription(pe PatioCoverEstimate) string {
+	switch pe.PermitLevel {
+	case 1:
+		return "Professional architectural design and material takeoff list included. Engineering not included but may be required for your project."
+	case 2:
+		return "Professional architectural design, structural engineering, and material takeoff list included. Permits not included but may be required for your project."
+	case 3:
+		return "Professional architectural design, structural engineering, permit application, and material takeoff list included."
+	default:
+		if pe.DIYMode == 1 || pe.DIYMode == 2 {
+			return "Complete material takeoff list included. Design, engineering, and permits not included."
+		}
+		return "Design, engineering, and permits not included. May be required for your project."
+	}
+}
+
 func formatDeckDescription(de DeckEstimate) string {
 	material := ""
 	switch de.Material {

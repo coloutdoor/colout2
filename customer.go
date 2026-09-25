@@ -54,6 +54,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Customer POST: %+v", customer)
 		sessionData.Customer = customer
 		sessionData.Estimate.Customer = customer
+		sessionData.PatioEstimate.Customer = customer
 		if err := sessionData.Save(r, w); err != nil {
 			log.Printf("Session save error: %v", err)
 		}
@@ -61,11 +62,18 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 		if isHomeowner {
 			updateUserAuthContact(userAuth.ID, customer)
 		}
-		// Persist customer fields to the estimate in the DB if one is saved
+		// Persist customer fields to whichever estimate is saved in the DB
 		if sessionData.Estimate.EstimateID > 0 {
 			updateEstimateCustomer(sessionData.Estimate.EstimateID, customer)
 		}
-		http.Redirect(w, r, "/estimate", http.StatusSeeOther)
+		if sessionData.PatioEstimate.EstimateID > 0 {
+			updateEstimateCustomer(sessionData.PatioEstimate.EstimateID, customer)
+		}
+		if sessionData.ActiveProduct == "patio_cover" {
+			http.Redirect(w, r, "/patio-estimate", http.StatusSeeOther)
+		} else {
+			http.Redirect(w, r, "/estimate", http.StatusSeeOther)
+		}
 		return
 	}
 
@@ -76,6 +84,7 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userAuth.Title = "Customer Information"
+	userAuth.CanonicalPath = "/customer"
 	if isHomeowner {
 		userAuth.Subtitle = "Your contact information"
 	} else {

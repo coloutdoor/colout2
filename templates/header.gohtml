@@ -2,18 +2,45 @@
 <html lang="en-us">
   <head>
 
+    <!-- Only fire ad/analytics pixels on the live production domain, so local
+         dev and test traffic never gets counted as real visits/conversions. -->
+    <script>
+      window.__isProdSite = (location.hostname === 'columbiaoutdoor.com' || location.hostname === 'www.columbiaoutdoor.com');
+    </script>
+
     <!-- Microsoft Advertising UET tag -->
-    <script>(function(w, d, t, u, o) {w[u] = w[u] || [], o.ts = (new Date).getTime();var n = d.createElement(t);n.src = "https://bat.bing.net/bat.js?ti=" + o.ti + ("uetq" != u ? "&q=" + u : ""),n.async = 1, n.onload = n.onreadystatechange = function() {var s = this.readyState;s && "loaded" !== s && "complete" !== s ||(o.q = w[u], w[u] = new UET(o), w[u].push("pageLoad"),n.onload = n.onreadystatechange = null)};var i = d.getElementsByTagName(t)[0];i.parentNode.insertBefore(n, i);})(window, document, "script", "uetq", {ti:"97262921",enableAutoSpaTracking: true});</script>
+    <script>if (window.__isProdSite) {(function(w, d, t, u, o) {w[u] = w[u] || [], o.ts = (new Date).getTime();var n = d.createElement(t);n.src = "https://bat.bing.net/bat.js?ti=" + o.ti + ("uetq" != u ? "&q=" + u : ""),n.async = 1, n.onload = n.onreadystatechange = function() {var s = this.readyState;s && "loaded" !== s && "complete" !== s ||(o.q = w[u], w[u] = new UET(o), w[u].push("pageLoad"),n.onload = n.onreadystatechange = null)};var i = d.getElementsByTagName(t)[0];i.parentNode.insertBefore(n, i);})(window, document, "script", "uetq", {ti:"97262921",enableAutoSpaTracking: true});}</script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L9L1S3G0W"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-9L9L1S3G0W');
+      if (window.__isProdSite) {
+        gtag('js', new Date());
+        gtag('config', 'G-9L9L1S3G0W');
+      }
     </script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    if (window.__isProdSite) {
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1570843400907237');
+    fbq('track', 'PageView');
+    }
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1570843400907237&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,18 +49,18 @@
     <meta name="description" content=" {{if .MetaDesc}} {{.MetaDesc}} {{else}} Deck Builders SW Washington {{end}}">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Columbia Outdoor — Outdoor Living Estimates">
-    <meta property="og:description" content="Get an instant deck, patio cover, or pergola estimate. No surprises, transparent pricing, vetted contractors. Serving SW Washington.">
+    <meta property="og:title" content="{{if .Title}}{{.Title}} | Columbia Outdoor{{else}}Columbia Outdoor — Outdoor Living Estimates{{end}}">
+    <meta property="og:description" content="{{if .MetaDesc}}{{.MetaDesc}}{{else}}Get an instant deck, patio cover, or pergola estimate. No surprises, transparent pricing, vetted contractors. Serving SW Washington.{{end}}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://columbiaoutdoor.com/">
-    <meta property="og:image" content="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg">
+    <meta property="og:url" content="https://columbiaoutdoor.com{{if .CanonicalPath}}{{.CanonicalPath}}{{end}}">
+    <meta property="og:image" content="https://storage.googleapis.com/columbiaoutdoor-images/photos-0015.jpg">
     <meta property="og:site_name" content="Columbia Outdoor">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Columbia Outdoor — Outdoor Living Estimates">
-    <meta name="twitter:description" content="Get an instant deck, patio cover, or pergola estimate. Transparent pricing, vetted contractors. Serving SW Washington.">
-    <meta name="twitter:image" content="https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg">
+    <meta name="twitter:title" content="{{if .Title}}{{.Title}} | Columbia Outdoor{{else}}Columbia Outdoor — Outdoor Living Estimates{{end}}">
+    <meta name="twitter:description" content="{{if .MetaDesc}}{{.MetaDesc}}{{else}}Get an instant deck, patio cover, or pergola estimate. Transparent pricing, vetted contractors. Serving SW Washington.{{end}}">
+    <meta name="twitter:image" content="https://storage.googleapis.com/columbiaoutdoor-images/photos-0015.jpg">
 
     <!-- Additional SEO Meta Tags -->
     <meta name="keywords" content="deck builder pacific northwest, patio cover washington, pergola washington, Kalama, Woodland, Ridgefield, La Center, columbia outdoor woodland wa, estimate calculator">
@@ -164,6 +191,21 @@
     <div id="mainNavbar" class="navbar-menu">
       <div class="navbar-end">
         <a class="navbar-item" href="/">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-item" href="/projects">Our Projects</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="/projects">All Projects</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="/projects?category=deck">Deck</a>
+            <a class="navbar-item" href="/projects?category=cover">Cover</a>
+            <a class="navbar-item" href="/projects?category=stairs">Stairs</a>
+            <a class="navbar-item" href="/projects?category=rails">Rails</a>
+            <a class="navbar-item" href="/projects?category=patio">Patio</a>
+            <a class="navbar-item" href="/projects?category=fence">Fence</a>
+            <a class="navbar-item" href="/projects?category=farm">Farm / Shed / Coop</a>
+            <a class="navbar-item" href="/projects?category=other">Other</a>
+          </div>
+        </div>
       {{if .IsAuthenticated}}
         <a class="navbar-item" href="/login?option=signout">Sign Out</a>
       {{else}}
@@ -180,6 +222,11 @@
         <div class="navbar-item">
           <a href="/deck-calculator?option=deck" class="button" style="background-color:#6b7280; border-color:#6b7280; color:white;">
             <strong>Deck Calculator</strong>
+          </a>
+        </div>
+        <div class="navbar-item">
+          <a href="/patio-cover-calculator" class="button is-link">
+            <strong>Patio Cover Calculator</strong>
           </a>
         </div>
       </div>

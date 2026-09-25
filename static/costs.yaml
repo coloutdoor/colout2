@@ -1,18 +1,37 @@
 deck_materials:
-  outdoorWood: 30.0
-  cedar: 39.0
-  timberTechPrime: 39.0
-  timberTechProReserve: 49.0
-  timberTechProLegacy: 59.0
+  outdoorWood: 25.0
+  cedar: 30.0
+  timberTechPrime: 35.0
+  timberTechProReserve: 44.0
+  timberTechProLegacy: 54.0
 rail_materials:
-  wood: 95.0
-  aluminum: 130.0
-  composite: 150.0
+  wood: 90.0
+  aluminum: 105.0
+  composite: 120.0
 rail_infills:
-  balusters: 10.0
+  balusters: 4.0
   cable: 40.0
   glass: 109.0
-demo_cost: 5.0
+patio_materials:
+  pergola: 59.0
+  leanto: 69.0
+  truss: 79.0
+  timberframe: 119.0
+# Extra cost per finished sq ft for each 1:12 of roof slope above the 4:12
+# baseline. Pergola/lean-to are fixed at 2:12 and never use this.
+patio_roof_slope_per_sqft:
+  truss: 1.0
+  timberframe: 2.0
+patio_post_wrap_per_sqft: 2.5
+patio_post_wrap_per_post: 400.0
+patio_finish_ceiling_per_sqft: 11.0
+patio_paint_stain_per_sqft: 9.0
+patio_finish_hardware_per_sqft: 8.5
+# Flat trip charge plus per-item cost for electrical (canned lights, ceiling
+# fans, switches, outlets combined); $0 total when nothing is selected.
+patio_electrical_base: 1500.0
+patio_electrical_per_item: 175.0
+demo_cost: 4.0
 fascia_cost: 21.0
 permit_cost_per_level: 1500.0
 discount_codes:

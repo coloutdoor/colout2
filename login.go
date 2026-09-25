@@ -227,6 +227,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionData.UserAuth.Title = "Signup"
+	sessionData.UserAuth.CanonicalPath = "/signup"
 	rd := renderData{
 		Page:   &sessionData.UserAuth,
 		Header: &sessionData.UserAuth,
@@ -441,6 +442,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	/* Set the rurl after a successful login */
 	sessionData.UserAuth.Title = "Login"
+	sessionData.UserAuth.CanonicalPath = "/login"
 	if rurl == "" {
 		rurl = "/"
 	}

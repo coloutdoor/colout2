@@ -1,0 +1,371 @@
+{{define "projects.gohtml"}}
+{{template "header.gohtml" .Header}}
+
+{{with .Page}}
+<section class="section has-background-white">
+  <div class="container">
+    <h1 class="title is-2 has-text-centered has-text-dark mb-2">Our Projects</h1>
+    <p class="subtitle has-text-grey has-text-centered mb-6">Browse completed decks, covers, and outdoor structures.</p>
+
+    {{if eq (len .Projects) 0}}
+    <p class="has-text-centered has-text-grey">No projects to show yet.</p>
+    {{else}}
+    <div class="proj-filter-row">
+      <div>
+        <label class="ap-label" for="categoryFilter" style="text-transform:none;letter-spacing:normal;font-weight:600;color:#4a5568;">Filter by category</label>
+        {{$sel := .SelectedCategory}}
+        <select id="categoryFilter" class="proj-filter-select" onchange="applyFilters()">
+          <option value="" {{if eq $sel ""}}selected{{end}}>All Categories</option>
+          {{range .Categories}}
+          <option value="{{.Value}}" {{if eq .Value $sel}}selected{{end}}>{{.Label}}</option>
+          {{end}}
+        </select>
+      </div>
+      <div>
+        <label class="ap-label" for="keywordFilter" style="text-transform:none;letter-spacing:normal;font-weight:600;color:#4a5568;">Keyword</label>
+        <input type="text" id="keywordFilter" class="proj-filter-input" placeholder="e.g. cedar, timbertech..." value="{{.SelectedKeyword}}" oninput="applyFilters()">
+      </div>
+    </div>
+
+    <div class="proj-grid" id="projGrid">
+      {{range .Projects}}
+      <div class="proj-card" onclick="openProjectModal(this)"
+        data-project="{{.Name}}"
+        data-photos="{{projectPhotosJSON .Photos}}"
+        data-default-uri="{{.Cover.URI}}"
+        data-default-desc="{{.Cover.Description}}">
+        <img src="{{.Cover.URI}}" loading="lazy" alt="{{.Cover.Description}}">
+        {{if .Description}}<p class="proj-card-desc">{{.Description}}</p>{{end}}
+      </div>
+      {{end}}
+    </div>
+    <p class="has-text-centered has-text-grey" id="projEmpty" style="display:none;">No projects match your filters.</p>
+    {{end}}
+  </div>
+</section>
+{{end}}
+
+<!-- Sticky CTA bar — stays pinned while browsing the photo grid -->
+<div class="proj-sticky-cta">
+  <span class="proj-sticky-cta-text">Like what you see?</span>
+  <a href="/contact" class="button is-warning is-rounded proj-sticky-cta-btn"><strong>Get a Free Estimate</strong></a>
+</div>
+<div class="proj-sticky-cta-spacer"></div>
+
+<!-- Project Photo Modal -->
+<div class="proj-modal-overlay" id="projModalOverlay" onclick="closeOnProjOverlay(event)">
+  <div class="proj-modal">
+    <button class="proj-modal-close" onclick="closeProjectModal()" aria-label="Close">&times;</button>
+    <div class="proj-modal-slides" id="projSlides"></div>
+    <button class="proj-modal-nav proj-modal-prev" onclick="projSlide(-1)" aria-label="Previous">&#8249;</button>
+    <button class="proj-modal-nav proj-modal-next" onclick="projSlide(1)" aria-label="Next">&#8250;</button>
+    <div class="proj-modal-caption" id="projCaption"></div>
+    <div class="proj-modal-counter" id="projCounter"></div>
+    <button class="proj-modal-request" onclick="requestInfo()">Request Information</button>
+  </div>
+</div>
+
+<style>
+.proj-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.proj-filter-select,
+.proj-filter-input {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  color: #2c3e50;
+  font-size: .9rem;
+  padding: .45rem .7rem;
+  font-family: inherit;
+}
+.proj-filter-input {
+  width: 220px;
+  max-width: 60vw;
+}
+.proj-filter-select:focus,
+.proj-filter-input:focus { outline: none; border-color: #3273dc; }
+.proj-card.is-hidden { display: none; }
+
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.proj-card {
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  transition: transform .15s, box-shadow .15s;
+}
+.proj-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.proj-card img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+.proj-card-desc {
+  padding: .6rem .75rem .75rem;
+  margin: 0;
+  color: #4a5568;
+  font-size: .82rem;
+  line-height: 1.4;
+}
+
+.proj-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+.proj-modal-overlay.open { display: flex; }
+.proj-modal {
+  position: relative;
+  width: 90vw;
+  max-width: 1000px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.proj-modal-slides {
+  width: 100%;
+  max-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.proj-modal-slides img {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.proj-modal-close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.proj-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.proj-modal-nav:hover { background: rgba(255,255,255,.3); }
+.proj-modal-prev { left: -.5rem; }
+.proj-modal-next { right: -.5rem; }
+.proj-modal-caption {
+  color: #eee;
+  text-align: center;
+  margin-top: .75rem;
+  font-size: .95rem;
+}
+.proj-modal-counter {
+  color: #999;
+  font-size: .8rem;
+  margin-top: .25rem;
+}
+.proj-modal-request {
+  margin-top: 1rem;
+  padding: .65rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: #3273dc;
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.proj-modal-request:hover { background: #2860c5; }
+
+@media (max-width: 640px) {
+  .proj-modal-prev { left: .25rem; }
+  .proj-modal-next { right: .25rem; }
+}
+
+.proj-sticky-cta {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 900;
+  background: #0d2035;
+  border-top: 1px solid #1a3450;
+  padding: .75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  box-shadow: 0 -2px 10px rgba(0,0,0,.25);
+}
+.proj-sticky-cta-text {
+  color: #d8eaf8;
+  font-weight: 600;
+  font-size: .95rem;
+}
+.proj-sticky-cta-spacer {
+  height: 4rem;
+}
+@media (max-width: 480px) {
+  .proj-sticky-cta-text { display: none; }
+  .proj-sticky-cta { padding: .6rem 1rem; }
+}
+</style>
+
+<script>
+let projPhotos = [];
+let projIndex = 0;
+let currentProjectName = '';
+
+const CATEGORY_LABELS = {
+  deck: 'Deck', cover: 'Cover', stairs: 'Stairs', rails: 'Rails',
+  patio: 'Patio', fence: 'Fence', farm: 'Farm / Shed / Coop', other: 'Other'
+};
+
+function requestInfo() {
+  if (projPhotos.length === 0) return;
+  const p = projPhotos[projIndex];
+  const categoryLabel = CATEGORY_LABELS[p.category] || p.category || '';
+  const lines = [
+    "I'm interested in more information about this project:",
+    '',
+    'Project: ' + (currentProjectName || 'Unknown'),
+  ];
+  if (categoryLabel) lines.push('Category: ' + categoryLabel);
+  if (p.description) lines.push('Description: ' + p.description);
+  lines.push('Photo: ' + p.uri);
+
+  const params = new URLSearchParams();
+  if (p.category) params.set('project', p.category);
+  params.set('message', lines.join('\n'));
+  window.location.href = '/contact?' + params.toString();
+}
+
+function photoMatches(p, category, keyword) {
+  if (category && p.category !== category) return false;
+  if (keyword) {
+    const haystack = ((p.description || '') + ' ' + (p.tags || []).join(' ')).toLowerCase();
+    if (haystack.indexOf(keyword) === -1) return false;
+  }
+  return true;
+}
+
+function applyFilters() {
+  const category = document.getElementById('categoryFilter').value;
+  const keyword = document.getElementById('keywordFilter').value.trim().toLowerCase();
+  const cards = document.querySelectorAll('.proj-card');
+  let visibleCount = 0;
+
+  cards.forEach(function(card) {
+    const photos = JSON.parse(card.dataset.photos);
+    const img = card.querySelector('img');
+
+    if (!category && !keyword) {
+      card.classList.remove('is-hidden');
+      img.src = card.dataset.defaultUri;
+      img.alt = card.dataset.defaultDesc;
+      visibleCount++;
+      return;
+    }
+
+    const matches = photos.filter(function(p) { return photoMatches(p, category, keyword); });
+    if (matches.length === 0) {
+      card.classList.add('is-hidden');
+      return;
+    }
+    const cover = matches.find(function(p) { return p.featured; }) || matches[0];
+    card.classList.remove('is-hidden');
+    img.src = cover.uri;
+    img.alt = cover.description || '';
+    visibleCount++;
+  });
+
+  const emptyMsg = document.getElementById('projEmpty');
+  if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+}
+
+function openProjectModal(card) {
+  try {
+    projPhotos = JSON.parse(card.dataset.photos);
+  } catch (e) {
+    projPhotos = [];
+  }
+  currentProjectName = card.dataset.project || '';
+  projIndex = 0;
+  renderProjSlide();
+  document.getElementById('projModalOverlay').classList.add('open');
+}
+
+function closeProjectModal() {
+  document.getElementById('projModalOverlay').classList.remove('open');
+}
+
+function closeOnProjOverlay(e) {
+  if (e.target === document.getElementById('projModalOverlay')) closeProjectModal();
+}
+
+function projSlide(dir) {
+  if (projPhotos.length === 0) return;
+  projIndex = (projIndex + dir + projPhotos.length) % projPhotos.length;
+  renderProjSlide();
+}
+
+function renderProjSlide() {
+  const slides  = document.getElementById('projSlides');
+  const caption = document.getElementById('projCaption');
+  const counter = document.getElementById('projCounter');
+  slides.innerHTML = '';
+  if (projPhotos.length === 0) {
+    caption.textContent = '';
+    counter.textContent = '';
+    return;
+  }
+  const p = projPhotos[projIndex];
+  const img = document.createElement('img');
+  img.src = p.uri;
+  img.alt = p.description || '';
+  slides.appendChild(img);
+  caption.textContent = p.description || '';
+  counter.textContent = (projIndex + 1) + ' of ' + projPhotos.length;
+}
+
+document.addEventListener('keydown', function(e) {
+  const overlay = document.getElementById('projModalOverlay');
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === 'Escape')     closeProjectModal();
+  if (e.key === 'ArrowLeft')  projSlide(-1);
+  if (e.key === 'ArrowRight') projSlide(1);
+});
+
+(function() {
+  var initialCategory = {{jsStr .Page.SelectedCategory}};
+  var initialKeyword  = {{jsStr .Page.SelectedKeyword}};
+  if (initialCategory || initialKeyword) applyFilters();
+})();
+</script>
+
+{{template "footer.gohtml" .}}
+{{end}}

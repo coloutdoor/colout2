@@ -48,14 +48,14 @@
         </div>
 
         <div class="field">
-            <label class="label">Projection (ft)</label>
+            <label class="label">Depth (ft) <span class="has-text-grey-light">(out from house)</span></label>
             <div class="control">
                 <input class="input" type="number" name="length" step="0.1" min="1" value="{{if .Length}}{{printf "%.1f" .Length}}{{end}}" required placeholder="e.g. 20">
             </div>
         </div>
 
         <div class="field">
-            <label class="label">Width (ft)</label>
+            <label class="label">Width (ft) <span class="has-text-grey-light">(along house)</span></label>
             <div class="control">
                 <input class="input" type="number" name="width" step="0.1" min="1" value="{{if .Width}}{{printf "%.1f" .Width}}{{end}}" required placeholder="e.g. 16">
             </div>
@@ -185,7 +185,7 @@
         <div class="column has-text-centered">
           <span class="icon is-large has-text-link"><i class="fas fa-ruler-combined fa-2x"></i></span>
           <p class="has-text-weight-bold mt-2">1. Enter Dimensions</p>
-          <p class="has-text-grey is-size-7">Projection, width, height, and materials. Takes about 60 seconds.</p>
+          <p class="has-text-grey is-size-7">Depth, width, height, and materials. Takes about 60 seconds.</p>
         </div>
         <div class="column has-text-centered">
           <span class="icon is-large has-text-link"><i class="fas fa-dollar-sign fa-2x"></i></span>

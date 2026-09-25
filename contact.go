@@ -16,8 +16,10 @@ import (
 )
 
 type PageData struct {
-	PageTitle string
-	Sent      bool
+	PageTitle      string
+	Sent           bool
+	PrefillProject string
+	PrefillMessage string
 }
 
 type ContactForm struct {
@@ -138,6 +140,11 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
+		recordNREvent("ContactFormSubmitted", map[string]interface{}{
+			"project":   data.Project,
+			"has_phone": data.Phone != "",
+		})
+
 		http.Redirect(w, r, "/contact?sent=1", http.StatusSeeOther)
 		return
 	}
@@ -151,9 +158,14 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		data.PageTitle = "Thank You – Message Sent!"
 		data.Sent = true
 	}
+	if project := r.URL.Query().Get("project"); validCategoryValues[project] {
+		data.PrefillProject = project
+	}
+	data.PrefillMessage = r.URL.Query().Get("message")
 
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contact Us"
+	userAuth.CanonicalPath = "/contact"
 	userAuth.Subtitle = "For any outdoor deck, patio, cover. One of our experts will get in touch with you soon."
 	userAuth.MetaDesc = "Contact us today for a quick and easy estimate for Timbertech, Trex, or wood deck."
 	rd := renderData{

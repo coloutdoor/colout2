@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -15,24 +16,58 @@ type Photo struct {
 	Category    string `yaml:"category"`
 	City        string `yaml:"city"`
 	Description string `yaml:"description"`
+	Featured    bool   `yaml:"featured"`
+	Reviewed    bool   `yaml:"reviewed"`
 }
 
 type PhotoLibrary struct {
 	Photos []Photo `yaml:"photos"`
 }
 
+// loadPhotos returns only photos that have been reviewed and marked featured,
+// since these are the ones shown in the homepage carousel.
 func loadPhotos() []Photo {
 	data, err := os.ReadFile("static/photos.yaml")
 	if err != nil {
 		log.Printf("loadPhotos: %v", err)
 		return nil
 	}
+	// Try wrapped format first (photos: [...]), then flat list
+	var all []Photo
 	var lib PhotoLibrary
-	if err := yaml.Unmarshal(data, &lib); err != nil {
+	if err := yaml.Unmarshal(data, &lib); err == nil && len(lib.Photos) > 0 {
+		all = lib.Photos
+	} else if err := yaml.Unmarshal(data, &all); err != nil {
 		log.Printf("loadPhotos unmarshal: %v", err)
 		return nil
 	}
-	return lib.Photos
+
+	var filtered []Photo
+	for _, p := range all {
+		if p.Reviewed && p.Featured {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
+}
+
+// loadHeroPics reads static/header_pics.txt (one image URL per line) — a
+// hand-curated set for the homepage hero carousel, kept separate from the
+// general featured-photo pool used elsewhere on the site.
+func loadHeroPics() []string {
+	data, err := os.ReadFile("static/header_pics.txt")
+	if err != nil {
+		log.Printf("loadHeroPics: %v", err)
+		return nil
+	}
+	var urls []string
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			urls = append(urls, line)
+		}
+	}
+	return urls
 }
 
 // Homeowner represents the structure of the homeowner marketing strategy
@@ -75,9 +110,9 @@ func ownerHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth.Subtitle = "Quality decks and outdoor structures built right. Transparent pricing, expert craftsmanship."
 	userAuth.MetaDesc = "Columbia Outdoor builds quality decks, patios, and outdoor structures across SW Washington. Transparent pricing, experienced builders, and expert project management."
 	userAuth.CanonicalPath = "/"
-	photos := loadPhotos()
+	heroPics := loadHeroPics()
 	rd := renderData{
-		Page:   photos,
+		Page:   heroPics,
 		Header: &userAuth,
 	}
 	tmpl := template.Must(template.New("homeowner.gohtml").Funcs(funcMap).

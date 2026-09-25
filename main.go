@@ -89,6 +89,7 @@ func privacyHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Privacy"
 	userAuth.Subtitle = "Please review our privacy policy"
+	userAuth.CanonicalPath = "/privacy"
 	rd := renderData{
 		Page:   &data,
 		Header: &userAuth,
@@ -107,6 +108,10 @@ func main() {
 
 	if err := loadCosts(); err != nil {
 		fmt.Println("Error loading costs:", err)
+		os.Exit(1)
+	}
+	if err := loadCoverDescriptions(); err != nil {
+		fmt.Println("Error loading cover descriptions:", err)
 		os.Exit(1)
 	}
 	devMode := flag.Bool("dev", false, "Run in development mode (localhost only)")
@@ -157,17 +162,17 @@ func main() {
 	nrHandle("/estimate/fork/{token}", estimateForkHandler)
 	nrHandle("/estimate/accept/{token}", estimateAcceptHandler)
 	nrHandle("/estimate/{estimateID}", estimateDBHandler)
+	nrHandle("/patio-estimate", patioEstimateHandler)
+	nrHandle("/patio-estimate/send/{estimateID}", patioEmailSendHandler)
+	nrHandle("/patio-estimate/view/{token}", patioEstimateTokenHandler)
+	nrHandle("/patio-estimate/accept/{token}", patioEstimateAcceptHandler)
+	nrHandle("/patio-estimate/{estimateID}", patioEstimateDBHandler)
 	nrHandle("/customer", customerHandler)
 	nrHandle("/session", sessionHandler)
 	nrHandle("/deck-calculator", calcHandler)
-	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
-		// Preserve query string on redirect
-		target := "/deck-calculator"
-		if r.URL.RawQuery != "" {
-			target += "?" + r.URL.RawQuery
-		}
-		http.Redirect(w, r, target, http.StatusMovedPermanently)
-	})
+	nrHandle("/patio-cover-calculator", handlePatioCalc)
+	nrHandle("/calc", calcPickerHandler)
+	nrHandle("/calc/{slug}", calcSlugRedirectHandler)
 	nrHandle("/css/", cssHandler)
 	nrHandle("/contact", contactHandler)
 	nrHandle("/contact/", contactHandler)
@@ -183,9 +188,17 @@ func main() {
 		w.Write([]byte("{}"))
 	})
 	nrHandle("/api/calc/deck", apiCalcDeckHandler)
+	nrHandle("/api/calc/patio", apiCalcPatioHandler)
 	nrHandle("/admin", adminHandler)
 	nrHandle("/admin/contractor/action", adminContractorActionHandler)
+	nrHandle("/admin/photos", adminPhotosHandler)
+	nrHandle("/admin/photos/save", adminPhotosSaveHandler)
+	nrHandle("/admin/photos/delete", adminPhotosDeleteHandler)
+	nrHandle("/projects", projectsHandler)
 	nrHandle("/contractor", contractorLandingHandler)
+	nrHandle("/patio-cover-contractors-woodland-wa", patioCoverWoodlandHandler)
+	nrHandle("/deck-builders-woodland-wa", deckBuildersWoodlandHandler)
+	nrHandle("/outdoor-living-woodland-wa", outdoorLivingWoodlandHandler)
 	nrHandle("/contractor/register", contractorRegisterHandler)
 	nrHandle("/my-estimates", myEstimatesHandler)
 	nrHandle("/privacy", privacyHandler)

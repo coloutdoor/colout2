@@ -1,25 +1,5720 @@
-photos:
-  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck1.jpeg
-    category: deck
-    city: Woodland
-    description: Custom deck build with pressure treated framing
-
-  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck2.jpg
-    category: deck
-    city: Ridgefield
-    description: Two-story TimberTech deck with composite rails and stairs
-
-  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck3.jpg
-    category: deck
-    city: Kalama
-    description: Multi-level deck with hot tub and pergola
-
-  - uri: https://storage.googleapis.com/columbiaoutdoor-images/deck4.jpg
-    category: deck
-    city: Woodland
-    description: Deck with stairs and matching fascia
-
-  - uri: https://storage.googleapis.com/columbiaoutdoor-images/cover1.jpeg
-    category: cover
-    city: Woodland
-    description: Timber frame patio cover with TimberTech deck
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0001.jpg
+  md5: 2837069fe73ed958d6f91c68f25b8862
+  source_path: Camas/Camas - Azek 2 story deck with composite rails.jpg
+  city: Camas
+  category: rails
+  description: Camas Azek 2 story deck with composite rails
+  tags:
+    - azek
+    - composite
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0002.jpg
+  md5: dc3090a5613972d8ccc3a68e2cff905b
+  source_path: Camas/Camas Azek deck with stairs and rails.jpg
+  city: Camas
+  category: stairs
+  description: Camas Azek deck with stairs and rails
+  tags:
+    - azek
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0003.jpg
+  md5: 8bcc675ebe156612b8875f4f2acbf4ff
+  source_path: Camas/Camas custom cedar deck and cover.jpg
+  city: Camas
+  category: cover
+  description: Camas custom cedar deck and cover
+  tags:
+    - cedar
+    - deck
+    - rails
+    - cover
+  featured: true
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0004.jpg
+  md5: 3ac2a77083068f84ff3e1cc4c1394644
+  source_path: Camas/Camas custom framing.jpg
+  city: Camas
+  category: deck
+  description: Camas custom framing
+  tags:
+    - framing
+    - deck
+    - cover
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0005.jpg
+  md5: 3fa69fed56e4dbee9a55b6ef522c665f
+  source_path: Camas/Camas dry deck.jpg
+  city: Camas
+  category: deck
+  description: Camas dry deck with trex ffunnels and EPDM
+  tags:
+    - dry space
+    - dryspace
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0006.jpg
+  md5: 3aa5cec45a6a83771c2cf2872345376b
+  source_path: Camas/Camas railing prep.jpg
+  city: Camas
+  category: rails
+  description: Camas railing prep
+  tags:
+    - timbertech with composite rails
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0007.jpg
+  md5: ad7063842c169380aa608a8b847a13c5
+  source_path: Camas/Camas return landing and stairs_.jpg
+  city: Camas
+  category: stairs
+  description: Camas return landing and stairs
+  tags:
+    - stairs
+    - stair rail
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0008.jpg
+  md5: 604167b8ed7a9368fd58a0533b1954d1
+  source_path: Camas/Camas stair framing.jpg
+  city: Camas
+  category: stairs
+  description: Camas stair framing
+  tags:
+    - framing stairs
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0009.jpg
+  md5: d922eaa5856b45c262de2686be822315
+  source_path: Camas/Camas upper stair framing.jpg
+  city: Camas
+  category: stairs
+  description: Camas upper stair framing
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0010.jpg
+  md5: 3335320f539d1aae9d0cc39fa9e98812
+  source_path: Castle Rock/Castle Rock deck with white aluminum rails.jpg
+  city: Castle Rock
+  category: rails
+  description: Castle Rock deck with white aluminum rails
+  tags:
+    - aluminum-rail
+  featured: true
+  reviewed: true
+  project: Pettit
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0011.jpg
+  md5: 3aa9446a374894e8e1ff8bd0532bb721
+  source_path: Castle Rock/Castle rock azek decking.jpg
+  city: Castle Rock
+  category: deck
+  description: Castle rock azek decking
+  tags:
+    - azek
+  featured: false
+  reviewed: true
+  project: Pettit
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0012.jpg
+  md5: 1310ef163d73ed6e3fe491b6803dbd3f
+  source_path: Cathlamet/Cathlamet Timberfame 2x6 cedar T&G.jpg
+  city: Cathlamet
+  category: other
+  description: Cathlamet Timberfame 2x6 cedar T&G
+  tags:
+    - cedar
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0013.jpg
+  md5: b1b324af189e45ff875995f1a759a5f9
+  source_path: Cathlamet/Cathlamet ceiling finish with fan.jpg
+  city: Cathlamet
+  category: cover
+  description: Cathlamet ceiling finish with fan
+  tags:
+    - finish
+    - ceiling
+    - cedar
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0014.jpg
+  md5: 9245456310676b00e5db51c882913797
+  source_path: Cathlamet/Cathlamet deck 2.jpg
+  city: Cathlamet
+  category: deck
+  description: Cathlamet deck with lights
+  tags:
+    - Timbertech
+    - Pro legacy
+    - lights
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0015.jpg
+  md5: e981b3bba3485c8402ada8644c5fcc43
+  source_path: Cathlamet/Cathlamet deck and timberframe cover.jpg
+  city: Cathlamet
+  category: cover
+  description: Cathlamet deck and timberframe cover
+  tags:
+    - timberframe
+    - finish
+    - deck
+    - steps
+  featured: true
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0016.jpg
+  md5: 4f98159c641003af28541a859c6dfa25
+  source_path: Cathlamet/Cathlamet deck frame(1).jpg
+  city: Cathlamet
+  category: deck
+  description: Cathlamet deck framing
+  tags:
+    - framing
+    - deck
+    - steps
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0017.jpg
+  md5: 65d7cece9076bb27cb5f9775b3df5c3e
+  source_path: Cathlamet/Cathlamet deck frame.jpg
+  city: Cathlamet
+  category: deck
+  description: Timberframe cover and deck framing
+  tags:
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0018.jpg
+  md5: 18ac86144545fd0398f07871fdd9eae2
+  source_path: Cathlamet/Cathlamet deck front and fan.jpg
+  city: Cathlamet
+  category: deck
+  description: Cathlamet deck front and fan
+  tags:
+    - timbertech
+    - deck
+    - lights
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0019.jpg
+  md5: 8ece9d57ccc8a332486a440853d52122
+  source_path: Cathlamet/Cathlamet deck with lights finished.jpg
+  city: Cathlamet
+  category: deck
+  description: Cathlamet deck with lights finished
+  tags:
+    - finish
+    - deck
+    - picture frame
+    - cladding
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0020.jpg
+  md5: 8bb6e6cca6921d3e199b90ac853456d1
+  source_path: Cathlamet/Cathlamet roof Timberframe.jpg
+  city: Cathlamet
+  category: cover
+  description: ' Roof Timberframe framing with deck'
+  tags:
+    - timberframe
+    - framing
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0021.jpg
+  md5: 2261d46e14a401dfd23f3481007af560
+  source_path: La Center/La Center deck_.jpg
+  city: La Center
+  category: deck
+  description: Trex deck lava rock waiting for rails
+  tags:
+    - trex
+    - deck
+    - lava rock
+  featured: false
+  reviewed: true
+  project: Hunt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0022.jpg
+  md5: 3605a94a8cf297b241d914e10194aa12
+  source_path: La Center/La center deck and framing - trex.jpg
+  city: La Center
+  category: deck
+  description: Deck Framing
+  tags:
+    - trex
+    - framing
+  featured: false
+  reviewed: true
+  project: Hunt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0046.jpg
+  md5: f7700fe57de1da9f398c4fd0d7ec8c4e
+  source_path: Washougal/Washougal front - glass infill.jpg
+  city: Washougal
+  category: deck
+  description: Timbertech Azek Vintage Dark Hickory with rails and glass infill
+  tags:
+    - glass-infill
+    - azek
+  featured: true
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0047.jpg
+  md5: 2bad7c1f39bb98932f05b69dc60e4705
+  source_path: Woodland/Farmstand Woodland.jpg
+  city: Woodland
+  category: farm
+  description: Super Cute farmstand with wheels
+  tags:
+    - farmstand
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0048.jpg
+  md5: 353980d25da5e30154440d54b6d6b72e
+  source_path: Woodland/Woodland Azek steps.jpg
+  city: Woodland
+  category: stairs
+  description: Azek Coastline with cedar rails and aluminum infill
+  tags:
+    - azek
+    - steps
+    - catwalk
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0049.jpg
+  md5: af83b88628565765840519a4fdd43a82
+  source_path: Woodland/Woodland King stud and struts timberframe.jpg
+  city: Woodland
+  category: cover
+  description: King stud and struts timberframe framing for future fireplace
+  tags:
+    - timberframe
+    - framing
+    - cedar
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0050.jpg
+  md5: d9977b3ead0ce17274fa34e63a491d5a
+  source_path: Woodland/Woodland Timberframe king stud and cedar finsish.jpg
+  city: Woodland
+  category: other
+  description: timberframe with fireplace and skylight framing
+  tags:
+    - cedar
+    - timberframe
+    - framing
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0051.jpg
+  md5: 2bc24d3a0586189aade618d773f5e542
+  source_path: Woodland/Woodland custom azek steps.jpg
+  city: Woodland
+  category: stairs
+  description: Azek catwalk steps - Coastline
+  tags:
+    - Azek
+    - steps
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0052.jpg
+  md5: c0558bb28449aec9b7bd1162e4db56ad
+  source_path: Woodland/Woodland custom cedar rails with aluminum infill.jpg
+  city: Woodland
+  category: stairs
+  description: Custom cedar rails with aluminum infill
+  tags:
+    - cedar
+    - rails
+    - steps
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0053.jpg
+  md5: 20eec068b8a61ffb293b66feeb48d6b8
+  source_path: Woodland/Woodland deck and timberframe.jpg
+  city: Woodland
+  category: cover
+  description: Timeberframe cover with pro legacy deck and fireplace
+  tags:
+    - timberframe
+    - lights
+    - deck
+    - fireplace
+  featured: true
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0054.jpg
+  md5: 7c3e21e7788b83c8a1124724c43ac1ee
+  source_path: Woodland/Woodland elevated deck frame.jpg
+  city: Woodland
+  category: deck
+  description: Woodland elevated deck frame
+  tags:
+    - framing
+    - deck
+  featured: false
+  reviewed: true
+  project: Watts
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0055.jpg
+  md5: 2ff17a7029311ad9b71d314385453af6
+  source_path: Woodland/Woodland fireplace deck.jpg
+  city: Woodland
+  category: other
+  description: Woodland fireplace deck
+  tags:
+    - fireplace
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0056.jpg
+  md5: 2afc4d81687f1117fab0e12d4593907d
+  source_path: Woodland/Woodland she shed.jpg
+  city: Woodland
+  category: farm
+  description: Woodland she shed
+  tags:
+    - sheshed
+    - deck
+  featured: true
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0058.png
+  md5: 2bf596ebb9725ff9f526530eb85126d2
+  source_path: projects/Alderman2.png
+  city: Vancouver
+  category: cover
+  description: Cedar pergola
+  tags:
+    - pergola
+  featured: false
+  reviewed: true
+  project: Alderman
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0059.jpeg
+  md5: 1f84a619dffef82e5a2aa04843502e2a
+  source_path: projects/Allen1.jpeg
+  city: Vancouver
+  category: cover
+  description: Building a standard lean-to cover
+  tags:
+    - cover
+    - framing
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0060.jpeg
+  md5: 00c174cdc9bc0fd2ea8642a7bf9a7317
+  source_path: projects/Allen2.jpeg
+  city: Vancouver
+  category: cover
+  description: Lean-to patio cover framing
+  tags:
+    - framing
+    - patio
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0063.jpeg
+  md5: 9a251625d47c0b753ab241bb3e7b0f12
+  source_path: projects/Allen5.jpeg
+  city: Vancouver
+  category: cover
+  description: Lean-to cover getting ready for trim and paint.
+  tags:
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0064.jpeg
+  md5: 000b05472456d5814b5206064bf4f5a7
+  source_path: projects/Allen6.jpeg
+  city: Vancouver
+  category: cover
+  description: White lean-to cove
+  tags:
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0065.jpeg
+  md5: b6f8fb91104eda1b55535066c1f15c34
+  source_path: projects/Allen7.jpeg
+  city: Vancouver
+  category: cover
+  description: lean-to patio cover
+  tags:
+    - lean-to
+    - cover
+    - white
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0066.jpg
+  md5: 668885ba5878567358a7a69822646c51
+  source_path: projects/Allen8.jpg
+  city: Vancovuer
+  category: cover
+  description: Lean-to patio cover - adding trim
+  tags:
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0067.jpeg
+  md5: 0270299cc66d4a9cc7aa81541a25989a
+  source_path: projects/Allen9.jpeg
+  city: Vancouver
+  category: cover
+  description: lean-to patio cover white with lights and fans
+  tags:
+    - cover
+    - finish
+    - fan
+    - white
+  featured: true
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0068.jpeg
+  md5: b0dc6498cecf174dbc8f104057ba17d8
+  source_path: projects/Alsteen1.jpeg
+  city: Vancouver
+  category: deck
+  description: Composite Deck with cedar rail
+  tags:
+    - deck
+    - cedar rail
+    - drink rail
+  featured: false
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0069.jpeg
+  md5: 8f3a7fa7b8793a99e1aa93ef8e1a0015
+  source_path: projects/Alsteen2.jpeg
+  city: Vancouver
+  category: deck
+  description: Cedar rails with drink rail and Trex deck
+  tags:
+    - drink rail
+    - cedar rails
+  featured: false
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0070.jpeg
+  md5: 0ee06c0833f33c30cd98a81b29134547
+  source_path: projects/Bellus.jpeg
+  city: Vancouver
+  category: cover
+  description: Black shade sail / pergola
+  tags:
+    - Pergoal
+    - Shade sail
+  featured: true
+  reviewed: true
+  project: Bellus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0072.jpeg
+  md5: a8c46f8f674692596c97b4a6f38f520a
+  source_path: projects/Brusco2.jpeg
+  city: Vancouver
+  category: patio
+  description: Framing for concrete patio
+  tags:
+    - Patio
+    - framing
+  featured: false
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0073.jpeg
+  md5: e90196ce7f6e1bcfffb343148aaf36cd
+  source_path: projects/Brusco3.jpeg
+  city: Vancouver
+  category: cover
+  description: Simple lean-to patio cover
+  tags:
+    - patio cover
+    - lean-to
+    - white
+  featured: false
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0076.jpeg
+  md5: 30877874b849192bb4fd05ade10b417d
+  source_path: projects/Brusco6.jpeg
+  city: Vancouver
+  category: patio
+  description: Concrete patio with step
+  tags:
+    - patio
+    - concrete
+  featured: false
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0078.jpeg
+  md5: 1e185981e954b41006e0c4b9292ee02d
+  source_path: projects/Brusco8.jpeg
+  city: Vancouver
+  category: cover
+  description: White patio cover with suntuf roof
+  tags:
+    - suntuf
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0079.jpeg
+  md5: cb3dad531249c21894fc976391fc9b2c
+  source_path: projects/Brusco9.jpeg
+  city: Vancouver
+  category: cover
+  description: White lean-to patio cover with Suntuf roofing
+  tags:
+    - suntuf
+    - patio cover
+    - lean-to
+  featured: true
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0080.jpg
+  md5: b4e8447df98534e3d31271f2e69c636d
+  source_path: projects/Cavallero.jpg
+  city: Woodland
+  category: cover
+  description: Framing with skyjacks for patio cover
+  tags:
+    - skyjack
+    - cover
+    - framing
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0081.jpeg
+  md5: 37a59c5eeeb146ecb632c9db02c31f95
+  source_path: projects/Cavallero1.jpeg
+  city: Woodland
+  category: cover
+  description: Framing for lean to cover
+  tags:
+    - lean-to
+    - cover
+    - framing
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0082.jpeg
+  md5: 0e056665258a3e195278f1aa24a537e6
+  source_path: projects/Cavallero2.jpeg
+  city: Woodland
+  category: cover
+  description: Enclosed cover outdoor
+  tags:
+    - framing
+    - cover
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0083.jpg
+  md5: 334d20dcedcd3c020aa7a68f81603118
+  source_path: projects/Cavallero2.jpg
+  city: Woodland
+  category: patio
+  description: Patio framing with rebar
+  tags:
+    - Patio
+    - rebar
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0084.jpg
+  md5: 6a33ffed4decfd618eafca9f12efd5be
+  source_path: projects/Cavallero2a.jpg
+  city: Woodland
+  category: cover
+  description: Lean-to patio cover with gutters
+  tags:
+    - cover
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0085.jpg
+  md5: 4e34fd8243cf751e2c1d292061fb65f5
+  source_path: projects/Cavallero3.jpg
+  city: Woodland
+  category: patio
+  description: Concrete patio for future cover
+  tags:
+    - patio
+    - concrete
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0086.jpg
+  md5: 80330d5349434d02f10c08e9d883b9ec
+  source_path: projects/Cavallero4.jpg
+  city: Woodland
+  category: cover
+  description: Enclosed patio cover with hardiplank siding
+  tags:
+    - siding
+    - patio cover
+    - cover
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0087.jpg
+  md5: 91415a9de27c7b5fdbc17a6fd8686f56
+  source_path: projects/Cavallero5.jpg
+  city: Woodland
+  category: cover
+  description: Cedar finish with custom bar
+  tags:
+    - bar
+    - cover
+    - enclosed
+    - cedar finish
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0088.jpg
+  md5: 73af230437f0a8d8bdd384efe30df04c
+  source_path: projects/Cavallero6.jpg
+  city: Woodland
+  category: cover
+  description: Enclosed patio cover with cedar finish and bar
+  tags:
+    - cover
+    - enclosed
+    - cedar
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0090.jpg
+  md5: d517ed483783b72bcaf7ae79ecbe5ce2
+  source_path: projects/Childs2.jpg
+  city: Battle Ground
+  category: deck
+  description: Framing for low deck with steps
+  tags:
+    - framing
+    - deck
+    - steps
+  featured: false
+  reviewed: true
+  project: Childs
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0091.jpg
+  md5: c515e96b1e047d95db98a00f0c273b99
+  source_path: projects/Childs3.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck with long steps and bench
+  tags:
+    - deck
+    - steps
+    - bench
+  featured: false
+  reviewed: true
+  project: Childs
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0092.jpg
+  md5: f73d8dece2391ef1f24d1628fcef9803
+  source_path: projects/Childs4.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck with steps and bench
+  tags:
+    - timbertech
+    - deck
+  featured: false
+  reviewed: true
+  project: Childs
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0093.jpg
+  md5: 6a87e9974716b45b186b4bf7aee0279a
+  source_path: projects/Chunn1.jpg
+  city: Kalama
+  category: deck
+  description: Large Deck
+  tags:
+    - Deck
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0094.jpg
+  md5: 0c263c0ee60b0ddfda19f3d608aebde5
+  source_path: projects/Chunn2.jpg
+  city: Kalama
+  category: deck
+  description: Large deck and stairs
+  tags:
+    - deck
+    - stairs
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0095.jpg
+  md5: fc4861c81a55e93922bd3f9909478ca0
+  source_path: projects/Chunn3.jpg
+  city: Kalama
+  category: deck
+  description: Large deck framing
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0096.jpg
+  md5: 3fddde02b56ea670bf81862494566d86
+  source_path: projects/Chunn4.jpg
+  city: Kalama
+  category: deck
+  description: Deck framing with joist tape
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0097.jpg
+  md5: c06bd2969ab189751880fcac046dfd35
+  source_path: projects/Chunn5.jpg
+  city: Kalama
+  category: deck
+  description: Upper level deck framing
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0099.png
+  md5: 8263731e77d6884be3ba02785fafa201
+  source_path: projects/Chunn7.png
+  city: Kalama
+  category: deck
+  description: Deck with stainless steel cable rail
+  tags:
+    - deck
+    - timbertech
+    - cable rail
+  featured: true
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0100.jpg
+  md5: 77d6d6580d381e29bb5ace66be2da403
+  source_path: projects/Clarke1.jpg
+  city: Camas
+  category: deck
+  description: 'Deck footings '
+  tags:
+    - footings
+  featured: false
+  reviewed: true
+  project: Clarke
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0101.jpg
+  md5: bcb88d6aba4fb87b1925128486ae9fd6
+  source_path: projects/Clarke2.jpg
+  city: Camas
+  category: deck
+  description: Deck Timbertech pro legacy Ashwood with aluminum rails
+  tags:
+    - deck
+    - timbertech
+    - rails
+  featured: false
+  reviewed: true
+  project: Clarke
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0102.jpg
+  md5: e43f76b7e8a49a8546410a41d6d049a3
+  source_path: projects/Clarke3.jpg
+  city: Camas
+  category: deck
+  description: Deck framing under
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Clarke
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0103.jpg
+  md5: ecf4c95f140a7a614fe844042000b411
+  source_path: projects/Clarke4.jpg
+  city: Camas
+  category: deck
+  description: Deck - Ashwood Timbertech pro legacy
+  tags:
+    - deck
+    - rails
+    - aluminum
+  featured: true
+  reviewed: true
+  project: Clarke
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0104.jpg
+  md5: 206ff8b72d5529ba44911036ace908bc
+  source_path: projects/Clarke5.jpg
+  city: Camas
+  category: stairs
+  description: Composite stairs with aluminum rails
+  tags:
+    - stairs
+    - aluminum rail
+  featured: false
+  reviewed: true
+  project: Clarke
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0106.jpg
+  md5: da8f547e614342203b173ad76d18684e
+  source_path: projects/Cruz2.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck framing
+  tags:
+    - Framing
+  featured: false
+  reviewed: true
+  project: Cruz
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0107.jpg
+  md5: fddb0d2d1586ea12c1ed0e27ce145234
+  source_path: projects/Daane1.jpg
+  city: Camas
+  category: cover
+  description: Timbertech Dryspace under deck
+  tags:
+    - dryspace
+  featured: true
+  reviewed: true
+  project: Daane
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0108.jpg
+  md5: 7c62bfdb090c071d97e80c405c07f44b
+  source_path: projects/Daane2.jpg
+  city: Camas
+  category: cover
+  description: Under deck dryspace
+  tags:
+    - dryspace
+  featured: false
+  reviewed: true
+  project: Daane
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0109.jpg
+  md5: 40e9db522f66af3fc043adfb339d438e
+  source_path: projects/Epperson.jpg
+  city: Vancouver
+  category: deck
+  description: Custom deck with wrap around stairs - Timbertech Legacy Pecan
+  tags:
+    - timbertech
+    - deck
+    - steps
+  featured: true
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0110.jpg
+  md5: 4f1127179d5b1ad7a2aae472e946d78a
+  source_path: projects/Epperson2.jpg
+  city: Vancouver
+  category: deck
+  description: Custom deck stairs and ramp
+  tags:
+    - deck
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0112.jpg
+  md5: c8e25f110d0c923a5aa93823e712362d
+  source_path: projects/Flint2.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck - Timbertech pro legacy with aluminum rails and arbor
+  tags:
+    - timbertech
+    - deck
+    - arbor
+    - rails
+    - aluminum
+  featured: true
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0113.jpg
+  md5: 58f3ada8394751878143fce17e55ad0d
+  source_path: projects/Flint3.jpg
+  city: Battle ground
+  category: deck
+  description: Framing for deck
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0114.jpg
+  md5: 4a4b66a9ec21f1cf5e0adec210c38e8e
+  source_path: projects/Flint4.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck adding picture framing
+  tags:
+    - Deck
+    - picture framing
+  featured: false
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0115.jpg
+  md5: 44dc508b6dace53139812763490e0fa3
+  source_path: projects/Flint5.jpg
+  city: Battle Ground
+  category: deck
+  description: Custom picture frame step
+  tags:
+    - deck
+    - picture frame
+    - step
+  featured: false
+  reviewed: true
+  project: Flint
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0116.jpg
+  md5: df9c678a8c93fe69f054ea29c3c9a32d
+  source_path: projects/Grinstead1.jpg
+  city: Washougal
+  category: rails
+  description: TR 200 top cap rail with glass infill
+  tags:
+    - rails
+    - aluminum
+    - TR200
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0117.jpeg
+  md5: c2f7bb24db0c13550dd7646c18edd607
+  source_path: projects/Grinstead2.jpeg
+  city: Washougal
+  category: rails
+  description: Deck with aluminum rail and glass infill
+  tags:
+    - rail
+    - glass
+    - infill
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0118.jpeg
+  md5: 0bc080ced9e98eab8fe1f5004ca84a4a
+  source_path: projects/Grinstead4.jpeg
+  city: Washougal
+  category: rails
+  description: Front deck with alumarail and glass infill
+  tags:
+    - aluminum rail
+    - lights
+    - deck
+    - black
+  featured: true
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0119.jpg
+  md5: 6f57ab312d5538530d6ff35f09790355
+  source_path: projects/Hart1.jpg
+  city: Camas
+  category: deck
+  description: Picture framing and divider board - Azek English Walnut
+  tags:
+    - timbertech
+    - azek
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0120.jpg
+  md5: 486595ab000cc7b6bd604bd6c70c36a3
+  source_path: projects/Hart2.jpg
+  city: Camas
+  category: deck
+  description: Azek English Walnut
+  tags:
+    - deck
+    - azek
+  featured: true
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0122.jpeg
+  md5: 69b0e6c75597c1c5ee23d798ae19d883
+  source_path: projects/Hayes2.jpeg
+  city: Washougal
+  category: deck
+  description: Deck framing with large step
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Hayes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0123.jpg
+  md5: c4f8445fbc04ca628758aec42e948541
+  source_path: projects/Hayes3.jpg
+  city: Washougal
+  category: deck
+  description: Deck framing with custom benches
+  tags:
+    - deck
+    - bench
+  featured: false
+  reviewed: true
+  project: Hayes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0124.jpg
+  md5: fec481ec78ca5359526167b3d744b9c0
+  source_path: projects/Hayes4.jpg
+  city: Washougal
+  category: deck
+  description: Deck framing with custom wrap steps
+  tags:
+    - deck
+    - framing
+    - steps
+  featured: false
+  reviewed: true
+  project: Hayes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0125.jpg
+  md5: 846952e4becb23808b34a5cb8b7e0e41
+  source_path: projects/Hayes5.jpg
+  city: Washougal
+  category: deck
+  description: Deck with Azek Cypress and picture frame step
+  tags:
+    - deck
+    - steps
+    - picture frame
+  featured: true
+  reviewed: true
+  project: Hayes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0126.jpeg
+  md5: 5c98690820661a15f74c7e93bd4bc884
+  source_path: projects/Hunt1.jpeg
+  city: La Center
+  category: deck
+  description: 2 level Trex deck with aluminum rails
+  tags:
+    - deck
+    - aluminum rail
+    - trex
+  featured: true
+  reviewed: true
+  project: Hunt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0127.jpg
+  md5: 1036f8f4ade12dbf667519afeae589ea
+  source_path: projects/Hunt2.jpg
+  city: La Center
+  category: deck
+  description: 2 Level Trex deck with aluminum rails
+  tags:
+    - Trex
+    - deck
+    - aluminum
+    - rails
+  featured: false
+  reviewed: true
+  project: Hunt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0130.jpg
+  md5: 36ea7c1992165efed1da6852d3f98a9f
+  source_path: projects/Janigian3.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck preparation for small deck with rain escape
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0131.jpg
+  md5: 13180d09217693a3c618a569ab0897a2
+  source_path: projects/Janigian4.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck framing on Lindal Cedar Homes
+  tags:
+    - deck
+    - cedar
+    - framing
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0132.jpg
+  md5: b56303f2656e375446b98b46a5d918f3
+  source_path: projects/Janigian5.jpg
+  city: Battle Ground
+  category: rails
+  description: Cedar rails
+  tags:
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0133.jpg
+  md5: 3b1bf7abb583462ed97bca123c22e2d7
+  source_path: projects/Janigian6.jpg
+  city: Battle Ground
+  category: deck
+  description: Dry space under deck with Trex rain escape
+  tags:
+    - drydeck
+    - drypspace
+    - rain escape
+    - deck
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0134.jpg
+  md5: 34cad23251d246cfd53d4a20af5e9c95
+  source_path: projects/Janigian7.jpg
+  city: Battle Ground
+  category: deck
+  description: Cedar deck with rails
+  tags:
+    - deck
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0135.jpeg
+  md5: 144b35d5c98d6ed1fb57c2ccc3fc71e8
+  source_path: projects/Jones1.jpeg
+  city: Cathlamet
+  category: deck
+  description: Before construction begins - Outdoor living
+  tags:
+    - Before
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0137.jpeg
+  md5: f2cef4e55e35ec9e4bad5dab25da559f
+  source_path: projects/Jones3.jpeg
+  city: Cathlamet
+  category: cover
+  description: Outdoor living framing with steel posts for cover
+  tags:
+    - Timberframe
+    - steel posts
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0139.jpeg
+  md5: 3d8a43b69bade762eeb0da684736e899
+  source_path: projects/Jones5.jpeg
+  city: Cathlamet
+  category: cover
+  description: Footing for steel posts and timberframe cover
+  tags:
+    - footings
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0141.jpeg
+  md5: e4a07d63b438ad6394d53d4964760d6f
+  source_path: projects/Jones7.jpeg
+  city: Cathlamet
+  category: cover
+  description: Framing beams for timberframe cover
+  tags:
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0143.jpeg
+  md5: 7e0ec4611f11b8e320d170e33a469635
+  source_path: projects/Leinberger2.jpeg
+  city: Camas
+  category: patio
+  description: Concrete patio framing
+  tags:
+    - patio
+    - framing
+    - concrete
+  featured: false
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0144.jpeg
+  md5: c57dd3a0a42a6cf3431fcacf5251fe72
+  source_path: projects/Leinberger3.jpeg
+  city: Camas
+  category: cover
+  description: Lean-to patio cover in progress of post wrap
+  tags:
+    - post wrap
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0145.jpeg
+  md5: e3d05ed8fd5d8cf0c48eeeca596c51c9
+  source_path: projects/Leinberger4.jpeg
+  city: Camas
+  category: cover
+  description: Lean-to patio cover painted white with post wrap
+  tags:
+    - cover
+    - lean-to
+    - post wrap
+  featured: false
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0146.jpeg
+  md5: 699c707181d5c3d165c5f3bbee3aae4c
+  source_path: projects/Leinberger5.jpeg
+  city: Camas
+  category: patio
+  description: Lean-to patio cover ready for lights and electrical finish
+  tags:
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0147.jpeg
+  md5: 7786a9837a61d6d2f5862c15d41037ef
+  source_path: projects/Lucas1.jpeg
+  city: Vancouver
+  category: deck
+  description: Deck Azek Cypress with cedar rail and hogwire mesh
+  tags:
+    - deck
+    - rails
+    - drink rail
+    - hogwire
+  featured: true
+  reviewed: true
+  project: Lucas
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0148.jpeg
+  md5: 758a994c4165e4bd4a50a7950249273f
+  source_path: projects/Lucas2.jpeg
+  city: Vancouver
+  category: deck
+  description: Deck framing
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Lucas
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0149.jpeg
+  md5: aa75edd72a5eb1864771a073544f56c0
+  source_path: projects/Lucas3.jpeg
+  city: Vancouver
+  category: rails
+  description: Cedar rails with hogwire mesh infill
+  tags:
+    - deck
+    - rails
+    - hogwire
+  featured: false
+  reviewed: true
+  project: Lucas
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0151.jpeg
+  md5: 9c41131f5ea8e959a33475d4df9b66b5
+  source_path: projects/Martinson1.jpeg
+  city: Camas
+  category: stairs
+  description: Stairs with custom matching rails
+  tags:
+    - stairs
+    - rails
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0152.jpeg
+  md5: 239e390eb5e265f1a352024261d588f0
+  source_path: projects/Martinson2.jpeg
+  city: Camas
+  category: stairs
+  description: Adding Timbertech lights to the stairs
+  tags:
+    - lights
+    - stairs
+    - rails
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0153.jpeg
+  md5: be9ca81ef2f770c01b05d8658ac66f02
+  source_path: projects/Martinson3.jpeg
+  city: Camas
+  category: stairs
+  description: Finishing up custom stairs with lights and white rails
+  tags:
+    - lights
+    - stairs
+    - rails timbertech
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0154.jpeg
+  md5: 51482403635cb35e1b7efa3cf4762e64
+  source_path: projects/Martinson5.jpeg
+  city: Camas
+  category: other
+  description: Cedar finish under soffit with light
+  tags:
+    - dryspace
+    - cedar
+    - light
+  featured: false
+  reviewed: true
+  project: Patio
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0155.jpg
+  md5: 8a132c2f0cf8914dc17852cdf671166f
+  source_path: projects/Martinson6.jpg
+  city: Camas
+  category: stairs
+  description: Stair framing
+  tags:
+    - Framing
+    - stair
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0156.jpeg
+  md5: 323f22a117b438ffc33a25d37b73d9aa
+  source_path: projects/Martinson7.jpeg
+  city: Camas
+  category: other
+  description: Under deck trim
+  tags:
+    - under
+    - trim
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0157.jpeg
+  md5: 533821ccd3bb67feb8cad809123d09ad
+  source_path: projects/Martinson9.jpeg
+  city: Camas
+  category: other
+  description: Under deck trim
+  tags:
+    - trim
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0158.jpeg
+  md5: b5efdb07c3c95442670402bcfb1a13c2
+  source_path: projects/Martinson9b.jpeg
+  city: Camas
+  category: stairs
+  description: Stair with lights and custom white rail
+  tags:
+    - steps
+    - lights
+    - rail
+    - stairs
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0159.jpg
+  md5: 22f1e012cbb82067075299334521b007
+  source_path: projects/Mistich2.jpg
+  city: Woodland
+  category: cover
+  description: Cedar pergola cover with suntuf
+  tags:
+    - suntuf
+    - cover
+    - pergola
+  featured: false
+  reviewed: true
+  project: Mistich
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0160.jpg
+  md5: 4f2a72c3a4c465cf75cedafd1c4c039b
+  source_path: projects/Mistich3.jpg
+  city: Woodland
+  category: deck
+  description: Deck below cover
+  tags:
+    - deck
+  featured: false
+  reviewed: true
+  project: Mistich
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0161.jpg
+  md5: bbd1d6504d1590b73dcdab98c9154f22
+  source_path: projects/Misticha.jpg
+  city: Woodland
+  category: cover
+  description: Setting steel posts for cover framing
+  tags:
+    - framing
+    - steel post
+    - cover
+  featured: false
+  reviewed: true
+  project: Mistich
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0163.jpg
+  md5: 9b98e3595d1a79643a27ff6fdf98d579
+  source_path: projects/Misticha2.jpg
+  city: Woodland
+  category: cover
+  description: Cover over deck framing
+  tags:
+    - Outdoor living
+    - cover
+    - steel posts
+  featured: false
+  reviewed: true
+  project: Mistich
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0164.jpg
+  md5: 3dac05c6c98948f13341bc31238b34c9
+  source_path: projects/Misticha3.jpg
+  city: Woodland
+  category: cover
+  description: Framing for cover
+  tags:
+    - cover
+    - pergola
+    - suntuf
+  featured: false
+  reviewed: true
+  project: Mistich
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0165.jpg
+  md5: 4f760e1d6e04e1d9dd287287795bdb01
+  source_path: projects/Olson1.jpg
+  city: Camas
+  category: patio
+  description: Concrete patio landing
+  tags:
+    - patio
+    - concrete
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0166.jpg
+  md5: 5637fed43e51766ff7395f05a8647ab9
+  source_path: projects/Olson2.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with steel posts
+  tags:
+    - timberframe
+    - steel posts
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0167.jpg
+  md5: 2c49f44b92ac98f1f84ececadef68f62
+  source_path: projects/Olson2a.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover framing with steel posts
+  tags:
+    - timberframe
+    - cover
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0169.jpg
+  md5: 0a1468e2aeb52ef3cdc161deb0425864
+  source_path: projects/Olson4.jpg
+  city: Camas
+  category: cover
+  description: Gas heater in timberframe cover
+  tags:
+    - timberframe
+    - heater
+    - gas
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0170.jpg
+  md5: c633c2ce4bb8160456cbbd010cde1f72
+  source_path: projects/Olson5.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with ceiling fan
+  tags:
+    - timbeframe
+    - cedar
+    - fan
+  featured: true
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0171.jpg
+  md5: 453f2cbcd4f8421e740d81539f3bbe37
+  source_path: projects/Olson6.jpg
+  city: Camas
+  category: cover
+  description: Roof on cover
+  tags:
+    - roof
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0172.jpg
+  md5: 7ca49b44f052557ce3c516f1feee4617
+  source_path: projects/Reed1.jpg
+  city: Camas
+  category: fence
+  description: Added a cedar fence to the back
+  tags:
+    - fence
+    - cedar
+  featured: false
+  reviewed: true
+  project: Reed
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0173.jpg
+  md5: 5904a55a37642bee84ccffc6b28efab3
+  source_path: projects/Reed2.jpg
+  city: Camas
+  category: deck
+  description: Cedar deck and cedar rails
+  tags:
+    - cedar
+    - deck
+    - rails
+    - aluminum balisturs
+  featured: false
+  reviewed: true
+  project: Reed
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0174.jpg
+  md5: e725675ba139468c6ad015398946fc11
+  source_path: projects/Reed3.jpg
+  city: Camas
+  category: deck
+  description: Custom cedar deck around hot tub
+  tags:
+    - deck
+    - cedar
+    - rails
+    - hot tub
+  featured: true
+  reviewed: true
+  project: Reed
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0175.jpg
+  md5: 7b964c5f1c8c54568b2e9017de20b501
+  source_path: projects/Reed4.jpg
+  city: Camas
+  category: deck
+  description: Cedar deck with cedar rails and custom infill
+  tags:
+    - cedar
+    - rails
+    - deck
+  featured: false
+  reviewed: true
+  project: Reed
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0176.jpg
+  md5: 7c9bb0b6461d523c301b4dc6c3b39926
+  source_path: projects/Reed5.jpg
+  city: Camas
+  category: deck
+  description: Custom cedar deck and custom rails
+  tags:
+    - deck
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Reed
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0177.jpg
+  md5: 3075eb4e91ca7d2fbe951165106af1e0
+  source_path: projects/Rice0.jpg
+  city: Woodland
+  category: stairs
+  description: Preparation for future steps.
+  tags:
+    - steps
+    - framing
+    - prep
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0178.jpg
+  md5: 154ef990ae39579e0dac2b71c4b46d10
+  source_path: projects/Rice01.jpg
+  city: Woodland
+  category: stairs
+  description: Stair demo
+  tags:
+    - demo
+    - before
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0179.jpg
+  md5: b52a4159b8a4aa76f560b121d2618b4f
+  source_path: projects/Rice2.jpg
+  city: woodland
+  category: stairs
+  description: Stair framing
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0181.jpeg
+  md5: 747841ed58054795dc4f4845255f2dd9
+  source_path: projects/Rice5.jpeg
+  city: Woodland
+  category: stairs
+  description: Azek stairs
+  tags:
+    - Azek
+    - deck
+    - stairs
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0182.jpeg
+  md5: 589e82b3dd3f9ae2daaf8b851344aac3
+  source_path: projects/Rice6.jpeg
+  city: Woodland
+  category: stairs
+  description: Azek steps with cedar rails and trim
+  tags:
+    - stairs
+    - cedar
+    - rails
+    - trim
+  featured: true
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0186.jpg
+  md5: 273c1db8abfd1c40610d1ced6907e0b2
+  source_path: projects/Sermone2.jpg
+  city: Washougal
+  category: stairs
+  description: Stair framing
+  tags:
+    - Framing
+    - stairs
+  featured: false
+  reviewed: true
+  project: Sermone
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0187.jpg
+  md5: 12d835dc70a17799b4e07975f31143d2
+  source_path: projects/Sermone3.jpg
+  city: Washougal
+  category: rails
+  description: Stair railing with black aluminum rails and gate
+  tags:
+    - stair
+    - rails
+    - aluminum
+  featured: false
+  reviewed: true
+  project: Sermone
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0188.jpg
+  md5: a13b22b6fd764746d1d27bb563a02e84
+  source_path: projects/Sermone4.jpg
+  city: Washougal
+  category: stairs
+  description: Stairs with aluminum railing
+  tags:
+    - Stairs
+    - rails
+  featured: false
+  reviewed: true
+  project: Sermone
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0190.jpg
+  md5: 25fb1655d6f171aee4da57458db4aac5
+  source_path: projects/Springmeyer1.jpg
+  city: Kalama
+  category: deck
+  description: Deck framing
+  tags:
+    - framing
+    - deck
+  featured: false
+  reviewed: true
+  project: Springmeyer
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0191.jpg
+  md5: 1a3b21b02a832700d631e52b20710b5f
+  source_path: projects/Springmeyer2.jpg
+  city: Kalama
+  category: cover
+  description: Building deck under freestanding timberframe cover
+  tags:
+    - Timberframe
+    - framing
+  featured: false
+  reviewed: true
+  project: Springmeyer
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0192.jpg
+  md5: 5703c056c1aa1660bb1566edabc99267
+  source_path: projects/Springmeyer3.jpg
+  city: Kalama
+  category: deck
+  description: Diagonal deck board layout
+  tags:
+    - deck
+    - diagonal
+  featured: false
+  reviewed: true
+  project: Springmeyer
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0193.jpeg
+  md5: a01dcd10b62acd4589ae9c5fa086feaf
+  source_path: projects/Springmeyer4.jpeg
+  city: Kalama
+  category: deck
+  description: Deck under cover with cedar rails
+  tags:
+    - Diagonal
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Springmeyer
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0194.jpg
+  md5: b7eaff7f202786f45d6ad2a1df516e97
+  source_path: projects/Springmeyer5.jpg
+  city: Kalama
+  category: deck
+  description: Diagonal deck boards
+  tags:
+    - Deck
+  featured: true
+  reviewed: true
+  project: Springmeyer
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0195.jpg
+  md5: b4647163fbd304326958e13207b4b801
+  source_path: projects/Springmeyer6.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck with dryspace and lights
+  tags:
+    - deck
+    - cedar
+    - rails
+    - dry
+    - rain escape
+  featured: true
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0196.jpg
+  md5: 31c80643afe30bbb036b6125f3a5b6f4
+  source_path: projects/Springmeyer7.jpg
+  city: Battle Ground
+  category: cover
+  description: Rain escape under deck with lights and cedar trim
+  tags:
+    - Rain escape
+    - lights
+    - dry
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0197.jpg
+  md5: efab19db8b676cb0ae411e76d9c985ed
+  source_path: projects/Springmeyer8.jpg
+  city: Battle Ground
+  category: cover
+  description: Dry in under deck with gutter and lights
+  tags:
+    - dry
+    - cedar
+    - gutter
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0199.jpg
+  md5: b28e3caaa471b11bc1c95ec594889240
+  source_path: projects/Tingley1.jpg
+  city: Woodland
+  category: deck
+  description: Old deck demo
+  tags:
+    - demo
+  featured: false
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0201.jpg
+  md5: 0f40dc81dcfff6c0c92343db99825a7d
+  source_path: projects/Tingley3.jpg
+  city: Woodland
+  category: deck
+  description: Framing deck under porch cover
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0202.jpg
+  md5: c19b923f1d11981002fa24de2ce4c48f
+  source_path: projects/Tingley4.jpg
+  city: Woodland
+  category: deck
+  description: Deck with cedar rails
+  tags:
+    - deck
+    - timbertech
+    - cedar rails.
+  featured: false
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0203.jpg
+  md5: 61b42186ae85a2b66831742765191825
+  source_path: projects/Tingley5.jpg
+  city: Woodland
+  category: stairs
+  description: composite steps off deck with cedar trim
+  tags:
+    - steps
+    - cedar
+  featured: false
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0204.jpg
+  md5: b777f21dc38d17229a8ad57ef2c32f29
+  source_path: projects/Tingley6.jpg
+  city: Woodland
+  category: deck
+  description: Timbertech deck with cedar rails and steps
+  tags:
+    - timbertech
+    - rails
+  featured: true
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0205.jpg
+  md5: 9c5bb2ee57eba601685df5ebbaa6a165
+  source_path: projects/Tripp1.jpg
+  city: Vancouver
+  category: deck
+  description: Concrete Footing
+  tags:
+    - footing
+    - concrete
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0206.jpg
+  md5: 715dd934baa6b64cf44960dc23e1916d
+  source_path: projects/Tripp2.jpg
+  city: Vancouver
+  category: stairs
+  description: Framing stairs
+  tags:
+    - stairs
+    - framing
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0207.jpg
+  md5: aa49f146b9ee890958c2dcc9a7e3cdb5
+  source_path: projects/Tripp3.jpg
+  city: Vancouver
+  category: stairs
+  description: 'Stairs with picture frame, Azek Cypress '
+  tags:
+    - Azek
+    - stairs
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0208.jpg
+  md5: b123c8b2ed78f0641d6513da87405a45
+  source_path: projects/Tripp4.jpg
+  city: Vancouver
+  category: stairs
+  description: Azek cypress steps with cedar rails
+  tags:
+    - stairs
+    - azek
+    - cedar rails
+  featured: true
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0210.jpg
+  md5: f8200cb930d7477adfcb0c245290c36d
+  source_path: projects/Tripp6.jpg
+  city: Vancovuer
+  category: deck
+  description: Azek Cypress deck with picture framing
+  tags:
+    - deck
+    - drink rail
+    - azek
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0211.jpg
+  md5: d1da5a5d480c2e071c74d927c30ddf8d
+  source_path: projects/Tripp7.jpg
+  city: Vancouver
+  category: rails
+  description: Cedar rails on deck and stairs
+  tags:
+    - cedar rails
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0212.jpg
+  md5: c8bcc32e53732a4d44df6a223d4dfa61
+  source_path: projects/Tripp8.jpg
+  city: Vancouver
+  category: rails
+  description: Cedar rails on deck
+  tags:
+    - rails
+    - fascia
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0213.jpg
+  md5: cc20528b308c816b4172f86f38cdeb71
+  source_path: projects/Tripp9.jpg
+  city: Vancouver
+  category: stairs
+  description: Steps with cedar rails
+  tags:
+    - Azek
+    - steps
+    - rails
+  featured: false
+  reviewed: true
+  project: Tripp
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0214.jpg
+  md5: 1c3d872080d38e1335640ebe5256889f
+  source_path: projects/VanSandt1.jpg
+  city: Vancouver
+  category: cover
+  description: White pergola with suntuf cover
+  tags:
+    - suntuf
+    - pergola
+  featured: false
+  reviewed: true
+  project: VanSandt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0215.jpg
+  md5: ee3b229f9d17b23dbd5cfe121f0b184a
+  source_path: projects/VanSandt2.jpg
+  city: Vancovuer
+  category: cover
+  description: White pergola with cover
+  tags:
+    - suntuf
+  featured: false
+  reviewed: true
+  project: VanSandt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0216.jpg
+  md5: 171431fc50a43ba4ec00543cd259414e
+  source_path: projects/VanSandt3.jpg
+  city: Vancouver
+  category: cover
+  description: White cover with shade screen
+  tags:
+    - cover
+    - shade
+    - pergola
+  featured: true
+  reviewed: true
+  project: VanSandt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0217.jpg
+  md5: d58a5c6fe43931dd43d421a5d8024e6b
+  source_path: projects/Vernon1.jpg
+  city: Woodland
+  category: deck
+  description: Cedar deck with cedar rails
+  tags:
+    - cedar
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Vernon
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0218.jpg
+  md5: d4847dda4b241cf7f5aeb5f63a284ca4
+  source_path: projects/Vernon2.jpg
+  city: Woodland
+  category: rails
+  description: Cedar deck with cedar rails
+  tags:
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Vernon
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0222.jpeg
+  md5: 7bc418c3696dcf7c1743ddf89fde60fd
+  source_path: projects/Weiss3.jpeg
+  city: Vancouver
+  category: deck
+  description: Footing for elevated deck with hot tub
+  tags:
+    - footings
+    - framing
+  featured: false
+  reviewed: true
+  project: Weiss
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0226.jpg
+  md5: 6f93aab529996a114b8cb7b41ce77215
+  source_path: projects/Wright2.jpg
+  city: Washougal
+  category: deck
+  description: Before building deck
+  tags:
+    - Before
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0228.jpg
+  md5: 6ddbc89a7ae3194904c07f51cb761788
+  source_path: projects/Wright4.jpg
+  city: Washougal
+  category: deck
+  description: Diamond inlay in composite deck
+  tags:
+    - inlay
+    - deck
+    - timbertech
+  featured: true
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0229.jpg
+  md5: 6a64f8a420baa8f80052acb2435be1bd
+  source_path: projects/Wright5.jpg
+  city: Washougal
+  category: deck
+  description: Adding some trim to the deck
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0230.jpg
+  md5: 2b6343fc1b7b383e49145dd26f88e34a
+  source_path: projects/Wright6.jpg
+  city: Washougal
+  category: stairs
+  description: Azek Coastline steps
+  tags:
+    - azek
+    - coastline
+    - stairs
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0231.jpg
+  md5: a572151bff7f8e46a54e8b4e0572ac97
+  source_path: projects/Wright7.jpg
+  city: Washougal
+  category: deck
+  description: Timbertech Azek Coasline
+  tags:
+    - Azek
+    - Deck
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0232.jpg
+  md5: 3f4e82c7da94b097198803a33c5e1b6a
+  source_path: projects/Wright8.jpg
+  city: Washougal
+  category: rails
+  description: Aluminum rails - black with fascia
+  tags:
+    - fascia
+    - aluminum rails
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0233.jpg
+  md5: 82b46253b1a6252f16d55249df76b635
+  source_path: projects/Wright9.jpg
+  city: Washougal
+  category: deck
+  description: Azek coastline
+  tags:
+    - rails
+    - deck
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0234.jpg
+  md5: 225832104aef10a164cfafd74e93f7c2
+  source_path: projects/Wright9a.jpg
+  city: Washougal
+  category: rails
+  description: Black aluminum rails with TR200 top rail
+  tags:
+    - aluminum
+    - rail
+    - tr200
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0235.jpg
+  md5: 0457829025e1ade1fa6c181c9e6c0770
+  source_path: projects/Wright9b.jpg
+  city: Washougal
+  category: deck
+  description: Azek coastline
+  tags:
+    - deck
+    - azek
+  featured: false
+  reviewed: true
+  project: Wright
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0236.jpeg
+  md5: 954c9caa29c9c94d9bbd63b36e5f8501
+  source_path: projects/tognetti.jpeg
+  city: Vancovuer
+  category: deck
+  description: Timbertech pro reserve, antique leather with step
+  tags:
+    - timbertech
+    - reserve
+    - step
+  featured: true
+  reviewed: true
+  project: tognetti
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0238.jpg
+  md5: 8a1fd244d3587c566c677e5f153c5220
+  source_path: unknown/20200524_162559.jpg
+  city: Woodland
+  category: deck
+  description: Simple deck on back patio
+  tags:
+    - deck
+  featured: false
+  reviewed: true
+  project: Freeman
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0239.jpg
+  md5: 814ecc0307355b033a1ba5ec1801a9af
+  source_path: unknown/20200626_134230.jpg
+  city: Camas
+  category: deck
+  description: 2 story deck with stairs and composite rail
+  tags:
+    - dry
+    - cover
+    - deck
+    - composite rails
+  featured: true
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0240.jpg
+  md5: 2958ca77c76286b679188c789c2ff31b
+  source_path: unknown/20200710_081718.jpg
+  city: Vancouver
+  category: cover
+  description: Cover with suntuf and privacy screen
+  tags:
+    - cover
+    - privacy
+    - suntuf
+    - cedar
+  featured: true
+  reviewed: true
+  project: Michaud
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0241.jpg
+  md5: 0a3ddd0b947fe26f6fd5d56e7751c5b1
+  source_path: unknown/20200710_104218.jpg
+  city: Vancouver
+  category: cover
+  description: Patio cover with privacy screen
+  tags:
+    - Privacy
+    - cover
+    - suntuf
+    - patio
+  featured: false
+  reviewed: true
+  project: Michaud
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0242.jpg
+  md5: 06c0cbee61d9eedf30f6e9b71d6595aa
+  source_path: unknown/20200930_180153.jpg
+  city: Camas
+  category: cover
+  description: Cover over cedar deck with custom rails
+  tags:
+    - custom
+    - rails
+    - cedar
+  featured: true
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0243.jpg
+  md5: 0fbc8e3e847635af8eedcf1fbb630d06
+  source_path: unknown/20200930_180216(1).jpg
+  city: Camas
+  category: deck
+  description: Custom cedar deck with wrap around steps
+  tags:
+    - cedar
+    - deck
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0244.jpg
+  md5: 4d3a6a65c25ec28c669fc4cdd3013484
+  source_path: unknown/20201006_121014.jpg
+  city: Camas
+  category: cover
+  description: Cedar timberframe with rough in electrical
+  tags:
+    - electrical
+    - lights
+    - cover
+    - timberframe
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0245.jpg
+  md5: f76a5b451b4a6b5229bb243ea1d6ced1
+  source_path: unknown/20201006_171332.jpg
+  city: La Center
+  category: stairs
+  description: Cedar steps with cedar hand rail
+  tags:
+    - cedar
+    - rails
+    - aluminumbaliusters
+  featured: false
+  reviewed: true
+  project: Dykes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0246.jpg
+  md5: 7e42c1af8b56993ea3983b0ae28bb71f
+  source_path: unknown/20201006_171357.jpg
+  city: La Center
+  category: deck
+  description: Cedar deck with cedar rails and aluminum infill
+  tags:
+    - cedar
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Dykes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0247.jpg
+  md5: c54a01f2a108434d44714c27855f5a1e
+  source_path: unknown/20201006_171408.jpg
+  city: La Center
+  category: deck
+  description: Custom privacy screen on deck - cedar
+  tags:
+    - cedar
+    - privacy
+    - screen
+    - deck
+  featured: true
+  reviewed: true
+  project: Dykes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0248.jpg
+  md5: d9ec4b08efa2e463d98fb5d8e1bd208b
+  source_path: unknown/20201006_171452.jpg
+  city: La Center
+  category: stairs
+  description: Custom cedar stars and rails
+  tags:
+    - cedar
+    - stairs
+    - rails
+  featured: false
+  reviewed: true
+  project: Dykes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0249.jpg
+  md5: 8b554854aede0d4d2d8136082d281e2c
+  source_path: unknown/20201010_124306(1).jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with finish lights and ceiling fan
+  tags:
+    - Timberframe
+    - lights
+    - fan
+    - electrical
+  featured: true
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0250.jpg
+  md5: 00fe00294c70a4594183f50a83306c51
+  source_path: unknown/20201010_124340.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with lights
+  tags:
+    - Timberframe
+    - cedar
+    - lights
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0251.jpg
+  md5: 658beaf106b55514657b3cf25cfeb9fe
+  source_path: unknown/20201010_124352.jpg
+  city: Camas
+  category: rails
+  description: Cedar custom rails
+  tags:
+    - Cedar
+    - rails
+    - custom
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0252.jpg
+  md5: 8f5ff22bb0ae18bda6d6e245ebd56531
+  source_path: unknown/20201010_124403.jpg
+  city: Camas
+  category: cover
+  description: Trex Rainescape finished with lights and cedar trim
+  tags:
+    - rain escape
+    - dry
+    - lights
+    - cedar
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0254.jpg
+  md5: 739e15d50df83a55a07e816dd46c4f9b
+  source_path: unknown/20201010_124644.jpg
+  city: Camas
+  category: rails
+  description: Custom cedar rails
+  tags:
+    - Rails
+    - cedar
+    - custom
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0255.jpg
+  md5: 3d28812588a8380e4c82fd49b1642d4a
+  source_path: unknown/20201010_124655.jpg
+  city: Camas
+  category: rails
+  description: Custom cedar rails horizontal upper rails
+  tags:
+    - cedar
+    - rails
+  featured: false
+  reviewed: true
+  project: CamasCedar
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0256.jpg
+  md5: 1d93c8674eba70ebd8748f3de6491c89
+  source_path: unknown/20201016_163449.jpg
+  city: Vancouver
+  category: stairs
+  description: Stairs with cedar rails
+  tags:
+    - stair
+    - rail
+    - cedar
+  featured: true
+  reviewed: true
+  project: Devoe
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0257.jpg
+  md5: 762189e84efe0b67c5d5f3fd9f8b9daf
+  source_path: unknown/20201120_170235.jpg
+  city: Vancouver
+  category: farm
+  description: White gazebo with deck and rails
+  tags:
+    - gazebo
+    - white rails
+  featured: false
+  reviewed: true
+  project: Praisewater
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0258.jpg
+  md5: 34f0099584dadaa5111c115cd9594548
+  source_path: unknown/20201120_170609(1).jpg
+  city: Vancouver
+  category: cover
+  description: White gazebo with rails and cupola
+  tags:
+    - gazabo
+    - cover
+    - cupola
+  featured: true
+  reviewed: true
+  project: Praisewater
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0259.jpg
+  md5: 65d215c24bee226e84df8f2482354c2f
+  source_path: unknown/20210129_103205.jpg
+  city: Battle Ground
+  category: deck
+  description: Deck frame with octagon pop out
+  tags:
+    - framing
+    - octagon
+    - deck
+  featured: false
+  reviewed: true
+  project: Cruz
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0260.jpg
+  md5: 16bc4012249828ab5fb2196b4b652311
+  source_path: unknown/20210308_170650.jpg
+  city: Woodland
+  category: cover
+  description: Cover with bar for outdoor living
+  tags:
+    - cover
+    - bar
+    - cedar
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0261.jpg
+  md5: bf9982bf15656288b4f794e734fa5ff9
+  source_path: unknown/20210308_170704(1).jpg
+  city: Woodland
+  category: other
+  description: Cover with bar and cedar finish
+  tags:
+    - cedar
+    - bar
+    - cover
+  featured: false
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0262.jpg
+  md5: c7a7da6c75b1f91e6dc50d1b4490fcb5
+  source_path: unknown/20210308_170716.jpg
+  city: Woodland
+  category: cover
+  description: Outdoor room with bar and cedar finish
+  tags:
+    - bar
+    - cover
+    - cedar T&G
+  featured: true
+  reviewed: true
+  project: Cavallero
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0263.jpg
+  md5: 35e408d1af6a1fc1516da34bb3825e59
+  source_path: unknown/20210501_143801(1).jpg
+  city: Woodland
+  category: deck
+  description: Deck with steps.  Cedar rails and cedar trim
+  tags:
+    - deck
+    - cedar
+    - trim
+    - porch
+  featured: true
+  reviewed: true
+  project: Tingley
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0265.jpg
+  md5: a4c9ff439cc1fa1a014f9cd924fb7d7c
+  source_path: unknown/20210505_191807.jpg
+  city: Woodland
+  category: other
+  description: Firepit with paver patio and bench for roasting marshmellows
+  tags:
+    - firepit
+    - bench
+    - pavers
+    - patio
+  featured: true
+  reviewed: true
+  project: Loganberry
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0266.jpg
+  md5: 2328d3e55918dc2dad496f059008f1b4
+  source_path: unknown/20210729_105504.jpg
+  city: Woodland
+  category: farm
+  description: Pole barn framing
+  tags:
+    - Pole barn
+    - shop
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0267.jpg
+  md5: b459b5fe12cb9bae7b7d39eafad7c429
+  source_path: unknown/20210730_141425.jpg
+  city: Woodland
+  category: other
+  description: Pole barn restart
+  tags:
+    - pole barn
+    - shop
+    - framing
+    - before
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0268.jpg
+  md5: d5f53f3b59712314834b8234e56f65be
+  source_path: unknown/20210731_171527.jpg
+  city: Woodland
+  category: other
+  description: Pole barn with old lean2 framing
+  tags:
+    - pole barn
+    - framing
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0269.jpg
+  md5: 0f1ac36f512781cf9dd7ee41c5716cba
+  source_path: unknown/20210802_154524.jpg
+  city: Woodland
+  category: farm
+  description: Pole barn finish board and bat
+  tags:
+    - board and bat
+    - shop
+    - barn
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0270.jpg
+  md5: 19c69c25c083836abf48509de4d6650d
+  source_path: unknown/20210813_130745.jpg
+  city: Vancovuer
+  category: cover
+  description: Lean-to cover
+  tags:
+    - cover
+    - lean-to
+    - framing
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0271.jpg
+  md5: 6a4a030f87f6412f89a218575ed93f30
+  source_path: unknown/20210819_062301.jpg
+  city: Woodland
+  category: farm
+  description: New concrete floor for shop
+  tags:
+    - barn
+    - shop
+    - concrete
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0272.jpg
+  md5: 9e751e98dec2a7c2127fbddb66f0dcf1
+  source_path: unknown/20210920_164940.jpg
+  city: Vancovuer
+  category: cover
+  description: Lean-to patio cover finish white with fan
+  tags:
+    - lean-to
+    - fan
+    - post wrap
+    - wrap
+  featured: true
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0273.jpg
+  md5: 4086dfe48296f142ee2903366df4feeb
+  source_path: unknown/20210920_165018.jpg
+  city: Vancovuer
+  category: other
+  description: Ceiling fan finish for cover
+  tags:
+    - Cover
+    - fan
+    - bat
+  featured: false
+  reviewed: true
+  project: Allen
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0274.jpg
+  md5: 1315e5b3622e5fc6b17f3cb516064ff4
+  source_path: unknown/20220531_170734(1).jpg
+  city: Vancouver
+  category: deck
+  description: Upper deck and custom rails with cable
+  tags:
+    - deck
+    - picture frame
+    - rails
+  featured: false
+  reviewed: true
+  project: Weiss
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0276.jpg
+  md5: 39461ece8d9b6838e2ad4f0fdc7832c8
+  source_path: unknown/20220531_170822(1).jpg
+  city: Vancouver
+  category: deck
+  description: Custom upper deck, engineered for hot tub.
+  tags:
+    - Timbertech
+    - hot tub
+    - deck
+    - custom
+    - rails
+    - cable
+  featured: true
+  reviewed: true
+  project: Weiss
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0278.jpg
+  md5: fdf66d35499f448bb1e03114af47e298
+  source_path: unknown/20220606_173034(1).jpg
+  city: Vancouver
+  category: deck
+  description: Upper deck with Hot tub and cable rails
+  tags:
+    - Deck
+    - hot tub
+    - steel posts
+    - cable rail
+  featured: false
+  reviewed: true
+  project: Weiss
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0280.jpg
+  md5: 171b32fbcf470de40387ec957a67e0f8
+  source_path: unknown/20220606_173044.jpg
+  city: Vancouver
+  category: rails
+  description: Upper custom steel rails with cable
+  tags:
+    - rails
+    - custom
+    - cable
+    - hot tub
+    - steel
+  featured: false
+  reviewed: true
+  project: Weiss
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0281.jpg
+  md5: 07e3c7fb5eeb7ee75a8dc072b7555cd9
+  source_path: unknown/20220629_143428.jpg
+  city: Woodland
+  category: rails
+  description: Cedar rails and stair rail
+  tags:
+    - cedar
+    - rail
+    - stair
+  featured: false
+  reviewed: true
+  project: Ek
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0282.jpg
+  md5: 89172969b2ee0b8a74b6f46085e9990b
+  source_path: unknown/20220629_143440.jpg
+  city: Woodland
+  category: deck
+  description: Deck with cedar rails
+  tags:
+    - deck
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Ek
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0283.jpg
+  md5: 15da0372c7a0fa18ed2b20faa55dd262
+  source_path: unknown/20220709_083422.jpg
+  city: Vancouver
+  category: cover
+  description: Cedar post wrap on cover
+  tags:
+    - post wrap
+    - wrap
+    - cedar
+  featured: false
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0284.jpg
+  md5: 2abf7f764532f325e3ca00fc5b55e28e
+  source_path: unknown/20220712_144433.jpg
+  city: Camas
+  category: cover
+  description: Timberframe - design for cover
+  tags:
+    - design
+    - rendering
+    - cover
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0285.jpg
+  md5: 05d9682274d613d304817ca33c75398a
+  source_path: unknown/20220712_184313.jpg
+  city: Vancouver
+  category: deck
+  description: Double picture frame deck
+  tags:
+    - deck
+    - picture  frame
+    - double
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0286.jpg
+  md5: cf34d1707990cefe5c9b3e129a8825c7
+  source_path: unknown/20220712_184338.jpg
+  city: Vancovuer
+  category: deck
+  description: Deck with steps
+  tags:
+    - Deck
+    - steps
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0287.jpg
+  md5: 67df35a784375ad42d790f1d46e98fc0
+  source_path: unknown/20220715_143519.jpg
+  city: La Center
+  category: fence
+  description: Split rail vinyl fence with dog fence
+  tags:
+    - fence
+    - vinyls
+    - dog
+  featured: true
+  reviewed: true
+  project: Lang
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0288.jpg
+  md5: 7df6d5706d6666104368e4486ad397fa
+  source_path: unknown/20220715_143707.jpg
+  city: La Center
+  category: fence
+  description: Vinyl fence gate with pet protection
+  tags:
+    - gate
+    - fence
+    - vinyl
+    - dog
+  featured: false
+  reviewed: true
+  project: Lang
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0289.jpg
+  md5: 628ecd18a2b118c50dc5fbac191d9510
+  source_path: unknown/20220719_123824.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover framing
+  tags:
+    - timberframe
+    - cover
+    - framing
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0290.jpg
+  md5: fada92662b87d031420a092005515f37
+  source_path: unknown/20220719_123848.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover framing with steel posts
+  tags:
+    - Timberframe
+    - cover
+    - steel
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0291.jpg
+  md5: f3d80075839157b7d12b61d1bc7b5a7b
+  source_path: unknown/20220720_142507.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with steel posts
+  tags:
+    - timberframe
+    - cover
+    - steel
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0292.jpg
+  md5: 36a88132ac9b28cf96749a31e25bad31
+  source_path: unknown/20220722_144728.jpg
+  city: Camas
+  category: cover
+  description: Cedar finish of timberframe
+  tags:
+    - finish
+    - cedar
+    - timberframe
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0293.jpg
+  md5: 9f8e1b8642ceb3cb9e8b502b5cc4a61d
+  source_path: unknown/20220801_165805.jpg
+  city: Camas
+  category: cover
+  description: Cedar finish with skylight and lights
+  tags:
+    - electrical
+    - finish
+    - cedar
+    - skylight
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0294.jpg
+  md5: a976866074d29a1d7f6930e9e2405cb5
+  source_path: unknown/20220805_130931.jpg
+  city: Vancouver
+  category: cover
+  description: Cedar post wrap and knee bracing
+  tags:
+    - cedar
+    - post wrap
+    - knee bracing
+  featured: false
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0295.jpg
+  md5: a382a2c7d51bc0c0438d398fccfb7f19
+  source_path: unknown/20220805_131032.jpg
+  city: Vancouver
+  category: cover
+  description: Cedar cover with cedar post wrap
+  tags:
+    - cedar
+    - cover
+    - post wrap
+    - knee bracing
+  featured: false
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0296.jpg
+  md5: fafc792c095122aa2a1eb302a19c09f4
+  source_path: unknown/20220805_131054.jpg
+  city: Vancouver
+  category: cover
+  description: Custom cover with cedar finish
+  tags:
+    - cover
+    - cedar
+    - wraip
+  featured: false
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0297.jpg
+  md5: 3ff9edce100da9f4a0866c143b3cbf4a
+  source_path: unknown/20220805_131359.jpg
+  city: Vancouver
+  category: other
+  description: Knee bracing with cedar wrap
+  tags:
+    - cedar
+    - knee brace
+  featured: false
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0298.jpg
+  md5: 3f08f6a20431088d2a8affe96dd44d78
+  source_path: unknown/20220805_131637.jpg
+  city: vancouver
+  category: cover
+  description: Cedar tongue and groove finish with ceiling fan for outdoor living
+  tags:
+    - cedar
+    - fan
+    - outdoor living
+  featured: true
+  reviewed: true
+  project: Bonner
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0299.jpg
+  md5: a680172accd75a280708589bd51c6696
+  source_path: unknown/20220809_150627.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with lights and skylights
+  tags:
+    - timberframe
+    - skylights
+    - cedar
+  featured: true
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0300.jpg
+  md5: 801a95cf5e3579c3b16a0f7bd0fb606c
+  source_path: unknown/20220809_150642.jpg
+  city: Camas
+  category: cover
+  description: Steel posts with hipped roof timberframe cover
+  tags:
+    - hip
+    - timberframe
+    - steel
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0301.jpg
+  md5: 9ae9e5aa4e4bf610b536ca4ad1a2a7f4
+  source_path: unknown/20220809_150718(1).jpg
+  city: Camas
+  category: cover
+  description: Hip roof with skylights
+  tags:
+    - hip
+    - steel
+    - cover
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0303.jpg
+  md5: b2768330263682676ba369d60ea06be6
+  source_path: unknown/20220809_165110.jpg
+  city: Camas
+  category: cover
+  description: Patio cover for outdoor livingn with lights and skylights
+  tags:
+    - timberframe
+    - cover
+    - skylights
+    - cedar
+  featured: false
+  reviewed: true
+  project: Bala
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0306.jpg
+  md5: a7d12a6897129b35eb3ea9f35fecf310
+  source_path: unknown/20220923_152724.jpg
+  city: Woodland
+  category: deck
+  description: Upper deck with cedar rails
+  tags:
+    - deck
+    - cedar rails
+  featured: false
+  reviewed: true
+  project: Bridges
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0307.jpg
+  md5: 9e8233eb29fce8245c6b18e96c4c36bd
+  source_path: unknown/20220923_163347.jpg
+  city: Woodland
+  category: deck
+  description: Deck with Trex Enhance - Toasted sand
+  tags:
+    - Trex
+    - toasted sand
+    - deck
+    - cedar rails
+  featured: false
+  reviewed: true
+  project: Bridges
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0309.jpg
+  md5: 2a36c815d0a9ddb0c6dcf73d95671eae
+  source_path: unknown/20220923_163354.jpg
+  city: Woodland
+  category: deck
+  description: Trex enhance naturals toasted sand with drink rail
+  tags:
+    - trex
+    - drink rail
+  featured: true
+  reviewed: true
+  project: Bridges
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0310.jpg
+  md5: 0a5e9940c1de88cf67f334cc83d0a1f0
+  source_path: unknown/20220923_163401.jpg
+  city: Woodland
+  category: rails
+  description: Custom cedar gate with lights on post
+  tags:
+    - rails
+    - gate
+    - light
+    - drink rail
+  featured: false
+  reviewed: true
+  project: Bridges
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0311.jpg
+  md5: 6e9cd7276c9f361be397f9a38fa66c2e
+  source_path: unknown/20221025_175617.jpg
+  city: Woodland
+  category: deck
+  description: Deck with 42" aluminum rails
+  tags:
+    - Trex
+    - rail
+    - aluminum
+  featured: false
+  reviewed: true
+  project: Letterbox
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0313.jpg
+  md5: cb6f5beb77e59148ebfdf1abac5d72dd
+  source_path: unknown/20221025_175632.jpg
+  city: Woodland
+  category: deck
+  description: Commercial deck with 42" aluminum rails
+  tags:
+    - deck
+    - rails
+  featured: true
+  reviewed: true
+  project: Letterbox
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0314.jpg
+  md5: cbbdf34658c594ff74ea6ac6800b42cc
+  source_path: unknown/20221104_140048.jpg
+  city: Woodland
+  category: stairs
+  description: Stairs with pictureframe, Trex Transcend
+  tags:
+    - trex
+    - picture frame
+    - stairs
+    - landing
+  featured: false
+  reviewed: true
+  project: Coulsey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0315.jpg
+  md5: d69c492465bc32b8f1ada650cc72d5ba
+  source_path: unknown/20221104_140133.jpg
+  city: Woodland
+  category: stairs
+  description: Steps with picture frame
+  tags:
+    - Trex
+    - landing
+    - step
+    - stair
+  featured: false
+  reviewed: true
+  project: Coulsey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0316.jpg
+  md5: ffeffc041cec62f90e2031d52158930f
+  source_path: unknown/20221109_135005.jpg
+  city: Woodland
+  category: stairs
+  description: Stairs with landing
+  tags:
+    - landing
+    - stairs
+  featured: false
+  reviewed: true
+  project: Coulsey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0317.jpg
+  md5: d2bb0e9539e1a17e6b2967892559c85f
+  source_path: unknown/20221115_155121.jpg
+  city: Woodland
+  category: rails
+  description: Deck with black aluminum rails
+  tags:
+    - rails
+    - deck
+    - black
+    - aluminum
+    - steps
+  featured: false
+  reviewed: true
+  project: Letterbox
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0318.jpg
+  md5: 83e2f5d72946c18498a195e1f756a927
+  source_path: unknown/20230127_121414.jpg
+  city: Battle Ground
+  category: cover
+  description: Under deck dry in with lights
+  tags:
+    - framing
+    - dry
+    - deck
+    - cedar
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0320.jpg
+  md5: 0b88e58f57047db18c1841a88eaedc8b
+  source_path: unknown/20230130_162151.jpg
+  city: Woodland
+  category: cover
+  description: Cedar lean-to cover with lights and trim.
+  tags:
+    - lights
+    - trim
+    - cedar
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0321.jpg
+  md5: 9e591cb370f39c4b83397c4fb031cfe8
+  source_path: unknown/20230130_162207(1).jpg
+  city: Woodland
+  category: cover
+  description: Cedar lean-to with lights and post wrap
+  tags:
+    - cover
+    - cedar
+    - lights
+  featured: true
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0322.jpg
+  md5: 3dce4d5510dc01d73c563a9bc3f85bae
+  source_path: unknown/20230130_162207.jpg
+  city: Woodland
+  category: cover
+  description: Cedar lean-to cover with dryspace
+  tags:
+    - cover
+    - dryspace
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0323.jpg
+  md5: 32617c5df72dfac6d914c9637beedee3
+  source_path: unknown/20230403_175016.jpg
+  city: Woodland
+  category: farm
+  description: Chicken coop framing
+  tags:
+    - coop
+    - farm
+    - chicken
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0324.jpg
+  md5: 6264ad9c341cc745233cf220354b289b
+  source_path: unknown/20230412_193239.jpg
+  city: Woodland
+  category: farm
+  description: Chicken coop entry door
+  tags:
+    - coop
+    - chicken
+    - door
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0325.jpg
+  md5: c3cb07cd51a9f03c2676a0645bd69341
+  source_path: unknown/20230610_200533.jpg
+  city: Woodland
+  category: farm
+  description: Coop back and run, covered for chickens
+  tags:
+    - coop
+    - run
+    - cover
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0327.jpg
+  md5: 5c313913b241d761c742422a57419c1c
+  source_path: unknown/20230610_200639.jpg
+  city: Woodland
+  category: farm
+  description: Chicken coop with run
+  tags:
+    - coop
+    - run
+    - farm
+  featured: true
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0328.jpg
+  md5: 348fabe5f060d435e4e0128cb75c1c6c
+  source_path: unknown/20230615_131710.jpg
+  city: La Center
+  category: rails
+  description: Upper glass rails
+  tags:
+    - rails
+    - glass
+    - infill
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0329.jpg
+  md5: eb48771624795e8914bf0742c74a18da
+  source_path: unknown/20230714_135345.jpg
+  city: Woodland
+  category: deck
+  description: Add on a deck extension framing.
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Watts
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0330.jpg
+  md5: 6bafeeefe7188d6f21d413ed2eb496d4
+  source_path: unknown/20230724_161543.jpg
+  city: Vancouver
+  category: cover
+  description: Green lean-to cover with black hardware
+  tags:
+    - Lean-to
+    - green
+  featured: false
+  reviewed: true
+  project: Piazza
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0331.jpg
+  md5: c51772396216fbb245c4bdd7c23331e7
+  source_path: unknown/20230724_161556.jpg
+  city: Vancouver
+  category: cover
+  description: Lean-to with hardware
+  tags:
+    - cover
+    - lean-to
+  featured: false
+  reviewed: true
+  project: Piazza
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0332.jpg
+  md5: 7f60a261b0809de411a1461220a398c3
+  source_path: unknown/20231005_121448.jpg
+  city: Woodland
+  category: deck
+  description: New cedar deck boards and repair
+  tags:
+    - repair
+    - cedar
+    - cedar deck
+  featured: false
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0333.jpg
+  md5: eeb4a40ee3a9cd4833c454a43735f51e
+  source_path: unknown/20231005_132019.jpg
+  city: Woodland
+  category: deck
+  description: Deck repair and new cedar with Milwaukee tools
+  tags:
+    - Milwaukee
+    - cedar
+    - deck
+    - stain
+  featured: true
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0334.jpg
+  md5: 20a75f96528472f3782c73c84d13f908
+  source_path: unknown/20231005_132049.jpg
+  city: Woodland
+  category: deck
+  description: 'Deck with new cedar '
+  tags:
+    - deck
+    - cedar
+  featured: false
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0335.jpg
+  md5: 3c4075420d37d29ca9277636eff11871
+  source_path: unknown/20231012_174147.jpg
+  city: Woodland
+  category: rails
+  description: Aluminum rails with wood posts and balusters
+  tags:
+    - Aluminum
+    - rail
+    - baluster
+  featured: false
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0336.jpg
+  md5: 489931a5af1eb0b4af36d5afe62ac64a
+  source_path: unknown/20231012_174158(1).jpg
+  city: Woodland
+  category: cover
+  description: Cover and deck restoration - Outdoor living
+  tags:
+    - outdoor living
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0338.jpg
+  md5: e0100f14248fa7c29ad259dce85a7204
+  source_path: unknown/20231012_174236.jpg
+  city: Woodland
+  category: deck
+  description: Cedar deck with aluminum rails
+  tags:
+    - cedar
+    - aluminum
+  featured: false
+  reviewed: true
+  project: Coffey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0339.jpg
+  md5: 1b129c7e053763b4cef888483c2f5488
+  source_path: unknown/20231030_141148.jpg
+  city: Woodland
+  category: deck
+  description: Deck with custom ramp and aluminum rails
+  tags:
+    - deck
+    - ramp
+    - rails
+    - aluminum
+  featured: true
+  reviewed: true
+  project: Cannon
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0340.jpg
+  md5: 79852b667b31cf24cf2ecef7b8619d4f
+  source_path: unknown/20240126_112536.jpg
+  city: Vancouver
+  category: deck
+  description: New deck and rails with cable
+  tags:
+    - rails
+    - deck
+    - steps
+    - cable
+  featured: false
+  reviewed: true
+  project: Byrd2
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0341.jpg
+  md5: 8d1eef0124cd3327dfc441ed11f062d6
+  source_path: unknown/20240126_112546(1).jpg
+  city: Vancouver
+  category: deck
+  description: Deck with black aluminum rails and stainless steel cable
+  tags:
+    - deck
+    - steps
+    - rail
+    - aluminum
+    - cable
+    - infill
+  featured: true
+  reviewed: true
+  project: Byrd2
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0345.jpg
+  md5: 8662f6a8aa839fdf706327e5311e3938
+  source_path: unknown/20240416_182311.jpg
+  city: Woodland
+  category: farm
+  description: Garden planter boxes with fence
+  tags:
+    - gargen
+    - planter
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0346.jpg
+  md5: 37da0537937ed8f3b5fa38468d34092d
+  source_path: unknown/20240522_105712.jpg
+  city: Camas
+  category: deck
+  description: 2 story deck with upper door installation
+  tags:
+    - door
+    - 2 story
+    - steel post
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0348.jpg
+  md5: d051227e289751b4e84863330e5c0b51
+  source_path: unknown/20240528_150009.jpg
+  city: La Center
+  category: deck
+  description: Cedar deck and custom cedar rails
+  tags:
+    - custom
+    - deck
+    - rails
+    - cedar
+  featured: false
+  reviewed: true
+  project: Page
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0349.jpg
+  md5: 9f801c83c24abe2575a2faaae8633054
+  source_path: unknown/20240528_150022(1).jpg
+  city: La Center
+  category: deck
+  description: Cedar deck and rails
+  tags:
+    - cedar
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Page
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0351.jpg
+  md5: c97aa20dd76dd8b9d4e89a56881c2b34
+  source_path: unknown/20240528_150032.jpg
+  city: La Center
+  category: deck
+  description: Upper level cedar deck and cedar rails.
+  tags:
+    - cedar
+    - deck
+    - rails
+  featured: true
+  reviewed: true
+  project: Page
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0352.jpg
+  md5: 6d58f67768c01c648a77a726705668ee
+  source_path: unknown/20240528_150110.jpg
+  city: La Center
+  category: deck
+  description: Cedar deck and rails with cedar fascia
+  tags:
+    - cedar
+    - deck
+    - rails
+    - fascia
+  featured: false
+  reviewed: true
+  project: Page
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0353.jpg
+  md5: 1a03673365be1ebf4363c9f4b8ff58e6
+  source_path: unknown/20240531_143949.jpg
+  city: Camas
+  category: deck
+  description: Timbertech Silver Maple with step and picture frame
+  tags:
+    - timbertech
+    - silver maple
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0355.jpg
+  md5: f96b64c0b30d92ba5baf449c1c5a867b
+  source_path: unknown/20240531_144013.jpg
+  city: Camas
+  category: deck
+  description: 2 story deck with timbertech and cable rail
+  tags:
+    - dog ear
+    - cable rail
+    - timbertech
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0357.jpg
+  md5: bfa5594eae04603099cf7367bfd01c93
+  source_path: unknown/20240531_144049.jpg
+  city: Camas
+  category: deck
+  description: Lower Deck - Timbertech Pro Terrain with aluminum rail
+  tags:
+    - Timbertech
+    - cable
+    - rails
+  featured: true
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0358.jpg
+  md5: b0ace5c19b84fad8a97260569ac16fcc
+  source_path: unknown/20240531_144103.jpg
+  city: Camas
+  category: rails
+  description: Upper deck aluminum rail with cable infill
+  tags:
+    - rails
+    - cable
+    - infill
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0359.jpg
+  md5: 369c40bd16841a2e3961d9574d71273a
+  source_path: unknown/20240531_144135.jpg
+  city: Camas
+  category: deck
+  description: 2 story deck with upper door installed in master bedroom
+  tags:
+    - door
+    - cable
+    - deck
+    - 2 story
+  featured: true
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0360.jpg
+  md5: 9ff64e247739a6e5063b1bb7ace038a4
+  source_path: unknown/20240608_131523.jpg
+  city: Camas
+  category: cover
+  description: Dry in upper deck and finish with cedar and lights
+  tags:
+    - rain escape
+    - cedar
+    - lights
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0362.jpg
+  md5: 37ec065bbaa2c59faf73cd2f37ed99db
+  source_path: unknown/20240613_161453.jpg
+  city: Camas
+  category: deck
+  description: View from master bedroom with new deck and 3 panel door
+  tags:
+    - door
+    - master
+    - cable rail
+    - view
+  featured: true
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0363.jpg
+  md5: 9963c8cced8db18a81505fda1521c11e
+  source_path: unknown/20240613_161507.jpg
+  city: Camas
+  category: deck
+  description: Timbertech pro terrain - Silver Mapel
+  tags:
+    - timbertech
+    - deck
+    - rails
+    - cable
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0364.jpg
+  md5: 71bf1f9ac849cf0e9e359f3e25eb92b2
+  source_path: unknown/20240613_161528(1).jpg
+  city: Camas
+  category: rails
+  description: Upper rails with black aluminum and stainless steel cable
+  tags:
+    - cable
+    - tr200
+    - aluminum
+    - view
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0366.jpg
+  md5: 1ccbf660d45138dba6720edb5984592d
+  source_path: unknown/20240815_121854.jpg
+  city: Woodland
+  category: other
+  description: RV parking cover at shop
+  tags:
+    - RV
+    - Parking
+    - shop
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0367.jpg
+  md5: 7650506dc9da173a38e771fd43fd4fc4
+  source_path: unknown/20240815_152327.jpg
+  city: Woodland
+  category: farm
+  description: RV parking cover with retaining wall
+  tags:
+    - retaining wall
+    - cover
+    - rv
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0369.jpg
+  md5: 1922692821e67a0d687c2e0cb59ff652
+  source_path: unknown/20240930_150443.jpg
+  city: Woodland
+  category: deck
+  description: New deck off primary room with future cover
+  tags:
+    - framing
+    - deck
+    - cover
+    - siding
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0370.jpg
+  md5: 55d8ad5f38d53a68dc097d634f520d45
+  source_path: unknown/20241014_122040.jpg
+  city: Woodland
+  category: cover
+  description: Roofing a new cover over deck at master bedroom
+  tags:
+    - Outdoor living
+    - deck
+    - cover
+    - truss.
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0371.jpg
+  md5: 08b7c52a19f612aec9beedb868470151
+  source_path: unknown/20241029_160235.jpg
+  city: Woodland
+  category: cover
+  description: Large timberframe cover beams
+  tags:
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0372.jpg
+  md5: 026ab18906a9a1104b8a417f13671621
+  source_path: unknown/20241031_154414.jpg
+  city: Woodland
+  category: cover
+  description: Large timberframe cover over deck
+  tags:
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0373.jpg
+  md5: 30259a9ac57c112e84c9fc7f2b9e00dd
+  source_path: unknown/20241031_154549.jpg
+  city: Woodland
+  category: cover
+  description: Large timberframe cover at living room with deck and skylights
+  tags:
+    - skylights
+    - timberframe
+    - outdoor living
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0374.jpg
+  md5: 307f99a4b645d3a26fda59bc83f86e8a
+  source_path: unknown/20241101_164916.jpg
+  city: Woodland
+  category: cover
+  description: Large timberframe roof into existing home
+  tags:
+    - roof
+    - framing
+    - timberframe
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0375.jpg
+  md5: 131b5b6471c65936666d1e408f537447
+  source_path: unknown/20241120_154034.jpg
+  city: Woodland
+  category: cover
+  description: Cedar finish and skylights on large cover over deck
+  tags:
+    - cedar
+    - skylights
+    - beams
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0376.jpg
+  md5: bb07a4cfd717701db1f69c76331584d4
+  source_path: unknown/20241120_154058.jpg
+  city: Woodland
+  category: cover
+  description: Cedar post wrap and electrical rough in under cover
+  tags:
+    - skylyights
+    - cedar
+    - post wrap
+    - electrical
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0377.jpg
+  md5: 55cd2b423ca829ff37c4761e9ff59183
+  source_path: unknown/20241123_110631.jpg
+  city: Woodland
+  category: deck
+  description: Timbertech pro tigerwood with fireplace framing
+  tags:
+    - timbertech
+    - fireplace
+    - gas
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0378.jpg
+  md5: acad8976fff954bcce48a070454428dc
+  source_path: unknown/20241213_121222.jpg
+  city: Woodland
+  category: cover
+  description: Outdoor Living - large deck and cover with fireplace and lights
+  tags:
+    - fireplace
+    - lights
+    - deck
+    - cedar
+  featured: true
+  reviewed: true
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0379.jpg
+  md5: 89b4b45fe14113533811cff2c2b14b4f
+  source_path: unknown/20241214_115148.jpg
+  city: Woodland
+  category: cover
+  description: Timbertech dryspace under deck
+  tags:
+    - timbertech
+    - dry
+    - dryspace
+  featured: false
+  reviewed: true
+  project: ReyesDryspace
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0380.jpg
+  md5: 43a2c939b9b24778d073a72493d90c56
+  source_path: unknown/20250110_162630.jpg
+  city: Woodland
+  category: cover
+  description: Under deck dryspace with gutters
+  tags:
+    - timbertech
+    - dryspace
+  featured: true
+  reviewed: true
+  project: ReyesDryspace
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0381.jpg
+  md5: b538d48912fe835de97979da7e9e162c
+  source_path: unknown/20250110_162639.jpg
+  city: Woodland
+  category: cover
+  description: Timbertech Dryspace under deck
+  tags:
+    - dry
+    - dyspace
+    - deck
+  featured: false
+  reviewed: true
+  project: ReyesDryspace
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0382.jpg
+  md5: 93971212694ae6fd350ef2c407b58ec6
+  source_path: unknown/20250116_145806.jpg
+  city: Woodland
+  category: farm
+  description: Site preperation for greenhouse
+  tags:
+    - greenhouse
+    - excavation
+  featured: false
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0383.jpg
+  md5: 3af193add19dd4fe5e3e11f4cc3aad03
+  source_path: unknown/20250125_123603.jpg
+  city: Woodland
+  category: farm
+  description: Framing greenhouse
+  tags:
+    - framing
+    - greenhouse
+  featured: false
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0384.jpg
+  md5: 61a5bc3729c4cc17b069cfa37498e401
+  source_path: unknown/20250131_134628.jpg
+  city: Woodland
+  category: farm
+  description: Filling planter boxes in greenhouse
+  tags:
+    - planter
+    - greenhouse
+    - framing
+  featured: false
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0385.jpg
+  md5: b1be57f640fb62c7fd4a3ebeb2032b88
+  source_path: unknown/20250204_170144.jpg
+  city: Woodland
+  category: farm
+  description: Greenhouse framing with door and windows
+  tags:
+    - greenhouse
+    - windows
+    - framing
+  featured: false
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0386.jpg
+  md5: f9e85821286513d1981bff1961e69fd4
+  source_path: unknown/20250208_170348.jpg
+  city: Woodland
+  category: farm
+  description: Greenhouse with windows and climate control vents
+  tags:
+    - greenhouse
+    - vents
+    - windows
+  featured: true
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0387.jpg
+  md5: 001b934b332212e455b423549a259425
+  source_path: unknown/20250216_163936.jpg
+  city: Woodland
+  category: farm
+  description: Greenhouse planter boxes
+  tags:
+    - greenhouse
+    - planter
+    - garden
+  featured: false
+  reviewed: true
+  project: ReyesGreenhouse
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0389.jpg
+  md5: e185be048ace7067381b22375bf836f4
+  source_path: unknown/20250217_122855.jpg
+  city: Woodland
+  category: cover
+  description: Timber frame cover with king stud and struts
+  tags:
+    - timberframe
+    - struts
+    - beam
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0390.jpg
+  md5: 2ca538c657b6ae5d673efdf1019c6d87
+  source_path: unknown/20250217_123956.jpg
+  city: Woodland
+  category: deck
+  description: Deck fascia and cladding with electrical access
+  tags:
+    - Timbertech
+    - tigerwood
+    - cladding
+    - access
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0391.jpg
+  md5: 038a8aa470550003f99d4e6e08f8752e
+  source_path: unknown/20250217_124003.jpg
+  city: Woodland
+  category: deck
+  description: Deck with cladding, aluminum rail, cable, and drink rail.
+  tags:
+    - timbertech
+    - cladding
+    - cable
+    - drink rail
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0392.jpg
+  md5: 01bbabab242b73fef80f6ca076e1d17f
+  source_path: unknown/20250217_130009.jpg
+  city: Woodland
+  category: cover
+  description: Cover finish with skylight, soffit lights, and canned lights
+  tags:
+    - cedar
+    - finish
+    - lights
+    - electrical
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0393.jpg
+  md5: eed28b5182d9541e7cbc13af1c1adc52
+  source_path: unknown/20250301_172139.jpg
+  city: Woodland
+  category: farm
+  description: She shed framing with deck
+  tags:
+    - shed
+    - she shed
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0394.jpg
+  md5: 8035080a9305537ee988cc396563a078
+  source_path: unknown/20250312_182816.jpg
+  city: Woodland
+  category: farm
+  description: Custom she shed with door, windows, and deck
+  tags:
+    - she shed
+    - shed
+    - door
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0395.jpg
+  md5: 0951f574f0658fa3e36d9bf16e664ede
+  source_path: unknown/20250328_153226.jpg
+  city: Woodland
+  category: farm
+  description: She shed with deck and cover
+  tags:
+    - she shed
+    - shed
+    - deck
+    - cover
+  featured: true
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0396.jpg
+  md5: 7446aa508c1b49281d64b49cd0403c1d
+  source_path: unknown/20250408_151824.jpg
+  city: Woodland
+  category: farm
+  description: Framing in for large RV cover
+  tags:
+    - RV
+    - cover
+    - framing
+  featured: false
+  reviewed: true
+  project: ReyesCover
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0397.jpg
+  md5: 46928c6965bf9ccf9d8fb7222111a8a4
+  source_path: unknown/20250409_164617.jpg
+  city: Longview
+  category: deck
+  description: New deck repair with Timbertech seasalt grey, wrap around steps
+  tags:
+    - timbertech
+    - steps
+  featured: true
+  reviewed: true
+  project: Little
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0398.jpg
+  md5: b4755013752b3fc3f4fb5e14f0a31ceb
+  source_path: unknown/20250417_102352.jpg
+  city: Woodland
+  category: farm
+  description: Large RV cover
+  tags:
+    - RV
+    - cover
+    - parking
+  featured: false
+  reviewed: true
+  project: ReyesCover
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0399.jpg
+  md5: 523d9850298a127dbed90b01f851a779
+  source_path: unknown/20250417_102422.jpg
+  city: Woodland
+  category: farm
+  description: RV Parking Cover
+  tags:
+    - RV
+    - Parking
+    - Cover
+    - Lean-to
+  featured: true
+  reviewed: true
+  project: ReyesCover
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0401.jpg
+  md5: 1e00250149d550528a1e3130aed96f6f
+  source_path: unknown/20260820_113136.jpg
+  city: Woodland
+  category: stairs
+  description: Fiberon Stairs to river
+  tags:
+    - fiberon
+    - river
+    - stairs
+  featured: true
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0402.jpg
+  md5: a352c7b9c235ffcb358f31db0b508199
+  source_path: unknown/20260820_113914.jpg
+  city: Woodland
+  category: deck
+  description: Fiberon deck Tuscan villa with cinch rail
+  tags:
+    - fiberon
+    - steel rail
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0403.jpg
+  md5: c901ec2032eec4f10df74dd6b08ba8b1
+  source_path: unknown/20260820_113921.jpg
+  city: Woodland
+  category: deck
+  description: Large deck on river.  Fiberon Tuscan Villa
+  tags:
+    - deck
+    - fiberon
+    - cinchrail
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0404.jpg
+  md5: 00b81dc39f501d6d276ab489129c0d68
+  source_path: unknown/20260820_113942.jpg
+  city: Woodland
+  category: deck
+  description: Large Fiberon deck, Tuscan villa
+  tags:
+    - deck
+    - fiberon
+  featured: true
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0405.jpg
+  md5: d9404f29b3802a14b03e752ec23ffd16
+  source_path: unknown/20260820_114028.jpg
+  city: Woodland
+  category: deck
+  description: Large deck with river view
+  tags:
+    - Fiberon
+    - view
+    - rails
+  featured: true
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0406.jpg
+  md5: a6301d76a346124ce1783b6672040a17
+  source_path: unknown/20260820_114035.jpg
+  city: Woodland
+  category: rails
+  description: Cinchrail steel rail with 3" posts
+  tags:
+    - posts
+    - rails
+    - steel
+    - baluster
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0410.jpg
+  md5: be9d382854c83591818e94f1a2e56920
+  source_path: unknown/Cedar deck - Double picture frame.jpg
+  city: Vancouver
+  category: deck
+  description: Cedar deck Double picture frame
+  tags:
+    - cedar
+    - picture-frame-decking
+    - framing
+  featured: true
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0411.jpg
+  md5: b8f61b8794ab74cebf5e0f8c904cb75e
+  source_path: unknown/Cedar deck - wrap stairs.jpg
+  city: Vancouver
+  category: stairs
+  description: Cedar deck wrap stairs
+  tags:
+    - cedar
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0412.jpg
+  md5: 5263c248d727977267e78d77c8dbc5ef
+  source_path: unknown/Cedar deck view.jpg
+  city: Vancouver
+  category: deck
+  description: Cedar deck view with class panel rails
+  tags:
+    - cedar
+    - glass
+    - rails
+  featured: true
+  reviewed: true
+  project: Rush
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0413.jpg
+  md5: 57194d6c1890596d9fc83dc887ea7628
+  source_path: unknown/Cedar dry finish under deck.jpg
+  city: Battle Ground
+  category: deck
+  description: Cedar dry finish under deck with lights
+  tags:
+    - cedar
+    - dry-under-deck
+    - finish
+    - dry
+    - rain escape
+  featured: false
+  reviewed: true
+  project: Janigian
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0414.jpg
+  md5: 6b86bde52009efe6e039f76f328375e5
+  source_path: unknown/Cedar fence - custom posts.jpg
+  city: Vancouver
+  category: fence
+  description: Cedar fence custom posts
+  tags:
+    - cedar
+    - fence
+    - posts
+  featured: true
+  reviewed: true
+  project: Rhoades
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0415.jpg
+  md5: ce4f13976f2efe0e79994f649d8ef83a
+  source_path: unknown/Cedar fence and gate 2.jpg
+  city: Vancouver
+  category: fence
+  description: Cedar fence and gate 2
+  tags:
+    - Cedar
+    - fence
+    - gate
+  featured: false
+  reviewed: true
+  project: Rhoades
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0416.jpg
+  md5: 4ec41f9a53f31c34c71e6a3cf6cc4fef
+  source_path: unknown/Cedar fence and gate.jpg
+  city: Vancouver
+  category: fence
+  description: Cedar fence and gate
+  tags:
+    - Cedar
+    - gate
+  featured: false
+  reviewed: true
+  project: Rhoades
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0417.jpg
+  md5: e871dd14f65425efacfb0f960c7bde26
+  source_path: unknown/Cedar privacy screen.jpg
+  city: Vancovuer
+  category: cover
+  description: Cedar privacy screen
+  tags:
+    - cedar
+  featured: false
+  reviewed: true
+  project: Michaud
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0418.jpg
+  md5: 6a0ae196919f587491d3fd1d677146d5
+  source_path: unknown/Cedar rail with glass infill.jpg
+  city: Battle Ground
+  category: rails
+  description: Cedar rail with glass infill
+  tags:
+    - cedar
+    - glass-infill
+    - glass
+  featured: false
+  reviewed: true
+  project: Rush
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0419.jpg
+  md5: 8b5f7a4d430018e9a80801aff3ef4f54
+  source_path: unknown/Composite Deck. Waiting for cable.jpg
+  city: Kalaman
+  category: deck
+  description: Composite Deck. Waiting for cable
+  tags:
+    - composite
+    - cable-rail
+  featured: true
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0420.jpg
+  md5: ade6c0491209fb31309ce806b10fb8ad
+  source_path: unknown/Composite deck and cedar rails.jpg
+  city: Vancouver
+  category: rails
+  description: Composite deck and cedar rails
+  tags:
+    - composite
+    - cedar
+  featured: false
+  reviewed: true
+  project: CedarRail
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0421.jpg
+  md5: 5e361f0c85e49b71fcbeb8143b09cc63
+  source_path: unknown/Cover engineered trusses.jpg
+  city: Vancovuer
+  category: cover
+  description: Cover engineered trusses
+  tags:
+    - Truss
+    - framing
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0422.jpg
+  md5: 6a796d0b88f0088be1b9a15807ca5a53
+  source_path: unknown/Custom cedar rails with composite deck.jpg
+  city: Vancouver
+  category: rails
+  description: Custom cedar rails with composite deck
+  tags:
+    - composite
+    - cedar
+  featured: true
+  reviewed: true
+  project: Byrd1
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0423.jpg
+  md5: e5ebc19032088b1a32365464f6d63f12
+  source_path: unknown/Custom floating deck.jpg
+  city: Battle Ground
+  category: deck
+  description: Custom floating deck with benches
+  tags:
+    - Timbertech
+    - bench
+    - deck
+  featured: false
+  reviewed: true
+  project: Childs
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0424.jpg
+  md5: 6c5ae021f62842946846a4a2c9afabb5
+  source_path: unknown/Custom inset steps with cedar rails.jpg
+  city: Vancouver
+  category: stairs
+  description: Custom inset steps with cedar rails
+  tags:
+    - cedar
+  featured: false
+  reviewed: true
+  project: CedarRail
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0425.jpg
+  md5: ebf2553f32e98b81263961c70f81d10a
+  source_path: unknown/Custom stairs with lights and custom rails.jpg
+  city: Camas
+  category: stairs
+  description: Custom stairs with lights and custom rails
+  tags:
+    - stair
+    - lights
+    - custom
+  featured: true
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0426.jpg
+  md5: b62077d245a605d666bf39d63eccfe33
+  source_path: unknown/Custom wrap step framing 1.jpg
+  city: Vancouver
+  category: deck
+  description: Custom wrap step framing 1
+  tags:
+    - framing
+    - wrap
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0427.jpg
+  md5: b14c1a71770189f81b2c142a1d7ba9c5
+  source_path: unknown/Custom wrap step framing.jpg
+  city: Vancovuer
+  category: stairs
+  description: Custom wrap step framing
+  tags:
+    - framing
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0428.jpg
+  md5: ab844fc44a33ab7dc1b426b34ae37312
+  source_path: unknown/Deck - star inlay 2.jpg
+  city: Washougal
+  category: deck
+  description: Deck star inlay 2
+  tags:
+    - Inlay
+    - ramp
+    - deck
+  featured: true
+  reviewed: true
+  project: Washougal
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0429.jpg
+  md5: bf7f38e4217f65ac252fe6741e6a5dc7
+  source_path: unknown/Deck - star inlay.jpg
+  city: Washougal
+  category: deck
+  description: Deck star inlay
+  tags:
+    - inlay
+    - ramp
+    - star
+  featured: false
+  reviewed: true
+  project: Washougal
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0430.jpg
+  md5: 121077d832090cb38dcf0e7a0e3a65e2
+  source_path: unknown/Deck Framing - Washougal.jpg
+  city: Washougal
+  category: deck
+  description: Deck Framing in back
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0431.jpg
+  md5: e35c40b2005ab7946e46d9200d73f1b2
+  source_path: unknown/Deck and cedar rails(1).jpg
+  city: Vancouver
+  category: rails
+  description: Deck and cedar rails with drink rail and stairs
+  tags:
+    - cedar
+  featured: false
+  reviewed: true
+  project: NoToeKicks
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0432.jpg
+  md5: d97daf4ed3a05310b78810d70c803eed
+  source_path: unknown/Deck and cedar rails.jpg
+  city: Vancouver
+  category: rails
+  description: Deck and cedar rails
+  tags:
+    - Timbertech
+    - cedar
+  featured: true
+  reviewed: true
+  project: Byrd1
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0433.jpg
+  md5: 6eb7de548518b7d97fb5f52de54e0abe
+  source_path: unknown/Deck picture frame.jpg
+  city: Vancouver
+  category: deck
+  description: Deck picture frame in front of house
+  tags:
+    - picture-frame-decking
+    - framing
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0434.jpg
+  md5: 9cc4cf5b36aee318926c497e5d23cd2f
+  source_path: unknown/Deck restoration.jpg
+  city: Longview
+  category: deck
+  description: Deck restoration with new rails
+  tags:
+    - Wood deck and rails
+  featured: false
+  reviewed: true
+  project: Burgoyne
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0435.jpg
+  md5: 9b45827dead59a3deeaf6e58c55963e9
+  source_path: unknown/Deck restore front.jpg
+  city: La Center
+  category: deck
+  description: Deck restore front
+  tags:
+    - restore
+    - deck
+    - repair
+  featured: false
+  reviewed: true
+  project: Burgoyne
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0436.jpg
+  md5: 0d4faffd987789c1c7027f56b845113a
+  source_path: unknown/Deck stairs.jpg
+  city: Vancouver
+  category: stairs
+  description: Deck stairs with cedar rail
+  tags:
+    - deck
+    - stair
+    - rails
+    - drink rail
+    - cedar
+  featured: false
+  reviewed: true
+  project: NoToeKicks
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0437.jpg
+  md5: 8bb6c29145739eb85ef8a64bb662336e
+  source_path: unknown/Deck with aluminum rail and TR200 cap.jpg
+  city: Cathlamet
+  category: deck
+  description: Front Deck with aluminum rail and TR200 cap
+  tags:
+    - aluminum-rail
+    - tr200
+    - picture frame
+  featured: true
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0438.jpg
+  md5: 92d1b392f7f8a5ed2d8571ba96abbc52
+  source_path: unknown/Deck with aluminum rail.jpg
+  city: Vancouver
+  category: rails
+  description: Deck with aluminum rail
+  tags:
+    - aluminum-rail
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0439.jpg
+  md5: 65ccb234badfe1aaa9f05b5c094966b1
+  source_path: unknown/Deck with aluminum rails.jpg
+  city: Kelso
+  category: rails
+  description: Deck with aluminum rails
+  tags:
+    - aluminum-rail
+  featured: false
+  reviewed: true
+  project: Nunes
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0440.jpg
+  md5: 8119c4fb60709ccbdb951a80c8d9e71c
+  source_path: unknown/Deck with composite rails and lights.jpg
+  city: Vancouver
+  category: rails
+  description: Deck with composite rails and lights
+  tags:
+    - composite
+  featured: true
+  reviewed: true
+  project: Mag
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0441.jpg
+  md5: 6c7b62dd29da0a89e1cfb5c10e863fff
+  source_path: unknown/Deck with double picture frame.jpg
+  city: Vancouver
+  category: deck
+  description: Deck with double picture frame
+  tags:
+    - picture-frame-decking
+    - framing
+  featured: false
+  reviewed: true
+  project: WhiteTrim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0442.jpg
+  md5: f6606f28eae189f4c60ed6393e0824e8
+  source_path: unknown/Deck with picture frame steps.jpg
+  city: Cathlamet
+  category: stairs
+  description: Front Deck with picture frame steps
+  tags:
+    - picture-frame-decking
+    - framing
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0443.jpg
+  md5: b922050d77ee9c87df64e35a23efc4d8
+  source_path: unknown/Deck with rails TR200.jpg
+  city: La Center
+  category: rails
+  description: Deck with rails TR200
+  tags:
+    - Trex
+    - rails
+  featured: false
+  reviewed: true
+  project: Hunt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0444.jpg
+  md5: 3cfa5edeedda4a150da71b68b9cc24f8
+  source_path: unknown/Deck with view.jpg
+  city: Kalama
+  category: deck
+  description: Deck with view
+  tags:
+    - Deck
+    - rails
+    - view
+  featured: false
+  reviewed: true
+  project: Chunn
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0445.jpg
+  md5: 3c6944b8085f7a4485a73087174058ff
+  source_path: unknown/Dog Ear deck.jpg
+  city: Vancovuer
+  category: deck
+  description: Dog Ear deck
+  tags:
+    - dog ear
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Lowdeck
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0446.jpg
+  md5: aad34def3a61eb92e390191f36e58c14
+  source_path: unknown/Dry under deck finish.jpg
+  city: Camas
+  category: deck
+  description: Dry under deck finish
+  tags:
+    - dry
+    - rain escape
+    - cedar
+    - finish
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0447.jpg
+  md5: 2c1a1b51d2feb014e7923fc782c77482
+  source_path: unknown/Dry under deck finish2.jpg
+  city: Camas
+  category: deck
+  description: Dry under deck finish2
+  tags:
+    - rain escape
+    - cedar
+    - fascia
+  featured: true
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0448.jpg
+  md5: 25c97ee5eb3602d6f4c9e04b0eb2ba0a
+  source_path: unknown/Farmstand empty.jpg
+  city: Woodland
+  category: farm
+  description: Farmstand empty
+  tags:
+    - farmstand
+    - cart
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0449.jpeg
+  md5: 1a5c92c711d96c7cc97df18dd1e8a9dd
+  source_path: unknown/Fence2.jpeg
+  city: Vancouver
+  category: fence
+  description: Cedar fence with custom posts
+  tags:
+    - fence
+    - posts
+    - cedar
+  featured: true
+  reviewed: true
+  project: Rhoades
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0450.jpg
+  md5: bf90c7fda8f9ac47e8406d2b012eb485
+  source_path: unknown/Finish cover standard.jpg
+  city: Camas
+  category: cover
+  description: Finish cover standard truss
+  tags:
+    - Cover
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0451.jpg
+  md5: 46a4fbb02e90641ec61c73e01cbb7adb
+  source_path: unknown/Flagstone landing.jpg
+  city: Vancouver
+  category: patio
+  description: Flagstone landing
+  tags:
+    - flagstone
+    - patio
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0452.jpg
+  md5: df702e3b009151fa27e9ab489219f8ac
+  source_path: unknown/Grery deck low with step.jpg
+  city: unknown
+  category: stairs
+  description: Grery deck low with step
+  tags:
+    - Timbertech
+    - step
+  featured: false
+  reviewed: true
+  project: WhiteTrim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0453.jpg
+  md5: 11b474fe7946a7bc8bf9f04ef2030515
+  source_path: unknown/Grey Deck - Washougal.jpg
+  city: Washougal
+  category: deck
+  description: Grey Deck Washougal
+  tags:
+    - Timbertech
+    - fascia
+  featured: true
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0454.jpg
+  md5: 6689fc3f344f26eb75f47bd2a2f1355f
+  source_path: unknown/Grey deck - alumarail.jpg
+  city: Vancouver
+  category: rails
+  description: Grey deck alumarail
+  tags:
+    - deck
+    - rail
+    - fasia
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0455.jpg
+  md5: 4f136800292475e6edbdce78462bebab
+  source_path: unknown/Heavy timber stairs.jpg
+  city: Battle Ground
+  category: stairs
+  description: Heavy timber stairs
+  tags:
+    - stairs
+    - timber
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0457.jpg
+  md5: 2ef58dfa52374d6e8a0542e8c4d0f310
+  source_path: unknown/IMG_0021(1).jpg
+  city: Vancouver
+  category: deck
+  description: Dog ear picture frame deck
+  tags:
+    - deck
+    - dog ear
+  featured: false
+  reviewed: true
+  project: Lowdeck
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0459.jpg
+  md5: 579bfcdf67b3bb9e675e3da455316a91
+  source_path: unknown/IMG_20210907_171826_769.jpg
+  city: Vancouver
+  category: cover
+  description: Lean-to cover white with sun tuf
+  tags:
+    - suntuf
+    - cover
+    - lean-to
+    - patio
+  featured: true
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0460.jpg
+  md5: 5f62d46f3fbd53ebffc722684ff2faa8
+  source_path: unknown/IMG_20211001_150645_630.jpg
+  city: Castle Rock
+  category: rails
+  description: White aluminum rails on deck and stairs
+  tags:
+    - alumarail
+    - white
+    - stairs
+    - balusters
+  featured: true
+  reviewed: true
+  project: Pettit
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0462.jpg
+  md5: fa9753832046952d6f397920439cb41e
+  source_path: unknown/IMG_20220314_162215_231.jpg
+  city: Woodland
+  category: patio
+  description: Stamped custom paver patio
+  tags:
+    - patio
+    - stamped
+    - concrete
+  featured: false
+  reviewed: true
+  project: Ek
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0464.jpg
+  md5: da1fc3c1e6b3e4931eec905a79b09f72
+  source_path: unknown/IMG_20230626_190750_168.jpg
+  city: Woodland
+  category: farm
+  description: Chicken coop with covered run
+  tags:
+    - coop
+    - run
+    - chicken
+  featured: true
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0465.jpg
+  md5: 15de058ad87eab868c94a89b3dbe859f
+  source_path: unknown/IMG_20230629_125741_657.jpg
+  city: Washougal
+  category: deck
+  description: Deck with gazebo and hot tub - outdoor living
+  tags:
+    - deck
+    - rails
+    - hot tub
+    - gazebo
+    - outdoor living
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0466.jpg
+  md5: e975ab3e74b317aef99ab5cde28efbda
+  source_path: unknown/IMG_20230702_151756_625.jpg
+  city: Woodland
+  category: cover
+  description: covered deck with dry deck
+  tags:
+    - dry
+    - cedar
+    - lights
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0467.jpg
+  md5: cca13c0c553aed37f2788a8cc54c028f
+  source_path: unknown/IMG_20240314_200843_716.jpg
+  city: Vancouver
+  category: stairs
+  description: Cedar stairs with cedar toe kicks framing
+  tags:
+    - cedar
+    - stairs
+  featured: false
+  reviewed: true
+  project: Tirey
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0468.jpg
+  md5: 22c5bd72995293831f77c6743525dcb2
+  source_path: unknown/IMG_2144.jpg
+  city: Woodland
+  category: rails
+  description: Cedar rails
+  tags:
+    - cedar
+    - rails
+    - balusters
+  featured: false
+  reviewed: true
+  project: Vernon
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0469.jpg
+  md5: 439a67537b069c43faacc91c8c5edf06
+  source_path: unknown/IMG_4060.jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover with skylights and cedar trim
+  tags:
+    - timberframe
+    - skylights
+    - cedar
+  featured: false
+  reviewed: true
+  project: Daane
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0470.jpg
+  md5: 35805f668410d29425d1a62294d48bbc
+  source_path: unknown/Landscape steps 2.jpg
+  city: Vancouver
+  category: stairs
+  description: Landscape steps 2
+  tags:
+    - steps
+    - farm
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0473.jpg
+  md5: c121008ead9fb54c3c41fbd04494dd5c
+  source_path: unknown/Large cover overframe.jpg
+  city: Vancouver
+  category: cover
+  description: Large cover overframe
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0474.jpg
+  md5: 8bb5b97f646d1c6ee28736bde3851a97
+  source_path: unknown/Large deck and stairs - hogwire infill.jpg
+  city: Brush Prairie
+  category: stairs
+  description: Large deck and stairs hogwire infill
+  tags:
+    - hogwire
+    - mesh
+    - rail
+    - outdoor living
+  featured: true
+  reviewed: true
+  project: Love
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0475.jpg
+  md5: 7bc3b745316741636e1cf5a8f5d4249d
+  source_path: unknown/Lean-to cover skyjacks.jpg
+  city: Vancouver
+  category: cover
+  description: Lean-to cover with skyjacks
+  tags:
+    - lean-to
+    - skyjack
+  featured: false
+  reviewed: true
+  project: Piazza
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0476.jpg
+  md5: 6ff7b3bab54b3d46758b03cffefeb43b
+  source_path: unknown/Low deck.jpg
+  city: Vancouver
+  category: deck
+  description: Low deck
+  tags:
+    - deck
+  featured: false
+  reviewed: true
+  project: Lowdeck
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0478.jpg
+  md5: 9c5ac912d0e5f2faeb759969b2da1a63
+  source_path: unknown/New stair stringers.jpg
+  city: Camas
+  category: stairs
+  description: New stair stringers framing
+  tags:
+    - framing
+  featured: false
+  reviewed: true
+  project: Martinson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0479.jpg
+  md5: eeb7498629025b2794f8f3da51dd1823
+  source_path: unknown/Paver patio.jpg
+  city: Vancouver
+  category: patio
+  description: Paver patio
+  tags:
+    - Paver
+    - patio
+  featured: false
+  reviewed: true
+  project: Michaud
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0480.jpg
+  md5: fcd4f6005afa89910d7a4b93d6664633
+  source_path: unknown/Pergola with privacy screen.jpg
+  city: Vancouver
+  category: cover
+  description: Pergola with privacy screen
+  tags:
+    - pergola
+    - suntuf
+    - privacy
+  featured: false
+  reviewed: true
+  project: Michaud
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0481.jpg
+  md5: 379e4573a69a2292f1eff8349c5b1566
+  source_path: unknown/Picture frame steps with rail.jpg
+  city: Castle Rock
+  category: stairs
+  description: Picture frame steps with white aluminum rail
+  tags:
+    - pictureframe
+    - steps
+    - rails
+    - whilte
+  featured: false
+  reviewed: true
+  project: Pettit
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0486.jpeg
+  md5: d966e6e0d2819808668f6150e7e3003f
+  source_path: unknown/Resized_20200526_131047.jpeg
+  city: Vancouver
+  category: stairs
+  description: Composite ramp with cedar rails
+  tags:
+    - ramp
+    - rails
+    - timbertech
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0487.jpeg
+  md5: 4997d36a561bc1385d6b53d77d82edf7
+  source_path: unknown/Resized_20200602_131404.jpeg
+  city: Vancouver
+  category: deck
+  description: Deck with white fascia
+  tags:
+    - Deck
+  featured: false
+  reviewed: true
+  project: WhiteTrim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0488.jpeg
+  md5: c67fe552d203fc30abe5a0875f8646a3
+  source_path: unknown/Resized_20200626_135039.jpeg
+  city: Camas
+  category: deck
+  description: 2 story deck with dry in rain escape and finsh soffit
+  tags:
+    - deck
+    - soffit
+    - rain escape
+    - lights
+    - composite rails
+  featured: true
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0489.jpeg
+  md5: 4123ad94bade12dd0185ad445fdbd455
+  source_path: unknown/Resized_20200717_103210_3546.jpeg
+  city: Vancouver
+  category: deck
+  description: Deck with drink rail
+  tags:
+    - timbertech
+    - drink rail
+    - porch
+  featured: false
+  reviewed: true
+  project: tognetti
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0490.jpeg
+  md5: 16ff6427432c9813281c23fb868351f9
+  source_path: unknown/Resized_20200722_190339.jpeg
+  city: Brush Prairie
+  category: stairs
+  description: Stairs with hogwire mesh rails
+  tags:
+    - stairs
+    - hogwire
+    - drink rail
+  featured: false
+  reviewed: true
+  project: Love
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0491.jpg
+  md5: 7a33aa511bc33a567b05cad174471317
+  source_path: unknown/Resized_20200722_191609.jpg
+  city: Brush Prairie
+  category: deck
+  description: upper deck with over and stairs
+  tags:
+    - deck
+    - outdoor living
+    - hogwire
+  featured: false
+  reviewed: true
+  project: Love
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0492.jpeg
+  md5: acde203ee0f62d13f33627c94ea7a795
+  source_path: unknown/Resized_20200811_182902(2).jpeg
+  city: Woodland
+  category: other
+  description: Outdoor kitchen sink
+  tags:
+    - Outdoor living
+    - sink
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0493.jpeg
+  md5: e47c448710a6132b5eb695977eafc729
+  source_path: unknown/Resized_20210318_124838.jpeg
+  city: Battle Ground
+  category: deck
+  description: Low deck with long steps and bench
+  tags:
+    - deck
+    - bench
+  featured: true
+  reviewed: true
+  project: Childs
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0494.jpeg
+  md5: 8608e26008772f7ec7b5b1f7bc4f811d
+  source_path: unknown/Resized_20210326_160743.jpeg
+  city: Washougal
+  category: rails
+  description: Front glass panel rails on concrete steps
+  tags:
+    - rails
+    - concrete
+    - glass
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0495.jpeg
+  md5: 7f440b0ff58226c343e7fb5177155c44
+  source_path: unknown/Resized_20210728_112821.jpeg
+  city: Woodland
+  category: deck
+  description: Front porch deck with steps and walkway
+  tags:
+    - timbertech
+    - porch
+    - picture frame
+  featured: false
+  reviewed: true
+  project: Rice
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0496.jpeg
+  md5: 4cc1025f0ceba828c3107230e74ae384
+  source_path: unknown/Resized_20220316_122105.jpeg
+  city: Woodland
+  category: patio
+  description: Paver patio with stamped concrete
+  tags:
+    - patio
+    - concrete
+  featured: false
+  reviewed: true
+  project: Ek
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0497.jpeg
+  md5: 11598c122a7eb9f273c658a79bee1df1
+  source_path: unknown/Resized_20220509_113607.jpeg
+  city: Vancouver
+  category: cover
+  description: Truss cover framing
+  tags:
+    - framing
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0500.jpg
+  md5: 28d606826d0b9dae9839264195c35932
+  source_path: unknown/Screenshot_20260807_194101_Messages.jpg
+  city: Woodland
+  category: deck
+  description: Deck Framing
+  tags:
+    - deck
+    - framing
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0501.jpg
+  md5: ae13300fc3a1c58bfddfd02a79a1a828
+  source_path: unknown/Screenshot_20260819_201920_Messages.jpg
+  city: Woodland
+  category: stairs
+  description: Fiberon Steps with steel rail
+  tags:
+    - stairs
+    - rails
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0502.jpg
+  md5: 72254948c9c405f3a34780cd914eef2d
+  source_path: unknown/Screenshot_20260819_202005_Messages.jpg
+  city: Woodland
+  category: stairs
+  description: Screenshot 20260819 202005 Messages
+  tags:
+    - stairs
+    - rails
+    - cinch
+  featured: false
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0503.jpg
+  md5: 467ed9a27132e3069cd847d06246773d
+  source_path: unknown/Screenshot_20260819_202112_Messages.jpg
+  city: Woodland
+  category: deck
+  description: Large deck - Fiberon with steel cinch rail
+  tags:
+    - deck
+    - rail
+    - stairs
+  featured: true
+  reviewed: true
+  project: Stewart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0507.jpg
+  md5: 6d0a983e7f2d261ef137dec4cb608064
+  source_path: unknown/Standard cover frame.jpg
+  city: Vancouver
+  category: cover
+  description: Standard cover frame
+  tags:
+    - framing
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0509.jpg
+  md5: 7bbabcb4f575fc0fafac65183c36378d
+  source_path: unknown/Timberframe beam connection.jpg
+  city: Vancouver
+  category: cover
+  description: Timberframe beam connection
+  tags:
+    - timberframe
+    - framing
+    - hardware
+  featured: false
+  reviewed: true
+  project: TimberJim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0512.jpg
+  md5: 4cc848b35e158288583622df36828431
+  source_path: unknown/Timbertech deck - aluminum rails.jpg
+  city: Vancouver
+  category: rails
+  description: Timbertech deck aluminum rails
+  tags:
+    - timbertech
+    - aluminum
+    - rail
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0514.jpg
+  md5: 7d5eca18db7380ed7be8c81c390c0820
+  source_path: unknown/Timbertech pro legacy custom steps.jpg
+  city: Vancouver
+  category: stairs
+  description: Timbertech pro legacy custom steps
+  tags:
+    - timbertech
+  featured: false
+  reviewed: true
+  project: Epperson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0515.jpg
+  md5: 14b63fb70a8ab7821ba8b4cb3f526eab
+  source_path: unknown/Untitled(1).jpg
+  city: Vancouver
+  category: rails
+  description: Stainless steel cable rail with black posts
+  tags:
+    - cable
+    - rail
+  featured: false
+  reviewed: true
+  project: Byrd2
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0516.jpg
+  md5: 716dfb80875f69126b82e76f3c1bd805
+  source_path: unknown/Untitled(10).jpg
+  city: Camas
+  category: rails
+  description: Composite railing with black infill
+  tags:
+    - Trex rail
+    - composite
+  featured: false
+  reviewed: true
+  project: Hart
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0518.jpg
+  md5: 9c3087fad2895be579d2504dc30cad4d
+  source_path: unknown/Untitled(12).jpg
+  city: Vancouver
+  category: rails
+  description: Aluminum rail with drink rail
+  tags:
+    - drink rail
+    - aluminum
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0519.jpg
+  md5: ad77702cbe648319ff11cf50badbaea8
+  source_path: unknown/Untitled(13).jpg
+  city: Vancovuer
+  category: stairs
+  description: Stairs with cedar rails
+  tags:
+    - timbertech
+    - stairs
+  featured: false
+  reviewed: true
+  project: Devoe
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0520.jpg
+  md5: 88284cd479a9416138e6ab39552eae37
+  source_path: unknown/Untitled(14).jpg
+  city: Vancouver
+  category: stairs
+  description: Stairs with cedar rails
+  tags:
+    - cedar
+    - rails
+  featured: false
+  reviewed: true
+  project: Devoe
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0521.jpg
+  md5: b9696f941a0c4a4132f2ddc2fdd1af08
+  source_path: unknown/Untitled(15).jpg
+  city: Vancouver
+  category: fence
+  description: Fence with arbor at back of deck
+  tags:
+    - fence
+    - deck
+    - cedar
+  featured: false
+  reviewed: true
+  project: Devoe
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0522.jpg
+  md5: 63581124b9b3a22375ecb71be59dde9c
+  source_path: unknown/Untitled(16).jpg
+  city: Camas
+  category: cover
+  description: Timbertech dryspace under deck
+  tags:
+    - dryspace
+    - dry
+    - gutter
+  featured: false
+  reviewed: true
+  project: Daane
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0523.jpg
+  md5: f7397274faafce67e76ee6dcc94d2573
+  source_path: unknown/Untitled(17).jpg
+  city: Camas
+  category: cover
+  description: Timberframe cover over deck
+  tags:
+    - timberframe
+    - cedar
+    - cover
+  featured: false
+  reviewed: true
+  project: Olson
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0524.jpg
+  md5: b080bc6f17547705805d931873309dbe
+  source_path: unknown/Untitled(18).jpg
+  city: Vancouver
+  category: cover
+  description: Truss Cover post wrap
+  tags:
+    - cover
+    - framing
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0525.jpg
+  md5: a72c57f691e7b8ba0443835690fda346
+  source_path: unknown/Untitled(19).jpg
+  city: Woodland
+  category: deck
+  description: Drink rail with lights, cedar with aluminum balusters
+  tags:
+    - rail
+    - lights
+    - balusters
+  featured: false
+  reviewed: true
+  project: Bridges
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0526.jpg
+  md5: 8766cb290f4579b0174ba7dbb0a41f68
+  source_path: unknown/Untitled(2).jpg
+  city: Woodland
+  category: cover
+  description: Dryspace under deck
+  tags:
+    - dryspace
+  featured: false
+  reviewed: true
+  project: ReyesDryspace
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0528.jpg
+  md5: a09183c4a551c7a732312b440a85d709
+  source_path: unknown/Untitled(21).jpg
+  city: Vancouver
+  category: cover
+  description: Hip roof framing for patio cover
+  tags:
+    - framing
+    - patio
+    - cover
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0529.jpg
+  md5: ce8c1f46620d2c4d2a7d23a5d91c3dad
+  source_path: unknown/Untitled(22).jpg
+  city: Camas
+  category: deck
+  description: 2 story deck with aluminum rails
+  tags:
+    - rails
+    - cable
+    - steel
+    - posts
+  featured: false
+  reviewed: true
+  project: Case
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0530.jpg
+  md5: 4616d74cd336fde1756b7fb73316bf92
+  source_path: unknown/Untitled(23).jpg
+  city: Woodland
+  category: farm
+  description: Framing for retaining wall future RV parkign
+  tags:
+    - concrete
+    - wall
+    - framing
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0531.jpg
+  md5: 0427de7111c7f307d68e52ac71987ee6
+  source_path: unknown/Untitled(24).jpg
+  city: Woodland
+  category: cover
+  description: 3-D rendering for outdoor living
+  tags:
+    - rendering
+    - deck
+    - cover
+    - design
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0532.jpg
+  md5: 88974dbecc2ef9baf1f2e43d9c7c6e97
+  source_path: unknown/Untitled(25).jpg
+  city: Woodland
+  category: cover
+  description: Rendering for deck and cover - outdoor living
+  tags:
+    - design
+    - outdoor living
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0533.jpg
+  md5: 942ddde87bea56a234a81d6543579230
+  source_path: unknown/Untitled(26).jpg
+  city: Woodland
+  category: patio
+  description: Rendering for stone patio
+  tags:
+    - Rendering
+    - 3D
+    - pavers
+    - patio
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0534.jpg
+  md5: 75c1f4a1a624cf8f0b572ae0e1a62d95
+  source_path: unknown/Untitled(27).jpg
+  city: Woodland
+  category: cover
+  description: Outdoor living rendering
+  tags:
+    - Design
+    - deck
+    - cover
+    - 3-D
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0535.jpg
+  md5: 503d90ed5d0751be87ae84a7efcee87e
+  source_path: unknown/Untitled(28).jpg
+  city: Woodland
+  category: farm
+  description: Retaining wall for future cover
+  tags:
+    - Wall
+    - concrete
+  featured: false
+  reviewed: true
+  project: Glory Rd
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0536.jpg
+  md5: 2380c2fbe3888a05d53b4cc9d83c5016
+  source_path: unknown/Untitled(29).jpg
+  city: Vancovuer
+  category: cover
+  description: Timberframe with black hardware
+  tags:
+    - timberframe
+    - hardware
+    - beams
+  featured: false
+  reviewed: true
+  project: TimberJim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0537.jpg
+  md5: ffa6d7558bb52537948d89b2d3eb1837
+  source_path: unknown/Untitled(3).jpg
+  city: Woodland
+  category: stairs
+  description: Wedding cake steps with lights - Timbertech Pro Legacy
+  tags:
+    - steps
+    - lights
+    - timbertech
+  featured: true
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0538.jpg
+  md5: 1e9257f57f5c7af46ce7ce10cfcfef2a
+  source_path: unknown/Untitled(4).jpg
+  city: Woodland
+  category: cover
+  description: 2 Covers and decks with lights
+  tags:
+    - Deck
+    - covers
+    - cable rails
+  featured: true
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0539.jpg
+  md5: 4b558b5e6856f0284ba5196a527203f4
+  source_path: unknown/Untitled(5).jpg
+  city: Woodland
+  category: cover
+  description: Timbertech dryspace under deck with gutters and downspouts
+  tags:
+    - timbertech
+    - dryspace
+    - gutters
+  featured: false
+  reviewed: true
+  project: ReyesDryspace
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0541.jpg
+  md5: 9678ba2240cec5bc6f310a98cd624663
+  source_path: unknown/Untitled(7).jpg
+  city: Camas
+  category: deck
+  description: Compoiste deck with black aluminum rails
+  tags:
+    - deck
+    - rails
+  featured: false
+  reviewed: true
+  project: Unknown
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0543.jpg
+  md5: d7a852c1ad43032d9ee756fc6bb98042
+  source_path: unknown/Untitled.jpg
+  city: Vancouver
+  category: deck
+  description: Deck with concrete steps and aluminum rail
+  tags:
+    - steps
+    - rails
+    - cable
+  featured: false
+  reviewed: true
+  project: Byrd2
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0544.jpg
+  md5: b7e53c119a701b0eeb3383b2e1e47338
+  source_path: unknown/Washougal side deck with rail.jpg
+  city: Washougal
+  category: deck
+  description: Washougal side deck with rail
+  tags:
+    - deck
+    - rail
+    - tr-200
+  featured: false
+  reviewed: true
+  project: Grinstead
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0545.jpg
+  md5: 612f47a4a774dabcefa13a79cf6c0273
+  source_path: unknown/White cover 2 fans and concrete.jpg
+  city: Camas
+  category: cover
+  description: White cover 2 fans and concrete
+  tags:
+    - Fans
+    - cover
+    - white finish
+  featured: false
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0546.jpg
+  md5: a5c6364067d0c9dda8030f8b97d0d4aa
+  source_path: unknown/White cover finish - lean-to.jpg
+  city: Camas
+  category: cover
+  description: White cover finish lean-to
+  tags:
+    - lean-to
+    - white
+    - fan
+  featured: true
+  reviewed: true
+  project: Leinberger
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0547.jpg
+  md5: 42316db2b43ca3851be258e6c436fda0
+  source_path: unknown/White patio cover -  pergola style.jpg
+  city: Vancouver
+  category: patio
+  description: White patio cover pergola style
+  tags:
+    - pergola
+    - skyjacks
+    - white
+  featured: false
+  reviewed: true
+  project: Brusco
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0548.jpg
+  md5: bdab992a17489246eb72dd5192a142e1
+  source_path: unknown/Wide stairs.jpg
+  city: Vancovuer
+  category: stairs
+  description: Wide stairs with picture framing
+  tags:
+    - picture frame
+    - steps
+    - landing
+  featured: false
+  reviewed: true
+  project: Stephens
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0549.jpg
+  md5: 6042169bfee1282449464aee0ca417b2
+  source_path: unknown/Woodland basic cover frame.jpg
+  city: Woodland
+  category: cover
+  description: Woodland basic cover frame
+  tags:
+    - framing
+    - truss
+  featured: false
+  reviewed: true
+  project: La Punta Grande
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0550.jpg
+  md5: 5193b2220d4b6226bc078b8b08a1a95c
+  source_path: unknown/composite patio with picture frame steps.jpg
+  city: Vancouver
+  category: stairs
+  description: Composite patio with picture frame steps
+  tags:
+    - finish
+    - steps
+    - porch
+  featured: false
+  reviewed: true
+  project: Magnus
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0551.jpg
+  md5: 326eb35e117f66e933e7656b87f997dd
+  source_path: unknown/composite porch deck - aluminum rail.jpg
+  city: Cathlamet
+  category: rails
+  description: Composite porch deck aluminum rail
+  tags:
+    - composite
+    - aluminum-rail
+    - front
+    - porch
+  featured: false
+  reviewed: true
+  project: Jones
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0553.jpg
+  md5: 5339a84c8cc38eef9b8df27a41938b6d
+  source_path: unknown/image000001.jpg
+  city: Vancovuer
+  category: cover
+  description: Timber frame cover with ceiling fan and exposed beams
+  tags:
+    - Timberframe
+    - cover
+  featured: true
+  reviewed: true
+  project: TimberJim
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0554.jpg
+  md5: ac9a5d6b9d392742f9981916bd461d1e
+  source_path: unknown/post wrap cover.jpg
+  city: Vancouver
+  category: cover
+  description: Post wrap cover
+  tags:
+    - wrap
+    - posts
+    - trim
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0556.jpg
+  md5: 03ca6eccb16676341eca1871ea404385
+  source_path: Cover1.jpg
+  city: Vancovuer
+  category: cover
+  description: Cover painted and finished with wrapped posts and gutters
+  tags:
+    - finish
+    - cover
+    - truss
+    - outdoor-living
+  featured: true
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0557.jpg
+  md5: 23d2f7b57d2d96a3350b1254f598c429
+  source_path: Cover2.jpg
+  city: Vancovuer
+  category: cover
+  description: Cover side with lights
+  tags:
+    - cover
+    - truss
+    - lights
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0559.jpg
+  md5: c2a9f4f5703f172633aa03e1a0f13a68
+  source_path: Inside.jpg
+  city: Vancouver
+  category: cover
+  description: Under side of cover finished with ceiling fan
+  tags:
+    - cover
+    - ceiling fan
+    - lights
+    - fan
+    - truss
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0560.jpg
+  md5: e304176e31ec1f8f0741b42e8f2ac259
+  source_path: Inside2.jpg
+  city: Vancouver
+  category: cover
+  description: Cover with lights and fan. Outdoor Living
+  tags:
+    - outdoor living
+    - fan
+    - patio
+  featured: false
+  reviewed: true
+  project: Rehfeldt
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0561.jpg
+  md5: b1d8eb37e5d48f377ac7c6144421ef5f
+  source_path: IMG_20260915_193652.heic
+  city: Woodland
+  category: deck
+  description: Trex Enhance Saddle deck with cedar rails.
+  tags:
+    - Trex
+    - composite
+    - dog
+  featured: false
+  reviewed: true
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0562.jpg
+  md5: 9dcd5e82944774ce31d78b1a0b9d5d92
+  source_path: IMG_20260915_193658.heic
+  city: Woodland
+  category: rails
+  description: Cedar rails with rock facade
+  tags:
+    - cedar
+    - rail
+    - rock
+  featured: false
+  reviewed: true
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0563.jpg
+  md5: c25e4f56a6a97d455c8113c089b50923
+  source_path: IMG_20260915_193705.heic
+  city: Woodland
+  category: stairs
+  description: Trex Enhance Saddle stairs with rock facade
+  tags:
+    - trex
+    - stairs
+    - rock
+  featured: false
+  reviewed: true
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0564.jpg
+  md5: e3ff8bd046f6612cbc07a1e5c80c9a1a
+  source_path: IMG_20260915_193710.heic
+  city: Woodland
+  category: deck
+  description: Trex Enhnace saddle with cedar rails
+  tags:
+    - Trex
+    - Cedar
+    - composite
+  featured: true
+  reviewed: true
+  project: Blycker
+- uri: https://storage.googleapis.com/columbiaoutdoor-images/photos-0565.jpg
+  md5: d087ea8feb74fc928571199db9de8635
+  source_path: IMG_20260915_193717.heic
+  city: Woodland
+  category: deck
+  description: Trex Enhance with divider
+  tags:
+    - Trex
+    - divider
+    - ribbon
+  featured: false
+  reviewed: true
+  project: Blycker

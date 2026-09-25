@@ -9,6 +9,7 @@ import (
 func contractorLandingHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
 	userAuth.Title = "Contractors"
+	userAuth.CanonicalPath = "/contractor"
 	userAuth.Subtitle = "Build More. Earn More. Columbia Outdoor."
 	userAuth.MetaDesc = "SW Washington outdoor living contractors — stop working for free. Columbia Outdoor handles leads, estimates, permits, scheduling, and contracts so you can focus on building."
 
