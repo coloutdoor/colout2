@@ -49,10 +49,16 @@ func formatPatioDescription(pe PatioCoverEstimate) string {
 	}
 	finishedWidth := pe.Width + 2
 	finishedDepth := pe.Depth + 1
-	return fmt.Sprintf(
-		"%.1f ft x %.1f ft %s cover with a 1 ft overhang on 3 sides, for a finished size of %.1f ft x %.1f ft (%.0f sq ft). Roofing and gutters included.",
+	desc := fmt.Sprintf(
+		"%.1f ft x %.1f ft %s cover with a 1 ft overhang on 3 sides, for a finished size of %.1f ft x %.1f ft (%.0f sq ft).",
 		pe.Width, pe.Depth, label, finishedWidth, finishedDepth, pe.Area,
 	)
+	if cd, ok := coverDescriptions[pe.PatioType]; ok {
+		desc += " " + cd.Summary()
+	} else {
+		desc += " Roofing and gutters included."
+	}
+	return desc
 }
 
 // formatPatioRoofSlopeDescription describes the roof slope line item. Pergola
@@ -110,7 +116,7 @@ func formatPatioPaintStainDescription(pe PatioCoverEstimate) string {
 		return "No paint or stain."
 	}
 	if pe.PatioType == "timberframe" {
-		return "Stain with 1 coat of Sherwin Williams Superdeck extior stain. Transparent or Semi Tranparent stain all exposed finished wood."
+		return "Stain with 1 coat of Sherwin Williams Superdeck exterior stain. Transparent or Semi Transparent stain all exposed finished wood."
 	}
 	return "Paint all finished areas with 1 coat Sherwin Williams SuperPaint exterior acrylic latex."
 }
