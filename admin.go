@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -41,6 +42,8 @@ type AdminEstimateRow struct {
 	TotalCost      float64
 	SaveDate       time.Time
 	Status         string // Accepted, Expired, or Pending
+	URL            string // /estimate/{id} for decks, /patio-estimate/{id} for patio covers
+	Type           string // "Deck" or "Cover"
 }
 
 type AdminUserRow struct {
@@ -132,7 +135,8 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 		         WHEN e.accept_date IS NOT NULL AND e.accept_date > '2000-01-01' THEN 'Accepted'
 		         WHEN e.expiration_date IS NOT NULL AND e.expiration_date < NOW() THEN 'Expired'
 		         ELSE 'Pending'
-		       END AS status
+		       END AS status,
+		       COALESCE(e.product_type, 'deck')
 		FROM estimates e
 		LEFT JOIN user_auth u ON u.id = e.user_id
 		LEFT JOIN contractor_profile cp ON cp.user_id = e.contractor_id
@@ -143,11 +147,19 @@ func loadAdminData(dbURL string) (AdminPageData, error) {
 	}
 	for rows.Next() {
 		var e AdminEstimateRow
+		var productType string
 		if err := rows.Scan(&e.EstimateID, &e.Version, &e.UserEmail, &e.ContractorName,
 			&e.FirstName, &e.LastName,
-			&e.Description, &e.TotalCost, &e.SaveDate, &e.Status); err != nil {
+			&e.Description, &e.TotalCost, &e.SaveDate, &e.Status, &productType); err != nil {
 			log.Printf("admin: scan estimate row: %v", err)
 			continue
+		}
+		if productType == "patio_cover" {
+			e.URL = fmt.Sprintf("/patio-estimate/%d", e.EstimateID)
+			e.Type = "Cover"
+		} else {
+			e.URL = fmt.Sprintf("/estimate/%d", e.EstimateID)
+			e.Type = "Deck"
 		}
 		data.Estimates = append(data.Estimates, e)
 	}

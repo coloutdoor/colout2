@@ -1,0 +1,171 @@
+{{define "admin_projects.gohtml"}}
+{{template "header.gohtml" .Header}}
+
+{{with .Page}}
+<style>
+:root {
+  --pj-bg:      #07111c;
+  --pj-surface: #0d2035;
+  --pj-border:  #1a3450;
+  --pj-border2: #254868;
+  --pj-text:    #d8eaf8;
+  --pj-text2:   #7aaac8;
+  --pj-text3:   #3f6080;
+  --pj-accent:  #3d8c65;
+  --pj-input:   #071018;
+}
+
+body { background: var(--pj-bg); color: var(--pj-text); }
+
+.pj-wrap { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+.pj-msg {
+  padding: .75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  font-size: .9rem;
+}
+.pj-msg-ok    { background: rgba(61,140,101,.15); border: 1px solid var(--pj-accent); color: #9adcb8; }
+.pj-msg-error { background: rgba(139,32,32,.15); border: 1px solid #8b2020; color: #f0a0a0; }
+
+.pj-card {
+  background: var(--pj-surface);
+  border: 1px solid var(--pj-border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.pj-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: var(--pj-text);
+}
+
+.pj-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pj-text2);
+  margin-bottom: .3rem;
+}
+
+.pj-input, .pj-textarea {
+  width: 100%;
+  background: var(--pj-input);
+  border: 1px solid var(--pj-border2);
+  border-radius: 5px;
+  color: var(--pj-text);
+  font-size: .9rem;
+  padding: .5rem .7rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.pj-input:focus, .pj-textarea:focus { outline: none; border-color: var(--pj-accent); }
+.pj-field { margin-bottom: .9rem; }
+
+.pj-btn {
+  padding: .55rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: .9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--pj-accent);
+  color: #fff;
+}
+.pj-btn:hover { background: #4aaa7a; }
+
+.pj-project-row {
+  border: 1px solid var(--pj-border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--pj-surface);
+}
+.pj-project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .4rem;
+}
+.pj-project-name { font-size: 1.05rem; font-weight: 700; color: var(--pj-text); }
+.pj-project-count { font-size: .8rem; color: var(--pj-text2); }
+.pj-project-desc { font-size: .85rem; color: var(--pj-text2); margin-bottom: .8rem; }
+.pj-project-desc:empty::before { content: "No description yet."; font-style: italic; color: var(--pj-text3); }
+
+.pj-upload-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+.pj-upload-row input[type=file] {
+  color: var(--pj-text2);
+  font-size: .82rem;
+  max-width: 320px;
+}
+.pj-view-link {
+  font-size: .82rem;
+  color: var(--pj-text2);
+  text-decoration: none;
+  border: 1px solid var(--pj-border2);
+  border-radius: 6px;
+  padding: .4rem .8rem;
+}
+.pj-view-link:hover { color: var(--pj-text); border-color: var(--pj-accent); }
+
+.pj-empty { text-align: center; padding: 3rem; color: var(--pj-text2); }
+</style>
+
+<div class="pj-wrap">
+
+  {{if .Message}}<div class="pj-msg pj-msg-ok">{{.Message}}</div>{{end}}
+  {{if .Error}}<div class="pj-msg pj-msg-error">{{.Error}}</div>{{end}}
+
+  <div class="pj-card">
+    <h2>Create New Project</h2>
+    <form method="post" action="/admin/projects/create">
+      <div class="pj-field">
+        <label class="pj-label">Project Name</label>
+        <input class="pj-input" type="text" name="name" placeholder="e.g. Hunt" required maxlength="120">
+      </div>
+      <div class="pj-field">
+        <label class="pj-label">Description</label>
+        <textarea class="pj-textarea" name="description" rows="2" placeholder="A deck and rail project in..."></textarea>
+      </div>
+      <button class="pj-btn" type="submit">Create Project</button>
+    </form>
+  </div>
+
+  {{if eq (len .Projects) 0}}
+  <div class="pj-empty">No projects yet — create one above.</div>
+  {{else}}
+  {{range .Projects}}
+  <div class="pj-project-row">
+    <div class="pj-project-top">
+      <span class="pj-project-name">{{.Name}}</span>
+      <span class="pj-project-count">{{.PhotoCount}} photo{{if ne .PhotoCount 1}}s{{end}}</span>
+    </div>
+    <div class="pj-project-desc">{{.Description}}</div>
+    <div class="pj-upload-row">
+      <form method="post" action="/admin/projects/upload" enctype="multipart/form-data" style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;">
+        <input type="hidden" name="project_id" value="{{.ID}}">
+        <input type="file" name="photos" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple required>
+        <button class="pj-btn" type="submit">Upload Photos</button>
+      </form>
+      <a class="pj-view-link" href="/admin/photos?view=all&project={{.Name}}">View Photos &rarr;</a>
+    </div>
+  </div>
+  {{end}}
+  {{end}}
+
+</div>
+{{end}}
+
+{{template "footer.gohtml" .}}
+{{end}}

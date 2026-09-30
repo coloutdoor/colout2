@@ -13,6 +13,7 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Type</th>
           <th>Customer</th>
           <th>City</th>
           <th>Total Cost</th>
@@ -24,7 +25,8 @@
       <tbody>
         {{range .Page}}
         <tr>
-          <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}</a></td>
+          <td><a href="{{.URL}}">{{.EstimateID}}</a></td>
+          <td><span class="tag {{if eq .Type "Cover"}}is-link{{else}}is-dark{{end}}">{{.Type}}</span></td>
           <td>{{.FirstName}} {{.LastName}}</td>
           <td>{{.City}}</td>
           <td>{{formatCost .TotalCost}}</td>

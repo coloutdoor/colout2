@@ -5,11 +5,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"sort"
 	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
 // ProjectGroup is a set of reviewed photos that share a Project name, along
@@ -21,22 +18,31 @@ type ProjectGroup struct {
 	Description string
 }
 
-const projectDescriptionsYAMLPath = "static/project_descriptions.yaml"
-
-// loadProjectDescriptions reads the hand-written, one-time-authored blurb for
-// each project group, keyed by the same "project" value used in photos.yaml.
-// These are written once (not regenerated per request) so /projects has real
-// body text alongside its photo grid instead of images alone.
+// loadProjectDescriptions reads every project's blurb from the projects
+// table, keyed by name — the same name used on photos.project_id (joined
+// as PhotoFull.Project by loadPhotosFull).
 func loadProjectDescriptions() (map[string]string, error) {
-	data, err := os.ReadFile(projectDescriptionsYAMLPath)
+	db, err := photosDB()
 	if err != nil {
 		return nil, err
 	}
-	var descriptions map[string]string
-	if err := yaml.Unmarshal(data, &descriptions); err != nil {
+	defer db.Close()
+
+	rows, err := db.Query(`SELECT name, description FROM projects`)
+	if err != nil {
 		return nil, err
 	}
-	return descriptions, nil
+	defer rows.Close()
+
+	descriptions := map[string]string{}
+	for rows.Next() {
+		var name, desc string
+		if err := rows.Scan(&name, &desc); err != nil {
+			return nil, err
+		}
+		descriptions[name] = desc
+	}
+	return descriptions, rows.Err()
 }
 
 // CategoryOption is one entry in the /projects category filter dropdown.

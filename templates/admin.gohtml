@@ -5,10 +5,16 @@
     <div class="container">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
         <h1 class="title mb-0">Administration</h1>
-        <a href="/admin/photos" class="button is-info is-light">
-          <span class="icon"><i class="fas fa-images"></i></span>
-          <span>Photo Review</span>
-        </a>
+        <div class="buttons">
+          <a href="/admin/projects" class="button is-link is-light">
+            <span class="icon"><i class="fas fa-folder-plus"></i></span>
+            <span>Projects</span>
+          </a>
+          <a href="/admin/photos" class="button is-info is-light">
+            <span class="icon"><i class="fas fa-images"></i></span>
+            <span>Photo Review</span>
+          </a>
+        </div>
       </div>
 
       <!-- Summary Stats -->
@@ -57,6 +63,7 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Type</th>
                 <th>User</th>
                 <th>Customer</th>
                 <th>Description</th>
@@ -69,7 +76,8 @@
             <tbody>
               {{range .Page.Estimates}}
               <tr>
-                <td><a href="/estimate/{{.EstimateID}}">{{.EstimateID}}-{{.Version}}</a></td>
+                <td><a href="{{.URL}}">{{.EstimateID}}-{{.Version}}</a></td>
+                <td><span class="tag {{if eq .Type "Cover"}}is-link{{else}}is-dark{{end}}">{{.Type}}</span></td>
                 <td>
                   <div style="font-size:.85rem;">{{if .UserEmail}}{{.UserEmail}}{{else}}<span style="color:#aaa;">anonymous</span>{{end}}</div>
                   {{if .ContractorName}}<span class="tag is-warning is-light" style="font-size:.7rem;margin-top:.2rem;">{{.ContractorName}}</span>{{end}}

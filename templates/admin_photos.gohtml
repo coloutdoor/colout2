@@ -294,7 +294,10 @@ body { background: var(--ap-bg); color: var(--ap-text); }
       <a href="/admin/photos?view=all" class="ap-tab {{if eq .View "all"}}active{{end}}">All Photos</a>
       <a href="/admin/photos?view=featured" class="ap-tab {{if eq .View "featured"}}active{{end}}">Featured</a>
     </div>
-    <button type="button" class="ap-tab" onclick="openHelpModal()">Help</button>
+    <div style="display:flex; gap:.5rem;">
+      <a href="/admin/projects" class="ap-tab">+ Projects</a>
+      <button type="button" class="ap-tab" onclick="openHelpModal()">Help</button>
+    </div>
   </div>
 
   {{if and (eq .View "all") (eq .SelectedProject "")}}
@@ -343,8 +346,8 @@ body { background: var(--ap-bg); color: var(--ap-text); }
         {{if .Featured}}<div class="ap-badge-featured">&#9733;</div>{{end}}
         <img src="{{.URI}}" loading="lazy" alt="{{.Description}}">
         <div class="ap-card-meta">
-          <div class="ap-card-project">{{if .Project}}{{.Project}}{{else}}unknown{{end}}</div>
-          <div class="ap-card-cat">{{.Category}}</div>
+          <div class="ap-card-project">{{if .Description}}{{.Description}}{{else}}(no description){{end}}</div>
+          <div class="ap-card-cat">{{if .Project}}{{.Project}}{{else}}unknown{{end}}{{if .Category}} · {{.Category}}{{end}}</div>
         </div>
       </div>
       {{end}}
@@ -527,8 +530,8 @@ function updateCardData(payload) {
   currentCard.dataset.featured    = payload.featured;
   currentCard.dataset.project     = payload.project;
   currentCard.dataset.reviewed    = 'true';
-  currentCard.querySelector('.ap-card-project').textContent = payload.project || 'unknown';
-  currentCard.querySelector('.ap-card-cat').textContent     = payload.category;
+  currentCard.querySelector('.ap-card-project').textContent = payload.description || '(no description)';
+  currentCard.querySelector('.ap-card-cat').textContent     = (payload.project || 'unknown') + (payload.category ? ' · ' + payload.category : '');
   const badge = currentCard.querySelector('.ap-badge-featured');
   if (payload.featured && !badge) {
     const b = document.createElement('div');

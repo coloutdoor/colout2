@@ -19,6 +19,8 @@ type MyEstimateRow struct {
 	TotalCost  float64
 	SaveDate   time.Time
 	Status     string // Accepted, Expired, or Pending
+	URL        string // /estimate/{id} for decks, /patio-estimate/{id} for patio covers
+	Type       string // "Deck" or "Cover"
 }
 
 func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +80,8 @@ func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
 		         WHEN accept_date IS NOT NULL THEN 'Accepted'
 		         WHEN expiration_date IS NOT NULL AND expiration_date < NOW() THEN 'Expired'
 		         ELSE 'Pending'
-		       END AS status
+		       END AS status,
+		       COALESCE(product_type, 'deck')
 		FROM estimates
 		WHERE user_id = $1
 		ORDER BY created_at DESC`, targetUserID)
@@ -92,10 +95,18 @@ func myEstimatesHandler(w http.ResponseWriter, r *http.Request) {
 	var estimates []MyEstimateRow
 	for rows.Next() {
 		var e MyEstimateRow
+		var productType string
 		if err := rows.Scan(&e.EstimateID, &e.FirstName, &e.LastName,
-			&e.City, &e.TotalCost, &e.SaveDate, &e.Status); err != nil {
+			&e.City, &e.TotalCost, &e.SaveDate, &e.Status, &productType); err != nil {
 			log.Printf("myEstimatesHandler: scan error: %v", err)
 			continue
+		}
+		if productType == "patio_cover" {
+			e.URL = fmt.Sprintf("/patio-estimate/%d", e.EstimateID)
+			e.Type = "Cover"
+		} else {
+			e.URL = fmt.Sprintf("/estimate/%d", e.EstimateID)
+			e.Type = "Deck"
 		}
 		estimates = append(estimates, e)
 	}

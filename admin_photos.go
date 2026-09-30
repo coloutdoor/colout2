@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,20 +11,26 @@ import (
 	"sort"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/jackc/pgx/v5/pgtype"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// pgTypeMap wraps scan destinations for Postgres array columns (tags) so
+// database/sql's generic Scan can decode them — pgx's stdlib driver only
+// supports this via pgtype.Map.SQLScanner, not a bare *[]string.
+var pgTypeMap = pgtype.NewMap()
+
 type PhotoFull struct {
-	URI         string   `yaml:"uri"`
-	MD5         string   `yaml:"md5,omitempty"`
-	SourcePath  string   `yaml:"source_path,omitempty"`
-	City        string   `yaml:"city"`
-	Category    string   `yaml:"category"`
-	Description string   `yaml:"description"`
-	Tags        []string `yaml:"tags,omitempty"`
-	Featured    bool     `yaml:"featured"`
-	Reviewed    bool     `yaml:"reviewed"`
-	Project     string   `yaml:"project,omitempty"`
+	URI         string
+	MD5         string
+	SourcePath  string
+	City        string
+	Category    string
+	Description string
+	Tags        []string
+	Featured    bool
+	Reviewed    bool
+	Project     string
 }
 
 type adminPhotosPageData struct {
@@ -35,8 +43,6 @@ type adminPhotosPageData struct {
 	View            string
 	SelectedProject string
 }
-
-const photosYAMLPath = "static/photos.yaml"
 
 // unassignedProjectLabel groups photos with no project set, on the All Photos
 // overview grid, so they're still reachable instead of silently dropped.
@@ -81,24 +87,47 @@ func groupPhotosByProject(photos []PhotoFull) []ProjectGroup {
 	return result
 }
 
-func loadPhotosFull() ([]PhotoFull, error) {
-	data, err := os.ReadFile(photosYAMLPath)
-	if err != nil {
-		return nil, err
+// photosDB opens a connection to the photos table's database. Callers must
+// close it. Matches the rest of the codebase's convention of opening a
+// short-lived connection per call rather than sharing a package-level pool.
+func photosDB() (*sql.DB, error) {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL environment variable is required")
 	}
-	var photos []PhotoFull
-	if err := yaml.Unmarshal(data, &photos); err != nil {
-		return nil, err
-	}
-	return photos, nil
+	return sql.Open("pgx", dbURL)
 }
 
-func savePhotosFull(photos []PhotoFull) error {
-	data, err := yaml.Marshal(photos)
+// loadPhotosFull loads every photo from the photos table, oldest first —
+// the same order static/photos.yaml used to preserve by file order.
+func loadPhotosFull() ([]PhotoFull, error) {
+	db, err := photosDB()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return os.WriteFile(photosYAMLPath, data, 0644)
+	defer db.Close()
+
+	rows, err := db.Query(`
+		SELECT p.uri, COALESCE(p.md5,''), COALESCE(p.source_path,''), p.city, p.category, p.description,
+		       p.tags, p.featured, p.reviewed, COALESCE(pr.name,'')
+		FROM photos p
+		LEFT JOIN projects pr ON pr.id = p.project_id
+		ORDER BY p.id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var photos []PhotoFull
+	for rows.Next() {
+		var p PhotoFull
+		if err := rows.Scan(&p.URI, &p.MD5, &p.SourcePath, &p.City, &p.Category, &p.Description,
+			pgTypeMap.SQLScanner(&p.Tags), &p.Featured, &p.Reviewed, &p.Project); err != nil {
+			return nil, err
+		}
+		photos = append(photos, p)
+	}
+	return photos, rows.Err()
 }
 
 func adminPhotosHandler(w http.ResponseWriter, r *http.Request) {
@@ -223,44 +252,50 @@ func adminPhotosSaveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photos, err := loadPhotosFull()
+	tags := req.Tags
+	if tags == nil {
+		tags = []string{}
+	}
+
+	db, err := photosDB()
 	if err != nil {
+		log.Printf("adminPhotosSaveHandler: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to load photos"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to connect to database"})
+		return
+	}
+	defer db.Close()
+
+	projectID, err := resolveProjectID(db, req.Project)
+	if err != nil {
+		log.Printf("adminPhotosSaveHandler: resolveProjectID: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to resolve project"})
 		return
 	}
 
-	found := false
-	for i, p := range photos {
-		if p.URI == req.URI {
-			photos[i].City = req.City
-			photos[i].Category = req.Category
-			photos[i].Description = req.Description
-			photos[i].Tags = req.Tags
-			photos[i].Featured = req.Featured
-			photos[i].Project = req.Project
-			photos[i].Reviewed = true
-			found = true
-			break
-		}
-	}
-	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "photo not found"})
-		return
-	}
-
-	if err := savePhotosFull(photos); err != nil {
+	res, err := db.Exec(`
+		UPDATE photos
+		SET city = $1, category = $2, description = $3, tags = $4, featured = $5, project_id = $6,
+		    reviewed = true, updated_at = NOW()
+		WHERE uri = $7`,
+		req.City, req.Category, req.Description, tags, req.Featured, projectID, req.URI)
+	if err != nil {
 		log.Printf("adminPhotosSaveHandler: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "failed to save"})
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "photo not found"})
 		return
 	}
 
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-// adminPhotosDeleteHandler removes a photo entry from the YAML.
+// adminPhotosDeleteHandler removes a photo entry from the database.
 func adminPhotosDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userAuth := getUserAuth(r, w)
@@ -279,26 +314,49 @@ func adminPhotosDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photos, err := loadPhotosFull()
+	db, err := photosDB()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to load photos"})
-		return
-	}
-
-	filtered := photos[:0]
-	for _, p := range photos {
-		if p.URI != req.URI {
-			filtered = append(filtered, p)
-		}
-	}
-
-	if err := savePhotosFull(filtered); err != nil {
 		log.Printf("adminPhotosDeleteHandler: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to save"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to connect to database"})
+		return
+	}
+	defer db.Close()
+
+	if _, err := db.Exec(`DELETE FROM photos WHERE uri = $1`, req.URI); err != nil {
+		log.Printf("adminPhotosDeleteHandler: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to delete"})
 		return
 	}
 
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+// nullIfEmpty converts an empty string to a SQL NULL, for nullable text
+// columns (project) where the app's zero value is "" but the column allows
+// NULL for "not set".
+func nullIfEmpty(s string) interface{} {
+	if s == "" {
+		return nil
+	}
+	return s
+}
+
+// resolveProjectID looks up (or creates) a project by name, for the photo
+// review page's free-text "Project" field. Returns nil for an empty name.
+func resolveProjectID(db *sql.DB, name string) (interface{}, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil, nil
+	}
+	var id int64
+	err := db.QueryRow(`
+		INSERT INTO projects (name) VALUES ($1)
+		ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+		RETURNING id`, name).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	return id, nil
 }
