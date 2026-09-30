@@ -23,7 +23,7 @@ func xmlEscape(s string) string {
 }
 
 // projectsPageImages returns an <image:image> entry for every reviewed photo
-// shown on /projects, sourced live from static/photos.yaml.
+// shown on /projects, sourced live from the photos table.
 func projectsPageImages() []sitemapImage {
 	photos, err := loadPhotosFull()
 	if err != nil {
@@ -188,6 +188,33 @@ func deckBuildersWoodlandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := tmpl.ExecuteTemplate(w, "deck-builders-woodland-wa.gohtml", rd); err != nil {
 		log.Printf("deckBuildersWoodlandHandler error: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// thmHandler serves the landing page for The Home Magazine print ad (/thm):
+// Clark County decks plus the Nov/Dec reader offer (5% by mentioning the
+// magazine, 10% with code DECKS26 online). Deliberately left
+// out of the sitemap — it's a campaign page reached from the printed URL.
+func thmHandler(w http.ResponseWriter, r *http.Request) {
+	userAuth := getUserAuth(r, w)
+	userAuth.Title = "Custom Decks in Clark County, WA — Home Magazine Offer"
+	userAuth.Subtitle = "Home Magazine readers save 5% on material and labor, or 10% with code DECKS26 online."
+	userAuth.MetaDesc = "Columbia Outdoor builds custom decks across Clark County, WA. Home Magazine readers save 5% on material and labor, or 10% with code DECKS26 in our online deck calculator."
+	userAuth.CanonicalPath = "/thm"
+
+	tmpl := template.Must(template.New("thm.gohtml").Funcs(funcMap).ParseFiles(
+		"templates/thm.gohtml",
+		"templates/header.gohtml",
+		"templates/footer.gohtml",
+	))
+
+	rd := renderData{
+		Page:   nil,
+		Header: &userAuth,
+	}
+	if err := tmpl.ExecuteTemplate(w, "thm.gohtml", rd); err != nil {
+		log.Printf("thmHandler error: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

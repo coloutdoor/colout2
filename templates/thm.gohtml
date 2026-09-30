@@ -1,0 +1,232 @@
+{{define "thm.gohtml"}}
+  {{template "header.gohtml" .Header}}
+
+  <!-- Hero -->
+  <!-- Background is a crossfading carousel of the Stewart project (Woodland,
+       WA). Only the first slide loads up front; the rest load as they rotate
+       in. Visitors who prefer reduced motion just see the first photo. -->
+  <section class="section thm-hero">
+    <div class="thm-hero-slides" aria-hidden="true">
+      <div class="thm-hero-slide active" style="background-image:url('https://storage.googleapis.com/columbiaoutdoor-images/photos-0405.jpg')"></div>
+      <div class="thm-hero-slide" data-bg="https://storage.googleapis.com/columbiaoutdoor-images/photos-0404.jpg"></div>
+      <div class="thm-hero-slide" data-bg="https://storage.googleapis.com/columbiaoutdoor-images/photos-0503.jpg"></div>
+      <div class="thm-hero-slide" data-bg="https://storage.googleapis.com/columbiaoutdoor-images/photos-0403.jpg"></div>
+      <div class="thm-hero-slide" data-bg="https://storage.googleapis.com/columbiaoutdoor-images/photos-0402.jpg"></div>
+      <div class="thm-hero-slide" data-bg="https://storage.googleapis.com/columbiaoutdoor-images/photos-0401.jpg"></div>
+    </div>
+    <div class="container has-text-centered thm-hero-content">
+      <p class="has-text-warning is-uppercase has-text-weight-bold mb-2" style="letter-spacing:.1em;">As seen in The Home Magazine</p>
+      <h1 class="title is-1 has-text-white">Custom Decks in Clark County, WA</h1>
+      <p class="subtitle has-text-white mt-4" style="max-width:700px; margin:1.5rem auto;">
+        Plan this winter, build in the spring. Columbia Outdoor delivers
+        <strong class="has-text-warning">transparent pricing, quality craftsmanship, and expert project management</strong>
+        for decks across Vancouver, Camas, Battle Ground, Ridgefield, and all of Clark County.
+      </p>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+        <a href="/contact" class="button is-light is-large is-rounded mt-4">Contact Us</a>
+        <a href="/calc" class="button is-warning is-large is-rounded mt-4"><strong>Cost Estimate</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Offer -->
+  <section class="section thm-offer">
+    <div class="container has-text-centered" style="max-width:720px;">
+      <p class="is-uppercase has-text-weight-bold has-text-warning mb-2" style="letter-spacing:.1em;">Home Magazine Reader Offer</p>
+      <h2 class="title is-2 has-text-white mb-5">Save on Your November &amp; December Deck Estimate</h2>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="thm-offer-card">
+            <p class="title is-1 has-text-warning mb-2">5% Off</p>
+            <p class="is-size-5">
+              All estimates are <strong>5% off material and labor</strong> &mdash; just mention
+              <strong>The Home Magazine</strong> when you contact us.
+            </p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="thm-offer-card">
+            <p class="title is-1 has-text-warning mb-2">10% Off</p>
+            <p class="is-size-5 mb-3">
+              Build your estimate in our online calculator and enter code:
+            </p>
+            <div class="thm-code">DECKS26</div>
+          </div>
+        </div>
+      </div>
+      <p class="is-size-7 has-text-grey-light mt-2">
+        Offer applies to estimates created November 1 &ndash; December 31, 2026.
+      </p>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;" class="mt-4">
+        <a href="/contact" class="button is-light is-medium is-rounded is-outlined">Contact Us</a>
+        <a href="/calc" class="button is-warning is-medium is-rounded"><strong>Cost Estimate</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="section">
+    <div class="container" style="max-width:780px;">
+      <h2 class="title is-3 has-text-centered mb-4">About Columbia Outdoor</h2>
+      <p class="is-size-5 mb-4">
+        Columbia Outdoor is a SW Washington outdoor-living company building custom decks, rails,
+        stairs, and patio covers for homeowners across Clark and Cowlitz County. We know the
+        local permit offices, the building codes, and what Pacific Northwest rain does to a deck
+        that isn't built right.
+      </p>
+      <p class="is-size-5 mb-5">
+        From a quick weekend patio deck in Vancouver to a two-level composite deck with
+        aluminum rails in Battle Ground, every project gets an itemized price up front and one
+        project manager from estimate to final walkthrough.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-success mt-1"><i class="fas fa-check-circle fa-lg"></i></span>
+          <p class="is-size-5">Licensed, insured, and locally experienced in Clark County</p>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-success mt-1"><i class="fas fa-check-circle fa-lg"></i></span>
+          <p class="is-size-5">Instant online estimate &mdash; no salesperson, no waiting for callbacks</p>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-success mt-1"><i class="fas fa-check-circle fa-lg"></i></span>
+          <p class="is-size-5">Composite (Trex, Timbertech, Fiberon), cedar, and aluminum, cable, or glass rails</p>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <span class="icon has-text-success mt-1"><i class="fas fa-check-circle fa-lg"></i></span>
+          <p class="is-size-5">Professional design, engineering, and permits handled for you</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Projects -->
+  <section class="section has-background-light">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered has-text-dark mb-5">Recent Clark County Decks</h2>
+      <div class="thm-photo-grid">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0126.jpeg" loading="lazy" alt="Two level Trex deck with aluminum rails — La Center, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0112.jpg" loading="lazy" alt="Timbertech deck with aluminum rails and arbor — Battle Ground, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0109.jpg" loading="lazy" alt="Custom deck with wrap around stairs — Vancouver, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0174.jpg" loading="lazy" alt="Custom cedar deck around hot tub — Camas, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0474.jpg" loading="lazy" alt="Large deck and stairs with hogwire rail infill — Brush Prairie, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0247.jpg" loading="lazy" alt="Custom cedar privacy screen on deck — La Center, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0465.jpg" loading="lazy" alt="Deck with gazebo and hot tub — Washougal, WA">
+        <img src="https://storage.googleapis.com/columbiaoutdoor-images/photos-0491.jpg" loading="lazy" alt="Upper deck with cover and stairs — Brush Prairie, WA">
+      </div>
+    </div>
+  </section>
+
+  <style>
+  .thm-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 5rem 1.5rem;
+    background: #1a2530;
+  }
+  .thm-hero-slides,
+  .thm-hero-slide {
+    position: absolute;
+    inset: 0;
+  }
+  .thm-hero-slide {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+  .thm-hero-slide.active {
+    opacity: 1;
+  }
+  .thm-hero-slides::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+  }
+  .thm-hero-content {
+    position: relative;
+    z-index: 1;
+  }
+  .thm-offer {
+    background: #1a2530;
+  }
+  .thm-offer-card {
+    height: 100%;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: #243442;
+    border: 1px solid #3a4f63;
+    color: #e8edf2;
+  }
+  .thm-offer-card strong {
+    color: #fff;
+  }
+  .thm-code {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    padding: .5rem 1.5rem;
+    border: 3px dashed #363636;
+    border-radius: 8px;
+    background: #fff;
+    color: #363636;
+  }
+  .thm-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .thm-photo-grid img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+  }
+  </style>
+
+  <!-- Final CTA -->
+  <section class="section" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://storage.googleapis.com/columbiaoutdoor-images/photos-0112.jpg') center/cover no-repeat; padding: 4rem 1.5rem;">
+    <div class="container has-text-centered">
+      <h2 class="title is-2 has-text-white">Ready to Plan Your Deck?</h2>
+      <p class="subtitle has-text-white mt-3">
+        Price your deck online in minutes and save 10% with code
+        <strong class="has-text-warning">DECKS26</strong> &mdash; or contact us and mention
+        The Home Magazine for 5% off.
+      </p>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+        <a href="/contact" class="button is-light is-large is-rounded mt-4">Contact Us</a>
+        <a href="/calc" class="button is-warning is-large is-rounded mt-4"><strong>Cost Estimate</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  (function() {
+    var slides = document.querySelectorAll('.thm-hero-slide');
+    if (slides.length < 2) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    function load(el) {
+      if (el.dataset.bg) {
+        el.style.backgroundImage = "url('" + el.dataset.bg + "')";
+        delete el.dataset.bg;
+      }
+    }
+    var i = 0;
+    load(slides[1]); // preload the next slide so the first fade is smooth
+    setInterval(function() {
+      slides[i].classList.remove('active');
+      i = (i + 1) % slides.length;
+      load(slides[i]);
+      slides[i].classList.add('active');
+      load(slides[(i + 1) % slides.length]);
+    }, 5000);
+  })();
+  </script>
+
+  {{template "footer.gohtml" .}}
+{{end}}

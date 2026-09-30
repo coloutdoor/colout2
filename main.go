@@ -194,11 +194,22 @@ func main() {
 	nrHandle("/admin/photos", adminPhotosHandler)
 	nrHandle("/admin/photos/save", adminPhotosSaveHandler)
 	nrHandle("/admin/photos/delete", adminPhotosDeleteHandler)
+	nrHandle("/admin/projects", adminProjectsHandler)
+	nrHandle("/admin/projects/create", adminProjectsCreateHandler)
+	nrHandle("/admin/projects/upload", adminProjectsUploadHandler)
 	nrHandle("/projects", projectsHandler)
 	nrHandle("/contractor", contractorLandingHandler)
 	nrHandle("/patio-cover-contractors-woodland-wa", patioCoverWoodlandHandler)
 	nrHandle("/deck-builders-woodland-wa", deckBuildersWoodlandHandler)
 	nrHandle("/outdoor-living-woodland-wa", outdoorLivingWoodlandHandler)
+	nrHandle("/thm", thmHandler)
+	// Print readers often type the ad URL in capitals.
+	mux.HandleFunc("/THM", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/thm", http.StatusMovedPermanently)
+	})
+	mux.HandleFunc("/Thm", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/thm", http.StatusMovedPermanently)
+	})
 	nrHandle("/contractor/register", contractorRegisterHandler)
 	nrHandle("/my-estimates", myEstimatesHandler)
 	nrHandle("/privacy", privacyHandler)

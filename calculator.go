@@ -44,7 +44,9 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("New Estimate Calculator.")
 	}
 
-	// Carry DIY mode from URL into the estimate for the calculator template
+	// Service type defaults to Full Service rather than whatever the last
+	// session estimate used; a diyMode in the URL overrides it.
+	estimate.DIYMode = 0
 	if dm := query.Get("diyMode"); dm != "" {
 		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
 			estimate.DIYMode = v
@@ -74,6 +76,8 @@ func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth.Subtitle = "Instant deck cost estimates for SW Washington homeowners"
 	userAuth.MetaDesc = "Free deck cost calculator for SW Washington. Get an instant estimate for deck size, materials, rails, stairs, and permits. No salesperson, no callbacks."
 	userAuth.CanonicalPath = "/deck-calculator"
+	queueGAEvent(w, r, "calculator_start", map[string]interface{}{"product_type": "deck"})
+	recordNREvent("CalculatorStarted", map[string]interface{}{"product_type": "deck"})
 	rd := renderData{
 		Page:   &e,
 		Header: &userAuth,
@@ -113,6 +117,8 @@ func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
 	userAuth.Subtitle = "Instant patio cover cost estimates for SW Washington homeowners"
 	userAuth.MetaDesc = "Free patio cover cost calculator for SW Washington. Get an instant estimate for pergola, lean-to, truss, and timberframe covers."
 	userAuth.CanonicalPath = "/patio-cover-calculator"
+	queueGAEvent(w, r, "calculator_start", map[string]interface{}{"product_type": "patio_cover"})
+	recordNREvent("CalculatorStarted", map[string]interface{}{"product_type": "patio_cover"})
 
 	data := patioCalcData{}
 	if dm := r.URL.Query().Get("diyMode"); dm != "" {
