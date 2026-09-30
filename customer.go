@@ -52,6 +52,38 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 			Zip:         r.FormValue("zip"),
 		}
 		log.Printf("Customer POST: %+v", customer)
+
+		// Record the lead in New Relic. This is the first point where an
+		// anonymous visitor (or a contractor's customer) has contact info.
+		enteredBy := "anonymous"
+		if userAuth.IsAuthenticated {
+			enteredBy = userAuth.Role
+		}
+		productType := sessionData.ActiveProduct
+		if productType == "" {
+			productType = "deck"
+		}
+		totalCost := sessionData.Estimate.TotalCost
+		estimateID := sessionData.Estimate.EstimateID
+		if productType == "patio_cover" {
+			totalCost = sessionData.PatioEstimate.TotalCost
+			estimateID = sessionData.PatioEstimate.EstimateID
+		}
+		recordNREvent("CustomerAdded", map[string]interface{}{
+			"first_name":   customer.FirstName,
+			"last_name":    customer.LastName,
+			"email":        customer.Email,
+			"phone":        customer.PhoneNumber,
+			"address":      customer.Address,
+			"city":         customer.City,
+			"state":        customer.State,
+			"zip":          customer.Zip,
+			"entered_by":   enteredBy,
+			"user_id":      userAuth.ID,
+			"product_type": productType,
+			"total_cost":   totalCost,
+			"estimate_id":  estimateID,
+		})
 		sessionData.Customer = customer
 		sessionData.Estimate.Customer = customer
 		sessionData.PatioEstimate.Customer = customer

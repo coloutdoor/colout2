@@ -104,8 +104,8 @@ func getEstimate(estimateID int) DeckEstimate {
 	var de DeckEstimate
 	var acceptDate sql.NullTime
 	err = db.QueryRow(`
-        SELECT e.estimate_id, e.description, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
-        e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
+        SELECT e.estimate_id, e.description, COALESCE(e.height,0), COALESCE(e.material,''), COALESCE(e.rail_material,''), COALESCE(e.rail_infill,''), COALESCE(e.stair_width,0),
+        COALESCE(e.stair_rail_count,0), e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
         e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(e.rail_feet_override, 0),
@@ -205,8 +205,8 @@ func getEstimateByToken(token string) DeckEstimate {
 	var de DeckEstimate
 	var acceptDate sql.NullTime
 	err = db.QueryRow(`
-        SELECT e.estimate_id, e.description, e.height, e.material, e.rail_material, e.rail_infill, e.stair_width,
-        e.stair_rail_count, e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
+        SELECT e.estimate_id, e.description, COALESCE(e.height,0), COALESCE(e.material,''), COALESCE(e.rail_material,''), COALESCE(e.rail_infill,''), COALESCE(e.stair_width,0),
+        COALESCE(e.stair_rail_count,0), e.has_demo, e.has_fascia, e.total_cost, e.has_stair_fascia, e.has_stair_tk,
         e.first_name, e.last_name, e.address, e.city, e.state, e.zip, e.phone_number, e.email,
         e.save_date, e.accept_date, e.expiration_date, e.user_id, e.contractor_id, e.version,
         COALESCE(e.rail_feet_override, 0),
@@ -499,6 +499,9 @@ RETURNING estimate_id, version`
 		}
 		estimate.EstimateID = int(newID)
 		_ = db.Close()
+		queueGAEvent(w, r, "estimate_save", map[string]interface{}{
+			"product_type": "deck", "value": estimate.TotalCost, "currency": "USD",
+		})
 		recordNREvent("EstimateCreated", map[string]interface{}{
 			"estimate_id":   estimate.EstimateID,
 			"total_cost":    estimate.TotalCost,

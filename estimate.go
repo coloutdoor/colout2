@@ -183,11 +183,19 @@ func estimateDBHandler(w http.ResponseWriter, r *http.Request) {
 	de := getEstimate(idInt)
 	if de.Error != "" {
 		renderEstimate(w, r, de)
+		return
+	}
+
+	// This ID belongs to a patio cover, not a deck — send it to the right page.
+	if de.ProductType == "patio_cover" {
+		http.Redirect(w, r, "/patio-estimate/"+idStr, http.StatusSeeOther)
+		return
 	}
 
 	// Is this the owner of the estimate, or an admin?
 	if de.UserId != sd.UserAuth.ID && !isAdminUser(sd.UserAuth.Email) {
 		renderEstimate(w, r, DeckEstimate{Error: "Unauthorized."})
+		return
 	}
 
 	// Use stored costs if available; recalculate only for old estimates saved before line items were persisted.
@@ -549,6 +557,15 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("estimateHandler - Session Saved.")
 	}
 
+	queueGAEvent(w, r, "estimate_view", map[string]interface{}{
+		"product_type": "deck", "value": estimate.TotalCost, "currency": "USD",
+	})
+	recordNREvent("EstimateViewed", map[string]interface{}{
+		"product_type": "deck",
+		"total_cost":   estimate.TotalCost,
+		"material":     estimate.Material,
+	})
+
 	// Pass both estimate and customer to template
 	renderEstimate(w, r, estimate)
 }
@@ -638,7 +655,6 @@ func emailSendHandler(w http.ResponseWriter, r *http.Request) {
 		"estimate_id":   estimate.EstimateID,
 		"total_cost":    estimate.TotalCost,
 		"contractor_id": estimate.ContractorID,
-		"to_email":      toEmail,
 	})
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "sent",
@@ -659,6 +675,11 @@ func estimateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	de := getEstimateByToken(token)
 	if de.Error != "" {
 		renderEstimate(w, r, de)
+		return
+	}
+
+	if de.ProductType == "patio_cover" {
+		http.Redirect(w, r, "/patio-estimate/view/"+token, http.StatusSeeOther)
 		return
 	}
 
@@ -815,6 +836,9 @@ func estimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	de.AcceptDate = time.Now()
+	queueGAEvent(w, r, "estimate_accept", map[string]interface{}{
+		"product_type": "deck", "value": de.TotalCost, "currency": "USD",
+	})
 	recordNREvent("EstimateAccepted", map[string]interface{}{
 		"estimate_id":   de.EstimateID,
 		"total_cost":    de.TotalCost,

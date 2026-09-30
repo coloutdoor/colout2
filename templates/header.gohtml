@@ -20,6 +20,31 @@
         gtag('js', new Date());
         gtag('config', 'G-9L9L1S3G0W');
       }
+
+      // coTrack sends a GA4 event on the live site; elsewhere it only logs,
+      // so local testing never pollutes the analytics.
+      window.coTrack = function(name, params) {
+        if (window.__isProdSite) {
+          gtag('event', name, params || {});
+        } else {
+          console.log('[coTrack]', name, params || {});
+        }
+      };
+
+      // Fire events the server queued in the ga_events cookie (see
+      // analytics.go), then clear it so each event is sent only once.
+      (function() {
+        var m = document.cookie.match(/(?:^|;\s*)ga_events=([^;]*)/);
+        if (!m) return;
+        document.cookie = 'ga_events=; Path=/; Max-Age=0; SameSite=Lax';
+        try {
+          JSON.parse(decodeURIComponent(m[1].replace(/\+/g, ' '))).forEach(function(e) {
+            coTrack(e.name, e.params);
+          });
+        } catch (err) {
+          console.error('ga_events parse error', err);
+        }
+      })();
     </script>
 
     <!-- Meta Pixel Code -->

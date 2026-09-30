@@ -86,18 +86,47 @@ NEW_RELIC_LICENSE_KEY=<Ingest - License key from one.newrelic.com/api-keys>
 
 The app name is set automatically: `colout2-test` when `SERVER_ADDR` contains `localhost`, `colout2` in production. Both appear as separate apps in the NR UI.
 
-### Custom Events
+### Custom Events (GA4 + New Relic)
 
-Four business events are recorded in addition to the standard transaction/error telemetry:
+Each step of the homeowner funnel is recorded in both tools. GA4 events are
+sent from the browser (only on `columbiaoutdoor.com` — on localhost they are
+logged to the browser console as `[coTrack]` instead). New Relic events are
+recorded server-side.
 
-| Event | Fires when |
-|---|---|
-| `EstimateCreated` | New estimate saved to DB for the first time |
-| `EstimateUpdated` | Existing estimate re-saved |
-| `EstimateEmailed` | Estimate emailed to a homeowner |
-| `EstimateAccepted` | Homeowner accepts an estimate via the token link |
+| # | Step | GA4 event | New Relic event | Fires when |
+|---|---|---|---|---|
+| 1 | Opens calculator | `calculator_start` | `CalculatorStarted` | Deck or patio calculator page loads |
+| 2 | Gets a price | `estimate_view` | `EstimateViewed` | Calculator returns a price |
+| 3 | Creates account | `sign_up` | `UserSignedUp` | New account (email or Google) |
+| — | Enters contact info | — | `CustomerAdded` | Customer form submitted (NR only — contact info is never sent to GA) |
+| 4 | Saves estimate | `estimate_save` | `EstimateCreated` / `PatioEstimateCreated` | New estimate saved for the first time |
+| — | Re-saves estimate | — | `EstimateUpdated` / `PatioEstimateUpdated` | Existing estimate re-saved (NR only) |
+| 5 | Emails estimate | `estimate_email` | `EstimateEmailed` / `PatioEstimateEmailed` | Estimate email sent |
+| 6 | Accepts estimate | `estimate_accept` | `EstimateAccepted` / `PatioEstimateAccepted` | Customer accepts via the shared link |
+| 7 | Contact form | `generate_lead` | `ContactFormSubmitted` | Contact form sent |
 
-All events include `estimate_id`, `total_cost`, and `contractor_id`. Save events also include `material` and `user_id`. `EstimateEmailed` includes `to_email`.
+**GA4 parameters:** `product_type` (`deck` / `patio_cover`) on estimate and
+calculator events, plus `value` and `currency` (USD) on `estimate_view`,
+`estimate_save`, and `estimate_accept`. `sign_up` has `method`
+(`email` / `google`).
+
+**GA4 key events:** `estimate_save`, `estimate_email`, `estimate_accept`,
+`generate_lead` (mark in GA Admin → Data display → Events).
+
+**New Relic parameters:** estimate events include `estimate_id`, `total_cost`,
+and `contractor_id`; save events add `material` or `patio_type` and `user_id`.
+`EstimateViewed` has `product_type`, `total_cost`, and `material` / `patio_type`.
+`UserSignedUp` has `user_id` and `method`. `CustomerAdded` is the one event
+that carries contact info: `first_name`, `last_name`, `email`, `phone`,
+`address`, `city`, `state`, `zip`, plus `entered_by` (`anonymous`,
+`homeowner`, `contractor`, `admin`), `user_id`, `product_type`, `total_cost`,
+and `estimate_id` (0 if not yet saved). No other event includes contact info.
+
+**How GA4 events are sent:** most actions end in a redirect, so the handler
+calls `queueGAEvent()` (`analytics.go`), which stores the event in a short-lived
+`ga_events` cookie. The script in `templates/header.gohtml` fires queued events
+via `coTrack()` on the next page load and clears the cookie. `estimate_email`
+is AJAX, so it calls `coTrack()` directly from the estimate page.
 
 ### Useful NRQL Queries
 
@@ -107,6 +136,12 @@ SELECT count(*) FROM EstimateCreated TIMESERIES SINCE 30 days ago
 
 -- Average accepted estimate value
 SELECT average(total_cost) FROM EstimateAccepted SINCE 30 days ago
+
+-- Full funnel
+SELECT count(*) FROM CalculatorStarted, EstimateViewed, UserSignedUp, EstimateCreated, EstimateEmailed, EstimateAccepted SINCE 30 days ago FACET eventType()
+
+-- Latest leads (contact info)
+SELECT timestamp, first_name, last_name, email, phone, city, entered_by, product_type, total_cost FROM CustomerAdded SINCE 1 week ago LIMIT 20
 
 -- Email-to-accept conversion funnel
 SELECT count(*) FROM EstimateEmailed, EstimateAccepted SINCE 30 days ago

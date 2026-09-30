@@ -181,6 +181,8 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		user.ID = uid
 		log.Printf("New Google user created with UID: %d", uid)
+		queueGAEvent(w, r, "sign_up", map[string]interface{}{"method": "google"})
+		recordNREvent("UserSignedUp", map[string]interface{}{"user_id": uid, "method": "google"})
 	}
 
 	sessionData.UserAuth = UserAuth{
@@ -269,6 +271,8 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Printf("User added to DB with UID: %d", uid)
+		queueGAEvent(w, r, "sign_up", map[string]interface{}{"method": "email"})
+		recordNREvent("UserSignedUp", map[string]interface{}{"user_id": uid, "method": "email"})
 
 		sessionData.UserAuth.ID              = uid
 		sessionData.UserAuth.AuthType        = "password"

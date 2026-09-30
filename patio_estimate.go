@@ -421,6 +421,9 @@ RETURNING estimate_id, version`
 			return
 		}
 		estimate.EstimateID = int(newID)
+		queueGAEvent(w, r, "estimate_save", map[string]interface{}{
+			"product_type": "patio_cover", "value": estimate.TotalCost, "currency": "USD",
+		})
 		recordNREvent("PatioEstimateCreated", map[string]interface{}{
 			"estimate_id":   estimate.EstimateID,
 			"total_cost":    estimate.TotalCost,
@@ -684,6 +687,14 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("patioEstimateHandler - Save Session failed.")
 	}
 
+	queueGAEvent(w, r, "estimate_view", map[string]interface{}{
+		"product_type": "patio_cover", "value": estimate.TotalCost, "currency": "USD",
+	})
+	recordNREvent("EstimateViewed", map[string]interface{}{
+		"product_type": "patio_cover",
+		"total_cost":   estimate.TotalCost,
+		"patio_type":   estimate.PatioType,
+	})
 	renderPatioEstimate(w, r, estimate)
 }
 
@@ -801,6 +812,9 @@ func patioEstimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pe.AcceptDate = time.Now()
+	queueGAEvent(w, r, "estimate_accept", map[string]interface{}{
+		"product_type": "patio_cover", "value": pe.TotalCost, "currency": "USD",
+	})
 	recordNREvent("PatioEstimateAccepted", map[string]interface{}{
 		"estimate_id":   pe.EstimateID,
 		"total_cost":    pe.TotalCost,
@@ -900,7 +914,6 @@ func patioEmailSendHandler(w http.ResponseWriter, r *http.Request) {
 		"estimate_id":   estimate.EstimateID,
 		"total_cost":    estimate.TotalCost,
 		"contractor_id": estimate.ContractorID,
-		"to_email":      toEmail,
 	})
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "sent",

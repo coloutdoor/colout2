@@ -751,6 +751,7 @@
         .then(data => {
             document.getElementById('email-modal').classList.remove('is-active');
             if (data.status === 'sent') {
+                coTrack('estimate_email', {product_type: 'patio_cover'});
                 alert('Estimate successfully emailed to: ' + email);
             } else {
                 alert(data.message || 'Email could not be sent. Please call us at (360) 787-8062.');
