@@ -2,42 +2,27 @@
   {{template "header.gohtml" .Header}}
   {{template "deckheader.gohtml" .}}
 
-  <div style="max-width:480px;">
-    <h2 class="title is-4 mt-4">How Much Does a Deck Cost in SW Washington?</h2>
-    <p class="has-text-grey mb-4">Deck costs in SW Washington typically range from <strong>$8,000 to $45,000+</strong> depending on size, materials, height, and complexity. Use this calculator to get an instant itemized estimate — no callbacks, no salesperson.</p>
-  </div>
-
   {{with .Page}}
-    <div class="notification is-info is-light mb-4" style="max-width:480px;">
-      Enter your <strong>main deck</strong> dimensions below. You can add additional sections (bump-outs, wraparounds) on the estimate page.
-    </div>
     <form method="post" action="/estimate" class="box" style="max-width: 480px;">
 
         <div class="field">
-            <label class="label">Project Type</label>
-            <div class="buttons has-addons mb-1">
-              <button type="button" id="mode-btn-0" onclick="setMode(0)"
-                class="button{{if eq .DIYMode 0}} is-link is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-hard-hat"></i></span>
-                <span>Full Service</span>
-              </button>
-              <button type="button" id="mode-btn-1" onclick="setMode(1)"
-                class="button{{if eq .DIYMode 1}} is-success is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-tools"></i></span>
-                <span>Plans + Materials</span>
-              </button>
-              <button type="button" id="mode-btn-2" onclick="setMode(2)"
-                class="button{{if eq .DIYMode 2}} is-warning is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-drafting-compass"></i></span>
-                <span>Plans Only</span>
-              </button>
+            <label class="label">
+                Deck Material
+                <a href="#" class="ml-2" onclick="document.getElementById('finish-modal').classList.add('is-active'); return false;">
+                    <span class="icon"><i class="fas fa-question-circle has-text-info"></i></span>
+                </a>
+            </label>
+            <div class="control">
+                <div class="select is-fullwidth">
+                    <select name="finish" required>
+                        <option value="1" {{if eq .Material "outdoorWood"}}selected{{end}}>Pressure Treated</option>
+                        <option value="2" {{if eq .Material "cedar"}}selected{{end}}>Cedar</option>
+                        <option value="3" {{if eq .Material "timberTechPrime"}}selected{{end}}>Composite (25 year)</option>
+                        <option value="4" {{if eq .Material "timberTechProReserve"}}selected{{end}}>Composite (30 year)</option>
+                        <option value="5" {{if or (eq .Material "timberTechAzek") (eq .Material "timberTechProLegacy")}}selected{{end}}>Cellular PVC (50 year)</option>
+                    </select>
+                </div>
             </div>
-            <p id="mode-help" class="help">
-              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
-              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
-              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
-            </p>
-            <input type="hidden" name="diyMode" id="diy-mode-hidden" value="{{.DIYMode}}">
         </div>
 
         <div class="field">
@@ -62,30 +47,12 @@
         </div>
 
         <div class="field">
-            <label class="label">Height above grade (ft)</label>
+            <label class="label">Height (ft) <span class="has-text-grey-light">(above the ground)</span></label>
             <div class="control">
                 <input class="input" type="number" name="height" step="0.1" min="0" value="{{if .Height}}{{printf "%.1f" .Height}}{{end}}" required placeholder="e.g. 3">
             </div>
         </div>
 
-        <div class="field">
-            <label class="label">
-                Finish Level
-                <a href="#" class="ml-2" onclick="document.getElementById('finish-modal').classList.add('is-active'); return false;">
-                    <span class="icon"><i class="fas fa-question-circle has-text-info"></i></span>
-                </a>
-            </label>
-            <div class="control">
-                <div class="select is-fullwidth">
-                    <select name="finish" required>
-                        <option value="1" {{if eq .Material "outdoorWood"}}selected{{end}}>Economy — Pressure Treated $</option>
-                        <option value="2" {{if eq .Material "cedar"}}selected{{end}}>Standard — Cedar $$</option>
-                        <option value="3" {{if eq .Material "timberTechPrime"}}selected{{end}}>Enhanced — Composite $$$</option>
-                        <option value="4" {{if eq .Material "timberTechProReserve"}}selected{{end}}>Premium — Composite Reserve $$$$</option>
-                        <option value="5" {{if eq .Material "timberTechProLegacy"}}selected{{end}}>Premier — Composite Legacy $$$$$</option>
-                    </select>
-                </div>
-            </div>
         </div>
 
         <div class="field">
@@ -106,12 +73,12 @@
                         <div id="finish-modal" class="modal">
                             <div class="modal-background" onclick="this.parentElement.classList.remove('is-active')"></div>
                             <div class="modal-card">
-                                <header class="modal-card-head"><p class="modal-card-title">Finish Level Guide - You can customize this later</p></header>
+                                <header class="modal-card-head"><p class="modal-card-title">Deck Material Guide - You can customize this later</p></header>
                                 <section class="modal-card-body">
                                     <table class="table is-fullwidth is-striped is-hoverable">
                                         <thead>
                                             <tr>
-                                                <th>Finish Level</th>
+                                                <th>Deck Material</th>
                                                 <th>Deck</th>
                                                 <th>Rails</th>
                                                 <th>Fascia</th>
@@ -121,7 +88,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="has-text-weight-bold">Economy</td>
+                                                <td class="has-text-weight-bold">Pressure Treated</td>
                                                 <td>Pressure-treated lumber</td>
                                                 <td>Outdoor Wood</td>
                                                 <td>Optional</td>
@@ -129,7 +96,7 @@
                                                 <td>24" oc</td>
                                             </tr>
                                             <tr>
-                                                <td class="has-text-weight-bold">Standard</td>
+                                                <td class="has-text-weight-bold">Cedar</td>
                                                 <td>Western red cedar</td>
                                                 <td>Cedar</td>
                                                 <td>Optional</td>
@@ -137,7 +104,7 @@
                                                 <td>24" oc</td>
                                             </tr>
                                             <tr>
-                                                <td class="has-text-weight-bold">Enhanced</td>
+                                                <td class="has-text-weight-bold">Composite (25 year)</td>
                                                 <td>TimberTech Prime+ composite</td>
                                                 <td>Aluminum</td>
                                                 <td>Optional</td>
@@ -145,7 +112,7 @@
                                                 <td>16" oc</td>
                                             </tr>
                                             <tr>
-                                                <td class="has-text-weight-bold">Premium</td>
+                                                <td class="has-text-weight-bold">Composite (30 year)</td>
                                                 <td>TimberTech Pro Reserve</td>
                                                 <td>Aluminum</td>
                                                 <td>Included</td>
@@ -153,8 +120,8 @@
                                                 <td>12" oc</td>
                                             </tr>
                                             <tr>
-                                                <td class="has-text-weight-bold">Premier</td>
-                                                <td>TimberTech Pro Legacy</td>
+                                                <td class="has-text-weight-bold">Cellular PVC (50 year)</td>
+                                                <td>TimberTech AZEK cellular PVC</td>
                                                 <td>Composite</td>
                                                 <td>Included</td>
                                                 <td>Glass</td>
@@ -170,6 +137,24 @@
                         </div>
                     </div>
                 </div>
+        <div class="field">
+            <label class="label">Project Type</label>
+            <div class="control">
+                <div class="select is-fullwidth">
+                    <select name="diyMode" id="diy-mode" onchange="setMode(+this.value)">
+                        <option value="0" {{if eq .DIYMode 0}}selected{{end}}>Full Service</option>
+                        <option value="1" {{if eq .DIYMode 1}}selected{{end}}>Plans + Materials</option>
+                        <option value="2" {{if eq .DIYMode 2}}selected{{end}}>Plans Only</option>
+                    </select>
+                </div>
+            </div>
+            <p id="mode-help" class="help">
+              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
+              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
+              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
+            </p>
+        </div>
+
         <div class="field mt-5">
             <div class="control">
                 <input id="submit-btn" class="button is-primary is-fullwidth is-medium" type="submit"
@@ -177,6 +162,12 @@
             </div>
         </div>
 
+    </form>
+
+    <form method="post" action="/calc/reset" class="has-text-centered mt-2" style="max-width:480px;"
+      onsubmit="return confirm('Clear all values and start over?');">
+      <input type="hidden" name="return" value="/deck-calculator">
+      <button type="submit" class="button is-small is-text has-text-grey">Start over</button>
     </form>
 
     <div style="max-width:480px; margin-top:2rem;">
@@ -206,17 +197,11 @@
       'Design, engineering, permits, and materials list — you install.',
       'Professional design, engineering, and permit package only — no materials.'
     ];
-    const modeColors = ['is-link', 'is-success', 'is-warning'];
     const modeSubmit = ['Get Estimate', 'Get Plans + Materials Estimate', 'Get Plans Only Estimate'];
 
     function setMode(mode) {
-      document.getElementById('diy-mode-hidden').value = mode;
       document.getElementById('mode-help').textContent = modeHelp[mode];
       document.getElementById('submit-btn').value = modeSubmit[mode];
-      [0, 1, 2].forEach(m => {
-        const btn = document.getElementById('mode-btn-' + m);
-        btn.className = 'button' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
-      });
     }
     </script>
     {{end}}

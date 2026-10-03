@@ -72,8 +72,8 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 // *****************************************************************************************
 func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Free Deck Calculator — SW Washington"
-	userAuth.Subtitle = "Instant deck cost estimates for SW Washington homeowners"
+	userAuth.Title = "Free Deck Calculator"
+	userAuth.Subtitle = "Instant deck cost estimates"
 	userAuth.MetaDesc = "Free deck cost calculator for SW Washington. Get an instant estimate for deck size, materials, rails, stairs, and permits. No salesperson, no callbacks."
 	userAuth.CanonicalPath = "/deck-calculator"
 	queueGAEvent(w, r, "calculator_start", map[string]interface{}{"product_type": "deck"})
@@ -113,8 +113,8 @@ type patioCalcData struct {
 // *****************************************************************************************
 func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Free Patio Cover Calculator — SW Washington"
-	userAuth.Subtitle = "Instant patio cover cost estimates for SW Washington homeowners"
+	userAuth.Title = "Free Patio Cover Calculator"
+	userAuth.Subtitle = "Instant patio cover cost estimates"
 	userAuth.MetaDesc = "Free patio cover cost calculator for SW Washington. Get an instant estimate for pergola, lean-to, truss, and timberframe covers."
 	userAuth.CanonicalPath = "/patio-cover-calculator"
 	queueGAEvent(w, r, "calculator_start", map[string]interface{}{"product_type": "patio_cover"})
@@ -142,6 +142,43 @@ func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
 
 // *****************************************************************************************
 //
+//	calcResetHandler
+//
+//	  POST /calc/reset — the calculators' "Start over" link. Clears the in-progress
+//	  estimates and customer info from the session (login is kept) and sends the user
+//	  back to a blank calculator.
+//
+// *****************************************************************************************
+func calcResetHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/calc", http.StatusSeeOther)
+		return
+	}
+	sd, err := GetSession(r, w)
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+	sd.Estimate = DeckEstimate{}
+	sd.PatioEstimate = PatioCoverEstimate{}
+	sd.Customer = Customer{}
+	sd.ActiveProduct = ""
+	sd.PendingSave = false
+	if err := sd.Save(r, w); err != nil {
+		log.Printf("calcResetHandler: session save failed: %v", err)
+	}
+
+	// Only return to a known calculator page, never an arbitrary URL.
+	target := "/calc"
+	switch r.FormValue("return") {
+	case "/deck-calculator", "/patio-cover-calculator":
+		target = r.FormValue("return")
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
+}
+
+// *****************************************************************************************
+//
 //	calcPickerHandler
 //
 //	  /calc — lets the homeowner choose a project type (deck or patio cover) before
@@ -150,7 +187,7 @@ func handlePatioCalc(w http.ResponseWriter, r *http.Request) {
 // *****************************************************************************************
 func calcPickerHandler(w http.ResponseWriter, r *http.Request) {
 	userAuth := getUserAuth(r, w)
-	userAuth.Title = "Free Deck & Patio Cover Cost Calculator — SW Washington"
+	userAuth.Title = "Free Deck & Patio Cover Cost Calculator"
 	userAuth.Subtitle = "Choose a project type below to get an instant, itemized, no-obligation estimate."
 	userAuth.MetaDesc = "Free instant deck and patio cover cost calculator for Clark and Cowlitz County, SW Washington. Price your project by size and materials — no account or sales call required."
 	userAuth.CanonicalPath = "/calc"

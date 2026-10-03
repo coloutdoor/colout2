@@ -2,68 +2,8 @@
   {{template "header.gohtml" .Header}}
   {{template "deckheader.gohtml" .}}
 
-  <div style="max-width:480px;">
-    <h2 class="title is-4 mt-4">How Much Does a Patio Cover Cost in SW Washington?</h2>
-    <p class="has-text-grey mb-4">Patio cover costs in SW Washington vary widely by style and materials — a simple pergola runs far less than a timberframe cover. Use this calculator to get a rough sense of your project before talking to a professional.</p>
-  </div>
-
   {{with .Page}}
     <form id="patio-form" method="post" action="/patio-estimate" class="box" style="max-width: 480px;">
-
-        <div class="field">
-            <label class="label">Project Type</label>
-            <div class="buttons has-addons mb-1">
-              <button type="button" id="mode-btn-0" onclick="setMode(0)"
-                class="button{{if eq .DIYMode 0}} is-link is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-hard-hat"></i></span>
-                <span>Full Service</span>
-              </button>
-              <button type="button" id="mode-btn-1" onclick="setMode(1)"
-                class="button{{if eq .DIYMode 1}} is-success is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-tools"></i></span>
-                <span>Plans + Materials</span>
-              </button>
-              <button type="button" id="mode-btn-2" onclick="setMode(2)"
-                class="button{{if eq .DIYMode 2}} is-warning is-selected{{end}}">
-                <span class="icon is-small"><i class="fas fa-drafting-compass"></i></span>
-                <span>Plans Only</span>
-              </button>
-            </div>
-            <p id="mode-help" class="help">
-              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
-              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
-              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
-            </p>
-            <input type="hidden" name="diyMode" id="diy-mode-hidden" value="{{.DIYMode}}">
-        </div>
-
-        <div class="field">
-            <label class="label">Project Description</label>
-            <div class="control">
-                <input class="input" type="text" name="desc" maxlength="50" placeholder="e.g. Back patio, over the deck...">
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label">Depth (ft)</label>
-            <div class="control">
-                <input class="input" type="number" name="length" step="0.1" min="1" required placeholder="e.g. 14">
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label">Width (ft)</label>
-            <div class="control">
-                <input class="input" type="number" name="width" step="0.1" min="1" required placeholder="e.g. 20">
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label">Height at Wall (ft)</label>
-            <div class="control">
-                <input class="input" type="number" name="height" step="0.1" min="0" required placeholder="e.g. 9">
-            </div>
-        </div>
 
         <div class="field">
             <label class="label">
@@ -75,13 +15,42 @@
             <div class="control">
                 <div class="select is-fullwidth">
                     <select name="patioType" required>
-                        <option value="pergola">Pergola — open slat roof, partial shade</option>
-                        <option value="leanto">Lean-to — single-slope, attached to house</option>
-                        <option value="truss">Truss — peaked roof, matches home roofline</option>
-                        <option value="timberframe">Timberframe — heavy post-and-beam construction</option>
+                        <option value="pergola">Pergola</option>
+                        <option value="leanto">Lean-to</option>
+                        <option value="truss">Truss</option>
+                        <option value="timberframe">Timberframe</option>
                     </select>
                 </div>
             </div>
+
+        <div class="field">
+            <label class="label">Project Description</label>
+            <div class="control">
+                <input class="input" type="text" name="desc" maxlength="50" placeholder="e.g. Back patio, over the deck...">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Depth (ft) <span class="has-text-grey-light">(out from house)</span></label>
+            <div class="control">
+                <input class="input" type="number" name="length" step="0.1" min="1" required placeholder="e.g. 14">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Width (ft) <span class="has-text-grey-light">(along house)</span></label>
+            <div class="control">
+                <input class="input" type="number" name="width" step="0.1" min="1" required placeholder="e.g. 20">
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Height (ft) <span class="has-text-grey-light">(at the gutters)</span></label>
+            <div class="control">
+                <input class="input" type="number" name="height" step="0.1" min="0" required placeholder="e.g. 9">
+            </div>
+        </div>
+
         </div>
 
         <!-- Modal Help Dialog-->
@@ -133,6 +102,24 @@
             </div>
         </div>
 
+        <div class="field">
+            <label class="label">Project Type</label>
+            <div class="control">
+                <div class="select is-fullwidth">
+                    <select name="diyMode" id="diy-mode" onchange="setMode(+this.value)">
+                        <option value="0" {{if eq .DIYMode 0}}selected{{end}}>Full Service</option>
+                        <option value="1" {{if eq .DIYMode 1}}selected{{end}}>Plans + Materials</option>
+                        <option value="2" {{if eq .DIYMode 2}}selected{{end}}>Plans Only</option>
+                    </select>
+                </div>
+            </div>
+            <p id="mode-help" class="help">
+              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
+              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
+              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
+            </p>
+        </div>
+
         <div class="field mt-5">
             <div class="control">
                 <input id="submit-btn" class="button is-primary is-fullwidth is-medium" type="submit"
@@ -140,6 +127,12 @@
             </div>
         </div>
 
+    </form>
+
+    <form method="post" action="/calc/reset" class="has-text-centered mt-2" style="max-width:480px;"
+      onsubmit="return confirm('Clear all values and start over?');">
+      <input type="hidden" name="return" value="/patio-cover-calculator">
+      <button type="submit" class="button is-small is-text has-text-grey">Start over</button>
     </form>
 
     <div style="max-width:480px; margin-top:2rem;">
@@ -169,17 +162,11 @@
       'Design, engineering, permits, and materials list — you install.',
       'Professional design, engineering, and permit package only — no materials.'
     ];
-    const modeColors = ['is-link', 'is-success', 'is-warning'];
     const modeSubmit = ['Get Estimate', 'Get Plans + Materials Estimate', 'Get Plans Only Estimate'];
 
     function setMode(mode) {
-      document.getElementById('diy-mode-hidden').value = mode;
       document.getElementById('mode-help').textContent = modeHelp[mode];
       document.getElementById('submit-btn').value = modeSubmit[mode];
-      [0, 1, 2].forEach(m => {
-        const btn = document.getElementById('mode-btn-' + m);
-        btn.className = 'button' + (m === mode ? ' ' + modeColors[m] + ' is-selected' : '');
-      });
     }
     </script>
     {{end}}

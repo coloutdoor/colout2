@@ -172,6 +172,7 @@ func main() {
 	nrHandle("/deck-calculator", calcHandler)
 	nrHandle("/patio-cover-calculator", handlePatioCalc)
 	nrHandle("/calc", calcPickerHandler)
+	nrHandle("/calc/reset", calcResetHandler)
 	nrHandle("/calc/{slug}", calcSlugRedirectHandler)
 	nrHandle("/css/", cssHandler)
 	nrHandle("/contact", contactHandler)
