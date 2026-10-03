@@ -484,7 +484,7 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO - Add Stair Picture Framing
 		case "5":
-			estimate.Material = "timberTechProLegacy"
+			estimate.Material = "timberTechAzek"
 			estimate.RailMaterial = "composite"
 			estimate.RailInfill = "glass"
 			estimate.HasFascia = true

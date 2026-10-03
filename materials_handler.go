@@ -167,6 +167,8 @@ func materialLabel(m string) string {
 		return "TimberTech Pro Reserve"
 	case "timberTechProLegacy":
 		return "TimberTech Pro Legacy"
+	case "timberTechAzek":
+		return "TimberTech AZEK (cellular PVC)"
 	default:
 		return m
 	}

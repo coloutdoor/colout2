@@ -4,6 +4,7 @@ deck_materials:
   timberTechPrime: 35.0
   timberTechProReserve: 44.0
   timberTechProLegacy: 54.0
+  timberTechAzek: 54.0
 rail_materials:
   wood: 90.0
   aluminum: 105.0

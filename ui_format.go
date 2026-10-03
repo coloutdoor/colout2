@@ -209,6 +209,8 @@ func formatDeckDescription(de DeckEstimate) string {
 		material = "TimberTech Pro Reserve"
 	case "timberTechProLegacy":
 		material = "TimberTech Pro Legacy"
+	case "timberTechAzek":
+		material = "TimberTech AZEK (cellular PVC)"
 	}
 	var desc string
 	switch de.DIYMode {
