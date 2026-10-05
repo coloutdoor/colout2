@@ -14,16 +14,30 @@
         <p class="subtitle is-6 has-text-grey">Offer valid until October 15, 2026</p>
       </section>
       <footer class="modal-card-foot" style="justify-content:center;">
-        <a href="/contact?message=I'd%20like%20to%20claim%20the%2010%25%20off%20all%20estimates%20promotion%20(valid%20until%20Oct%2015%2C%202026)." class="button is-warning is-fullwidth">Claim This Offer</a>
+        <a href="/contact?message=I'd%20like%20to%20claim%20the%2010%25%20off%20all%20estimates%20promotion%20(valid%20until%20Oct%2015%2C%202026)." class="button is-warning is-fullwidth" onclick="markPromoSeen()">Claim This Offer</a>
       </footer>
     </div>
   </div>
   <script>
-  setTimeout(function() {
-    document.getElementById('promo-modal').classList.add('is-active');
-  }, 5000);
+  // Show the promo once per visitor, 10 seconds in. Change PROMO_KEY for a new
+  // promotion so returning visitors see that one once too.
+  var PROMO_KEY = 'promoSeen:10off-2026-10-15';
+  var PROMO_END = new Date('2026-10-16T00:00:00-07:00'); // stop showing after the offer ends
+  function promoSeen() {
+    try { return localStorage.getItem(PROMO_KEY) === '1'; } catch (e) { return false; }
+  }
+  function markPromoSeen() {
+    try { localStorage.setItem(PROMO_KEY, '1'); } catch (e) {}
+  }
+  if (!promoSeen() && new Date() < PROMO_END) {
+    setTimeout(function() {
+      document.getElementById('promo-modal').classList.add('is-active');
+      markPromoSeen();
+    }, 10000);
+  }
   function closePromoModal() {
     document.getElementById('promo-modal').classList.remove('is-active');
+    markPromoSeen();
   }
   </script>
 
