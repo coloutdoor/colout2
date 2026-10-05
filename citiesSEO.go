@@ -6,7 +6,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // sitemapImage is one <image:image> entry attached to a <url> in sitemap.xml,
@@ -188,6 +191,89 @@ func deckBuildersWoodlandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := tmpl.ExecuteTemplate(w, "deck-builders-woodland-wa.gohtml", rd); err != nil {
 		log.Printf("deckBuildersWoodlandHandler error: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// affordableDecksPromo is the monthly banner on /promos/affordable-decks. Swap the
+// fields (and End) for the next campaign; the banner hides itself once End
+// passes, leaving the evergreen page.
+type affordableDecksPromo struct {
+	Title    string
+	Code     string
+	EndLabel string    // shown on the page, e.g. "October 31"
+	End      time.Time // first moment the promo is no longer valid
+	Wood     string
+	Cedar    string
+	Comp     string
+}
+
+type affordableDecksPage struct {
+	Promo       affordableDecksPromo
+	PromoActive bool
+	ContactURL  string // /contact, pre-filled with the promo while it's active
+	// Regular (pre-code) prices straight from costs.yaml, shown struck through
+	// above the promo prices so the "was" price always matches the calculator.
+	WoodReg, CedarReg, CompReg string
+	SavePct                    string // e.g. "10", from the promo code's discount
+	Example100                 string // promo price of a 100 sq ft Outdoor Wood deck, e.g. "1,999.00"
+}
+
+var currentAffordablePromo = affordableDecksPromo{
+	Title:    "October Deck Pricing",
+	Code:     "DECKS26",
+	EndLabel: "October 31",
+	End:      time.Date(2026, time.November, 1, 0, 0, 0, 0, pacificTime()),
+	Wood:     "19.99",
+	Cedar:    "24.99",
+	Comp:     "29.99",
+}
+
+func pacificTime() *time.Location {
+	if loc, err := time.LoadLocation("America/Los_Angeles"); err == nil {
+		return loc
+	}
+	return time.FixedZone("PDT", -7*60*60)
+}
+
+// affordableDecksHandler serves the evergreen "affordable decks" landing page
+// (/promos/affordable-decks) used by the cost-savings ad campaigns, with the current
+// promo banner on top while it's active.
+func affordableDecksHandler(w http.ResponseWriter, r *http.Request) {
+	userAuth := getUserAuth(r, w)
+	userAuth.Title = "Affordable Decks in Clark County, WA"
+	userAuth.Subtitle = "Complete wood, cedar, and composite decks at honest, upfront prices."
+	userAuth.MetaDesc = "Affordable decks in Clark and Cowlitz County, WA. Complete wood, cedar, and composite decks — materials, labor, footings, and framing — with honest per-square-foot pricing and an instant online estimate."
+	userAuth.CanonicalPath = "/promos/affordable-decks"
+
+	tmpl := template.Must(template.New("affordable-decks.gohtml").Funcs(funcMap).ParseFiles(
+		"templates/affordable-decks.gohtml",
+		"templates/header.gohtml",
+		"templates/footer.gohtml",
+	))
+
+	page := affordableDecksPage{
+		Promo:       currentAffordablePromo,
+		PromoActive: time.Now().Before(currentAffordablePromo.End),
+		ContactURL:  "/contact?project=deck",
+		WoodReg:     fmt.Sprintf("%.2f", costs.DeckMaterials["outdoorWood"]),
+		CedarReg:    fmt.Sprintf("%.2f", costs.DeckMaterials["cedar"]),
+		CompReg:     fmt.Sprintf("%.2f", costs.DeckMaterials["timberTechPrime"]),
+		SavePct:     fmt.Sprintf("%.0f", costs.DiscountCodes[currentAffordablePromo.Code]*100),
+	}
+	if wood, err := strconv.ParseFloat(currentAffordablePromo.Wood, 64); err == nil {
+		page.Example100 = formatCost(wood * 100)[1:] // formatCost returns "$1,999.00"
+	}
+	if page.PromoActive {
+		q := url.Values{}
+		q.Set("project", "deck")
+		q.Set("message", fmt.Sprintf("I'm interested in the %s promotion. Promo Code: %s",
+			page.Promo.Title, page.Promo.Code))
+		page.ContactURL = "/contact?" + q.Encode()
+	}
+	rd := renderData{Page: &page, Header: &userAuth}
+	if err := tmpl.ExecuteTemplate(w, "affordable-decks.gohtml", rd); err != nil {
+		log.Printf("affordableDecksHandler error: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

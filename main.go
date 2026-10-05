@@ -204,6 +204,7 @@ func main() {
 	nrHandle("/deck-builders-woodland-wa", deckBuildersWoodlandHandler)
 	nrHandle("/outdoor-living-woodland-wa", outdoorLivingWoodlandHandler)
 	nrHandle("/thm", thmHandler)
+	nrHandle("/promos/affordable-decks", affordableDecksHandler)
 	// Print readers often type the ad URL in capitals.
 	mux.HandleFunc("/THM", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/thm", http.StatusMovedPermanently)
