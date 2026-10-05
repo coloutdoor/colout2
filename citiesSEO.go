@@ -68,6 +68,7 @@ func sitemapHandler(w http.ResponseWriter, r *http.Request) {
 		{"/patio-cover-contractors-woodland-wa", "0.9", "2026-09-16", patioCoverWoodlandImages},
 		{"/deck-builders-woodland-wa", "0.9", "2026-09-16", deckBuildersWoodlandImages},
 		{"/outdoor-living-woodland-wa", "0.9", "2026-09-16", outdoorLivingWoodlandImages},
+		{"/promos/affordable-decks", "0.8", "2026-10-05", nil},
 		{"/projects", "0.8", "2026-09-15", projectsPageImages()},
 	}
 

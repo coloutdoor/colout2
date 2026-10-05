@@ -5,24 +5,25 @@
     <div class="modal-background" onclick="closePromoModal()"></div>
     <div class="modal-card" style="max-width:420px;">
       <header class="modal-card-head">
-        <p class="modal-card-title">Limited-Time Offer</p>
+        <p class="modal-card-title">October Deck Pricing</p>
         <button class="delete" aria-label="close" onclick="closePromoModal()"></button>
       </header>
       <section class="modal-card-body has-text-centered">
         <span class="icon is-large has-text-warning mb-3"><i class="fas fa-tags fa-2x"></i></span>
-        <p class="title is-4">10% Off All Estimates</p>
-        <p class="subtitle is-6 has-text-grey">Offer valid until October 15, 2026</p>
+        <p class="title is-4 mb-2">Outdoor Wood Decks from $19.99/sq ft</p>
+        <p class="mb-2">Cedar $24.99 &middot; Composite from $29.99</p>
+        <p class="subtitle is-6 has-text-grey">With code <strong>DECKS26</strong> &mdash; through October 31</p>
       </section>
       <footer class="modal-card-foot" style="justify-content:center;">
-        <a href="/contact?message=I'd%20like%20to%20claim%20the%2010%25%20off%20all%20estimates%20promotion%20(valid%20until%20Oct%2015%2C%202026)." class="button is-warning is-fullwidth" onclick="markPromoSeen()">Claim This Offer</a>
+        <a href="/promos/affordable-decks" class="button is-warning is-fullwidth" onclick="markPromoSeen()">See the Offer</a>
       </footer>
     </div>
   </div>
   <script>
   // Show the promo once per visitor, 10 seconds in. Change PROMO_KEY for a new
   // promotion so returning visitors see that one once too.
-  var PROMO_KEY = 'promoSeen:10off-2026-10-15';
-  var PROMO_END = new Date('2026-10-16T00:00:00-07:00'); // stop showing after the offer ends
+  var PROMO_KEY = 'promoSeen:oct-deck-pricing-2026';
+  var PROMO_END = new Date('2026-11-01T00:00:00-07:00'); // stop showing after the offer ends
   function promoSeen() {
     try { return localStorage.getItem(PROMO_KEY) === '1'; } catch (e) { return false; }
   }
