@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Patio Cover Estimate #{{.Estimate.EstimateID}} — Columbia Outdoor</title>
+<title>{{if .Quick}}Your Patio Cover Estimate{{else}}Patio Cover Estimate #{{.Estimate.EstimateID}}{{end}} — Columbia Outdoor</title>
 <style>
   body{margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1a2535;}
   a{color:#2c6e9e;}
@@ -30,12 +30,13 @@
     <!-- ── Estimate meta strip ── -->
     <tr>
       <td style="background:#f0f5fa;padding:12px 28px;border-left:4px solid #2c6e9e;">
-        <strong style="font-size:14px;">Patio Cover Estimate #{{.Estimate.EstimateID}}{{if .Estimate.Version}}-{{.Estimate.Version}}{{end}}</strong>
+        <strong style="font-size:14px;">{{if .Quick}}Your Patio Cover Estimate{{else}}Patio Cover Estimate #{{.Estimate.EstimateID}}{{if .Estimate.Version}}-{{.Estimate.Version}}{{end}}{{end}}</strong>
         {{if .Estimate.Desc}} &mdash; {{.Estimate.Desc}}{{end}}<br>
         <span style="color:#64748b;font-size:12px;">
+          {{if .Quick}}Prepared: {{.Prepared}}{{else}}
           Prepared: {{.Estimate.SaveDate.Format "January 2, 2006"}}
           &nbsp;&middot;&nbsp;
-          {{if not .Estimate.ExpirationDate.IsZero}}Valid through: {{.Estimate.ExpirationDate.Format "January 2, 2006"}}{{end}}
+          {{if not .Estimate.ExpirationDate.IsZero}}Valid through: {{.Estimate.ExpirationDate.Format "January 2, 2006"}}{{end}}{{end}}
         </span>
       </td>
     </tr>
@@ -43,6 +44,25 @@
     <!-- ── Intro ── -->
     <tr>
       <td style="padding:24px 28px 8px;">
+        {{if .Quick}}
+        <p style="margin:0 0 12px;">Hi{{if .Estimate.Customer.FirstName}} {{.Estimate.Customer.FirstName}}{{end}},</p>
+        <p style="margin:0 0 12px;">Here's the patio cover estimate you priced on <strong>columbiaoutdoor.com</strong>, with every line item below so you can plan your budget.</p>
+        <p style="margin:0 0 20px;">Have questions, or want us to take a look at your project? Reply to this email or tap below &mdash; a local Columbia Outdoor builder will get back to you.</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center" style="padding:4px 0 8px;">
+              <a href="{{.EstimateURL}}" style="display:inline-block;background:#2c6e9e;color:#fff;padding:13px 32px;border-radius:5px;text-decoration:none;font-weight:700;font-size:15px;">
+                Talk to Us About This Estimate
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:0 0 20px;font-size:13px;">
+              <a href="{{.CalcURL}}" style="color:#2c6e9e;">Price another patio cover</a>
+            </td>
+          </tr>
+        </table>
+        {{else}}
         <p style="margin:0 0 12px;">Hi {{.Estimate.Customer.FirstName}},</p>
         <p style="margin:0 0 12px;"><strong>{{.ContractorName}}</strong> has prepared a detailed outdoor living estimate for your project.</p>
         <p style="margin:0 0 20px;">You can review and accept this estimate directly through Columbia Outdoor's platform. Once accepted, Columbia Outdoor will coordinate scheduling, ensure the project stays on track, and support you through to completion.</p>
@@ -55,6 +75,7 @@
             </td>
           </tr>
         </table>
+        {{end}}
       </td>
     </tr>
 
@@ -80,6 +101,7 @@
               </div>
             </td>
             <td class="col-half" width="50%" style="vertical-align:top;">
+              {{if or (not .Quick) .Estimate.Customer.FirstName}}
               <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Prepared For</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;">{{.Estimate.Customer.FirstName}} {{.Estimate.Customer.LastName}}</div>
               <div style="font-size:12px;color:#4a6075;line-height:1.7;">
@@ -88,6 +110,7 @@
                 {{if .Estimate.Customer.PhoneNumber}}{{.Estimate.Customer.PhoneNumber}}<br>{{end}}
                 {{if .Estimate.Customer.Email}}{{.Estimate.Customer.Email}}{{end}}
               </div>
+              {{end}}
             </td>
           </tr>
         </table>
@@ -197,8 +220,10 @@
     <tr>
       <td style="padding:20px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;">
         <p style="margin:0 0 6px;font-size:12px;color:#64748b;">
+          {{if .Quick}}This is an online estimate based on the details you entered.
+          For questions, reply to this email or contact us at{{else}}
           This estimate is valid{{if not .Estimate.ExpirationDate.IsZero}} through <strong>{{.Estimate.ExpirationDate.Format "January 2, 2006"}}</strong>{{end}}.
-          To accept online, use the button above. For questions, contact us at
+          To accept online, use the button above. For questions, contact us at{{end}}
           <a href="mailto:support@columbiaoutdoor.com" style="color:#2c6e9e;">support@columbiaoutdoor.com</a>
           or (360) 787-8062.
         </p>

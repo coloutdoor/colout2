@@ -11,6 +11,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/mail"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -547,90 +549,7 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST save=true
 	if r.FormValue("save") == "true" {
-		if desc := r.FormValue("desc"); desc != "" {
-			estimate.Desc = desc
-		}
-		if w := r.FormValue("width"); w != "" {
-			if val, err := strconv.ParseFloat(w, 64); err == nil && val > 0 {
-				estimate.Width = val
-			}
-		}
-		if d := r.FormValue("length"); d != "" {
-			if val, err := strconv.ParseFloat(d, 64); err == nil && val > 0 {
-				estimate.Depth = val
-			}
-		}
-		if pt := r.FormValue("patioType"); pt != "" {
-			estimate.PatioType = pt
-		}
-		if rs := r.FormValue("roofSlope"); rs != "" {
-			if v, err := strconv.Atoi(rs); err == nil && v >= 4 {
-				estimate.RoofSlope = v
-			}
-		}
-		if hpw := r.FormValue("hasPostWrap"); hpw != "" {
-			estimate.HasPostWrap = hpw == "true"
-		}
-		if hfc := r.FormValue("hasFinishCeiling"); hfc != "" {
-			estimate.HasFinishCeiling = hfc == "true"
-		}
-		if hps := r.FormValue("hasPaintStain"); hps != "" {
-			estimate.HasPaintStain = hps == "true"
-		}
-		if hfh := r.FormValue("hasFinishHardware"); hfh != "" {
-			estimate.HasFinishHardware = hfh == "true"
-		}
-		if el := r.FormValue("electricalLights"); el != "" {
-			if v, err := strconv.Atoi(el); err == nil && v >= 0 && v <= 10 {
-				estimate.ElectricalLights = v
-			}
-		}
-		if ef := r.FormValue("electricalFans"); ef != "" {
-			if v, err := strconv.Atoi(ef); err == nil && v >= 0 && v <= 3 {
-				estimate.ElectricalFans = v
-			}
-		}
-		if es := r.FormValue("electricalSwitches"); es != "" {
-			if v, err := strconv.Atoi(es); err == nil && v >= 0 && v <= 3 {
-				estimate.ElectricalSwitches = v
-			}
-		}
-		if eo := r.FormValue("electricalOutlets"); eo != "" {
-			if v, err := strconv.Atoi(eo); err == nil && v >= 0 && v <= 4 {
-				estimate.ElectricalOutlets = v
-			}
-		}
-		if pl := r.FormValue("permitLevel"); pl != "" {
-			if v, err := strconv.Atoi(pl); err == nil && v >= 0 && v <= 3 {
-				estimate.PermitLevel = v
-			}
-		}
-		if dm := r.FormValue("diyMode"); dm != "" {
-			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
-				estimate.DIYMode = v
-			}
-		}
-		estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
-		if ciJSON := r.FormValue("customItems"); ciJSON != "" {
-			var parsed []struct {
-				Description string  `json:"description"`
-				Notes       string  `json:"notes"`
-				Cost        float64 `json:"cost"`
-			}
-			if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
-				estimate.CustomItems = nil
-				for i, ci := range parsed {
-					if ci.Description != "" || ci.Cost != 0 {
-						estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
-							Description: ci.Description,
-							Notes:       ci.Notes,
-							Cost:        ci.Cost,
-							SortOrder:   i,
-						})
-					}
-				}
-			}
-		}
+		applyPatioForm(r, &estimate)
 		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			savePatioEstimate(w, r, &estimate, sd)
@@ -696,6 +615,96 @@ func patioEstimateHandler(w http.ResponseWriter, r *http.Request) {
 		"patio_type":   estimate.PatioType,
 	})
 	renderPatioEstimate(w, r, estimate)
+}
+
+// applyPatioForm copies the patio estimate page's form fields (size, type,
+// finishes, electrical, permits, service tier, discount, custom items) onto
+// estimate. Shared by Save and the no-login "email this estimate" path.
+func applyPatioForm(r *http.Request, estimate *PatioCoverEstimate) {
+	if desc := r.FormValue("desc"); desc != "" {
+		estimate.Desc = desc
+	}
+	if w := r.FormValue("width"); w != "" {
+		if val, err := strconv.ParseFloat(w, 64); err == nil && val > 0 {
+			estimate.Width = val
+		}
+	}
+	if d := r.FormValue("length"); d != "" {
+		if val, err := strconv.ParseFloat(d, 64); err == nil && val > 0 {
+			estimate.Depth = val
+		}
+	}
+	if pt := r.FormValue("patioType"); pt != "" {
+		estimate.PatioType = pt
+	}
+	if rs := r.FormValue("roofSlope"); rs != "" {
+		if v, err := strconv.Atoi(rs); err == nil && v >= 4 {
+			estimate.RoofSlope = v
+		}
+	}
+	if hpw := r.FormValue("hasPostWrap"); hpw != "" {
+		estimate.HasPostWrap = hpw == "true"
+	}
+	if hfc := r.FormValue("hasFinishCeiling"); hfc != "" {
+		estimate.HasFinishCeiling = hfc == "true"
+	}
+	if hps := r.FormValue("hasPaintStain"); hps != "" {
+		estimate.HasPaintStain = hps == "true"
+	}
+	if hfh := r.FormValue("hasFinishHardware"); hfh != "" {
+		estimate.HasFinishHardware = hfh == "true"
+	}
+	if el := r.FormValue("electricalLights"); el != "" {
+		if v, err := strconv.Atoi(el); err == nil && v >= 0 && v <= 10 {
+			estimate.ElectricalLights = v
+		}
+	}
+	if ef := r.FormValue("electricalFans"); ef != "" {
+		if v, err := strconv.Atoi(ef); err == nil && v >= 0 && v <= 3 {
+			estimate.ElectricalFans = v
+		}
+	}
+	if es := r.FormValue("electricalSwitches"); es != "" {
+		if v, err := strconv.Atoi(es); err == nil && v >= 0 && v <= 3 {
+			estimate.ElectricalSwitches = v
+		}
+	}
+	if eo := r.FormValue("electricalOutlets"); eo != "" {
+		if v, err := strconv.Atoi(eo); err == nil && v >= 0 && v <= 4 {
+			estimate.ElectricalOutlets = v
+		}
+	}
+	if pl := r.FormValue("permitLevel"); pl != "" {
+		if v, err := strconv.Atoi(pl); err == nil && v >= 0 && v <= 3 {
+			estimate.PermitLevel = v
+		}
+	}
+	if dm := r.FormValue("diyMode"); dm != "" {
+		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+			estimate.DIYMode = v
+		}
+	}
+	estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+	if ciJSON := r.FormValue("customItems"); ciJSON != "" {
+		var parsed []struct {
+			Description string  `json:"description"`
+			Notes       string  `json:"notes"`
+			Cost        float64 `json:"cost"`
+		}
+		if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
+			estimate.CustomItems = nil
+			for i, ci := range parsed {
+				if ci.Description != "" || ci.Cost != 0 {
+					estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
+						Description: ci.Description,
+						Notes:       ci.Notes,
+						Cost:        ci.Cost,
+						SortOrder:   i,
+					})
+				}
+			}
+		}
+	}
 }
 
 // patioEstimateDBHandler handles GET /patio-estimate/{estimateID}, loading a
@@ -825,6 +834,109 @@ func patioEstimateAcceptHandler(w http.ResponseWriter, r *http.Request) {
 	renderPatioEstimate(w, r, pe)
 }
 
+// patioEstimateSummary is a one-line description of a patio cover estimate for
+// pre-filled contact messages, e.g. "Truss patio cover, 16 x 12 ft — estimated $8,465.56".
+func patioEstimateSummary(e PatioCoverEstimate) string {
+	kind := patioTypeLabels[e.PatioType]
+	if kind == "" {
+		kind = e.PatioType
+	}
+	s := fmt.Sprintf("%s patio cover, %.0f x %.0f ft", kind, e.Width, e.Depth)
+	if e.Desc != "" {
+		s = e.Desc + ": " + s
+	}
+	return s + " — estimated " + formatCost(e.TotalCost)
+}
+
+// patioQuickEmailHandler handles POST /patio-estimate/email-me: the patio cover
+// counterpart of estimateQuickEmailHandler. Emails the estimate currently on
+// the page (posted as the patio form fields plus "email") without an account
+// or saving it; support@ is BCC'd so each send is a lead.
+func patioQuickEmailHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	reply := func(status, msg string) {
+		json.NewEncoder(w).Encode(map[string]string{"status": status, "message": msg})
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	sd, err := GetSession(r, w)
+	if err != nil {
+		reply("error", "Session error. Please refresh the page and try again.")
+		return
+	}
+	if sd.QuickEmails >= maxQuickEmails {
+		reply("error", "Email limit reached. Please call us at (360) 787-8062.")
+		return
+	}
+
+	toEmail := strings.TrimSpace(r.FormValue("email"))
+	if addr, err := mail.ParseAddress(toEmail); err != nil || addr.Address != toEmail {
+		reply("error", "Please enter a valid email address.")
+		return
+	}
+
+	estimate := sd.PatioEstimate
+	estimate.Customer = sd.Customer
+	applyPatioForm(r, &estimate)
+	estimate.CalcAllCosts()
+	if estimate.Error != "" || estimate.TotalCost <= 0 {
+		reply("error", "Please get an estimate first, then email it.")
+		return
+	}
+
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		log.Printf("patioQuickEmailHandler: RESEND_API_KEY not set")
+		reply("error", "Email service is not configured. Please call us at (360) 787-8062.")
+		return
+	}
+
+	scheme := "https"
+	if r.Host == "" || strings.HasPrefix(r.Host, "localhost") {
+		scheme = "http"
+	}
+	base := fmt.Sprintf("%s://%s", scheme, r.Host)
+	q := url.Values{}
+	q.Set("project", "cover")
+	q.Set("message", "I'd like to talk about my patio cover estimate. "+patioEstimateSummary(estimate))
+	html := buildQuickPatioEstimateEmailHTML(estimate, base+"/contact?"+q.Encode(), base+"/patio-cover-calculator")
+
+	client := resend.NewClient(apiKey)
+	params := &resend.SendEmailRequest{
+		From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+		To:      []string{toEmail},
+		Bcc:     []string{"support@columbiaoutdoor.com"},
+		ReplyTo: "support@columbiaoutdoor.com",
+		Subject: "Your Patio Cover Estimate — " + formatCost(estimate.TotalCost),
+		Html:    html,
+	}
+	sent, err := client.Emails.Send(params)
+	if err != nil {
+		log.Printf("patioQuickEmailHandler: resend error: %v", err)
+		reply("error", "Email could not be sent. Please call us at (360) 787-8062.")
+		return
+	}
+	log.Printf("patioQuickEmailHandler: sent unsaved estimate (%.2f) (id: %s)", estimate.TotalCost, sent.Id)
+
+	if sd.Customer.Email == "" {
+		sd.Customer.Email = toEmail
+	}
+	sd.QuickEmails++
+	if err := sd.Save(r, w); err != nil {
+		log.Printf("patioQuickEmailHandler: session save: %v", err)
+	}
+
+	recordNREvent("PatioEstimateEmailed", map[string]interface{}{
+		"estimate_id":  0,
+		"total_cost":   estimate.TotalCost,
+		"product_type": "patio_cover",
+		"no_account":   true,
+	})
+	reply("sent", "Estimate emailed to "+toEmail)
+}
+
 // patioEmailSendHandler handles POST /patio-estimate/send/{estimateID}, emailing
 // the patio cover estimate via Resend to the requester's address (defaulting to
 // the saved customer email) and optionally CC'ing the logged-in user. It
@@ -923,7 +1035,10 @@ func patioEmailSendHandler(w http.ResponseWriter, r *http.Request) {
 
 type patioEstimateEmailData struct {
 	Estimate          PatioCoverEstimate
-	EstimateURL       string
+	EstimateURL       string // saved: view/accept link; Quick: pre-filled contact link
+	Quick             bool   // no-login "email me this estimate" (unsaved estimate)
+	CalcURL           string // Quick only: "price another patio cover" link
+	Prepared          string // Quick only: today's date
 	ContractorName    string
 	ContractorPhone   string
 	ContractorWebsite string
@@ -932,9 +1047,23 @@ type patioEstimateEmailData struct {
 
 // buildPatioEstimateEmailHTML renders the patio cover estimate email template to a string.
 func buildPatioEstimateEmailHTML(e PatioCoverEstimate, estimateURL string) string {
+	return renderPatioEstimateEmail(patioEstimateEmailData{Estimate: e, EstimateURL: estimateURL})
+}
+
+// buildQuickPatioEstimateEmailHTML renders the email for an unsaved patio
+// cover estimate sent without an account (see estimateQuickEmailHandler).
+func buildQuickPatioEstimateEmailHTML(e PatioCoverEstimate, contactURL, calcURL string) string {
+	return renderPatioEstimateEmail(patioEstimateEmailData{Estimate: e, EstimateURL: contactURL, Quick: true, CalcURL: calcURL})
+}
+
+func renderPatioEstimateEmail(in patioEstimateEmailData) string {
+	e := in.Estimate
 	data := patioEstimateEmailData{
 		Estimate:          e,
-		EstimateURL:       estimateURL,
+		EstimateURL:       in.EstimateURL,
+		Quick:             in.Quick,
+		CalcURL:           in.CalcURL,
+		Prepared:          time.Now().In(pacificTime()).Format("January 2, 2006"),
 		ContractorName:    "Columbia Outdoor",
 		ContractorPhone:   "(360) 787-8062",
 		ContractorWebsite: "columbiaoutdoor.com",

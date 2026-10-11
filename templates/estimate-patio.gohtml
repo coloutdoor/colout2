@@ -70,20 +70,32 @@
 
   {{/* ── ACTION BAR ── */}}
   <div class="est-action-bar">
+    {{if and .AcceptDate.IsZero (not .IsPublicView)}}
+    <button id="btn-save" class="est-btn est-btn-primary" type="button" onclick="savePatioEstimate()"
+      title="{{if .Customer.FirstName}}Save this estimate{{else}}Add your contact info, then save{{end}}">
+      <i class="fas fa-save"></i> Save
+    </button>
+    {{end}}
     {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
-    <button id="btn-email" class="est-btn" type="button"
+    <button id="btn-email" class="est-btn est-btn-primary" type="button"
       onclick="document.getElementById('email-modal').classList.add('is-active')">
       <i class="fas fa-envelope"></i> Email
     </button>
     {{end}}
+    {{if and .SaveDate.IsZero (not .IsPublicView)}}
+    <button id="btn-email-me" class="est-btn est-btn-primary" type="button" onclick="openQuickEmail()" title="Email me this estimate">
+      <i class="fas fa-envelope"></i> Email
+    </button>
+    {{end}}
+    <button id="btn-talk" class="est-btn est-btn-primary" type="button" onclick="talkToUs()" title="Questions? Talk to us about this estimate">
+      <i class="fas fa-question-circle"></i> Help
+    </button>
+    <button id="btn-print" class="est-btn est-btn-primary" type="button" onclick="window.print()">
+      <i class="fas fa-print"></i> Print
+    </button>
     {{if and (not .SaveDate.IsZero) (not .IsPublicView) (or $.Header.IsAdmin (eq $.Header.Role "contractor"))}}
     <button id="btn-materials" class="est-btn" type="button">
       <i class="fas fa-hammer"></i> Generate Materials
-    </button>
-    {{end}}
-    {{if and (not .SaveDate.IsZero) (not .IsPublicView)}}
-    <button id="btn-print" class="est-btn" type="button">
-      <i class="fas fa-print"></i> Print
     </button>
     {{end}}
     {{if and (not .SaveDate.IsZero) .AcceptDate.IsZero}}
@@ -313,9 +325,10 @@
   </div>
 
   <div style="max-width:480px;">
-    {{if not .IsPublicView}}
-    {{if .Customer.FirstName}}
-    <form method="post" action="/patio-estimate">
+    {{/* Hidden save form: always rendered so calcAndUpdate() can keep it in sync
+         (it used to exist only once contact info was entered, which broke
+         recalculation for anonymous visitors). Submitted by the Save button. */}}
+    <form id="patio-save-form" method="post" action="/patio-estimate">
       <input type="hidden" name="save" value="true">
       <input type="hidden" name="desc" id="save-desc" value="{{.Desc}}">
       <input type="hidden" name="width" id="save-width" value="{{printf "%.1f" .Width}}">
@@ -334,14 +347,7 @@
       <input type="hidden" name="diyMode" id="save-diy-mode" value="{{.DIYMode}}">
       <input type="hidden" name="discountCode" id="save-discount-code" value="{{.DiscountCode}}">
       <input type="hidden" name="customItems" id="save-custom-items" value="">
-      <button id="btn-save" class="button is-primary is-fullwidth is-medium" type="submit">
-        <i class="fas fa-save"></i> {{if .SaveDate.IsZero}}Save Estimate{{else}}Save Changes{{end}}
-      </button>
     </form>
-    {{else}}
-    <div class="notification is-warning is-light">Add your contact info above before saving.</div>
-    {{end}}
-    {{end}}
   </div>
 
   {{if and (not .SaveDate.IsZero) (or .TermsHTML .Terms)}}
@@ -554,6 +560,30 @@
     </div>
   </div>
 
+  <div id="quick-email-modal" class="modal">
+    <div class="modal-background" onclick="closeQuickEmail()"></div>
+    <div class="modal-card" style="max-width:440px;">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Email Me This Estimate</p>
+        <button class="delete" aria-label="close" onclick="closeQuickEmail()"></button>
+      </header>
+      <section class="modal-card-body">
+        <p class="mb-3">We'll send this itemized estimate to your inbox. No account needed.</p>
+        <div class="field">
+          <label class="label" for="quick-email-input">Your email</label>
+          <div class="control">
+            <input class="input" type="email" id="quick-email-input" value="{{ .Customer.Email }}" placeholder="you@example.com" autocomplete="email">
+          </div>
+        </div>
+        <p id="quick-email-error" class="help is-danger" style="display:none;"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button id="quick-email-send" class="button is-success" onclick="sendQuickEmail()">Send Estimate</button>
+        <button class="button" onclick="closeQuickEmail()">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
   {{if gt .EstimateID 0}}
   <div id="email-modal" class="modal">
     <input type="hidden" id="estimate-id" value="{{ .EstimateID }}">
@@ -634,6 +664,82 @@
     };
 
     const canEditCustomItems = {{if and (not .IsPublicView) (or (eq $.Header.Role "contractor") $.Header.IsAdmin)}}true{{else}}false{{end}};
+    const estimateDesc = {{.Desc | jsStr}};
+
+    // --- No-login "Email me this estimate": send the page's current values ---
+    function openQuickEmail() {
+      document.getElementById('quick-email-error').style.display = 'none';
+      document.getElementById('quick-email-modal').classList.add('is-active');
+      document.getElementById('quick-email-input').focus();
+    }
+    function closeQuickEmail() {
+      document.getElementById('quick-email-modal').classList.remove('is-active');
+    }
+    function sendQuickEmail() {
+      const input = document.getElementById('quick-email-input');
+      const err = document.getElementById('quick-email-error');
+      const btn = document.getElementById('quick-email-send');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) {
+        err.textContent = 'Please enter a valid email address.';
+        err.style.display = 'block';
+        return;
+      }
+      const d = estimateData;
+      const body = new URLSearchParams({
+        email: email, desc: estimateDesc,
+        width: d.width, length: d.depth, patioType: d.patioType, roofSlope: d.roofSlope,
+        hasPostWrap: d.hasPostWrap, hasFinishCeiling: d.hasFinishCeiling,
+        hasPaintStain: d.hasPaintStain, hasFinishHardware: d.hasFinishHardware,
+        electricalLights: d.electricalLights, electricalFans: d.electricalFans,
+        electricalSwitches: d.electricalSwitches, electricalOutlets: d.electricalOutlets,
+        permitLevel: d.permitLevel, diyMode: d.diyMode, discountCode: d.discountCode || '',
+        customItems: JSON.stringify((d.customItems || []).filter(ci => ci.description !== '' || ci.cost !== 0))
+      });
+      btn.classList.add('is-loading');
+      fetch('/patio-estimate/email-me', { method: 'POST', body: body })
+        .then(r => r.json())
+        .then(data => {
+          btn.classList.remove('is-loading');
+          if (data.status === 'sent') {
+            closeQuickEmail();
+            coTrack('estimate_email', {product_type: 'patio_cover', no_account: true});
+            alert('Estimate sent to ' + email + '. Check your inbox!');
+          } else {
+            err.textContent = data.message || 'Email could not be sent. Please call us at (360) 787-8062.';
+            err.style.display = 'block';
+          }
+        })
+        .catch(() => {
+          btn.classList.remove('is-loading');
+          err.textContent = 'Email could not be sent. Please call us at (360) 787-8062.';
+          err.style.display = 'block';
+        });
+    }
+
+    // --- Save: submit the hidden form, or collect contact info first ---
+    const hasCustomerInfo = {{if .Customer.FirstName}}true{{else}}false{{end}};
+    function savePatioEstimate() {
+      if (!hasCustomerInfo) { window.location.href = '/customer'; return; }
+      syncCustomItems();
+      const desc = document.getElementById('save-desc');
+      if (desc && !desc.value) desc.value = estimateDesc;
+      document.getElementById('patio-save-form').submit();
+    }
+
+    // --- "Help": contact form pre-filled with this estimate ---
+    const patioTypeNames = { pergola: 'Pergola', leanto: 'Lean-to', truss: 'Truss', timberframe: 'Timberframe' };
+    function talkToUs() {
+      const d = estimateData;
+      const totalEl = document.getElementById('total-val');
+      const total = totalEl ? totalEl.textContent.trim() : '';
+      let summary = (patioTypeNames[d.patioType] || d.patioType) + ' patio cover, ' +
+        Math.round(d.width || 0) + ' x ' + Math.round(d.depth || 0) + ' ft';
+      if (estimateDesc) summary = estimateDesc + ': ' + summary;
+      if (total) summary += ' — estimated ' + total;
+      const msg = "I'd like to talk about my patio cover estimate. " + summary + '.';
+      window.location.href = '/contact?project=cover&message=' + encodeURIComponent(msg);
+    }
 
     function formatCost(n) {
       return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

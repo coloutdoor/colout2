@@ -618,7 +618,10 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 
 type estimateEmailData struct {
 	Estimate           DeckEstimate
-	EstimateURL        string
+	EstimateURL        string // saved: view/accept link; Quick: pre-filled contact link
+	Quick              bool   // no-login "email me this estimate" (unsaved estimate)
+	CalcURL            string // Quick only: "price another deck" link
+	Prepared           string // Quick only: today's date (unsaved estimates have no SaveDate)
 	ContractorName     string
 	ContractorPhone    string
 	ContractorWebsite  string
@@ -627,9 +630,24 @@ type estimateEmailData struct {
 
 // buildEstimateEmailHTML renders the estimate email template to a string.
 func buildEstimateEmailHTML(e DeckEstimate, estimateURL string) string {
-	data := estimateEmailData{
+	return renderEstimateEmail(estimateEmailData{Estimate: e, EstimateURL: estimateURL})
+}
+
+// buildQuickEstimateEmailHTML renders the email for an unsaved estimate sent
+// without an account: no estimate number or accept link, and the button opens
+// a pre-filled contact form instead.
+func buildQuickEstimateEmailHTML(e DeckEstimate, contactURL, calcURL string) string {
+	return renderEstimateEmail(estimateEmailData{Estimate: e, EstimateURL: contactURL, Quick: true, CalcURL: calcURL})
+}
+
+func renderEstimateEmail(data estimateEmailData) string {
+	e := data.Estimate
+	data = estimateEmailData{
 		Estimate:          e,
-		EstimateURL:       estimateURL,
+		EstimateURL:       data.EstimateURL,
+		Quick:             data.Quick,
+		CalcURL:           data.CalcURL,
+		Prepared:          time.Now().In(pacificTime()).Format("January 2, 2006"),
 		ContractorName:    "Columbia Outdoor",
 		ContractorPhone:   "(360) 787-8062",
 		ContractorWebsite: "columbiaoutdoor.com",

@@ -9,6 +9,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/mail"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -270,94 +272,8 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST save=true
 	if r.FormValue("save") == "true" {
-		if desc := r.FormValue("desc"); desc != "" {
-			estimate.Desc = desc
-			sd.Estimate.Desc = desc
-		}
-		if h := r.FormValue("height"); h != "" {
-			if val, err := strconv.ParseFloat(h, 64); err == nil {
-				estimate.Height = val
-			}
-		}
-		if m := r.FormValue("material"); m != "" {
-			estimate.Material = m
-		}
-		if m := r.FormValue("railMaterial"); m != "" {
-			estimate.RailMaterial = m
-		}
-		if m := r.FormValue("railInfill"); m != "" {
-			estimate.RailInfill = m
-		}
-		if sw := r.FormValue("stairWidth"); sw != "" {
-			if val, err := strconv.ParseFloat(sw, 64); err == nil {
-				estimate.StairWidth = val
-			}
-		}
-		if src := r.FormValue("stairRailCount"); src != "" {
-			if val, err := strconv.ParseFloat(src, 64); err == nil {
-				estimate.StairRailCount = val
-			}
-		}
-		if railOverride := r.FormValue("railOverride"); railOverride != "" {
-			if val, err := strconv.ParseFloat(railOverride, 64); err == nil {
-				estimate.RailFeetOverride = val
-			}
-		}
-		estimate.HasDemo = r.FormValue("hasDemo") == "true"
-		estimate.HasFascia = r.FormValue("hasFascia") == "true"
-		estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
-		estimate.HasStairTK = r.FormValue("hasStairTK") == "true"
-		estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
-		if dm := r.FormValue("diyMode"); dm != "" {
-			if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
-				estimate.DIYMode = v
-			}
-		}
-		if pl := r.FormValue("permitLevel"); pl != "" {
-			if v, err := strconv.Atoi(pl); err == nil {
-				estimate.PermitLevel = v
-			}
-		}
-		if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
-			var parsed []struct {
-				Label  string  `json:"label"`
-				Length float64 `json:"length"`
-				Width  float64 `json:"width"`
-			}
-			if err := json.Unmarshal([]byte(sectionsJSON), &parsed); err == nil && len(parsed) > 0 {
-				estimate.Sections = nil
-				for i, s := range parsed {
-					estimate.Sections = append(estimate.Sections, EstimateSection{
-						Label:     s.Label,
-						Length:    s.Length,
-						Width:     s.Width,
-						SortOrder: i,
-					})
-				}
-				estimate.Length = estimate.Sections[0].Length
-				estimate.Width = estimate.Sections[0].Width
-			}
-		}
-		if ciJSON := r.FormValue("customItems"); ciJSON != "" {
-			var parsed []struct {
-				Description string  `json:"description"`
-				Notes       string  `json:"notes"`
-				Cost        float64 `json:"cost"`
-			}
-			if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
-				estimate.CustomItems = nil
-				for i, ci := range parsed {
-					if ci.Description != "" || ci.Cost != 0 {
-						estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
-							Description: ci.Description,
-							Notes:       ci.Notes,
-							Cost:        ci.Cost,
-							SortOrder:   i,
-						})
-					}
-				}
-			}
-		}
+		applyEstimateForm(r, &estimate)
+		sd.Estimate.Desc = estimate.Desc
 		estimate.CalcAllCosts()
 		if estimate.TotalCost > 0 && estimate.Customer.FirstName != "" {
 			saveEstimate(w, r, &estimate, sd)
@@ -568,6 +484,212 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Pass both estimate and customer to template
 	renderEstimate(w, r, estimate)
+}
+
+// applyEstimateForm copies the estimate page's hidden "save" form fields
+// (dimensions, materials, options, sections, custom items, discount, service
+// tier) onto estimate. Used by both Save and the no-login "email this
+// estimate" path so they capture exactly what the visitor sees on the page.
+func applyEstimateForm(r *http.Request, estimate *DeckEstimate) {
+	if desc := r.FormValue("desc"); desc != "" {
+		estimate.Desc = desc
+	}
+	if h := r.FormValue("height"); h != "" {
+		if val, err := strconv.ParseFloat(h, 64); err == nil {
+			estimate.Height = val
+		}
+	}
+	if m := r.FormValue("material"); m != "" {
+		estimate.Material = m
+	}
+	if m := r.FormValue("railMaterial"); m != "" {
+		estimate.RailMaterial = m
+	}
+	if m := r.FormValue("railInfill"); m != "" {
+		estimate.RailInfill = m
+	}
+	if sw := r.FormValue("stairWidth"); sw != "" {
+		if val, err := strconv.ParseFloat(sw, 64); err == nil {
+			estimate.StairWidth = val
+		}
+	}
+	if src := r.FormValue("stairRailCount"); src != "" {
+		if val, err := strconv.ParseFloat(src, 64); err == nil {
+			estimate.StairRailCount = val
+		}
+	}
+	if railOverride := r.FormValue("railOverride"); railOverride != "" {
+		if val, err := strconv.ParseFloat(railOverride, 64); err == nil {
+			estimate.RailFeetOverride = val
+		}
+	}
+	estimate.HasDemo = r.FormValue("hasDemo") == "true"
+	estimate.HasFascia = r.FormValue("hasFascia") == "true"
+	estimate.HasStairFascia = r.FormValue("hasStairFascia") == "true"
+	estimate.HasStairTK = r.FormValue("hasStairTK") == "true"
+	estimate.DiscountCode = strings.ToUpper(strings.TrimSpace(r.FormValue("discountCode")))
+	if dm := r.FormValue("diyMode"); dm != "" {
+		if v, err := strconv.Atoi(dm); err == nil && v >= 0 && v <= 2 {
+			estimate.DIYMode = v
+		}
+	}
+	if pl := r.FormValue("permitLevel"); pl != "" {
+		if v, err := strconv.Atoi(pl); err == nil {
+			estimate.PermitLevel = v
+		}
+	}
+	if sectionsJSON := r.FormValue("sections"); sectionsJSON != "" {
+		var parsed []struct {
+			Label  string  `json:"label"`
+			Length float64 `json:"length"`
+			Width  float64 `json:"width"`
+		}
+		if err := json.Unmarshal([]byte(sectionsJSON), &parsed); err == nil && len(parsed) > 0 {
+			estimate.Sections = nil
+			for i, s := range parsed {
+				estimate.Sections = append(estimate.Sections, EstimateSection{
+					Label:     s.Label,
+					Length:    s.Length,
+					Width:     s.Width,
+					SortOrder: i,
+				})
+			}
+			estimate.Length = estimate.Sections[0].Length
+			estimate.Width = estimate.Sections[0].Width
+		}
+	}
+	if ciJSON := r.FormValue("customItems"); ciJSON != "" {
+		var parsed []struct {
+			Description string  `json:"description"`
+			Notes       string  `json:"notes"`
+			Cost        float64 `json:"cost"`
+		}
+		if err := json.Unmarshal([]byte(ciJSON), &parsed); err == nil {
+			estimate.CustomItems = nil
+			for i, ci := range parsed {
+				if ci.Description != "" || ci.Cost != 0 {
+					estimate.CustomItems = append(estimate.CustomItems, EstimateCustomItem{
+						Description: ci.Description,
+						Notes:       ci.Notes,
+						Cost:        ci.Cost,
+						SortOrder:   i,
+					})
+				}
+			}
+		}
+	}
+}
+
+// maxQuickEmails caps no-login estimate emails per session so the form can't
+// be used to send mail to arbitrary addresses in bulk.
+const maxQuickEmails = 5
+
+// deckEstimateSummary is a one-line description of an estimate for pre-filled
+// contact messages, e.g. "Cedar deck, 192 sq ft, 3 ft high — estimated $6,262.00".
+func deckEstimateSummary(e DeckEstimate) string {
+	area := 0.0
+	for _, s := range e.Sections {
+		area += s.Length * s.Width
+	}
+	if area == 0 {
+		area = e.Length * e.Width
+	}
+	s := fmt.Sprintf("%s deck, %.0f sq ft, %.0f ft high", materialLabel(e.Material), area, e.Height)
+	if e.Desc != "" {
+		s = e.Desc + ": " + s
+	}
+	return s + " — estimated " + formatCost(e.TotalCost)
+}
+
+// estimateQuickEmailHandler handles POST /estimate/email-me: emails the
+// estimate currently on the page to the visitor without requiring an account
+// or saving it. The page posts its hidden save-form fields plus "email", so
+// any edits made on the estimate page are included. support@ is BCC'd, so
+// every send also lands as a lead in the shared inbox.
+func estimateQuickEmailHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	reply := func(status, msg string) {
+		json.NewEncoder(w).Encode(map[string]string{"status": status, "message": msg})
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	sd, err := GetSession(r, w)
+	if err != nil {
+		reply("error", "Session error. Please refresh the page and try again.")
+		return
+	}
+	if sd.QuickEmails >= maxQuickEmails {
+		reply("error", "Email limit reached. Please call us at (360) 787-8062.")
+		return
+	}
+
+	toEmail := strings.TrimSpace(r.FormValue("email"))
+	if addr, err := mail.ParseAddress(toEmail); err != nil || addr.Address != toEmail {
+		reply("error", "Please enter a valid email address.")
+		return
+	}
+
+	estimate := sd.Estimate
+	estimate.Customer = sd.Customer
+	applyEstimateForm(r, &estimate)
+	estimate.CalcAllCosts()
+	if estimate.Error != "" || estimate.TotalCost <= 0 {
+		reply("error", "Please get an estimate first, then email it.")
+		return
+	}
+
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		log.Printf("estimateQuickEmailHandler: RESEND_API_KEY not set")
+		reply("error", "Email service is not configured. Please call us at (360) 787-8062.")
+		return
+	}
+
+	scheme := "https"
+	if r.Host == "" || strings.HasPrefix(r.Host, "localhost") {
+		scheme = "http"
+	}
+	base := fmt.Sprintf("%s://%s", scheme, r.Host)
+	q := url.Values{}
+	q.Set("project", "deck")
+	q.Set("message", "I'd like to talk about my deck estimate. "+deckEstimateSummary(estimate))
+	html := buildQuickEstimateEmailHTML(estimate, base+"/contact?"+q.Encode(), base+"/deck-calculator")
+
+	client := resend.NewClient(apiKey)
+	params := &resend.SendEmailRequest{
+		From:    "Columbia Outdoor <support@columbiaoutdoor.com>",
+		To:      []string{toEmail},
+		Bcc:     []string{"support@columbiaoutdoor.com"},
+		ReplyTo: "support@columbiaoutdoor.com",
+		Subject: "Your Deck Estimate — " + formatCost(estimate.TotalCost),
+		Html:    html,
+	}
+	sent, err := client.Emails.Send(params)
+	if err != nil {
+		log.Printf("estimateQuickEmailHandler: resend error: %v", err)
+		reply("error", "Email could not be sent. Please call us at (360) 787-8062.")
+		return
+	}
+	log.Printf("estimateQuickEmailHandler: sent unsaved estimate (%.2f) (id: %s)", estimate.TotalCost, sent.Id)
+
+	// Remember the address so the customer form pre-fills, and count the send.
+	if sd.Customer.Email == "" {
+		sd.Customer.Email = toEmail
+	}
+	sd.QuickEmails++
+	if err := sd.Save(r, w); err != nil {
+		log.Printf("estimateQuickEmailHandler: session save: %v", err)
+	}
+
+	recordNREvent("EstimateEmailed", map[string]interface{}{
+		"estimate_id":  0,
+		"total_cost":   estimate.TotalCost,
+		"product_type": "deck",
+		"no_account":   true,
+	})
+	reply("sent", "Estimate emailed to "+toEmail)
 }
 
 // emailSendHandler handles POST /estimate/send/{estimateID}, emailing the estimate
