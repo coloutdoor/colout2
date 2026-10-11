@@ -218,6 +218,7 @@ type affordableDecksPage struct {
 	WoodReg, CedarReg, CompReg string
 	SavePct                    string // e.g. "10", from the promo code's discount
 	Example100                 string // promo price of a 100 sq ft Outdoor Wood deck, e.g. "1,999.00"
+	ValidThrough               string // last valid day, e.g. "October 31, 2026"
 }
 
 var currentAffordablePromo = affordableDecksPromo{
@@ -254,13 +255,14 @@ func affordableDecksHandler(w http.ResponseWriter, r *http.Request) {
 	))
 
 	page := affordableDecksPage{
-		Promo:       currentAffordablePromo,
-		PromoActive: time.Now().Before(currentAffordablePromo.End),
-		ContactURL:  "/contact?project=deck",
-		WoodReg:     fmt.Sprintf("%.2f", costs.DeckMaterials["outdoorWood"]),
-		CedarReg:    fmt.Sprintf("%.2f", costs.DeckMaterials["cedar"]),
-		CompReg:     fmt.Sprintf("%.2f", costs.DeckMaterials["timberTechPrime"]),
-		SavePct:     fmt.Sprintf("%.0f", costs.DiscountCodes[currentAffordablePromo.Code]*100),
+		Promo:        currentAffordablePromo,
+		PromoActive:  time.Now().Before(currentAffordablePromo.End),
+		ContactURL:   "/contact?project=deck",
+		WoodReg:      fmt.Sprintf("%.2f", costs.DeckMaterials["outdoorWood"]),
+		CedarReg:     fmt.Sprintf("%.2f", costs.DeckMaterials["cedar"]),
+		CompReg:      fmt.Sprintf("%.2f", costs.DeckMaterials["timberTechPrime"]),
+		SavePct:      fmt.Sprintf("%.0f", costs.DiscountCodes[currentAffordablePromo.Code]*100),
+		ValidThrough: currentAffordablePromo.End.Add(-time.Second).Format("January 2, 2006"),
 	}
 	if wood, err := strconv.ParseFloat(currentAffordablePromo.Wood, 64); err == nil {
 		page.Example100 = formatCost(wood * 100)[1:] // formatCost returns "$1,999.00"

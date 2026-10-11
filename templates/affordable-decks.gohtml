@@ -7,7 +7,11 @@
   {{if .PromoActive}}
   <section class="section ad-promo">
     <div class="container has-text-centered" style="max-width:820px;">
-      <p class="is-uppercase has-text-weight-bold has-text-warning mb-2" style="letter-spacing:.1em;">Through {{.Promo.EndLabel}} with code {{.Promo.Code}}</p>
+      <div class="ad-coupon">
+        <span class="ad-coupon-off">{{.SavePct}}% OFF</span>
+        <span class="ad-coupon-code">with code <strong>{{.Promo.Code}}</strong></span>
+        <span class="ad-coupon-valid">Valid through {{.ValidThrough}}</span>
+      </div>
       <h1 class="title is-2 has-text-white mb-5">{{.Promo.Title}}</h1>
       <div class="ad-prices">
         <div class="ad-price" style="animation-delay:.05s">
@@ -169,6 +173,22 @@
 
   <style>
   .ad-promo { background: #1a2530; padding: 3.5rem 1.5rem; }
+  .ad-coupon {
+    display: inline-flex; flex-direction: column; align-items: center; gap: .15rem;
+    border: 3px dashed #ffdd57; border-radius: 14px; background: rgba(255,221,87,.08);
+    padding: .7rem 1.8rem .6rem; margin-bottom: 1.4rem; position: relative;
+  }
+  /* ticket-style notches on the sides */
+  .ad-coupon::before, .ad-coupon::after {
+    content: ""; position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+    border-radius: 50%; background: #1a2530;
+  }
+  .ad-coupon::before { left: -13px; }
+  .ad-coupon::after  { right: -13px; }
+  .ad-coupon-off { font-size: 2.4rem; font-weight: 900; color: #ffdd57; line-height: 1; letter-spacing: .02em; }
+  .ad-coupon-code { color: #fff; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .08em; }
+  .ad-coupon-code strong { color: #ffdd57; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; }
+  .ad-coupon-valid { color: #b5c0cb; font-size: .72rem; margin-top: .15rem; }
   .ad-prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: .9rem; align-items: end; margin-top: 1.25rem; }
   .ad-price {
     position: relative; overflow: hidden;
