@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -62,7 +63,6 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // *****************************************************************************************
 //
 //	handleDeckCalc
@@ -76,6 +76,10 @@ func handleDeckCalc(w http.ResponseWriter, r *http.Request, e DeckEstimate) {
 	userAuth.Subtitle = "Instant deck cost estimates"
 	userAuth.MetaDesc = "Free deck cost calculator for SW Washington. Get an instant estimate for deck size, materials, rails, stairs, and permits. No salesperson, no callbacks."
 	userAuth.CanonicalPath = "/deck-calculator"
+	// A ?code= link (promo page, ads) pre-fills the promo code box.
+	if code := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("code"))); code != "" && len(code) <= 20 {
+		e.DiscountCode = code
+	}
 	queueGAEvent(w, r, "calculator_start", map[string]interface{}{"product_type": "deck"})
 	recordNREvent("CalculatorStarted", map[string]interface{}{"product_type": "deck"})
 	rd := renderData{

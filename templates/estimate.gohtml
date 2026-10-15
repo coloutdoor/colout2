@@ -363,7 +363,7 @@
                 onkeydown="if(event.key==='Enter'){applyDiscountCode();event.preventDefault();}">
               <button class="est-promo-btn" type="button" onclick="applyDiscountCode()">Apply</button>
             </div>
-            <p id="discount-msg" class="help"></p>
+            <p id="discount-msg" class="help{{if and .DiscountCode (eq .DiscountAmount 0.0)}} has-text-danger{{end}}">{{if and .DiscountCode (eq .DiscountAmount 0.0)}}Code "{{.DiscountCode}}" isn't valid.{{end}}</p>
           </td>
           <td class="td-cost"></td>
         </tr>

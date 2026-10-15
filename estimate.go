@@ -334,6 +334,10 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	estimate.Desc = r.FormValue("desc")
+	// Promo code entered on /deck-calculator (forms without the field keep the session's code).
+	if _, ok := r.PostForm["discountCode"]; ok {
+		estimate.DiscountCode = strings.ToUpper(strings.Join(strings.Fields(r.PostFormValue("discountCode")), ""))
+	}
 	estimate.ProductType = "deck"
 	estimate.Length = length
 	estimate.Width = width
@@ -475,11 +479,14 @@ func estimateHandler(w http.ResponseWriter, r *http.Request) {
 
 	queueGAEvent(w, r, "estimate_view", map[string]interface{}{
 		"product_type": "deck", "value": estimate.TotalCost, "currency": "USD",
+		"discount_code": estimate.DiscountCode,
 	})
 	recordNREvent("EstimateViewed", map[string]interface{}{
-		"product_type": "deck",
-		"total_cost":   estimate.TotalCost,
-		"material":     estimate.Material,
+		"product_type":    "deck",
+		"total_cost":      estimate.TotalCost,
+		"material":        estimate.Material,
+		"discount_code":   estimate.DiscountCode,   // as typed, even if not a valid code
+		"discount_amount": estimate.DiscountAmount, // 0 when the code is invalid
 	})
 
 	// Pass both estimate and customer to template

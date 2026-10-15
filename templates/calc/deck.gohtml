@@ -137,22 +137,19 @@
                         </div>
                     </div>
                 </div>
-        <div class="field">
-            <label class="label">Project Type</label>
-            <div class="control">
-                <div class="select is-fullwidth">
-                    <select name="diyMode" id="diy-mode" onchange="setMode(+this.value)">
-                        <option value="0" {{if eq .DIYMode 0}}selected{{end}}>Full Service</option>
-                        <option value="1" {{if eq .DIYMode 1}}selected{{end}}>Plans + Materials</option>
-                        <option value="2" {{if eq .DIYMode 2}}selected{{end}}>Plans Only</option>
-                    </select>
-                </div>
-            </div>
-            <p id="mode-help" class="help">
-              {{if eq .DIYMode 1}}Design, engineering, permits, and materials list — you install.
-              {{- else if eq .DIYMode 2}}Professional design, engineering, and permit package only — no materials.
-              {{- else}}Columbia Outdoor builds your project from estimate to final walkthrough.{{end}}
-            </p>
+        {{/* Service tier is no longer chosen here: Full Service by default, or
+             whatever a ?diyMode= link (e.g. the homepage DIY option) asked for. */}}
+        <input type="hidden" name="diyMode" value="{{.DIYMode}}">
+
+        <div class="promo-box">
+            <label class="promo-label" for="promo-code">
+                <i class="fas fa-tag"></i> Have a promo code?
+            </label>
+            <input class="promo-input" type="text" id="promo-code" name="discountCode"
+              value="{{.DiscountCode}}" placeholder="e.g. DECKS26" maxlength="20"
+              autocomplete="off" autocapitalize="characters" spellcheck="false"
+              oninput="this.value = this.value.toUpperCase().replace(/\s+/g, '')">
+            <p class="promo-help">Optional &mdash; your discount shows on the estimate.</p>
         </div>
 
         <div class="field mt-5">
@@ -191,19 +188,21 @@
       </div>
     </div>
 
-    <script>
-    const modeHelp = [
-      'Columbia Outdoor builds your project from estimate to final walkthrough.',
-      'Design, engineering, permits, and materials list — you install.',
-      'Professional design, engineering, and permit package only — no materials.'
-    ];
-    const modeSubmit = ['Get Estimate', 'Get Plans + Materials Estimate', 'Get Plans Only Estimate'];
-
-    function setMode(mode) {
-      document.getElementById('mode-help').textContent = modeHelp[mode];
-      document.getElementById('submit-btn').value = modeSubmit[mode];
+    <style>
+    .promo-box {
+      margin-top: 1.25rem; padding: .9rem 1rem .75rem;
+      border: 2px dashed #e0b400; border-radius: 10px; background: rgba(255,221,87,.10);
     }
-    </script>
+    .promo-label { display: block; font-weight: 700; margin-bottom: .45rem; }
+    .promo-label i { color: #e0b400; margin-right: .3rem; }
+    .promo-input {
+      width: 100%; padding: .55rem .75rem; border-radius: 6px; border: 1px solid #c9a200;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.05rem;
+      letter-spacing: .12em; text-transform: uppercase; background: #fff; color: #1a2530;
+    }
+    .promo-input::placeholder { letter-spacing: .04em; color: #9aa5b1; text-transform: none; }
+    .promo-help { font-size: .75rem; color: #7a7f87; margin-top: .35rem; }
+    </style>
     {{end}}
    {{template "footer.gohtml" .}}
 {{end}}
