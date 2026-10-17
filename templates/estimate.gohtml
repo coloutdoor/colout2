@@ -974,9 +974,12 @@ function applyPermit() {
   calcAndUpdate();
 }
 
+let codeJustApplied = false; // tells the next recalculation it came from "Apply"
+
 function applyDiscountCode() {
   const code = document.getElementById('discount-code-input').value.trim().toUpperCase();
   estimateData.discountCode = code;
+  codeJustApplied = true;
   const saveField = document.getElementById('save-discount-code');
   if (saveField) saveField.value = code;
   calcAndUpdate();
@@ -1262,10 +1265,12 @@ function markDirty() {
 function calcAndUpdate() {
   syncSectionsField();
   markDirty();
+  const payload = Object.assign({}, estimateData, { codeApplied: codeJustApplied });
+  codeJustApplied = false;
   fetch('/api/calc/deck', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(estimateData),
+    body: JSON.stringify(payload),
   })
   .then(r => r.json())
   .then(data => {

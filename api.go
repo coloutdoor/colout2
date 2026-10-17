@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 type CalcSectionRequest struct {
@@ -28,6 +29,7 @@ type CalcDeckRequest struct {
 	HasStairTK       bool                 `json:"hasStairTK"`
 	CustomerState    string               `json:"customerState"`
 	DiscountCode     string               `json:"discountCode"`
+	CodeApplied      bool                 `json:"codeApplied"` // set by the estimate page's promo "Apply" button
 	PermitLevel      int                  `json:"permitLevel"`
 	DIYMode          int                  `json:"diyMode"`
 	Sections         []CalcSectionRequest `json:"sections"`
@@ -263,6 +265,18 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	e.CalcAllCosts()
+
+	// Record promo codes typed into the estimate page's promo box (once per
+	// Apply click, not on every later recalculation that still carries it).
+	if req.CodeApplied && strings.TrimSpace(req.DiscountCode) != "" {
+		recordNREvent("DiscountCodeEntered", map[string]interface{}{
+			"product_type":    "deck",
+			"discount_code":   strings.ToUpper(strings.TrimSpace(req.DiscountCode)),
+			"discount_amount": e.DiscountAmount,
+			"valid":           e.DiscountAmount > 0,
+			"total_cost":      e.TotalCost,
+		})
+	}
 
 	resp := CalcDeckResponse{
 		Description:            req.Description,

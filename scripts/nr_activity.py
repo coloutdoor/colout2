@@ -31,6 +31,7 @@ FUNNEL_EVENTS = [
     "CalculatorStarted", "EstimateViewed", "EstimateEmailed", "PatioEstimateEmailed",
     "CustomerAdded", "EstimateCreated", "PatioEstimateCreated",
     "EstimateAccepted", "PatioEstimateAccepted", "UserSignedUp", "ContactFormSubmitted",
+    "DiscountCodeEntered",
 ]
 MATERIALS = {
     "outdoorWood": "Outdoor Wood", "cedar": "Cedar", "timberTechPrime": "Composite (25yr)",
@@ -90,6 +91,11 @@ def describe(e):
         bits.append(MATERIALS.get(e["material"], e["material"]))
     if e.get("patio_type"):
         bits.append(e["patio_type"])
+    if kind == "DiscountCodeEntered":
+        amt = e.get("discount_amount") or 0
+        bits.append("%s applied (−%s)" % (e.get("discount_code"), money(amt)) if amt > 0
+                    else "code %s INVALID" % e.get("discount_code"))
+        return kind, " · ".join(bits), money(e.get("total_cost"))
     if e.get("discount_code"):
         amt = e.get("discount_amount") or 0
         bits.append("%s (−%s)" % (e["discount_code"], money(amt)) if amt > 0 else "code %s INVALID" % e["discount_code"])
@@ -127,6 +133,16 @@ def follow_ups(key, app, rng, events, max_gap_min=30):
             t["emailed"] = True
         elif uri.startswith("/contact"):
             t["help"] = True
+    # promo codes typed into the estimate page (DiscountCodeEntered events)
+    for c in [e for e in events if e["eventType()"] == "DiscountCodeEntered"]:
+        prior = [e for e in estimates if e["timestamp"] <= c["timestamp"]
+                 and c["timestamp"] - e["timestamp"] <= max_gap_min * 60000]
+        if prior:
+            est = max(prior, key=lambda e: e["timestamp"])
+            t = tally.setdefault(id(est), {"edits": 0, "emailed": False, "help": False})
+            amt = c.get("discount_amount") or 0
+            t.setdefault("codes", []).append("%s applied" % c.get("discount_code") if amt > 0
+                                             else "code %s INVALID" % c.get("discount_code"))
     notes = {}
     for k, t in tally.items():
         bits = []
@@ -136,6 +152,7 @@ def follow_ups(key, app, rng, events, max_gap_min=30):
             bits.append("emailed")
         if t["help"]:
             bits.append("help/contact")
+        bits.extend(t.get("codes", []))
         if bits:
             notes[k] = "  · " + ", ".join(bits)
     return notes
@@ -158,7 +175,7 @@ def main():
     app = args.app.replace("'", "")
 
     fields = ("eventType(), timestamp, product_type, total_cost, material, patio_type, no_account, entered_by, method, "
-              "discount_code, discount_amount")
+              "discount_code, discount_amount, valid")
     events = nrql(key, "SELECT %s FROM %s WHERE appName = '%s' %s LIMIT 1000" % (fields, ", ".join(FUNNEL_EVENTS), app, rng))
     events.sort(key=lambda e: e["timestamp"])
 
