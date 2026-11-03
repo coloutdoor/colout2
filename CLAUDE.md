@@ -57,7 +57,9 @@ go run ./cmd/takeoff materials/test/estimate_1031.txt   # prints Markdown to std
 - `render.go` `Render` prints the Markdown template, which fits the email attachment.
 - Material: `Cedar` and `Outdoor Wood` use wood rules, everything else composite. Product names come from the estimate as written, so don't map names to rules.
 
-**Status:** footings, framing and decking are done for single-section decks. Multi-section estimates return `ErrMultiSection`. Not built yet, in this order of the owner's plan: multi-section decks, rails (`rails_rules.txt` is a placeholder), picture framing, stair landings (stairs on decks over 12' high, the IBC limit, print an ENGINEERING REQUIRED flag; the estimate prices the landing via `takeoff.NeedsStairLanding`). `materials_handler.go` still calls Claude on purpose. Wiring the calculator in later means an adapter from `DeckEstimate` to `takeoff.Input`, replacing `generateMaterialsList`.
+**Status:** footings, framing, decking and stair landings are done for single-section decks. Multi-section estimates return `ErrMultiSection`. Not built yet, in this order of the owner's plan: multi-section decks, rails (`rails_rules.txt` is a placeholder), picture framing.
+
+**Stair landings** (`landing.go`): decks over 12' (IBC max rise per flight) with stairs get a 4' x stair width landing at half height and 2 flights. `NeedsStairLanding` is also used by the estimate pricing (`costs.go`), so both follow one rule. Landing rows are mixed into the three lists with descriptions starting "Stair landing"; their screws, ties and coverage add to the existing totals. `materials_handler.go` still calls Claude on purpose. Wiring the calculator in later means an adapter from `DeckEstimate` to `takeoff.Input`, replacing `generateMaterialsList`.
 
 **Rules are the spec.** `materials/rules/*_rules.txt` are both the Claude prompts and the calculator's spec, so a rule change must update both the Go code and its tests. Editing them changes the live Claude emails on the next deploy. Rules the owner confirmed are in the rules files; open assumptions are Cortex pack sizes (100/300 LF) and 1 box of 50 LedgerLok screws.
 
@@ -150,13 +152,12 @@ Deployed to GCP Cloud Run as a Docker container. `build.sh deploy` builds the im
 ## Workflow
 
 ### Bug Fixes and Features
-1. **One issue per bug or feature** — created on GitHub (`github.com/coloutdoor/colout2/issues`)
-2. Read the issue with `gh issue view N --repo coloutdoor/colout2`, discuss before coding
-3. Implement the fix or feature
-4. `/deploy-test` to build and start the local server
-5. Manual verification in the browser + `/smoke-test` to catch regressions
-6. Commit using `fixes #N` (bugs) or `closes #N` (features) — auto-closes the issue on push
-7. `git push` — issue closes automatically
+1. Discuss the bug or feature before coding. To-dos live in `TODO.md` at the repo root, not GitHub issues: add new items there and delete them when done
+2. Implement the fix or feature
+3. `/deploy-test` to build and start the local server
+4. Manual verification in the browser + `/smoke-test` to catch regressions
+5. Commit with a message that describes the change
+6. `git push`
 
 ### Branching
 - Commit directly to `master` for bug fixes and single-session features
