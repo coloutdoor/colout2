@@ -181,6 +181,36 @@ func TestCalcStairCost(t *testing.T) {
 	}
 }
 
+// Sections sit side by side along the house: rail runs up the outer side of
+// the first and last sections, along every front, and up each step between
+// neighbours.
+func TestSectionRailFeet(t *testing.T) {
+	sec := func(length, width float64) EstimateSection { return EstimateSection{Length: length, Width: width} }
+	tests := []struct {
+		name       string
+		sections   []EstimateSection
+		stairWidth float64
+		want       float64
+	}{
+		{"one section", []EstimateSection{sec(10, 8)}, 0, 28},
+		{"one section with stairs", []EstimateSection{sec(10, 8)}, 4, 24},
+		{"two sections: 10 + 8 + 2 + 4 + 12", []EstimateSection{sec(10, 8), sec(12, 4)}, 0, 36},
+		{"two equal depths, no step", []EstimateSection{sec(10, 8), sec(10, 4)}, 0, 32},
+		{"three sections: 10 + 8 + 2 + 4 + 2 + 6 + 10", []EstimateSection{sec(10, 8), sec(12, 4), sec(10, 6)}, 0, 42},
+		{"four sections with stairs", []EstimateSection{sec(10, 8), sec(12, 4), sec(8, 6), sec(14, 10)}, 4,
+			10 + 8 + 2 + 4 + 4 + 6 + 6 + 10 + 14 - 4},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := DeckEstimate{Sections: tt.sections, StairWidth: tt.stairWidth, RailMaterial: "wood"}
+			e.CalculateRailCost(testCosts)
+			if !approxEqual(e.RailFeet, tt.want) {
+				t.Errorf("RailFeet = %.2f, want %.2f", e.RailFeet, tt.want)
+			}
+		})
+	}
+}
+
 // --- CalcStairLandingCost ---
 
 // The landing is 4' x stair width at the deck price, with the height

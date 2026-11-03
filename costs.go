@@ -160,20 +160,29 @@ func (estimate *DeckEstimate) CalculateRailCost(costs Costs) {
 	// Use manual override if set; otherwise calculate from sections
 	if estimate.RailFeetOverride > 0 {
 		estimate.RailFeet = estimate.RailFeetOverride
-	} else if len(estimate.Sections) > 1 {
-		total := estimate.Sections[0].Length + estimate.Sections[0].Width
-		for i := 1; i < len(estimate.Sections); i++ {
-			s, prev := estimate.Sections[i], estimate.Sections[i-1]
-			total += s.Length + s.Width + math.Abs(s.Length-prev.Length)
-		}
-		estimate.RailFeet = total - estimate.StairWidth
-	} else if len(estimate.Sections) == 1 {
-		s := estimate.Sections[0]
-		estimate.RailFeet = (2 * s.Length) + s.Width - estimate.StairWidth
+	} else if len(estimate.Sections) > 0 {
+		estimate.RailFeet = sectionRailFeet(estimate.Sections) - estimate.StairWidth
 	} else {
 		estimate.RailFeet = (2 * estimate.Length) + estimate.Width - estimate.StairWidth
 	}
 	estimate.RailCost = estimate.RailFeet * (railMatCost + railInfCost)
+}
+
+// sectionRailFeet is the open edge of sections placed side by side along the
+// house, in order: the outer side of the first and last sections, every
+// section's front, and the step between neighbours of different depths. The
+// house wall and the sides shared by neighbours get no rail. One section is
+// 2 x length + width.
+func sectionRailFeet(sections []EstimateSection) float64 {
+	first, last := sections[0], sections[len(sections)-1]
+	total := first.Length + last.Length
+	for i, s := range sections {
+		total += s.Width
+		if i > 0 {
+			total += math.Abs(s.Length - sections[i-1].Length)
+		}
+	}
+	return total
 }
 
 // CalculateStairRailCost computes rail cost for stairs based on height and material.
