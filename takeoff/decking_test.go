@@ -29,18 +29,20 @@ func TestDecking1031(t *testing.T) {
 }
 
 // TestDecking1040 is the composite list with every stair option: 8' x 27',
-// 13' high, 4' stairs, 39 LF of fascia.
+// 13' high, 4' stairs, 39 LF of fascia. The stairs have a landing, so 2 flights
+// of 12' stringers set the stair fascia.
 func TestDecking1040(t *testing.T) {
 	want := []Item{
 		{38, "16' TimberTech Pro Legacy grooved deck board", "", "19 rows x 2 per row"},
-		{1, "Hidden deck clips, 450 pack", "Grooved boards", "216 sq ft"},
+		{3, "16' TimberTech Pro Legacy grooved deck board", "Stair landing", "10 rows cut to 4'"},
+		{1, "Hidden deck clips, 450 pack", "Grooved boards", "232 sq ft with landing"},
 		{1, "12' TimberTech Pro Legacy S4S divider board", "", "Deck over 20' wide"},
 		{11, "16' TimberTech Pro Legacy S4S stair tread board", "", "21 treads, 2 boards per tread"},
 		{1, "TimberTech Cortex color match, 300 LF", "S4S fasteners", "188 LF of S4S"},
 		{5, `12" x 12' TimberTech Pro Legacy fascia`, "", "39 LF"},
-		{4, `12" x 12' TimberTech Pro Legacy stair side fascia`, "", "44 LF, 2 sides"},
+		{4, `12" x 12' TimberTech Pro Legacy stair side fascia`, "", "48 LF, 2 sides"},
 		{7, `7" x 12' TimberTech Pro Legacy toe kick`, "", "21 treads, 3 per board"},
-		{2, "Starborn Fascia System screws, 100 count", "Box", "167 LF of fascia"},
+		{2, "Starborn Fascia System screws, 100 count", "Box", "171 LF of fascia"},
 	}
 	if got := deckingItems(t, "1040"); !reflect.DeepEqual(got, want) {
 		t.Errorf("decking list\n got: %+v\nwant: %+v", got, want)
@@ -174,7 +176,7 @@ func TestTreadsAndToeKicks(t *testing.T) {
 
 // A 9' deck has 16' stringers, so 32 LF of fascia, which takes 3 12' boards.
 func TestStairFasciaExample(t *testing.T) {
-	lf := stairFasciaLF(16)
+	lf := stairFasciaLF(Deck{StringerLength: 16})
 	if lf != 32 || stairFasciaBoards(lf) != 3 {
 		t.Errorf("got %g LF, %d boards, want 32 LF, 3 boards", lf, stairFasciaBoards(lf))
 	}

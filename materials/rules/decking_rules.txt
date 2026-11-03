@@ -36,6 +36,7 @@ Fasteners — CAMO EDGE 2-3/8" Deck Screws:
   Choose fewest boxes to cover deck SF. Do not mix sizes unless one box is not enough.
   Example: 450 SF -> 1 box of 1750 count (500 SF). NOT 700 + 350.
   Coverage includes wood stair treads: deck SF + (treads x stair width x 11" / 12).
+  Coverage also includes the stair landing, if any: + 4 x stair width.
 
 --- COMPOSITE DECKS (TimberTech, Trex, Azek) ---
 
@@ -58,6 +59,7 @@ For decks over 20' wide: add 1 divider board (S4S, length > projection).
 Hidden deck clips (grooved boards):
   450 pack = 250 SF
   900 pack = 500 SF
+  Coverage = deck SF + stair landing SF (4 x stair width), if any.
 
 S4S fasteners:
   Use TimberTech Cortex color match fasteners for all S4S boards (stair treads and divider boards) on every composite deck.
@@ -76,6 +78,8 @@ Fascia board count = ceil(fascia_LF / 12) + 1, using 12' boards and the fascia l
 Stair side fascia (wood and composite):
   Stringer length = deck height x 11 / 7, rounded up to a 2' increment, minimum 8' (same as the framing rules).
   Stair side fascia LF = stringer length x 2 (both sides).
+  Stairs with a landing have 2 flights: use the stringer length from half the deck height, x 2 sides x 2 flights.
+  Example: 13' deck -> 12' stringers -> 12 x 2 x 2 = 48 LF -> 4 boards
   Stair side fascia board count = ceil(LF / 12), using 12" x 12' boards. No extra board.
   Example: 9' high deck -> 9 x 11 / 7 = 14.1' -> 16' stringers -> 32 LF -> 3 boards
 
@@ -110,6 +114,18 @@ Calculate number of treads from deck height: each tread = 7.5" rise.
   Examples:
     4' wide stair, 21 treads: 4 pieces per board, 42 pieces -> 11 boards
     6' wide stair, 8 treads: 2 pieces per board, 16 pieces -> 8 boards
+  Stairs with a landing keep the same tread count (from the full deck height).
+
+--- STAIR LANDING DECKING ---
+
+Only for stairs with a landing (deck over 12' high). The landing is 4' deep x the stair width.
+Use the deck board (wood: 2x6 in the deck material; composite: grooved board), 16' long, cut to stair width.
+List the row with the description "Stair landing".
+  Rows = ceil(48 / board coverage): wood 5.5", composite 5.25"
+  Pieces per board = floor(16 / stair_width_feet)
+  Board count = ceil(rows / pieces_per_board)
+  Example: composite, 4' stairs -> 10 rows, 4 per board -> 3 16' grooved boards
+  Example: wood, 3.5' stairs -> 9 rows, 4 per board -> 3 2x6 x 16' boards
 
 --- STAIR TOE KICKS ---
 

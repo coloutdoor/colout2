@@ -11,7 +11,6 @@ const (
 	compositeJoistSpacingIn = 16.0
 	maxJoistLengthFt        = 20
 	minLumberLengthFt       = 8
-	maxStairRiseFt          = 12 // IBC: a flight may rise at most 12' between landings.
 	stringerSpacingIn       = 16.0
 	sd9ShortPerPiece        = 8 // SD9 1.5" per H2.5 and LUS.
 	sd9LongPerHanger        = 4 // SD9 2.5" per LUS.
@@ -66,14 +65,6 @@ func stringerLength(heightFt float64) int {
 	return max(minLumberLengthFt, roundToNext2(heightFt*11/7))
 }
 
-// NeedsStairLanding reports whether stairs on a deck this high need a midspan
-// landing. The IBC allows at most 12' of rise in one flight, so 12' is OK and
-// anything higher needs one. The estimate pricing uses it too, so both follow
-// one rule.
-func NeedsStairLanding(heightFt float64) bool {
-	return heightFt > maxStairRiseFt
-}
-
 // hangerSuffix turns a joist size into the Simpson code: 2x10 becomes 210.
 func hangerSuffix(joistSize string) string {
 	return strings.ReplaceAll(joistSize, "x", "")
@@ -92,16 +83,21 @@ func CalcFraming(d Deck) List {
 		{ledgerBoards, fmt.Sprintf("%s x %d' PT rim joist", d.JoistSize, ledgerLength), "", ""},
 	}
 
-	var flags []string
+	ties := d.JoistsOrdered
 	if d.HasStairs {
-		if NeedsStairLanding(d.HeightFt) {
-			flags = append(flags, "ENGINEERING REQUIRED: stairs need a midspan landing")
-		} else {
-			items = append(items,
-				Item{d.Stringers, fmt.Sprintf("2x12 x %d' PT stringer", d.StringerLength), "", ""},
-				Item{d.Stringers, "Simpson LSCZ", "Adjustable stair-stringer connector", "1 per stringer"},
-			)
+		stringers, note := d.Stringers, ""
+		if d.Landing {
+			stringers *= 2
+			note = fmt.Sprintf("2 flights of %d", d.Stringers)
 		}
+		items = append(items,
+			Item{stringers, fmt.Sprintf("2x12 x %d' PT stringer", d.StringerLength), "", note},
+			Item{stringers, "Simpson LSCZ", "Adjustable stair-stringer connector", "1 per stringer"},
+		)
+	}
+	if d.Landing {
+		items = append(items, landingFramingItems(d)...)
+		ties += d.LandingJoists * landingTiesPerJoist
 	}
 
 	suffix := hangerSuffix(d.JoistSize)
@@ -115,8 +111,8 @@ func CalcFraming(d Deck) List {
 		Item{1, `7.25" Skill Saw blade`, "", ""},
 		Item{1, `FastenMaster LedgerLok Flathead 5", 50 count`, "Box", "Ledger"},
 	)
-	items = append(items, screwBoxes(`Simpson SD9 1.5"`, (d.JoistsOrdered+lus)*sd9ShortPerPiece)...)
+	items = append(items, screwBoxes(`Simpson SD9 1.5"`, (ties+lus)*sd9ShortPerPiece)...)
 	items = append(items, screwBoxes(`Simpson SD9 2.5"`, lus*sd9LongPerHanger)...)
 
-	return List{Title: "Framing", Items: items, Flags: flags}
+	return List{Title: "Framing", Items: items}
 }

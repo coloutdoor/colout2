@@ -58,8 +58,24 @@ Spacing: 16" o.c., plus 1 extra stringer.
 Stringer length = deck height x 11 / 7. Round up to a 2' increment (an exact increment stays), minimum 8'.
   Example: 12' high deck -> 12 x 11 / 7 = 18.9' -> 20' stringers
 If the deck is over 12' high, the stairs need a midspan landing (IBC: a flight may rise at most 12' between landings). A 12' deck is OK.
-  Do not list stringers or LSCZ connectors. Write "ENGINEERING REQUIRED" for the stairs and continue with the rest of the list.
+  The landing is at half the deck height and splits the stairs into 2 flights.
+  Each flight uses the stringer count above, with stringer length from half the deck height.
+  Example: 13' deck, 4' stairs -> 6.5 x 11 / 7 = 10.2' -> 2 flights of 4 = 8 2x12 x 12' stringers
 Hardware: 1 x Simpson LSCZ Adjustable Stair-Stringer Connector per stringer.
+
+--- STAIR LANDING FRAMING ---
+
+Only for stairs with a landing. The landing is 4' deep x the stair width. List its rows with the description "Stair landing".
+2x6 x 8' PT boards for joists and rims:
+  Joists are 4' long at 16" o.c. across the stair width, including both outside joists: ceil(stair_width_inches / 16) + 1.
+  Each 8' board gives 2 joists.
+  2 rims, each the stair width. Rims per 8' board = floor(8 / stair_width_feet), minimum 1.
+  Add 1 spare board.
+  Boards = ceil(joists / 2) + ceil(2 / rims_per_board) + 1
+  Example: 4' stairs -> 4 joists (2 boards) + 2 rims (1 board) + 1 spare = 4 boards
+  Example: 6' stairs -> 6 joists (3 boards) + 2 rims (2 boards) + 1 spare = 6 boards
+Simpson H2.5 hurricane ties: 2 per landing joist. No joist hangers on the landing.
+  Count the landing H2.5 ties in the SD9 1.5" screws (8 per piece).
 
 --- HARDWARE ---
 
@@ -78,7 +94,7 @@ Always include:
   1 box — FastenMaster LedgerLok Flathead 5" 50-count Screws (ledger)
 
 Simpson SD9 1.5" screws (for H2.5 and LUS hardware — 8 screws each):
-  Calculate total H2.5 + LUS pieces x 8, choose 100-count or 500-count box.
+  Calculate total H2.5 (deck and stair landing) + LUS pieces x 8, choose 100-count or 500-count box.
   ABU and PC screws are counted in the footings list. Do not count them here.
 
 Simpson SD9 2.5" screws (for LUS hangers — 4 per hanger, in addition to the 1.5" screws):

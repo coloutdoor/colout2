@@ -60,11 +60,17 @@ type Deck struct {
 
 	HasStairs      bool
 	StairWidthFt   float64
-	Stringers      int
+	Stringers      int // Per flight.
 	StringerLength int
 	Treads         int
 	StairFascia    bool
 	ToeKicks       bool
+
+	// A deck over 12' with stairs gets a midspan landing and 2 flights.
+	Landing           bool
+	LandingHeightFt   float64
+	LandingPostLength int
+	LandingJoists     int
 }
 
 // Item is one row of a materials list.
@@ -79,7 +85,6 @@ type Item struct {
 type List struct {
 	Title string
 	Items []Item
-	Flags []string // Printed under the table, e.g. the stair engineering note.
 }
 
 // Result is the finished take off. When Stop is set the deck needs engineering
@@ -126,7 +131,15 @@ func NewDeck(in Input) (Deck, error) {
 	if in.StairWidthFt > 0 {
 		d.HasStairs = true
 		d.StairWidthFt = in.StairWidthFt
-		d.Stringers, d.StringerLength = stringerCounts(in.StairWidthFt, in.HeightFt)
+		flightRise := in.HeightFt
+		if NeedsStairLanding(in.HeightFt) {
+			flightRise = in.HeightFt / 2
+			d.Landing = true
+			d.LandingHeightFt = flightRise
+			d.LandingPostLength = postLength(flightRise)
+			d.LandingJoists = landingJoistCount(in.StairWidthFt)
+		}
+		d.Stringers, d.StringerLength = stringerCounts(in.StairWidthFt, flightRise)
 		d.Treads = treadCount(in.HeightFt)
 		d.StairFascia = in.StairFascia
 		d.ToeKicks = in.ToeKicks
@@ -146,6 +159,7 @@ func stopReason(d Deck) string {
 }
 
 // Calculate builds the take off. The rails list doesn't exist yet.
+// Landing materials are mixed into the footings, framing, and decking lists.
 func Calculate(in Input) (Result, error) {
 	d, err := NewDeck(in)
 	if err != nil {

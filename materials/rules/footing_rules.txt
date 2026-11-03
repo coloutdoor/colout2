@@ -79,6 +79,16 @@ if projection is over 20' STOP.  Engineering is REQUIRED.
 --- HARDWARE SCREWS ---
 
 Simpson SD9 1.5" screws are used for ABU and PC hardware — 8 screws per piece.
-  Count all ABU + PC pieces, multiply by 8. Wedge anchors do not use SD9 screws.
+  Count all ABU + PC pieces, multiply by 8, including the stair landing PC4Z caps. Wedge anchors do not use SD9 screws.
   Sold in 100-count or 500-count boxes. Choose fewest boxes to cover quantity.
 
+--- STAIR LANDING ---
+
+Only if the deck is over 12' high and has stairs (see the framing rules). Otherwise skip this section.
+The landing is 4' deep x the stair width, at half the deck height. List its rows with the description "Stair landing".
+  4 x 11" x 11-1/2" x 11-1/2" concrete pier block with metal bracket. No concrete bags or footing frames.
+  4 x 4x4 PT posts. Post length is longer than the landing height, rounded up to the next 2', minimum 8'.
+  4 x Simpson PC4Z post caps (count them in the SD9 1.5" screws above).
+  1 x 4x6 PT beam, cut into 2 beams. Length covers 2 x stair width, rounded up to a 2' increment, minimum 8'.
+  Example: 13' deck, 4' stairs -> landing at 6.5' -> 4 4x4 x 8' posts, 1 4x6 x 8' beam
+  Example: 19' deck, 6' stairs -> landing at 9.5' -> 4 4x4 x 10' posts, 1 4x6 x 12' beam

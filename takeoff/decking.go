@@ -131,8 +131,11 @@ func woodDecking(d Deck) []Item {
 	note := fmt.Sprintf("%d sq ft", sqft)
 	if d.HasStairs {
 		treadArea := float64(d.Treads) * d.StairWidthFt * boardsPerTread * woodBoardCoverageIn / 12
-		sqft = int(math.Ceil(d.AreaSqFt + treadArea))
+		sqft = int(math.Ceil(d.AreaSqFt + treadArea + landingAreaSqFt(d)))
 		note = fmt.Sprintf("%d sq ft with stair treads", sqft)
+		if d.Landing {
+			note += " and landing"
+		}
 	}
 	boxes := coverPacks(sqft, []int{100, 200, 500})
 	for i, count := range []string{"350", "700", "1750"} {
@@ -154,9 +157,14 @@ func woodDecking(d Deck) []Item {
 	boards := ceilDiv(d.Treads*boardsPerTread, piecesPerBoard(treadBoardFt, d.StairWidthFt))
 	items = append(items, Item{boards, fmt.Sprintf("2x6 x %d' %s stair tread board", treadBoardFt, d.Material), "",
 		fmt.Sprintf("%d treads, 2 boards per tread", d.Treads)})
+	if d.Landing {
+		landingBoards, rows := landingDeckBoards(d, woodBoardCoverageIn)
+		items = append(items, Item{landingBoards, fmt.Sprintf("2x6 x %d' %s deck board", treadBoardFt, d.Material),
+			"Stair landing", fmt.Sprintf("%d rows cut to %g'", rows, d.StairWidthFt)})
+	}
 	cedarLF := d.FasciaLF
 	if d.StairFascia {
-		lf := stairFasciaLF(d.StringerLength)
+		lf := stairFasciaLF(d)
 		cedarLF += lf
 		items = append(items, Item{stairFasciaBoards(lf),
 			fmt.Sprintf("1x12 x %d' %s cedar stair side fascia", fasciaBoardFt, cedarGrade), "",
@@ -196,9 +204,18 @@ func compositeDecking(d Deck) []Item {
 	run := compositeBoards(d.ProjectionFt, d.WidthFt)
 	items := []Item{{run.Boards, fmt.Sprintf("%d' %s grooved deck board", run.LengthFt, d.Material), "", run.Note}}
 
-	sqft := int(math.Ceil(d.AreaSqFt))
+	if d.Landing {
+		landingBoards, rows := landingDeckBoards(d, compositeBoardCoverageIn)
+		items = append(items, Item{landingBoards, fmt.Sprintf("%d' %s grooved deck board", treadBoardFt, d.Material),
+			"Stair landing", fmt.Sprintf("%d rows cut to %g'", rows, d.StairWidthFt)})
+	}
+
+	sqft := int(math.Ceil(d.AreaSqFt + landingAreaSqFt(d)))
 	clips450, clips900 := fewestBoxes(sqft, 250, 500)
 	note := fmt.Sprintf("%d sq ft", sqft)
+	if d.Landing {
+		note += " with landing"
+	}
 	if clips450 > 0 {
 		items = append(items, Item{clips450, "Hidden deck clips, 450 pack", "Grooved boards", note})
 	}
@@ -235,7 +252,7 @@ func compositeDecking(d Deck) []Item {
 			fmt.Sprintf(`12" x %d' %s fascia`, fasciaBoardFt, d.Material), "", fmt.Sprintf("%g LF", d.FasciaLF)})
 	}
 	if d.HasStairs && d.StairFascia {
-		lf := stairFasciaLF(d.StringerLength)
+		lf := stairFasciaLF(d)
 		fasciaLF += lf
 		items = append(items, Item{stairFasciaBoards(lf),
 			fmt.Sprintf(`12" x %d' %s stair side fascia`, fasciaBoardFt, d.Material), "",
@@ -255,9 +272,13 @@ func compositeDecking(d Deck) []Item {
 	return items
 }
 
-// stairFasciaLF is the stringer length on each side of the stair.
-func stairFasciaLF(stringerLengthFt int) float64 {
-	return float64(stringerLengthFt * stairFasciaSides)
+// stairFasciaLF is the stringer length on each side of each flight.
+func stairFasciaLF(d Deck) float64 {
+	flights := 1
+	if d.Landing {
+		flights = 2
+	}
+	return float64(d.StringerLength * stairFasciaSides * flights)
 }
 
 // stairFasciaBoards covers the stair fascia LF with 12' boards, with no extra

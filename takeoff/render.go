@@ -25,11 +25,6 @@ func Render(w io.Writer, estimateID string, res Result) error {
 				return err
 			}
 		}
-		for _, flag := range list.Flags {
-			if _, err := fmt.Fprintf(w, "\n%s\n", flag); err != nil {
-				return err
-			}
-		}
 	}
 	return nil
 }

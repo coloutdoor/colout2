@@ -76,6 +76,9 @@ func CalcFootings(d Deck) List {
 	}
 
 	screws := (d.Footings + d.Footings) * screwsPerPiece // One base and one cap per post.
+	if d.Landing {
+		screws += landingPosts * screwsPerPiece // Landing PC4Z caps.
+	}
 
 	items := []Item{
 		{d.Footings, "Footing", fmt.Sprintf(`%d" x %d" x 12" deep`, d.Pad.Inches, d.Pad.Inches), ""},
@@ -86,6 +89,9 @@ func CalcFootings(d Deck) List {
 		{d.Footings, "Simpson " + d.Post.Cap, "Post cap", ""},
 		{d.Footings, d.Post.Anchor + " wedge anchor", "", "1 per post"},
 		{headerBoards, fmt.Sprintf("%s x %d' PT header", d.Post.Header, headerLength), "", headerNote},
+	}
+	if d.Landing {
+		items = append(items, landingFootingItems(d)...)
 	}
 	items = append(items, screwBoxes(`Simpson SD9 1.5"`, screws)...)
 	return List{Title: "Footings & Posts", Items: items}

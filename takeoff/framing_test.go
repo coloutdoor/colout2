@@ -38,21 +38,21 @@ func TestFraming1031(t *testing.T) {
 
 // TestFramingMatrix checks the single-section decks in the agreed test plan.
 func TestFramingMatrix(t *testing.T) {
-	const noStairs, stairStop = "", "stop"
+	const noStairs = ""
 	tests := []struct {
 		id        string
 		joists    string
 		count     int
-		stringer  string // Name row, noStairs, or stairStop.
-		stringers int
+		stringer  string // Name row or noStairs.
+		stringers int    // Both flights when the stairs have a landing.
 	}{
 		{"1031", "2x10 x 16' PT joist", 17, noStairs, 0},
 		{"1039", "2x8 x 12' PT joist", 4, "2x12 x 8' PT stringer", 4},
-		{"1040", "2x6 x 10' PT joist", 24, stairStop, 0},
+		{"1040", "2x6 x 10' PT joist", 24, "2x12 x 12' PT stringer", 8},
 		{"1052", "2x8 x 12' PT joist", 9, "2x12 x 8' PT stringer", 6},
 		{"1054", "2x8 x 12' PT joist", 5, "2x12 x 8' PT stringer", 4},
-		{"c1", "2x10 x 14' PT joist", 17, stairStop, 0},
-		{"c3", "2x8 x 12' PT joist", 9, stairStop, 0},
+		{"c1", "2x10 x 14' PT joist", 17, "2x12 x 14' PT stringer", 8},
+		{"c3", "2x8 x 12' PT joist", 9, "2x12 x 16' PT stringer", 8},
 		{"c4", "2x10 x 14' PT joist", 8, "2x12 x 10' PT stringer", 4},
 		{"c5", "2x10 x 14' PT joist", 20, "2x12 x 20' PT stringer", 5},
 		{"c7", "2x10 x 16' PT joist", 30, noStairs, 0},
@@ -75,21 +75,12 @@ func TestFramingMatrix(t *testing.T) {
 					stringer = &list.Items[i]
 				}
 			}
-			switch tt.stringer {
-			case noStairs, stairStop:
+			if tt.stringer == noStairs {
 				if stringer != nil {
 					t.Errorf("unexpected stringer row: %+v", *stringer)
 				}
-				if flagged := len(list.Flags) > 0; flagged != (tt.stringer == stairStop) {
-					t.Errorf("flags = %v", list.Flags)
-				}
-			default:
-				if stringer == nil || stringer.Name != tt.stringer || stringer.Count != tt.stringers {
-					t.Errorf("stringer = %+v, want %d %s", stringer, tt.stringers, tt.stringer)
-				}
-				if len(list.Flags) != 0 {
-					t.Errorf("flags = %v", list.Flags)
-				}
+			} else if stringer == nil || stringer.Name != tt.stringer || stringer.Count != tt.stringers {
+				t.Errorf("stringer = %+v, want %d %s", stringer, tt.stringers, tt.stringer)
 			}
 		})
 	}
@@ -146,15 +137,6 @@ func TestStringerLengths(t *testing.T) {
 	for heightFt, want := range tests {
 		if _, got := stringerCounts(4, heightFt); got != want {
 			t.Errorf("%.2f' deck: stringer %d', want %d'", heightFt, got, want)
-		}
-	}
-}
-
-func TestNeedsStairLanding(t *testing.T) {
-	tests := map[float64]bool{5: false, 12: false, 12.1: true, 13: true, 20: true}
-	for heightFt, want := range tests {
-		if got := NeedsStairLanding(heightFt); got != want {
-			t.Errorf("NeedsStairLanding(%.2f) = %v, want %v", heightFt, got, want)
 		}
 	}
 }
