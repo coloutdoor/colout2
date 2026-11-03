@@ -40,6 +40,7 @@ var funcMap = template.FuncMap{
 	"formatStairRailDescription":           formatStairRailDescription,
 	"formatStairFasciaDescription":         formatStairFasciaDescription,
 	"formatStairTKDescription":             formatStairTKDescription,
+	"formatStairLandingDescription":        formatStairLandingDescription,
 	"formatPermitDescription":              formatPermitDescription,
 	"currentYear":                          func() int { return time.Now().Year() },
 	"neg":                                  func(f float64) float64 { return -f },

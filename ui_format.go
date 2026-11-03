@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -347,8 +348,27 @@ func formatStairRailDescription(de DeckEstimate) string {
 					sidePhrase, de.RailMaterial, de.RailInfill)
 			}
 		}
+		if de.HasStairLanding() && de.StairRailCount > 0 && (de.DIYMode != 0 || de.StairRailCost > 0) {
+			desc += fmt.Sprintf(" Includes %.0f ft of rail at the stair landing.", stairLandingRailFt*math.Min(de.StairRailCount, 2))
+		}
 	}
 	return desc
+}
+
+// formatStairLandingDescription
+func formatStairLandingDescription(de DeckEstimate) string {
+	if !de.HasStairLanding() {
+		return "No stair landing needed"
+	}
+	size := fmt.Sprintf("%g ft x %g ft midspan stair landing", stairLandingDepthFt, de.StairWidth)
+	switch de.DIYMode {
+	case 1:
+		return fmt.Sprintf("DIY materials only — %s, pressure treated framing with matching %s decking.", size, de.Material)
+	case 2:
+		return fmt.Sprintf("Plans include a %s. Materials not included.", size)
+	}
+	return fmt.Sprintf(`Supply and install a %s at %g ft, halfway up the stairs. Required by code for stairs over 12 ft high.
+                        Pressure treated framing and footings with matching %s decking.`, size, de.Height/2, de.Material)
 }
 
 // formatStairFasciaDescription

@@ -31,13 +31,43 @@ GOOGLE_OAUTH_CALLBACK_URL=http://localhost:8080/auth/google/callback
 
 The app starts an HTTP server on `:8080` (override with `SERVER_ADDR`). Session files are written to `./sessions/` at runtime.
 
-## No Tests
+## Tests
 
-There are no `*_test.go` files. Validation is done manually by running the app and exercising the flows.
+```bash
+go test ./...                              # root costs_test.go + takeoff
+go test ./takeoff -run TestDecking1040 -v  # one test
+```
+
+Only `costs_test.go` (pricing) and `takeoff/` have tests. Web flows are checked by hand with `/deploy-test` and `/smoke-test`.
+
+## Materials Take Off
+
+After a customer accepts an estimate, a Materials Take Off list is emailed. There are two implementations.
+
+**Live today (LLM):** `/estimate/materials/{estimateID}` → `materialsHandler` (`materials_handler.go`) → `formatEstimateText` → `generateMaterialsList`, which calls Claude once per section with the rules files read at runtime → `emailMaterialsList` attaches `materials_<id>.md`. `materials/main.go` is the same flow as a standalone CLI. The LLM output often has quantity errors.
+
+**In progress (deterministic):** `takeoff/` is a pure Go package (no DB, web or LLM) that calculates the list from the same estimate text. The root package is `package main`, so the calculator lives in its own importable package. Run it from the CLI:
+
+```bash
+go run ./cmd/takeoff materials/test/estimate_1031.txt   # prints Markdown to stdout
+```
+
+- `parse.go` `ParseEstimateText` reads `formatEstimateText` output into `Input`.
+- `takeoff.go` `NewDeck` works out shared values once (footings, joist size/length/count, stringers, treads) into `Deck`. `Calculate` returns a `Stop` message for engineering limits, otherwise `CalcFootings`, `CalcFraming` and `CalcDecking` lists. Shared helpers: `roundUp2` (strictly greater), `roundToNext2` (exact stays), `spanBoards`, `coverPacks`/`fewestBoxes` (pack sizing).
+- `render.go` `Render` prints the Markdown template, which fits the email attachment.
+- Material: `Cedar` and `Outdoor Wood` use wood rules, everything else composite. Product names come from the estimate as written, so don't map names to rules.
+
+**Status:** footings, framing and decking are done for single-section decks. Multi-section estimates return `ErrMultiSection`. Not built yet, in this order of the owner's plan: multi-section decks, rails (`rails_rules.txt` is a placeholder), picture framing, stair landings (stairs on decks over 12' high, the IBC limit, print an ENGINEERING REQUIRED flag; the estimate prices the landing via `takeoff.NeedsStairLanding`). `materials_handler.go` still calls Claude on purpose. Wiring the calculator in later means an adapter from `DeckEstimate` to `takeoff.Input`, replacing `generateMaterialsList`.
+
+**Rules are the spec.** `materials/rules/*_rules.txt` are both the Claude prompts and the calculator's spec, so a rule change must update both the Go code and its tests. Editing them changes the live Claude emails on the next deploy. Rules the owner confirmed are in the rules files; open assumptions are Cortex pack sizes (100/300 LF) and 1 box of 50 LedgerLok screws.
+
+**Test data:** `materials/test/estimate_<id>.txt`. `10xx` came from the website; `c1`–`c8` were written by hand for limits, Trex, Azek and cedar (c2 is a height stop, c6 a projection stop). 1028, 1035, 1036, 1037 and 1055 are multi-section. Tests read these files by relative path. The expected values in the `takeoff/*_test.go` matrices were agreed with the owner. The `materials_*.md` files are old Claude outputs with errors, so never use them as expected answers.
+
+A local-LLM experiment (Gemma 2 9B) lives in `../materials_llm`. Its untrained baseline scored 0 of 13, which is why this calculator exists.
 
 ## Code Architecture
 
-All Go source files are in the root package. Each file maps to a concern:
+All Go source files in the root are `package main`. Each file maps to a concern:
 
 | File | Responsibility |
 |------|---------------|
@@ -107,7 +137,8 @@ Related table: `estimate_sections` (columns: `id`, `estimate_id`, `label`, `leng
 ### Subdirectories
 
 - `designer/` — standalone Python script (`deck_plan.py`) for visualizing deck layouts; not part of the web app
-- `materials/` — standalone Go program (`main.go`) using Gemini/langchain to analyze material rules; not part of the web app
+- `materials/` — rules, test estimates, and a standalone Claude CLI (`main.go`) for the take off (see Materials Take Off)
+- `takeoff/`, `cmd/takeoff/` — deterministic take-off calculator and its CLI
 - `sql/` — schema files only; no ORM or migration runner
 - `static/` — YAML config files, `robots.txt`, Bing IndexNow key, `t_and_c.txt`
 - `sessions/` — runtime session files (gitignored)

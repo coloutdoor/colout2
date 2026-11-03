@@ -12,26 +12,40 @@ Output rules:
 All framing materials should be pressure treated (PT).
 All hardware should be galvanized or zinc coated (Simpson "Z" suffix).
 All beam and joist lengths must be multiples of 2', minimum 8', maximum 20'.
+The 8' minimum applies to all dimensional lumber, including stringers.
+
+Reading the estimate:
+- Projection = distance out from house (first dimension)
+- Width = side to side (second dimension)
+- Example: "15 x 30 ft, 5 ft high" = 15 ft projection, 30 ft wide, 5 ft high
 
 --- JOISTS ---
 
 Joist size by projection:
-  < 6'       -> 2x4
-  6' to 8'   -> 2x6
-  8' to 10'  -> 2x8
-  10' to 19' -> 2x10
-For any deck projection 20' or greater - STOP calculations - Engineering Required
+  Under 6'                       -> 2x4
+  6' up to and including 8'      -> 2x6
+  Over 8' up to and including 10'  -> 2x8
+  Over 10' up to and including 20' -> 2x10
+For any deck projection over 20' - STOP calculations - Engineering Required
 
 Joist spacing: Wood decks 24" o.c., Composite decks 16" o.c.
+Base joist count = ceil(width_inches / spacing_inches) + 1
+Extra joists = floor(base joist count x 10%)
+Joists ordered = base joist count + extra joists
+  Examples:
+    30' wide wood deck: ceil(360 / 24) + 1 = 16, plus 1 extra = 17 joists ordered
+    27' wide composite deck: ceil(324 / 16) + 1 = 22, plus 2 extra = 24 joists ordered
 Joist length must exceed projection. Round up to next 2' increment.
+Exception: a 20' projection uses 20' joists.
 
 --- LEDGER ---
-The Ledger is connected to the house with 
-Match joist size. Use deck width to calculate ledger. Length must cover full deck width:
+The Ledger is connected to the house with LedgerLok Flathead 5" screws. 
+Match joist size. Use deck width to calculate ledger. Length must cover full deck width, same as the header:
+   Use one board up to 20'. Over 20', use 2 equal boards.
    Example:
-     24' wide deck with 2x8 joists requires: 2 2x8 10' PT 
+     24' wide deck with 2x8 joists requires: 2 2x8 12' PT 
      15' wide deck with 2x6 joists requires: 1 2x6 16' PT 
-     5' wide deck with 2x6 josists requires: 1 
+     5' wide deck with 2x6 joists requires: 1 2x6 8' PT 
 
 --- RIM JOIST ---
 match ledger exactly. Do NOT add side rim joists.
@@ -41,8 +55,11 @@ match ledger exactly. Do NOT add side rim joists.
 Use 2x12 PT for stringers.
 Spacing: 16" o.c., plus 1 extra stringer.
   Number of stringers = ceil(stair_width_inches / 16) + 1
-Stringer length = 2 x deck height. Round up to next 2' increment.
-Hardware: 1 x LS50Z hanger per stringer.
+Stringer length = deck height x 11 / 7. Round up to a 2' increment (an exact increment stays), minimum 8'.
+  Example: 12' high deck -> 12 x 11 / 7 = 18.9' -> 20' stringers
+If the deck is over 12' high, the stairs need a midspan landing (IBC: a flight may rise at most 12' between landings). A 12' deck is OK.
+  Do not list stringers or LSCZ connectors. Write "ENGINEERING REQUIRED" for the stairs and continue with the rest of the list.
+Hardware: 1 x Simpson LSCZ Adjustable Stair-Stringer Connector per stringer.
 
 --- HARDWARE ---
 
@@ -58,10 +75,11 @@ Always include:
   1 box — 21° x 0.131" Hot-dipped Galvanized Collated Framing Nails
   1 — 6.5" Skill Saw blade
   1 — 7.25" Skill Saw blade
-  1 box — FastenMaster HeadLOK 50-count Structural Wood Screws (ledger)
+  1 box — FastenMaster LedgerLok Flathead 5" 50-count Screws (ledger)
 
-Simpson SD9 1.5" screws (for ABU, PC, H2.5, LUS hardware — 8 screws each):
-  Calculate total hardware pieces x 8, choose 100-count or 500-count box.
+Simpson SD9 1.5" screws (for H2.5 and LUS hardware — 8 screws each):
+  Calculate total H2.5 + LUS pieces x 8, choose 100-count or 500-count box.
+  ABU and PC screws are counted in the footings list. Do not count them here.
 
-Simpson SD9 2.5" screws (for LUS hangers — 2 per hanger):
-  Calculate total LUS hangers x 2, choose 100-count or 500-count box.
+Simpson SD9 2.5" screws (for LUS hangers — 4 per hanger, in addition to the 1.5" screws):
+  Calculate total LUS hangers x 4, choose 100-count or 500-count box. Choose fewest boxes to cover quantity.

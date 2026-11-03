@@ -123,3 +123,6 @@ ADD COLUMN product_type TEXT NOT NULL DEFAULT 'deck';
 -- Deck rows leave this NULL; deck fields stay as dedicated columns above.
 ALTER TABLE estimates
 ADD COLUMN product_details JSONB;
+-- Midspan stair landing, added automatically for stairs over 12' high (#13).
+ALTER TABLE estimates
+ADD COLUMN stair_landing_cost DOUBLE PRECISION DEFAULT 0;

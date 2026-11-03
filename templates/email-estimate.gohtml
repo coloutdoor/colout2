@@ -168,6 +168,13 @@
               <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;color:#4a6075;vertical-align:top;">{{formatStairDescription .Estimate}}</td>
               <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;text-align:right;white-space:nowrap;font-family:'Courier New',monospace;">{{formatCost .Estimate.StairCost}}</td>
             </tr>
+            {{if .Estimate.HasStairLanding}}
+            <tr>
+              <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#1a2535;vertical-align:top;">Stair Landing</td>
+              <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;color:#4a6075;vertical-align:top;">{{formatStairLandingDescription .Estimate}}</td>
+              <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;text-align:right;white-space:nowrap;font-family:'Courier New',monospace;">{{formatCost .Estimate.StairLandingCost}}</td>
+            </tr>
+            {{end}}
             {{if gt .Estimate.StairRailCount 0.0}}
             <tr>
               <td style="padding:7px 8px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#1a2535;vertical-align:top;">Stair Rails</td>

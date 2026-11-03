@@ -29,18 +29,19 @@ Important - Look at the projection. If the projection is over 13' it will REQUIR
 
 --- FOOTINGS ---
 Number of footings:
-  Minimum 2. Add an additional footing if it is over 12' wide.  Add addtional footings for every additional 10' wide.  
+  Footings are a maximum of 10' apart, with a maximum 2' overhang at each end of the header.
+  Number of footings = ceil((deck_width - 4) / 10) + 1, minimum 2.
   Be sure to recheck the projection for >13'
   Examples:
-     under 14' width - 2 footings - 4 footings for a deck over 13' projection
-     between 15' - 24' width - 3 footings - 6 footings for a deck over 13' projection
-     between 25' - 34' width - 4 footings - 8 footings for a deck over 13' projection
-     between 35' - 44' width - 5 footings - 10 footings for a deck over 13' projection
+     up to and including 14' width (2 + 10 + 2) - 2 footings - 4 footings for a deck over 13' projection
+     over 14' up to and including 24' width (2 + 10 + 10 + 2) - 3 footings - 6 footings for a deck over 13' projection
+     over 24' up to and including 34' width - 4 footings - 8 footings for a deck over 13' projection
+     over 34' up to and including 44' width - 5 footings - 10 footings for a deck over 13' projection
 
 For the footings we need the following volume of concrete based on deck height
     Decks under 6' high:  16” x 16” x 12” deep
-    Decks at 6’ - 12' high: 20” x 20” x 12” deep
-    Decks at 12’ - 20' high: 24” x 24” x 12” deep
+    Decks 6' up to and including 12' high: 20” x 20” x 12” deep
+    Decks over 12' up to and including 20' high: 24” x 24” x 12” deep
     Decks over 20' high require engineering. STOP
 
 Concrete per footing:
@@ -55,11 +56,11 @@ Be sure that the number of posts match the number of footings
 
 Post size by deck height:
   Under 6'  -> 4x4 PT  with ABU44Z base and PC4Z cap
-  6' to 10' -> 4x6 PT  with ABU46Z base and PC4Z cap
-  10' to 20' -> 6x6 PT with ABU66Z base and PC6Z cap
-  Decks over 18' high require engineering. STOP
+  6' up to and including 10' -> 4x6 PT  with ABU46Z base and PC4Z cap
+  Over 10' up to and including 20' -> 6x6 PT with ABU66Z base and PC6Z cap
+  Decks over 20' high require engineering. STOP
 
-Post length must be greater than deck height. Round up to next 2' increment.
+Post length must be greater than deck height. Round up to next 2' increment. Minimum post length 8'.
 Wedge Anchors:
   ABU44Z / ABU46Z -> 1/2" x 5" wedge anchor per post
   ABU66Z          -> 5/8" x 5" wedge anchor per post
@@ -69,13 +70,15 @@ Wedge Anchors:
 Header width matches post size:
   4x4 or 4x6 posts -> 4x10 PT header
   6x6 posts        -> 6x10 PT header
-Total header length must exceed deck width. Round up to next 2' increment.
+Header length matches the ledger: total length must cover the full deck width.
+  Use one board up to 20'. Over 20', use 2 equal boards. Board lengths are multiples of 2', minimum 8', maximum 20'.
+  Examples: 15' wide -> 1 16'. 20' wide -> 1 20'. 24' wide -> 2 12'. 27' wide -> 2 14'. 30' wide -> 2 16'.
 Be sure to double the headers 2 if projection is over 13'
 if projection is over 20' STOP.  Engineering is REQUIRED.
 
 --- HARDWARE SCREWS ---
 
-Simpson SD9 1.5" screws are used for ABU, PC, and wedge anchor hardware — 8 screws per piece.
-  Count all ABU + PC + wedge anchor pieces, multiply by 8.
+Simpson SD9 1.5" screws are used for ABU and PC hardware — 8 screws per piece.
+  Count all ABU + PC pieces, multiply by 8. Wedge anchors do not use SD9 screws.
   Sold in 100-count or 500-count boxes. Choose fewest boxes to cover quantity.
 

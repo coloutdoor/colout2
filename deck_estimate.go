@@ -46,6 +46,7 @@ type DeckEstimate struct {
 	HasStairFascia   bool
 	StairFasciaCost  float64
 	StairToeKickCost float64
+	StairLandingCost float64 // Midspan landing, added when the stairs need one
 	HasStairTK       bool
 	DemoCost         float64
 	HasDemo          bool
@@ -61,8 +62,8 @@ type DeckEstimate struct {
 	Terms            string
 	TermsHTML        template.HTML
 	Error            string
-	EmailModalShown  bool  // Flag to indicate if email modal should be shown
-	UserId           int64 // FK to UserAuth
+	EmailModalShown  bool   // Flag to indicate if email modal should be shown
+	UserId           int64  // FK to UserAuth
 	Status           string // Accepted, Expired, or Pending — computed in renderEstimate
 	Version          int    // Increments on each save
 	Sections         []EstimateSection
@@ -72,7 +73,7 @@ type DeckEstimate struct {
 	AcceptURL        string  // Form action for accept modal; defaults to /estimate
 	DiscountCode     string
 	DiscountAmount   float64
-	PermitLevel      int     // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
+	PermitLevel      int // 0=none, 1=design, 2=design+eng, 3=design+eng+permits
 	PermitCost       float64
 	CustomItems      []EstimateCustomItem
 	CustomItemsTotal float64
@@ -118,7 +119,8 @@ func getEstimate(estimateID int) DeckEstimate {
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
-        COALESCE(e.diy_mode, 0), e.product_type
+        COALESCE(e.diy_mode, 0), e.product_type,
+        COALESCE(e.stair_landing_cost, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.estimate_id = $1`, estimateID).Scan(
@@ -134,7 +136,8 @@ func getEstimate(estimateID int) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType,
+		&de.StairLandingCost)
 
 	if err != nil {
 		fmt.Println("GetEstimate Query Error: ", err)
@@ -183,7 +186,7 @@ func getEstimate(estimateID int) DeckEstimate {
 	// Derive L/W from primary section so existing calculations still work
 	if len(de.Sections) > 0 {
 		de.Length = de.Sections[0].Length
-		de.Width  = de.Sections[0].Width
+		de.Width = de.Sections[0].Width
 	}
 
 	de.Error = ""
@@ -219,7 +222,8 @@ func getEstimateByToken(token string) DeckEstimate {
         COALESCE(e.access_token, ''),
         COALESCE(e.discount_code, ''), COALESCE(e.discount_amount, 0),
         COALESCE(e.permit_level, 0), COALESCE(e.permit_cost, 0),
-        COALESCE(e.diy_mode, 0), e.product_type
+        COALESCE(e.diy_mode, 0), e.product_type,
+        COALESCE(e.stair_landing_cost, 0)
         FROM estimates e
         LEFT JOIN contractor_profile cp ON cp.id = e.contractor_id
         WHERE e.access_token = $1`, token).Scan(
@@ -235,7 +239,8 @@ func getEstimateByToken(token string) DeckEstimate {
 		&de.StairFasciaCost, &de.StairToeKickCost, &de.DemoCost,
 		&de.Subtotal, &de.SalesTax,
 		&de.AccessToken, &de.DiscountCode, &de.DiscountAmount,
-		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType)
+		&de.PermitLevel, &de.PermitCost, &de.DIYMode, &de.ProductType,
+		&de.StairLandingCost)
 
 	if err != nil {
 		return DeckEstimate{Error: "Estimate not found"}
@@ -391,6 +396,7 @@ SET
     permit_cost = $44,
     diy_mode = $45,
     product_type = $46,
+    stair_landing_cost = $48,
     version = version + 1
 WHERE estimate_id = $47
 RETURNING estimate_id, version`
@@ -410,19 +416,20 @@ RETURNING estimate_id, version`
 			}(), //20
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"), //21
 			estimate.HasStairFascia, estimate.HasStairTK,          //23
-			estimate.UserId,           //24
-			estimate.ContractorID,     //25
-			estimate.RailFeetOverride, //26
-			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,           //30
+			estimate.UserId,                                                            //24
+			estimate.ContractorID,                                                      //25
+			estimate.RailFeetOverride,                                                  //26
+			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet, //30
 			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet, //34
-			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost,               //37
-			estimate.Subtotal, estimate.SalesTax,                                                 //39
-			estimate.AccessToken,                                                                 //40
-			estimate.DiscountCode, estimate.DiscountAmount,   //42
-			estimate.PermitLevel, estimate.PermitCost,         //44
-			estimate.DIYMode,                                  //45
-			estimate.ProductType,                              //46
-			estimate.EstimateID).Scan(&updatedID, &estimate.Version)
+			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, //37
+			estimate.Subtotal, estimate.SalesTax, //39
+			estimate.AccessToken,                           //40
+			estimate.DiscountCode, estimate.DiscountAmount, //42
+			estimate.PermitLevel, estimate.PermitCost, //44
+			estimate.DIYMode,                                              //45
+			estimate.ProductType,                                          //46
+			estimate.EstimateID,                                           //47
+			estimate.StairLandingCost).Scan(&updatedID, &estimate.Version) //48
 
 		if err != nil {
 			log.Printf("Failed to prepare statement to update estimate: %v", err)
@@ -459,7 +466,8 @@ RETURNING estimate_id, version`
 			deck_cost, deck_area, rail_cost, rail_feet,
 			stair_cost, stair_rail_cost, fascia_cost, fascia_feet,
 			stair_fascia_cost, stair_toe_kick_cost, demo_cost, subtotal, sales_tax,
-			access_token, discount_code, discount_amount, permit_level, permit_cost, diy_mode, product_type, version)
+			access_token, discount_code, discount_amount, permit_level, permit_cost, diy_mode, product_type, version,
+			stair_landing_cost)
 		VALUES (
 		$1, $2,
 		$3, $4, $5,
@@ -470,7 +478,8 @@ RETURNING estimate_id, version`
 		$27, $28, $29, $30,
 		$31, $32, $33, $34,
 		$35, $36, $37, $38, $39,
-		$40, $41, $42, $43, $44, $45, $46, 1
+		$40, $41, $42, $43, $44, $45, $46, 1,
+		$47
 		) RETURNING estimate_id`
 		var newID int64
 		err = db.QueryRow(stmt,
@@ -482,14 +491,15 @@ RETURNING estimate_id, version`
 			estimate.SaveDate.Format("2006-01-02 15:04:05"),
 			nil,
 			estimate.ExpirationDate.Format("2006-01-02 15:04:05"),
-			estimate.HasStairFascia, estimate.HasStairTK,                                                          //23
-			estimate.UserId, estimate.ContractorID, estimate.RailFeetOverride,                                     //26
-			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet,                            //30
-			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet,                  //34
+			estimate.HasStairFascia, estimate.HasStairTK, //23
+			estimate.UserId, estimate.ContractorID, estimate.RailFeetOverride, //26
+			estimate.DeckCost, estimate.DeckArea, estimate.RailCost, estimate.RailFeet, //30
+			estimate.StairCost, estimate.StairRailCost, estimate.FasciaCost, estimate.FasciaFeet, //34
 			estimate.StairFasciaCost, estimate.StairToeKickCost, estimate.DemoCost, estimate.Subtotal, estimate.SalesTax, //39
 			estimate.AccessToken, estimate.DiscountCode, estimate.DiscountAmount, //42
-			estimate.PermitLevel, estimate.PermitCost,                           //44
-			estimate.DIYMode, estimate.ProductType).                             //46
+			estimate.PermitLevel, estimate.PermitCost, //44
+			estimate.DIYMode, estimate.ProductType, //46
+			estimate.StairLandingCost). //47
 			Scan(&newID)
 		if err != nil {
 			log.Printf("Failed to save estimate to DB: %v", err)
@@ -562,6 +572,7 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 	if estimate.Error != "" {
 		return
 	}
+	estimate.CalcStairLandingCost(costs)
 
 	estimate.CalculateRailCost(costs)
 	if estimate.Error != "" {
@@ -585,6 +596,7 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 		estimate.FasciaCost *= 0.5
 		estimate.StairFasciaCost *= 0.5
 		estimate.StairToeKickCost *= 0.5
+		estimate.StairLandingCost *= 0.5
 	case 2: // Plans Only: design/engineering/permits only — no materials
 		estimate.DemoCost = 0
 		estimate.DeckCost = 0
@@ -594,13 +606,14 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 		estimate.FasciaCost = 0
 		estimate.StairFasciaCost = 0
 		estimate.StairToeKickCost = 0
+		estimate.StairLandingCost = 0
 	}
 
 	estimate.CustomItemsTotal = 0
 	for _, ci := range estimate.CustomItems {
 		estimate.CustomItemsTotal += ci.Cost
 	}
-	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost + estimate.PermitCost + estimate.CustomItemsTotal
+	estimate.Subtotal = estimate.DeckCost + estimate.RailCost + estimate.StairCost + estimate.StairRailCost + estimate.DemoCost + estimate.FasciaCost + estimate.StairFasciaCost + estimate.StairToeKickCost + estimate.StairLandingCost + estimate.PermitCost + estimate.CustomItemsTotal
 
 	estimate.DiscountAmount = 0
 	if estimate.DiscountCode != "" {
@@ -617,15 +630,15 @@ func (estimate *DeckEstimate) CalcAllCosts() {
 }
 
 type estimateEmailData struct {
-	Estimate           DeckEstimate
-	EstimateURL        string // saved: view/accept link; Quick: pre-filled contact link
-	Quick              bool   // no-login "email me this estimate" (unsaved estimate)
-	CalcURL            string // Quick only: "price another deck" link
-	Prepared           string // Quick only: today's date (unsaved estimates have no SaveDate)
-	ContractorName     string
-	ContractorPhone    string
-	ContractorWebsite  string
-	ContractorLicense  string
+	Estimate          DeckEstimate
+	EstimateURL       string // saved: view/accept link; Quick: pre-filled contact link
+	Quick             bool   // no-login "email me this estimate" (unsaved estimate)
+	CalcURL           string // Quick only: "price another deck" link
+	Prepared          string // Quick only: today's date (unsaved estimates have no SaveDate)
+	ContractorName    string
+	ContractorPhone   string
+	ContractorWebsite string
+	ContractorLicense string
 }
 
 // buildEstimateEmailHTML renders the estimate email template to a string.

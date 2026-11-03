@@ -60,6 +60,9 @@ type CalcDeckResponse struct {
 	StairFasciaDescription string  `json:"stairFasciaDescription"`
 	StairToeKickCost       float64 `json:"stairToeKickCost"`
 	StairTKDescription     string  `json:"stairTKDescription"`
+	HasStairLanding        bool    `json:"hasStairLanding"`
+	StairLandingCost       float64 `json:"stairLandingCost"`
+	StairLandingDesc       string  `json:"stairLandingDescription"`
 	DiscountCode           string  `json:"discountCode"`
 	DiscountAmount         float64 `json:"discountAmount"`
 	PermitCost             float64 `json:"permitCost"`
@@ -298,6 +301,9 @@ func apiCalcDeckHandler(w http.ResponseWriter, r *http.Request) {
 		StairFasciaDescription: formatStairFasciaDescription(e),
 		StairToeKickCost:       e.StairToeKickCost,
 		StairTKDescription:     formatStairTKDescription(e),
+		HasStairLanding:        e.HasStairLanding(),
+		StairLandingCost:       e.StairLandingCost,
+		StairLandingDesc:       formatStairLandingDescription(e),
 		DiscountCode:           e.DiscountCode,
 		DiscountAmount:         e.DiscountAmount,
 		PermitCost:             e.PermitCost,

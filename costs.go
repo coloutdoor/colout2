@@ -5,6 +5,8 @@ import (
 	"math"
 	"os"
 
+	"colout2/takeoff"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -62,15 +64,46 @@ func (estimate *DeckEstimate) CalculateDeckCost(costs Costs) {
 	estimate.DeckArea = area
 	baseCost := area * costPerSqFt
 
-	if estimate.Height >= 20 {
-		estimate.Error = "Decks 20 feet or higher will require additional engineering."
-	} else if estimate.Height >= 5 {
-		excessHeight := estimate.Height - 4
-		multiplier := 1 + (excessHeight * 0.01)
-		estimate.DeckCost = baseCost * multiplier
-	} else {
-		estimate.DeckCost = baseCost
+	if estimate.Height > maxDeckHeightFt {
+		estimate.Error = "Decks over 20 feet high will require additional engineering."
+		return
 	}
+	estimate.DeckCost = baseCost * heightMultiplier(estimate.Height)
+}
+
+// maxDeckHeightFt is the highest deck priced without engineering. 20' is OK.
+const maxDeckHeightFt = 20.0
+
+// heightMultiplier adds 1% per foot over 4' for decks 5' and higher.
+func heightMultiplier(heightFt float64) float64 {
+	if heightFt < 5 {
+		return 1
+	}
+	return 1 + (heightFt-4)*0.01
+}
+
+const (
+	stairLandingDepthFt = 4.0 // Landing is 4' deep x the stair width.
+	stairLandingRailFt  = 4.0 // Extra stair rail per railed side.
+)
+
+// HasStairLanding reports whether the stairs need a midspan landing (IBC: decks
+// over 12' high). The rule lives in the takeoff package so pricing and the
+// materials list agree.
+func (estimate DeckEstimate) HasStairLanding() bool {
+	return estimate.StairWidth > 0 && takeoff.NeedsStairLanding(estimate.Height)
+}
+
+// CalcStairLandingCost prices the midspan landing like deck area: 4' x stair
+// width at the deck material's price, adjusted for the landing height (half
+// the deck height).
+func (estimate *DeckEstimate) CalcStairLandingCost(costs Costs) {
+	estimate.StairLandingCost = 0
+	if !estimate.HasStairLanding() {
+		return
+	}
+	area := stairLandingDepthFt * estimate.StairWidth
+	estimate.StairLandingCost = area * costs.DeckMaterials[estimate.Material] * heightMultiplier(estimate.Height/2)
 }
 
 // CalculateDemoCost computes cost to demo and remove old structure.
@@ -155,6 +188,9 @@ func (estimate *DeckEstimate) CalculateStairRailCost(costs Costs) {
 		estimate.StairRailCount = 2.0
 	}
 	stairRailLength := estimate.Height * 1.6 // Matches stair steps
+	if estimate.HasStairLanding() {
+		stairRailLength += stairLandingRailFt // Per railed side
+	}
 	railMatCost := costs.RailMaterials[estimate.RailMaterial]
 	stairCostFactor := 1.4
 	estimate.StairRailCost = estimate.StairRailCount * stairRailLength * railMatCost * stairCostFactor

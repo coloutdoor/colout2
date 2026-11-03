@@ -50,7 +50,9 @@ func TestCalculateDeckCost(t *testing.T) {
 		{"height 5 adds 1% per excess foot", 10, 10, 5, "outdoorWood", 3000.0 * 1.01, false},
 		{"height 6 adds 2%", 10, 10, 6, "outdoorWood", 3000.0 * 1.02, false},
 		{"height 19 adds 15%", 10, 10, 19, "outdoorWood", 3000.0 * 1.15, false},
-		{"height 20 sets error", 10, 10, 20, "outdoorWood", 0.0, true},
+		{"height 20 is allowed and adds 16%", 10, 10, 20, "outdoorWood", 3000.0 * 1.16, false},
+		{"height over 20 sets error", 10, 10, 20.5, "outdoorWood", 0.0, true},
+		{"height 21 sets error", 10, 10, 21, "outdoorWood", 0.0, true},
 		{"invalid material sets error", 10, 10, 3, "bamboo", 0.0, true},
 	}
 
@@ -174,6 +176,62 @@ func TestCalcStairCost(t *testing.T) {
 			}
 			if !approxEqual(e.StairCost, tt.wantCost) {
 				t.Errorf("StairCost = %.4f, want %.4f", e.StairCost, tt.wantCost)
+			}
+		})
+	}
+}
+
+// --- CalcStairLandingCost ---
+
+// The landing is 4' x stair width at the deck price, with the height
+// adjustment at half the deck height. Stairs need one over 12' (IBC).
+func TestCalcStairLandingCost(t *testing.T) {
+	tests := []struct {
+		name       string
+		height     float64
+		stairWidth float64
+		material   string
+		wantCost   float64
+	}{
+		{"no stairs", 15, 0, "cedar", 0},
+		{"12 ft needs no landing", 12, 4, "cedar", 0},
+		{"12.5 ft needs a landing at 6.25 ft", 12.5, 4, "cedar", 16 * 39.0 * 1.0225},
+		{"13 ft cedar, landing at 6.5 ft", 13, 4, "cedar", 16 * 39.0 * 1.025},
+		{"20 ft composite, 5 ft stairs", 20, 5, "timberTechProLegacy", 20 * 59.0 * 1.06},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := DeckEstimate{Height: tt.height, StairWidth: tt.stairWidth, Material: tt.material}
+			e.CalcStairLandingCost(testCosts)
+			if !approxEqual(e.StairLandingCost, tt.wantCost) {
+				t.Errorf("StairLandingCost = %.4f, want %.4f", e.StairLandingCost, tt.wantCost)
+			}
+			if got, want := e.HasStairLanding(), tt.wantCost > 0; got != want {
+				t.Errorf("HasStairLanding() = %v, want %v", got, want)
+			}
+		})
+	}
+}
+
+// A landing adds 4' of stair rail per railed side.
+func TestStairRailCostWithLanding(t *testing.T) {
+	const rate = 95.0 * 1.4 // wood rail x stair factor
+	tests := []struct {
+		name      string
+		height    float64
+		railCount float64
+		wantCost  float64
+	}{
+		{"12 ft, both sides, no landing", 12, 2, 2 * (12 * 1.6) * rate},
+		{"13 ft, one side, +4 ft", 13, 1, 1 * (13*1.6 + 4) * rate},
+		{"13 ft, both sides, +8 ft", 13, 2, 2 * (13*1.6 + 4) * rate},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := DeckEstimate{Height: tt.height, StairWidth: 4, StairRailCount: tt.railCount, RailMaterial: "wood"}
+			e.CalculateStairRailCost(testCosts)
+			if !approxEqual(e.StairRailCost, tt.wantCost) {
+				t.Errorf("StairRailCost = %.4f, want %.4f", e.StairRailCost, tt.wantCost)
 			}
 		})
 	}

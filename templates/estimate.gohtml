@@ -285,6 +285,14 @@
           <td class="td-cost" id="stair-cost">{{formatCost .StairCost}}</td>
         </tr>
 
+        {{/* Stair Landing: added automatically for stairs over 12' high (IBC) */}}
+        <tr id="stairlanding-row"{{if not .HasStairLanding}} style="display:none"{{end}}>
+          <td class="td-item">Stair Landing</td>
+          <td class="td-ctl"></td>
+          <td class="td-desc" id="stairlanding-desc">{{formatStairLandingDescription .}}</td>
+          <td class="td-cost" id="stairlanding-cost">{{formatCost .StairLandingCost}}</td>
+        </tr>
+
         {{/* Stair Rails */}}
         <tr id="stairrail-row"{{if or (eq .StairWidth 0.0) (eq .StairRailCount 0.0)}} class="zero-row"{{end}}>
           <td class="td-item">Stair Rails</td>
@@ -1283,6 +1291,8 @@ function calcAndUpdate() {
     document.getElementById('stairrail-cost').textContent   = formatCost(data.stairRailCost);
     document.getElementById('stairfascia-cost').textContent = formatCost(data.stairFasciaCost);
     document.getElementById('stairtk-cost').textContent     = formatCost(data.stairToeKickCost);
+    document.getElementById('stairlanding-cost').textContent = formatCost(data.stairLandingCost);
+    document.getElementById('stairlanding-row').style.display = data.hasStairLanding ? '' : 'none';
     document.getElementById('permit-cost').textContent      = formatCost(data.permitCost);
     document.getElementById('permit-desc').textContent      = data.permitDescription;
     document.getElementById('subtotal-val').textContent     = formatCost(data.subtotal);
@@ -1312,6 +1322,7 @@ function calcAndUpdate() {
     document.getElementById('stairrail-desc').textContent   = data.stairRailDescription;
     document.getElementById('stairfascia-desc').textContent = data.stairFasciaDescription;
     document.getElementById('stairtk-desc').textContent     = data.stairTKDescription;
+    document.getElementById('stairlanding-desc').textContent = data.stairLandingDescription;
   })
   .catch(err => console.error('API error:', err));
 }
